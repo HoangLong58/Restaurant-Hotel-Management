@@ -1,17 +1,40 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import logo from '../img/logos/logo.png';
 
 const Container = styled.div`
 
 `
 
 const NavbarWrapper = styled.nav`
-
+    &.hide {
+        margin-top: 0;
+        -webkit-transform: translateY(-52px);
+        -ms-transform: translateY(-52px);
+        transform: translateY(-52px);
+        background-color: rgba(21,21,21,.92);
+        -webkit-transition : all 0.3s ease-out;
+        -moz-transition : all 0.3s ease-out;
+        -o-transition :all 0.3s ease-out;
+        transition : all 0.3s ease-out;
+        z-index: 99999;
+    }
 `
 
 // Navbar Top
 const NavbarTop = styled.div`
-
+    &.hide {
+        margin-top: 0;
+        -webkit-transform: translateY(-52px);
+        -ms-transform: translateY(-52px);
+        transform: translateY(-52px);
+        background: rgba(21,21,21,.92);
+        -webkit-transition : all 0.3s ease-out;
+        -moz-transition : all 0.3s ease-out;
+        -o-transition :all 0.3s ease-out;
+        transition : all 0.3s ease-out;
+    }
 `
 
 const NavbarTopContainer = styled.div`
@@ -53,15 +76,14 @@ const NavbarTopRightLanguageUl = styled.ul`
 
 const NavbarTopRightLanguageLi = styled.li`
 
-` 
+`
 
 const NavbarTopRightLanguageLiA = styled.a`
 
-` 
+`
 
 // Navbar Bottom
 const NavbarBottom = styled.div`
-
 `
 
 const NavbarBottomA = styled.a`
@@ -80,7 +102,6 @@ const NavbarBottomUl = styled.ul`
 `
 
 const NavbarBottomItem = styled.li`
-
 `
 
 const NavbarBottomItemA = styled.a`
@@ -88,7 +109,10 @@ const NavbarBottomItemA = styled.a`
 `
 
 const NavbarBottomItemUl = styled.ul`
-
+    ${NavbarBottomItem}:hover & {
+        display: block;
+        opacity: 1;
+    }
 `
 
 const NavbarBottomItemLi = styled.li`
@@ -101,20 +125,43 @@ const NavbarBottomItemLiA = styled.a`
 
 
 
-const Navbar = () => {
+const Navbar = (props) => {
+
+    const [isVisible, setIsVisible] = useState(true);
+    const [height, setHeight] = useState(0)
+
+    useEffect(() => {
+        window.addEventListener("scroll", listenToScroll);
+        return () =>
+            window.removeEventListener("scroll", listenToScroll);
+    }, [])
+
+    const listenToScroll = () => {
+        let heightToHideFrom = 200;
+        const winScroll = document.body.scrollTop ||
+            document.documentElement.scrollTop;
+        setHeight(winScroll);
+
+        if (winScroll > heightToHideFrom) {
+            isVisible && setIsVisible(false);
+        } else {
+            setIsVisible(true);
+        }
+    };
+
     return (
         <Container>
-            <NavbarWrapper id="menu-wrap" className="menu-back cbp-af-header">
-                <NavbarTop className="menu-top background-black">
+            <NavbarWrapper id="menu-wrap" className={isVisible ? "menu-back cbp-af-header" : "menu-back cbp-af-header hide"}>
+                <NavbarTop className={isVisible ? "menu-top background-black" : "menu-top background-black hide"}>
                     <NavbarTopContainer className="container">
                         <NavbarTopRow className="row">
                             <NavbarTopLeft className="col-6 px-0 px-md-3 pl-1 py-3">
-                                <NavbarPhoneSpan className="call-top">Call us:</NavbarPhoneSpan>
+                                <NavbarPhoneSpan className="call-top">Liên hệ: </NavbarPhoneSpan>
                                 <NavbarPhoneA href="#" className="call-top">(+84)929 4411 58</NavbarPhoneA>
                             </NavbarTopLeft>
                             <NavbarTopRight className="col-6 px-0 px-md-3 py-3 text-right">
-                                <NavbarTopRightA href="#" className="social-top">FB</NavbarTopRightA>
-                                <NavbarTopRightA href="#" className="social-top">TW</NavbarTopRightA>
+                                <NavbarTopRightA href="#" className="social-top">Đăng ký</NavbarTopRightA>
+                                <NavbarTopRightA href="#" className="social-top">Đăng nhập</NavbarTopRightA>
                                 <NavbarTopRightLanguage className="lang-wrap">
                                     ENG
                                     <NavbarTopRightLanguageUl>
@@ -132,22 +179,21 @@ const Navbar = () => {
                 <NavbarBottom className="menu">
                     <NavbarBottomA href="index.html">
                         <NavbarBottomLogo className="logo">
-                            <NavbarBottomLogoImg src='https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBMXgzRXc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--9747b4e82941b47df75157048a404fc195fd1a40/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBPZ2wzWldKd09oSnlaWE5wZW1WZmRHOWZabWwwV3dkcEFhb3ciLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--a364054a300021d6ece7f71365132a9777e89a21/logo.jpg' />
+                            <NavbarBottomLogoImg src={logo} />
                         </NavbarBottomLogo>
                     </NavbarBottomA>
                     <NavbarBottomUl>
                         <NavbarBottomItem>
-                            <NavbarBottomItemA className="curent-page" href="#">Home</NavbarBottomItemA>
-                            <NavbarBottomItemUl>
-                                <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA className="curent-page" href="index.html">Flip Slider</NavbarBottomItemLiA>
-                                </NavbarBottomItemLi>
-                            </NavbarBottomItemUl>
+                            <Link to={"/home"} className={props.pageName === "Home" ? "curent-page" : ""}>
+                                Trang chủ
+                            </Link>
                         </NavbarBottomItem>
 
-                        <NavbarBottomItem>
-                            <NavbarBottomItemA href="#">Rooms</NavbarBottomItemA>
-                            <NavbarBottomItemUl>
+                        <NavbarBottomItem className='menu-dropdown-icon'>
+                            <Link to={"/hotel"} className={props.pageName === "Hotel" ? "curent-page" : ""}>
+                                Khách sạn
+                            </Link>
+                            <NavbarBottomItemUl className='normal-sub'>
                                 <NavbarBottomItemLi>
                                     <NavbarBottomItemLiA href="rooms.html">Our Rooms</NavbarBottomItemLiA>
                                 </NavbarBottomItemLi>
@@ -161,8 +207,14 @@ const Navbar = () => {
                         </NavbarBottomItem>
 
                         <NavbarBottomItem>
+                            <Link to={"/restaurant"} className={props.pageName === "Restaurant" ? "curent-page" : ""}>
+                                Nhà hàng
+                            </Link>
+                        </NavbarBottomItem>
+
+                        <NavbarBottomItem className='menu-dropdown-icon'>
                             <NavbarBottomItemA href="#">Pages</NavbarBottomItemA>
-                            <NavbarBottomItemUl>
+                            <NavbarBottomItemUl className='normal-sub'>
                                 <NavbarBottomItemLi>
                                     <NavbarBottomItemLiA href="explore.html">Explore</NavbarBottomItemLiA>
                                 </NavbarBottomItemLi>
@@ -188,19 +240,15 @@ const Navbar = () => {
                         </NavbarBottomItem>
 
                         <NavbarBottomItem>
-                            <NavbarBottomItemA href="about.html">About us</NavbarBottomItemA>
+                            <NavbarBottomItemA href="about.html">Về chúng tôi</NavbarBottomItemA>
                         </NavbarBottomItem>
 
                         <NavbarBottomItem>
-                            <NavbarBottomItemA href="blog.html">News</NavbarBottomItemA>
+                            <NavbarBottomItemA href="contact.html">Liên hệ</NavbarBottomItemA>
                         </NavbarBottomItem>
 
                         <NavbarBottomItem>
-                            <NavbarBottomItemA href="contact.html">Contact</NavbarBottomItemA>
-                        </NavbarBottomItem>
-
-                        <NavbarBottomItem>
-                            <NavbarBottomItemA href="search.html"><span>Book now</span></NavbarBottomItemA>
+                            <NavbarBottomItemA href="search.html"><span>Đặt phòng ngay</span></NavbarBottomItemA>
                         </NavbarBottomItem>
                     </NavbarBottomUl>
                 </NavbarBottom>
