@@ -5,6 +5,7 @@ import NotFound from "./handle/NotFound";
 import LoginRegister from "./pages/LoginRegister";
 import Hotel from "./pages/Hotel";
 import Restaurant from "./pages/Restaurant";
+import RoomDetail from "./pages/RoomDetail";
 
 function App() {
   return (
@@ -18,6 +19,11 @@ function App() {
         <Route path='/hotel' element={
           <PrivateRoute>
             <Hotel />
+          </PrivateRoute>
+        } />
+        <Route path='/room-detail' element={
+          <PrivateRoute>
+            <RoomDetail />
           </PrivateRoute>
         } />
         <Route path='/restaurant' element={

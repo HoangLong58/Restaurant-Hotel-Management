@@ -6,6 +6,8 @@ import HotelRooms from '../components/Hotel/HotelRooms';
 import Loader from '../components/Loader';
 import Navbar from '../components/Navbar';
 import RestaurantLanding from '../components/Restaurant/RestaurantLanding';
+import RestaurantMeals from '../components/Restaurant/RestaurantMeals';
+import RestaurantService from '../components/Restaurant/RestaurantService';
 import RestaurantVideoPresentation from '../components/Restaurant/RestaurantVideoPresentation';
 
 const Restaurant = () => {
@@ -29,7 +31,8 @@ const Restaurant = () => {
               <Navbar pageName="Restaurant" />
               <RestaurantLanding/>
               <RestaurantVideoPresentation/>
-              <HotelRooms/>
+              <RestaurantService/>
+              <RestaurantMeals/>
               <HomeServices/>
               <Footer/>
             </>
