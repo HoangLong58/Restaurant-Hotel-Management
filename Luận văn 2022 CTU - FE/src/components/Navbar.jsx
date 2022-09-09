@@ -193,23 +193,35 @@ const Navbar = (props) => {
                             <Link to={"/hotel"} className={props.pageName === "Hotel" ? "curent-page" : ""}>
                                 Khách sạn
                             </Link>
-                            <NavbarBottomItemUl className='normal-sub'>
-                                <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="rooms.html">Our Rooms</NavbarBottomItemLiA>
-                                </NavbarBottomItemLi>
-                                <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="rooms-gallery.html">Room Gallery</NavbarBottomItemLiA>
-                                </NavbarBottomItemLi>
-                                <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="rooms-video.html">Room Video</NavbarBottomItemLiA>
-                                </NavbarBottomItemLi>
-                            </NavbarBottomItemUl>
                         </NavbarBottomItem>
 
-                        <NavbarBottomItem>
+                        <NavbarBottomItem className='menu-dropdown-icon'>
                             <Link to={"/restaurant"} className={props.pageName === "Restaurant" ? "curent-page" : ""}>
                                 Nhà hàng
                             </Link>
+                            <NavbarBottomItemUl className='normal-sub'>
+                                <NavbarBottomItemLi>
+                                    <NavbarBottomItemLiA href='/'>
+                                        <Link to={"/order-food"}>
+                                            Gọi món
+                                        </Link>
+                                    </NavbarBottomItemLiA>
+                                </NavbarBottomItemLi>
+                                <NavbarBottomItemLi>
+                                    <NavbarBottomItemLiA href='/'>
+                                        <Link to={"/book-table"}>
+                                            Đặt bàn
+                                        </Link>
+                                    </NavbarBottomItemLiA>
+                                </NavbarBottomItemLi>
+                                <NavbarBottomItemLi>
+                                    <NavbarBottomItemLiA href='/'>
+                                        <Link to={"/book-party"}>
+                                            Hội nghị &amp; Tiệc cưới
+                                        </Link>
+                                    </NavbarBottomItemLiA>
+                                </NavbarBottomItemLi>
+                            </NavbarBottomItemUl>
                         </NavbarBottomItem>
 
                         <NavbarBottomItem className='menu-dropdown-icon'>

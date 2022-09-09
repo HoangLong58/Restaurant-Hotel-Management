@@ -208,7 +208,14 @@ const HotelRoomDetail = (props) => {
                                         <div className="col-12 pt-4">
                                             <Button className="row">
                                                 <ButtonContainer>
-                                                    <ButtonClick>
+                                                    <ButtonClick 
+                                                        onClick={() => navigate('/hotel-payment', {
+                                                            state: {
+                                                                id: 123,
+                                                                roomName: "Bungalow"
+                                                            }
+                                                        })}
+                                                    >
                                                         {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
                                                         BOOK NOW
                                                     </ButtonClick>

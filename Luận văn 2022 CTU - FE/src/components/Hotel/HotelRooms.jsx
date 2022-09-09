@@ -137,6 +137,14 @@ const ButtonClick = styled.button`
         background-color: black;
     }
 `
+
+const DetailRoomButton = styled.a`
+    cursor: pointer;
+    &:hover {
+        color: #41f1b6 !important;
+    }
+
+`
 const HotelRooms = () => {
     const navigate = useNavigate();
     // STATE
@@ -166,16 +174,16 @@ const HotelRooms = () => {
             {/*-- HOTEL PROGRESS -- */}
             <HotelProgress step="findDayAndRoom" />
 
-            <div class="section padding-top-bottom z-bigger" style={{ paddingTop: "0px" }}>
-                <div class="section z-bigger">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-8 mt-4 mt-lg-0">
-                                <div class="row">
+            <div className="section padding-top-bottom z-bigger" style={{ paddingTop: "0px" }}>
+                <div className="section z-bigger">
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-lg-8 mt-4 mt-lg-0">
+                                <div className="row">
                                     <HotelItem>
-                                        <div class="room-box background-grey">
-                                            <div class="room-name">suite tanya</div>
-                                            <div class="room-per">
+                                        <div className="room-box background-grey">
+                                            <div className="room-name">suite tanya</div>
+                                            <div className="room-per">
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
@@ -185,56 +193,63 @@ const HotelRooms = () => {
                                             <Fade bottom>
                                                 <img src={picture3} alt="" />
                                             </Fade>
-                                            <div class="room-box-in">
-                                                <h5 class="">pool suite</h5>
-                                                <p class="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a class="mt-1 btn btn-primary" href="rooms-gallery.html">book from 130$</a>
-                                                <div class="room-icons mt-4 pt-4">
+                                            <div className="room-box-in">
+                                                <h5 className="">pool suite</h5>
+                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
+                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 130$</a>
+                                                <div className="room-icons mt-4 pt-4">
                                                     <img src={svg5} alt="" />
                                                     <img src={svg2} alt="" />
                                                     <img src={svg3} alt="" />
-                                                    <a
+                                                    <DetailRoomButton
                                                         onClick={() => navigate('/room-detail', {
                                                             state: {
                                                                 id: 123,
                                                                 roomName: "Bungalow"
                                                             }
                                                         })}
-                                                    >full info</a>
+                                                    >full info</DetailRoomButton>
                                                 </div>
                                             </div>
                                         </div>
                                     </HotelItem>
                                     <HotelItem>
-                                        <div class="room-box background-grey">
-                                            <div class="room-name">suite helen</div>
-                                            <div class="room-per">
+                                        <div className="room-box background-grey">
+                                            <div className="room-name">suite helen</div>
+                                            <div className="room-per">
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
-                                                <i class="fa fa-star-o"></i>
+                                                <i className="fa fa-star-o"></i>
                                             </div>
                                             <Fade bottom>
                                                 <img src={[picture4]} alt="" />
                                             </Fade>
-                                            <div class="room-box-in">
-                                                <h5 class="">small room</h5>
-                                                <p class="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a class="mt-1 btn btn-primary" href="rooms-gallery.html">book from 80$</a>
-                                                <div class="room-icons mt-4 pt-4">
+                                            <div className="room-box-in">
+                                                <h5 className="">small room</h5>
+                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
+                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 80$</a>
+                                                <div className="room-icons mt-4 pt-4">
                                                     <img src={svg4} alt="" />
                                                     <img src={svg2} alt="" />
                                                     <img src={svg6} alt="" />
-                                                    <a href="rooms-gallery.html">full info</a>
+                                                    <DetailRoomButton
+                                                        onClick={() => navigate('/room-detail', {
+                                                            state: {
+                                                                id: 123,
+                                                                roomName: "Bungalow"
+                                                            }
+                                                        })}
+                                                    >full info</DetailRoomButton>
                                                 </div>
                                             </div>
                                         </div>
                                     </HotelItem>
                                     <HotelItem>
-                                        <div class="room-box background-grey">
-                                            <div class="room-name">suite andrea</div>
-                                            <div class="room-per">
+                                        <div className="room-box background-grey">
+                                            <div className="room-name">suite andrea</div>
+                                            <div className="room-per">
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
@@ -244,23 +259,30 @@ const HotelRooms = () => {
                                             <Fade bottom>
                                                 <img src={picture5} alt="" />
                                             </Fade>
-                                            <div class="room-box-in">
-                                                <h5 class="">Apartment</h5>
-                                                <p class="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a class="mt-1 btn btn-primary" href="rooms-gallery.html">book from 110$</a>
-                                                <div class="room-icons mt-4 pt-4">
+                                            <div className="room-box-in">
+                                                <h5 className="">Apartment</h5>
+                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
+                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 110$</a>
+                                                <div className="room-icons mt-4 pt-4">
                                                     <img src={svg5} alt="" />
                                                     <img src={svg2} alt="" />
                                                     <img src={svg3} alt="" />
-                                                    <a href="rooms-gallery.html">full info</a>
+                                                    <DetailRoomButton
+                                                        onClick={() => navigate('/room-detail', {
+                                                            state: {
+                                                                id: 123,
+                                                                roomName: "Bungalow"
+                                                            }
+                                                        })}
+                                                    >full info</DetailRoomButton>
                                                 </div>
                                             </div>
                                         </div>
                                     </HotelItem>
                                     <HotelItem>
-                                        <div class="room-box background-grey">
-                                            <div class="room-name">suite diana</div>
-                                            <div class="room-per">
+                                        <div className="room-box background-grey">
+                                            <div className="room-name">suite diana</div>
+                                            <div className="room-per">
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
@@ -270,23 +292,30 @@ const HotelRooms = () => {
                                             <Fade bottom>
                                                 <img src={picture6} alt="" />
                                             </Fade>
-                                            <div class="room-box-in">
-                                                <h5 class="">big Apartment</h5>
-                                                <p class="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a class="mt-1 btn btn-primary" href="rooms-gallery.html">book from 160$</a>
-                                                <div class="room-icons mt-4 pt-4">
+                                            <div className="room-box-in">
+                                                <h5 className="">big Apartment</h5>
+                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
+                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 160$</a>
+                                                <div className="room-icons mt-4 pt-4">
                                                     <img src={svg5} alt="" />
                                                     <img src={svg2} alt="" />
                                                     <img src={svg3} alt="" />
-                                                    <a href="rooms-gallery.html">full info</a>
+                                                    <DetailRoomButton
+                                                        onClick={() => navigate('/room-detail', {
+                                                            state: {
+                                                                id: 123,
+                                                                roomName: "Bungalow"
+                                                            }
+                                                        })}
+                                                    >full info</DetailRoomButton>
                                                 </div>
                                             </div>
                                         </div>
                                     </HotelItem>
                                     <HotelItem>
-                                        <div class="room-box background-grey">
-                                            <div class="room-name">suite andrea</div>
-                                            <div class="room-per">
+                                        <div className="room-box background-grey">
+                                            <div className="room-name">suite andrea</div>
+                                            <div className="room-per">
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
@@ -296,23 +325,30 @@ const HotelRooms = () => {
                                             <Fade bottom>
                                                 <img src={picture5} alt="" />
                                             </Fade>
-                                            <div class="room-box-in">
-                                                <h5 class="">Apartment</h5>
-                                                <p class="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a class="mt-1 btn btn-primary" href="rooms-gallery.html">book from 110$</a>
-                                                <div class="room-icons mt-4 pt-4">
+                                            <div className="room-box-in">
+                                                <h5 className="">Apartment</h5>
+                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
+                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 110$</a>
+                                                <div className="room-icons mt-4 pt-4">
                                                     <img src={svg5} alt="" />
                                                     <img src={svg2} alt="" />
                                                     <img src={svg3} alt="" />
-                                                    <a href="rooms-gallery.html">full info</a>
+                                                    <DetailRoomButton
+                                                        onClick={() => navigate('/room-detail', {
+                                                            state: {
+                                                                id: 123,
+                                                                roomName: "Bungalow"
+                                                            }
+                                                        })}
+                                                    >full info</DetailRoomButton>
                                                 </div>
                                             </div>
                                         </div>
                                     </HotelItem>
                                     <HotelItem>
-                                        <div class="room-box background-grey">
-                                            <div class="room-name">suite diana</div>
-                                            <div class="room-per">
+                                        <div className="room-box background-grey">
+                                            <div className="room-name">suite diana</div>
+                                            <div className="room-per">
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
                                                 <Star style={{ color: "yellow" }} />
@@ -322,29 +358,36 @@ const HotelRooms = () => {
                                             <Fade bottom>
                                                 <img src={picture6} alt="" />
                                             </Fade>
-                                            <div class="room-box-in">
-                                                <h5 class="">big Apartment</h5>
-                                                <p class="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a class="mt-1 btn btn-primary" href="rooms-gallery.html">book from 160$</a>
-                                                <div class="room-icons mt-4 pt-4">
+                                            <div className="room-box-in">
+                                                <h5 className="">big Apartment</h5>
+                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
+                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 160$</a>
+                                                <div className="room-icons mt-4 pt-4">
                                                     <img src={svg5} alt="" />
                                                     <img src={svg2} alt="" />
                                                     <img src={svg3} alt="" />
-                                                    <a href="rooms-gallery.html">full info</a>
+                                                    <DetailRoomButton
+                                                        onClick={() => navigate('/room-detail', {
+                                                            state: {
+                                                                id: 123,
+                                                                roomName: "Bungalow"
+                                                            }
+                                                        })}
+                                                    >full info</DetailRoomButton>
                                                 </div>
                                             </div>
                                         </div>
                                     </HotelItem>
                                 </div>
                             </div>
-                            <div class="col-lg-4 order-first order-lg-last mt-4">
-                                <div class="section background-dark p-4">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="input-daterange input-group" id="flight-datepicker">
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <InputDateRangeFormItem className="form-item">
+                            <div className="col-lg-4 order-first order-lg-last mt-4">
+                                <div className="section background-dark p-4">
+                                    <div className="row">
+                                        <div className="col-12">
+                                            <div className="input-daterange input-group" id="flight-datepicker">
+                                                <div className="row">
+                                                    <div className="col-12">
+                                                        <InputDateRangeFormItem classNameName="form-item">
                                                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                                 <Stack spacing={3}>
                                                                     <DesktopDatePicker
@@ -359,7 +402,7 @@ const HotelRooms = () => {
                                                             </LocalizationProvider>
                                                         </InputDateRangeFormItem>
                                                     </div>
-                                                    <div class="col-12 pt-4">
+                                                    <div className="col-12 pt-4">
                                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                             <Stack spacing={3}>
                                                                 <DesktopDatePicker
@@ -376,9 +419,9 @@ const HotelRooms = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-12">
-                                            <div class="row">
-                                                <div class="col-12 pt-4">
+                                        <div className="col-12">
+                                            <div className="row">
+                                                <div className="col-12 pt-4">
                                                     <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
                                                         <BookingNumberNiceSelectSpan className='current'>Người lớn</BookingNumberNiceSelectSpan>
                                                         <BookingNumberNiceSelectUl className='list'>
@@ -391,7 +434,7 @@ const HotelRooms = () => {
                                                         </BookingNumberNiceSelectUl>
                                                     </BookingNumberNiceSelect>
                                                 </div>
-                                                <div class="col-12 pt-4">
+                                                <div className="col-12 pt-4">
                                                     <BookingNumberNiceSelect name="children" className={isSelectChildren ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectChildren(prev => !prev)}>
                                                         <BookingNumberNiceSelectSpan className='current'>Trẻ em</BookingNumberNiceSelectSpan>
                                                         <BookingNumberNiceSelectUl className='list'>
@@ -406,88 +449,88 @@ const HotelRooms = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-12 pt-5">
-                                            <h6 class="color-white mb-3">Max night price:</h6>
-                                            <div class="selecteurPrix">
-                                                <div class="range-slider">
-                                                    <input class="input-range" type="range" min="1" max="500" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
-                                                    <div class="valeurPrix">
-                                                        <span class="range-value">{maxPrice} $</span>
+                                        <div className="col-12 pt-5">
+                                            <h6 className="color-white mb-3">Max night price:</h6>
+                                            <div className="selecteurPrix">
+                                                <div className="range-slider">
+                                                    <input className="input-range" type="range" min="1" max="500" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+                                                    <div className="valeurPrix">
+                                                        <span className="range-value">{maxPrice} $</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-6 col-lg-12 pt-5">
-                                            <h6 class="color-white mb-3">Services:</h6>
-                                            <ul class="list">
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                        <div className="col-12 col-md-6 col-lg-12 pt-5">
+                                            <h6 className="color-white mb-3">Services:</h6>
+                                            <ul className="list">
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         welcome drink
                                                     </label>
                                                 </li>
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         television
                                                     </label>
                                                 </li>
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         king beds
                                                     </label>
                                                 </li>
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         bike rental
                                                     </label>
                                                 </li>
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         no smoking
                                                     </label>
                                                 </li>
                                             </ul>
                                         </div>
-                                        <div class="col-12 col-md-6 col-lg-12 pt-5">
-                                            <h6 class="color-white mb-3">Extra services:</h6>
-                                            <ul class="list">
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                        <div className="col-12 col-md-6 col-lg-12 pt-5">
+                                            <h6 className="color-white mb-3">Extra services:</h6>
+                                            <ul className="list">
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         breakfast
                                                     </label>
                                                 </li>
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         swimming pool
                                                     </label>
                                                 </li>
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         car rental
                                                     </label>
                                                 </li>
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         sea view
                                                     </label>
                                                 </li>
-                                                <li class="list__item">
-                                                    <label class="label--checkbox">
-                                                        <input type="checkbox" class="checkbox" />
+                                                <li className="list__item">
+                                                    <label className="label--checkbox">
+                                                        <input type="checkbox" className="checkbox" />
                                                         laundry
                                                     </label>
                                                 </li>
                                             </ul>
                                         </div>
-                                        <div class="col-12 col-md-6 col-lg-12 pt-5" style={{ padding: "0", margin: "0" }}>
+                                        <div className="col-12 col-md-6 col-lg-12 pt-5" style={{ padding: "0", margin: "0" }}>
                                             <Button className="row">
                                                 <ButtonContainer>
                                                     <ButtonClick onClick={() => handleClickSearch()}>

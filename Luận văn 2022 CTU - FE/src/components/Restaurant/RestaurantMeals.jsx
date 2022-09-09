@@ -304,7 +304,7 @@ const RestaurantMeals = () => {
     return (
         <>
             {/* Restaurant Menu */}
-            <div class="section padding-top-bottom z-bigger" style={{ marginTop: "75px", paddingTop: "75px", paddingBottom: "55px", backgroundColor: "#323232" }}>
+            <div class="section padding-top-bottom z-bigger" style={{ paddingTop: "75px", paddingBottom: "55px", backgroundColor: "#323232" }}>
                 <div class="container">
                     <div class="row justify-content-center">
                         <Carousel

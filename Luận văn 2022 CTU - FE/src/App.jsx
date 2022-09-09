@@ -6,6 +6,11 @@ import LoginRegister from "./pages/LoginRegister";
 import Hotel from "./pages/Hotel";
 import Restaurant from "./pages/Restaurant";
 import RoomDetail from "./pages/RoomDetail";
+import HotelPayment from "./pages/HotelPayment";
+import HotelSuccess from "./pages/HotelSuccess";
+import OrderFood from "./pages/OrderFood";
+import BookTable from "./pages/BookTable";
+import BookParty from "./pages/BookParty";
 
 function App() {
   return (
@@ -16,6 +21,7 @@ function App() {
             <Home />
           </PrivateRoute>
         } />
+        {/* HOTEL */}
         <Route path='/hotel' element={
           <PrivateRoute>
             <Hotel />
@@ -26,9 +32,35 @@ function App() {
             <RoomDetail />
           </PrivateRoute>
         } />
+        <Route path='/hotel-payment' element={
+          <PrivateRoute>
+            <HotelPayment />
+          </PrivateRoute>
+        } />
+        <Route path='/hotel-success' element={
+          <PrivateRoute>
+            <HotelSuccess />
+          </PrivateRoute>
+        } />
+        {/* RESTAURANT */}
         <Route path='/restaurant' element={
           <PrivateRoute>
             <Restaurant />
+          </PrivateRoute>
+        } />
+        <Route path='/order-food' element={
+          <PrivateRoute>
+            <OrderFood />
+          </PrivateRoute>
+        } />
+        <Route path='/book-table' element={
+          <PrivateRoute>
+            <BookTable />
+          </PrivateRoute>
+        } />
+        <Route path='/book-party' element={
+          <PrivateRoute>
+            <BookParty />
           </PrivateRoute>
         } />
         {/* <Route path='/login' element={

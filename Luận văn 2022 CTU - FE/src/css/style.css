@@ -4514,6 +4514,17 @@ figure.youtube a:before {
 		opacity: 1;
 	}
 }
+@keyframes FadeInHeight {
+	from {
+		opacity: 0;
+		height: 0;
+	}
+
+	to {
+		opacity: 1;
+		height: auto;
+	}
+}
 
 @keyframes growth {
 	from {
