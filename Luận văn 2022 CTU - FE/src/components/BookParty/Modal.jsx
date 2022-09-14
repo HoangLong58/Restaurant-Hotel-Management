@@ -1,6 +1,5 @@
 import { ArrowDropDownOutlined, CloseOutlined, SearchOutlined } from "@mui/icons-material";
-import { useCallback, useEffect, useRef, useState } from "react";
-import ReactPlayer from 'react-player';
+import { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import SliderImage from "../SliderImage";
 
@@ -40,15 +39,6 @@ const ModalWrapper = styled.div`
     animation: growth linear 0.1s;
 `
 
-const ModalContent = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    line-height: 1.8;
-    color: #141414;
-`
-
 const CloseModalButton = styled.span`
     cursor: pointer;
     color: #D0D0D0;
@@ -68,12 +58,17 @@ const CloseModalButton = styled.span`
 
 // Image Menu
 const MenuRight = styled.div`
+max-width: 48%;
+margin: auto;
+background-color: white;
+display: flex;
+justify-content: flex-start;
+align-items: center;
+flex-direction: column;
+padding: 20px;
+border-radius: var(--card-border-radius);
 `
-const MenuRightRow = styled.div``
-const MenuRightTitle = styled.h3`
-    color: #fff;
-    margin: 0px 0px 8px 8px;
-`
+
 const MenuImage = styled.img`
     height: 100%;
     width: auto;
@@ -89,10 +84,11 @@ const Box = styled.div`
     justify-content: space-between;
     border: 1px solid #c9c9c9;
     border-radius: 10px;
-    margin: 5px 20px 15px 20px;
+    /* margin: 5px 20px 15px 20px; */
     padding: 0px 10px;
     position: relative;
-    color: #fff;
+    color: var(--color-dark);
+    background-color: white;
     &::after {
         content: "";
         display: block;
@@ -113,7 +109,7 @@ const Box = styled.div`
 `
 const BoxSpan = styled.span`
     font-size: 1.1rem;
-    color: #fff;
+    color: var(--color-dark);
 `
 
 const Table = styled.table`
@@ -169,8 +165,8 @@ const ThSortIcon = styled.div``;
 const Wrapper = styled.div`
     display: none;
     position: absolute;
-    top: -250px;
-    left: -5px;
+    /* top: -250px; */
+    right: -90px;
     width: 650px;
     height: auto;
     background-color: #F5F5F5;
@@ -232,8 +228,7 @@ const BoxH2 = styled.h2`
     text-align: center;
     color: var(--color-primary);
     font-size: 1.3rem;
-    font-size: 1.4rem;
-    font-weight: 400;
+    font-weight: bold;
 `
 
 const Button = styled.div`
@@ -246,7 +241,6 @@ const Button = styled.div`
 `
 
 const ButtonContainer = styled.div`
-    /* position: relative; */
     float: right;
     margin: 0 22px 22px 0;
 `
@@ -267,9 +261,6 @@ const ButtonClick = styled.button`
     color: #fff;
     transition: all 0.3s ease-out;
     background-color: #41f1b6;
-    /* position: absolute;
-    bottom: 10px;
-    right: 15px; */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -395,7 +386,48 @@ const ViewRightCol3 = styled.div`
     justify-content: flex-end;
     color: #333;
 `
+const InfomationTitle = styled.div`
+    font-size: 1.2rem;
+    color: var(--color-dark);
+`
 
+const MenuOptionCol8 = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+`
+
+const CartItem = styled.div`
+display: flex;
+width: 100%;
+font-size: 1.1rem;
+background: #ddd;
+margin-top: 10px;
+padding: 10px 12px;
+border-radius: 5px;
+cursor: pointer;
+border: 1px solid transparent;
+`
+
+const CircleService = styled.span`
+height: 12px;
+width: 12px;
+background: #ccc;
+border-radius: 50%;
+margin-right: 15px;
+border: 4px solid transparent;
+display: inline-block;
+`
+
+const Course = styled.div`
+width: 100%;
+`
+
+const Content = styled.div`
+display: flex;
+align-items: center;
+justify-content: space-between;
+`
 
 const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
     // Modal
@@ -422,12 +454,6 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
         },
         [keyPress]
     );
-    // Player video
-    const [playTime, setPlayTime] = useState(0);
-
-    const handleProgress = (state) => {
-        setPlayTime(state.playedSeconds);
-    }
 
     // Box 1
     const openSelectBox1 = () => {
@@ -506,49 +532,7 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
         var checkList = document.getElementById('Box7');
         checkList.classList.remove('active');
     }
-    // Box 8
-    const openSelectBox8 = () => {
-
-        var checkList = document.getElementById('Box8');
-        checkList.classList.add('active');
-    }
-
-    const closeSelectBox8 = (e) => {
-        e.preventDefault();
-        var checkList = document.getElementById('Box8');
-        checkList.classList.remove('active');
-    }
     // ================================================================
-    // =============== Show video restaurant ===============
-    if (type === "showVideoRestaurant") {
-        return (
-            <>
-                {showModal ? (
-                    <Background ref={modalRef} onClick={closeModal}>
-                        <ModalWrapper showModal={showModal}>
-                            <ModalContent>
-                                <ReactPlayer
-                                    url='https://www.youtube.com/watch?v=2h8PTketlDo'
-                                    width="1100px"
-                                    height="640px"
-                                    playing={true}
-                                    controls={true}
-                                    onProgress={handleProgress}
-                                />
-                            </ModalContent>
-                            <CloseModalButton
-                                aria-label="Close modal"
-                                onClick={() => setShowModal(prev => !prev)}
-                            >
-                                <CloseOutlined />
-                            </CloseModalButton>
-                        </ModalWrapper>
-                    </Background>
-                ) : null}
-            </>
-        );
-    }
-
     // =============== Show Image Menu ===============
     if (type === "showImageMenu") {
         return (
@@ -559,1517 +543,1410 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
 
                             <MenuImage src={imageMenu} className="col-md-6" />
                             <MenuRight className="col-md-6">
-                                <MenuRightRow className="row">
-                                    <MenuRightTitle>Chọn món cho Thực đơn</MenuRightTitle>
-                                </MenuRightRow>
-                                <div className="row">
-                                    <Box id="Box1">
-                                        <BoxSpan>Hãy chọn món Bánh Đầu Giờ</BoxSpan>
-                                        <SearchOutlined
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => openSelectBox1()}
-                                        />
-                                        <Wrapper style={{ top: "-100px" }}>
-                                            <BoxTitle>
-                                                <BoxH2>Chọn món Bánh Đầu Giờ</BoxH2>
-                                                <SearchContainer>
-                                                    <Input
-                                                        type="text"
-                                                    />
-                                                    <SearchIcon>
-                                                        <SearchOutlined />
-                                                    </SearchIcon>
-                                                </SearchContainer>
-                                            </BoxTitle>
-                                            <Option>
-                                                <Table style={{ position: "relative" }}>
-                                                    <Thead>
-                                                        <Tr>
-                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                        </Tr>
-                                                    </Thead>
+                                <div className="col-md-12">
+                                    <div className="row">
+                                        <InfomationTitle>
+                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Lựa chọn Món ăn cụ thể cho Menu</p>
+                                            <p style={{ fontSize: "1rem" }}>Dưới đây là những món ăn tương ứng với Menu của Quý khách.</p>
+                                        </InfomationTitle>
+                                    </div>
+                                    <CartItem>
+                                        <CircleService />
+                                        <Course>
+                                            <Content>
+                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Đầu giờ </span>
+                                                <MenuOptionCol8 className="col-md-8">
+                                                    <Box id="Box1">
 
-                                                    <Tbody>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                    </Tbody>
-                                                </Table>
-                                            </Option>
-                                            <Button>
-                                                <ButtonContainer>
-                                                    <ButtonClick>
-                                                        Đồng ý
-                                                    </ButtonClick>
-                                                </ButtonContainer>
-                                                <ButtonContainer>
-                                                    <ButtonClick
-                                                        onClick={(e) => {
-                                                            closeSelectBox1(e)
-                                                        }}
-                                                    >Cancel</ButtonClick>
-                                                </ButtonContainer>
-                                            </Button>
-                                        </Wrapper>
-                                    </Box>
-                                </div>
-                                <div className="row">
-                                    <Box id="Box2">
-                                        <BoxSpan>Hãy chọn món Khai Vị</BoxSpan>
-                                        <SearchOutlined
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => openSelectBox2()}
-                                        />
-                                        <Wrapper style={{ top: "-160px" }}>
-                                            <BoxTitle>
-                                                <BoxH2>Chọn món Khai Vị</BoxH2>
-                                                <SearchContainer>
-                                                    <Input
-                                                        type="text"
-                                                    />
-                                                    <SearchIcon>
-                                                        <SearchOutlined />
-                                                    </SearchIcon>
-                                                </SearchContainer>
-                                            </BoxTitle>
-                                            <Option>
-                                                <Table style={{ position: "relative" }}>
-                                                    <Thead>
-                                                        <Tr>
-                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
+                                                        <BoxSpan>Hãy chọn món Bánh Đầu Giờ</BoxSpan>
+                                                        <SearchOutlined
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openSelectBox1()}
+                                                        />
+                                                        <Wrapper style={{ top: "-60px" }}>
+                                                            <BoxTitle>
+                                                                <BoxH2>Chọn món Bánh Đầu Giờ</BoxH2>
+                                                                <SearchContainer>
+                                                                    <Input
+                                                                        type="text"
+                                                                    />
+                                                                    <SearchIcon>
+                                                                        <SearchOutlined />
+                                                                    </SearchIcon>
+                                                                </SearchContainer>
+                                                            </BoxTitle>
+                                                            <Option>
+                                                                <Table style={{ position: "relative" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Hình ảnh</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Món ăn</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Thành phần</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                        </Tr>
-                                                    </Thead>
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                        </Tr>
+                                                                    </Thead>
 
-                                                    <Tbody>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                    </Tbody>
-                                                </Table>
-                                            </Option>
-                                            <Button>
-                                                <ButtonContainer>
-                                                    <ButtonClick>
-                                                        Đồng ý
-                                                    </ButtonClick>
-                                                </ButtonContainer>
-                                                <ButtonContainer>
-                                                    <ButtonClick
-                                                        onClick={(e) => {
-                                                            closeSelectBox2(e)
-                                                        }}
-                                                    >Cancel</ButtonClick>
-                                                </ButtonContainer>
-                                            </Button>
-                                        </Wrapper>
-                                    </Box>
-                                </div>
-                                <div className="row">
-                                    <Box id="Box3">
-                                        <BoxSpan>Hãy chọn món Súp</BoxSpan>
-                                        <SearchOutlined
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => openSelectBox3()}
-                                        />
-                                        <Wrapper style={{ top: "-220px" }}>
-                                            <BoxTitle>
-                                                <BoxH2>Chọn món Súp</BoxH2>
-                                                <SearchContainer>
-                                                    <Input
-                                                        type="text"
-                                                    />
-                                                    <SearchIcon>
-                                                        <SearchOutlined />
-                                                    </SearchIcon>
-                                                </SearchContainer>
-                                            </BoxTitle>
-                                            <Option>
-                                                <Table style={{ position: "relative" }}>
-                                                    <Thead>
-                                                        <Tr>
-                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
+                                                                    <Tbody>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </Option>
+                                                            <Button>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick>
+                                                                        Đồng ý
+                                                                    </ButtonClick>
+                                                                </ButtonContainer>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick
+                                                                        onClick={(e) => {
+                                                                            closeSelectBox1(e)
+                                                                        }}
+                                                                    >Cancel</ButtonClick>
+                                                                </ButtonContainer>
+                                                            </Button>
+                                                        </Wrapper>
+                                                    </Box>
+                                                </MenuOptionCol8>
+                                            </Content>
+                                        </Course>
+                                    </CartItem>
+                                    <CartItem>
+                                        <CircleService />
+                                        <Course>
+                                            <Content>
+                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Súp </span>
+                                                <MenuOptionCol8 className="col-md-8">
+                                                    <Box id="Box3">
+                                                        <BoxSpan>Hãy chọn món Súp</BoxSpan>
+                                                        <SearchOutlined
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openSelectBox3()}
+                                                        />
+                                                        <Wrapper style={{ top: "-132px" }}>
+                                                            <BoxTitle>
+                                                                <BoxH2>Chọn món Súp</BoxH2>
+                                                                <SearchContainer>
+                                                                    <Input
+                                                                        type="text"
+                                                                    />
+                                                                    <SearchIcon>
+                                                                        <SearchOutlined />
+                                                                    </SearchIcon>
+                                                                </SearchContainer>
+                                                            </BoxTitle>
+                                                            <Option>
+                                                                <Table style={{ position: "relative" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Hình ảnh</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Món ăn</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Thành phần</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                        </Tr>
-                                                    </Thead>
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                        </Tr>
+                                                                    </Thead>
 
-                                                    <Tbody>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                    </Tbody>
-                                                </Table>
-                                            </Option>
-                                            <Button>
-                                                <ButtonContainer>
-                                                    <ButtonClick>
-                                                        Đồng ý
-                                                    </ButtonClick>
-                                                </ButtonContainer>
-                                                <ButtonContainer>
-                                                    <ButtonClick
-                                                        onClick={(e) => {
-                                                            closeSelectBox3(e)
-                                                        }}
-                                                    >Cancel</ButtonClick>
-                                                </ButtonContainer>
-                                            </Button>
-                                        </Wrapper>
-                                    </Box>
-                                </div>
-                                <div className="row">
-                                    <Box id="Box4">
-                                        <BoxSpan>Hãy chọn món Hải Sản</BoxSpan>
-                                        <SearchOutlined
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => openSelectBox4()}
-                                        />
-                                        <Wrapper style={{ top: "-280px" }}>
-                                            <BoxTitle>
-                                                <BoxH2>Chọn món Hải Sản</BoxH2>
-                                                <SearchContainer>
-                                                    <Input
-                                                        type="text"
-                                                    />
-                                                    <SearchIcon>
-                                                        <SearchOutlined />
-                                                    </SearchIcon>
-                                                </SearchContainer>
-                                            </BoxTitle>
-                                            <Option>
-                                                <Table style={{ position: "relative" }}>
-                                                    <Thead>
-                                                        <Tr>
-                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
+                                                                    <Tbody>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </Option>
+                                                            <Button>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick>
+                                                                        Đồng ý
+                                                                    </ButtonClick>
+                                                                </ButtonContainer>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick
+                                                                        onClick={(e) => {
+                                                                            closeSelectBox3(e)
+                                                                        }}
+                                                                    >Cancel</ButtonClick>
+                                                                </ButtonContainer>
+                                                            </Button>
+                                                        </Wrapper>
+                                                    </Box>
+                                                </MenuOptionCol8>
+                                            </Content>
+                                        </Course>
+                                    </CartItem>
+                                    <CartItem>
+                                        <CircleService />
+                                        <Course>
+                                            <Content>
+                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Hải sản </span>
+                                                <MenuOptionCol8 className="col-md-8">
+                                                    <Box id="Box4">
+                                                        <BoxSpan>Hãy chọn món Hải Sản</BoxSpan>
+                                                        <SearchOutlined
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openSelectBox4()}
+                                                        />
+                                                        <Wrapper style={{ top: "-204px" }}>
+                                                            <BoxTitle>
+                                                                <BoxH2>Chọn món Hải Sản</BoxH2>
+                                                                <SearchContainer>
+                                                                    <Input
+                                                                        type="text"
+                                                                    />
+                                                                    <SearchIcon>
+                                                                        <SearchOutlined />
+                                                                    </SearchIcon>
+                                                                </SearchContainer>
+                                                            </BoxTitle>
+                                                            <Option>
+                                                                <Table style={{ position: "relative" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Hình ảnh</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Món ăn</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Thành phần</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                        </Tr>
-                                                    </Thead>
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                        </Tr>
+                                                                    </Thead>
 
-                                                    <Tbody>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                    </Tbody>
-                                                </Table>
-                                            </Option>
-                                            <Button>
-                                                <ButtonContainer>
-                                                    <ButtonClick>
-                                                        Đồng ý
-                                                    </ButtonClick>
-                                                </ButtonContainer>
-                                                <ButtonContainer>
-                                                    <ButtonClick
-                                                        onClick={(e) => {
-                                                            closeSelectBox4(e)
-                                                        }}
-                                                    >Cancel</ButtonClick>
-                                                </ButtonContainer>
-                                            </Button>
-                                        </Wrapper>
-                                    </Box>
-                                </div>
-                                <div className="row">
-                                    <Box id="Box5">
-                                        <BoxSpan>Hãy chọn món Thịt</BoxSpan>
-                                        <SearchOutlined
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => openSelectBox5()}
-                                        />
-                                        <Wrapper style={{ top: "-340px" }}>
-                                            <BoxTitle>
-                                                <BoxH2>Chọn món Thịt</BoxH2>
-                                                <SearchContainer>
-                                                    <Input
-                                                        type="text"
-                                                    />
-                                                    <SearchIcon>
-                                                        <SearchOutlined />
-                                                    </SearchIcon>
-                                                </SearchContainer>
-                                            </BoxTitle>
-                                            <Option>
-                                                <Table style={{ position: "relative" }}>
-                                                    <Thead>
-                                                        <Tr>
-                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
+                                                                    <Tbody>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </Option>
+                                                            <Button>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick>
+                                                                        Đồng ý
+                                                                    </ButtonClick>
+                                                                </ButtonContainer>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick
+                                                                        onClick={(e) => {
+                                                                            closeSelectBox4(e)
+                                                                        }}
+                                                                    >Cancel</ButtonClick>
+                                                                </ButtonContainer>
+                                                            </Button>
+                                                        </Wrapper>
+                                                    </Box>
+                                                </MenuOptionCol8>
+                                            </Content>
+                                        </Course>
+                                    </CartItem>
+                                    <CartItem>
+                                        <CircleService />
+                                        <Course>
+                                            <Content>
+                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Khai vị </span>
+                                                <MenuOptionCol8 className="col-md-8">
+                                                    <Box id="Box2">
+                                                        <BoxSpan>Hãy chọn món Khai Vị</BoxSpan>
+                                                        <SearchOutlined
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openSelectBox2()}
+                                                        />
+                                                        <Wrapper style={{ top: "-276px" }}>
+                                                            <BoxTitle>
+                                                                <BoxH2>Chọn món Khai Vị</BoxH2>
+                                                                <SearchContainer>
+                                                                    <Input
+                                                                        type="text"
+                                                                    />
+                                                                    <SearchIcon>
+                                                                        <SearchOutlined />
+                                                                    </SearchIcon>
+                                                                </SearchContainer>
+                                                            </BoxTitle>
+                                                            <Option>
+                                                                <Table style={{ position: "relative" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Hình ảnh</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Món ăn</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Thành phần</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                        </Tr>
-                                                    </Thead>
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                        </Tr>
+                                                                    </Thead>
 
-                                                    <Tbody>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                    </Tbody>
-                                                </Table>
-                                            </Option>
-                                            <Button>
-                                                <ButtonContainer>
-                                                    <ButtonClick>
-                                                        Đồng ý
-                                                    </ButtonClick>
-                                                </ButtonContainer>
-                                                <ButtonContainer>
-                                                    <ButtonClick
-                                                        onClick={(e) => {
-                                                            closeSelectBox5(e)
-                                                        }}
-                                                    >Cancel</ButtonClick>
-                                                </ButtonContainer>
-                                            </Button>
-                                        </Wrapper>
-                                    </Box>
-                                </div>
-                                <div className="row">
-                                    <Box id="Box6">
-                                        <BoxSpan>Hãy chọn món Cơm-Mì-Lẩu</BoxSpan>
-                                        <SearchOutlined
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => openSelectBox6()}
-                                        />
-                                        <Wrapper style={{ top: "-400px" }}>
-                                            <BoxTitle>
-                                                <BoxH2>Chọn món Cơm-Mì-Lẩu</BoxH2>
-                                                <SearchContainer>
-                                                    <Input
-                                                        type="text"
-                                                    />
-                                                    <SearchIcon>
-                                                        <SearchOutlined />
-                                                    </SearchIcon>
-                                                </SearchContainer>
-                                            </BoxTitle>
-                                            <Option>
-                                                <Table style={{ position: "relative" }}>
-                                                    <Thead>
-                                                        <Tr>
-                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
+                                                                    <Tbody>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </Option>
+                                                            <Button>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick>
+                                                                        Đồng ý
+                                                                    </ButtonClick>
+                                                                </ButtonContainer>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick
+                                                                        onClick={(e) => {
+                                                                            closeSelectBox2(e)
+                                                                        }}
+                                                                    >Cancel</ButtonClick>
+                                                                </ButtonContainer>
+                                                            </Button>
+                                                        </Wrapper>
+                                                    </Box>
+                                                </MenuOptionCol8>
+                                            </Content>
+                                        </Course>
+                                    </CartItem>
+                                    <CartItem>
+                                        <CircleService />
+                                        <Course>
+                                            <Content>
+                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Cơm-Mì-Lẩu </span>
+                                                <MenuOptionCol8 className="col-md-8">
+                                                    <Box id="Box6">
+                                                        <BoxSpan>Hãy chọn món Cơm-Mì-Lẩu</BoxSpan>
+                                                        <SearchOutlined
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openSelectBox6()}
+                                                        />
+                                                        <Wrapper style={{ top: "-348px" }}>
+                                                            <BoxTitle>
+                                                                <BoxH2>Chọn món Cơm-Mì-Lẩu</BoxH2>
+                                                                <SearchContainer>
+                                                                    <Input
+                                                                        type="text"
+                                                                    />
+                                                                    <SearchIcon>
+                                                                        <SearchOutlined />
+                                                                    </SearchIcon>
+                                                                </SearchContainer>
+                                                            </BoxTitle>
+                                                            <Option>
+                                                                <Table style={{ position: "relative" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Hình ảnh</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Món ăn</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Thành phần</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                        </Tr>
-                                                    </Thead>
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                        </Tr>
+                                                                    </Thead>
 
-                                                    <Tbody>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                    </Tbody>
-                                                </Table>
-                                            </Option>
-                                            <Button>
-                                                <ButtonContainer>
-                                                    <ButtonClick>
-                                                        Đồng ý
-                                                    </ButtonClick>
-                                                </ButtonContainer>
-                                                <ButtonContainer>
-                                                    <ButtonClick
-                                                        onClick={(e) => {
-                                                            closeSelectBox6(e)
-                                                        }}
-                                                    >Cancel</ButtonClick>
-                                                </ButtonContainer>
-                                            </Button>
-                                        </Wrapper>
-                                    </Box>
-                                </div>
-                                <div className="row">
-                                    <Box id="Box7">
-                                        <BoxSpan>Hãy chọn món Tráng Miệng</BoxSpan>
-                                        <SearchOutlined
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => openSelectBox7()}
-                                        />
-                                        <Wrapper style={{ top: "-460px" }}>
-                                            <BoxTitle>
-                                                <BoxH2>Chọn món Tráng Miệng</BoxH2>
-                                                <SearchContainer>
-                                                    <Input
-                                                        type="text"
-                                                    />
-                                                    <SearchIcon>
-                                                        <SearchOutlined />
-                                                    </SearchIcon>
-                                                </SearchContainer>
-                                            </BoxTitle>
-                                            <Option>
-                                                <Table style={{ position: "relative" }}>
-                                                    <Thead>
-                                                        <Tr>
-                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
+                                                                    <Tbody>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </Option>
+                                                            <Button>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick>
+                                                                        Đồng ý
+                                                                    </ButtonClick>
+                                                                </ButtonContainer>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick
+                                                                        onClick={(e) => {
+                                                                            closeSelectBox6(e)
+                                                                        }}
+                                                                    >Cancel</ButtonClick>
+                                                                </ButtonContainer>
+                                                            </Button>
+                                                        </Wrapper>
+                                                    </Box>
+                                                </MenuOptionCol8>
+                                            </Content>
+                                        </Course>
+                                    </CartItem>
+                                    <CartItem>
+                                        <CircleService />
+                                        <Course>
+                                            <Content>
+                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Tráng miệng </span>
+                                                <MenuOptionCol8 className="col-md-8">
+                                                    <Box id="Box7">
+                                                        <BoxSpan>Hãy chọn món Tráng Miệng</BoxSpan>
+                                                        <SearchOutlined
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openSelectBox7()}
+                                                        />
+                                                        <Wrapper style={{ top: "-420px" }}>
+                                                            <BoxTitle>
+                                                                <BoxH2>Chọn món Tráng Miệng</BoxH2>
+                                                                <SearchContainer>
+                                                                    <Input
+                                                                        type="text"
+                                                                    />
+                                                                    <SearchIcon>
+                                                                        <SearchOutlined />
+                                                                    </SearchIcon>
+                                                                </SearchContainer>
+                                                            </BoxTitle>
+                                                            <Option>
+                                                                <Table style={{ position: "relative" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Hình ảnh</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Món ăn</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Thành phần</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                        </Tr>
-                                                    </Thead>
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                        </Tr>
+                                                                    </Thead>
 
-                                                    <Tbody>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                    </Tbody>
-                                                </Table>
-                                            </Option>
-                                            <Button>
-                                                <ButtonContainer>
-                                                    <ButtonClick>
-                                                        Đồng ý
-                                                    </ButtonClick>
-                                                </ButtonContainer>
-                                                <ButtonContainer>
-                                                    <ButtonClick
-                                                        onClick={(e) => {
-                                                            closeSelectBox7(e)
-                                                        }}
-                                                    >Cancel</ButtonClick>
-                                                </ButtonContainer>
-                                            </Button>
-                                        </Wrapper>
-                                    </Box>
-                                </div>
-                                <div className="row">
-                                    <Box id="Box8">
-                                        <BoxSpan>Hãy chọn món Dịch vụ</BoxSpan>
-                                        <SearchOutlined
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => openSelectBox8()}
-                                        />
-                                        <Wrapper style={{ top: "-520px" }}>
-                                            <BoxTitle>
-                                                <BoxH2>Chọn món Súp</BoxH2>
-                                                <SearchContainer>
-                                                    <Input
-                                                        type="text"
-                                                    />
-                                                    <SearchIcon>
-                                                        <SearchOutlined />
-                                                    </SearchIcon>
-                                                </SearchContainer>
-                                            </BoxTitle>
-                                            <Option>
-                                                <Table style={{ position: "relative" }}>
-                                                    <Thead>
-                                                        <Tr>
-                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
+                                                                    <Tbody>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </Option>
+                                                            <Button>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick>
+                                                                        Đồng ý
+                                                                    </ButtonClick>
+                                                                </ButtonContainer>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick
+                                                                        onClick={(e) => {
+                                                                            closeSelectBox7(e)
+                                                                        }}
+                                                                    >Cancel</ButtonClick>
+                                                                </ButtonContainer>
+                                                            </Button>
+                                                        </Wrapper>
+                                                    </Box>
+                                                </MenuOptionCol8>
+                                            </Content>
+                                        </Course>
+                                    </CartItem>
+                                    <CartItem>
+                                        <CircleService />
+                                        <Course>
+                                            <Content>
+                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Thịt </span>
+                                                <MenuOptionCol8 className="col-md-8">
+                                                    <Box id="Box5">
+                                                        <BoxSpan>Hãy chọn món Thịt</BoxSpan>
+                                                        <SearchOutlined
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openSelectBox5()}
+                                                        />
+                                                        <Wrapper style={{ top: "-492px" }}>
+                                                            <BoxTitle>
+                                                                <BoxH2>Chọn món Thịt</BoxH2>
+                                                                <SearchContainer>
+                                                                    <Input
+                                                                        type="text"
+                                                                    />
+                                                                    <SearchIcon>
+                                                                        <SearchOutlined />
+                                                                    </SearchIcon>
+                                                                </SearchContainer>
+                                                            </BoxTitle>
+                                                            <Option>
+                                                                <Table style={{ position: "relative" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Hình ảnh</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Món ăn</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                            <Th>
-                                                                <ThContainer>
-                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                    <ThSortIcon>
-                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                            <Th>
+                                                                                <ThContainer>
+                                                                                    <ThSpan>Thành phần</ThSpan>
+                                                                                    <ThSortIcon>
+                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
                                                                             <ArrowDropDownOutlined />} */}
-                                                                        <ArrowDropDownOutlined />
-                                                                    </ThSortIcon>
-                                                                </ThContainer>
-                                                            </Th>
-                                                        </Tr>
-                                                    </Thead>
+                                                                                        <ArrowDropDownOutlined />
+                                                                                    </ThSortIcon>
+                                                                                </ThContainer>
+                                                                            </Th>
+                                                                        </Tr>
+                                                                    </Thead>
 
-                                                    <Tbody>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                        <Tr>
-                                                            <Td style={{
-                                                                border: 'none',
-                                                                textAlign: "center",
-                                                                fontSize: "1.5rem"
-                                                            }}>
-                                                                <InputRadio
-                                                                    type="radio"
-                                                                    name="Radio_User"
-                                                                    value=""
-                                                                    className="checkbox"
-                                                                />
-                                                            </Td>
-                                                            <Td>
-                                                                <MealImage src={imageMenu} />
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt Sốt Trứng
-                                                            </Td>
-                                                            <Td>
-                                                                Thịt/ Cá/ Trứng
-                                                            </Td>
-                                                        </Tr>
-                                                    </Tbody>
-                                                </Table>
-                                            </Option>
-                                            <Button>
-                                                <ButtonContainer>
-                                                    <ButtonClick>
-                                                        Đồng ý
-                                                    </ButtonClick>
-                                                </ButtonContainer>
-                                                <ButtonContainer>
-                                                    <ButtonClick
-                                                        onClick={(e) => {
-                                                            closeSelectBox8(e)
-                                                        }}
-                                                    >Cancel</ButtonClick>
-                                                </ButtonContainer>
-                                            </Button>
-                                        </Wrapper>
-                                    </Box>
+                                                                    <Tbody>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td style={{
+                                                                                border: 'none',
+                                                                                textAlign: "center",
+                                                                                fontSize: "1.5rem"
+                                                                            }}>
+                                                                                <InputRadio
+                                                                                    type="radio"
+                                                                                    name="Radio_User"
+                                                                                    value=""
+                                                                                    className="checkbox"
+                                                                                />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                <MealImage src={imageMenu} />
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt Sốt Trứng
+                                                                            </Td>
+                                                                            <Td>
+                                                                                Thịt/ Cá/ Trứng
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </Option>
+                                                            <Button>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick>
+                                                                        Đồng ý
+                                                                    </ButtonClick>
+                                                                </ButtonContainer>
+                                                                <ButtonContainer>
+                                                                    <ButtonClick
+                                                                        onClick={(e) => {
+                                                                            closeSelectBox5(e)
+                                                                        }}
+                                                                    >Cancel</ButtonClick>
+                                                                </ButtonContainer>
+                                                            </Button>
+                                                        </Wrapper>
+                                                    </Box>
+                                                </MenuOptionCol8>
+                                            </Content>
+                                        </Course>
+                                    </CartItem>
+                                    <Button className="row">
+                                        <ButtonContainer>
+                                            <ButtonClick style={{ marginLeft: "70%" }} className="">
+                                                {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
+                                                Tiếp tục
+                                            </ButtonClick>
+                                        </ButtonContainer>
+                                    </Button>
                                 </div>
-                                <Button className="row">
-                                    <ButtonContainer>
-                                        <ButtonClick style={{ marginLeft: "70%" }} className="">
-                                            {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
-                                            Tiếp tục
-                                        </ButtonClick>
-                                    </ButtonContainer>
-                                </Button>
                             </MenuRight>
                             <CloseModalButton
+                                style={{ top: "40px", right: "35px" }}
                                 aria-label="Close modal"
                                 onClick={() => setShowModal(prev => !prev)}
                             >

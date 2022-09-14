@@ -25,7 +25,7 @@ const BookParty = () => {
           :
           <>
             <Navbar pageName="Restaurant" />
-            <RestaurantLanding name="Đặt bàn" type="noneBooking" />
+            <RestaurantLanding name="Hội nghị &amp; Tiệc cưới" type="noneBooking" />
             <BookPartyMain />
             <HomeServices />
             <Footer />
