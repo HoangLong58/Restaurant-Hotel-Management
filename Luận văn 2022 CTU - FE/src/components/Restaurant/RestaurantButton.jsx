@@ -1,8 +1,8 @@
-import React from 'react'
-import roomServicePicture from '../../img/roomservice.jpg';
-import reservedPicture from '../../img/reserved.jpg';
-import partyPicture from '../../img/party.jpg';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import partyPicture from '../../img/party.jpg';
+import reservedPicture from '../../img/reserved.jpg';
+import roomServicePicture from '../../img/roomservice.jpg';
 
 const RestaurantButton = () => {
     return (

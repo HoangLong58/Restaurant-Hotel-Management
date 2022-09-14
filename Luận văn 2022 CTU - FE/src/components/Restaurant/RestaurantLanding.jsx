@@ -56,7 +56,7 @@ const BookingRestaurantQuantityButton = styled.div`
 }
 `
 
-const RestaurantLanding = () => {
+const RestaurantLanding = (props) => {
     // STATE
     const [quantityBooking, setQuantityBooking] = useState(0);
 
@@ -93,9 +93,9 @@ const RestaurantLanding = () => {
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-12 parallax-fade-top">
-                            <div class="hero-text">Nhà hàng</div>
+                            <div class="hero-text">{props.name ? props.name : "Nhà hàng"}</div>
                         </div>
-                        <CenterBooking className="col-12 mt-3 parallax-fade-top">
+                        <CenterBooking className="col-12 mt-3 parallax-fade-top" style={{ display: props.type === "noneBooking" ? "none" : "block" }}>
                             <CenterBookingWrapper className="booking-hero-wrap">
                                 <BookingRow className="row justify-content-center">
                                     <BookingCol5 className="col-8 no-mob">

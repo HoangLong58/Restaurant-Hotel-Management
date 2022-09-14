@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import {Navigate} from "react-router-dom";
+import React, { useState } from 'react';
+import { Navigate } from "react-router-dom";
 
-const PrivateRoute = ({children}) => {
+const PrivateRoute = ({ children }) => {
 
     const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
 

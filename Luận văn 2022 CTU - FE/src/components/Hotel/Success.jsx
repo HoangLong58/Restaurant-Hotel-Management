@@ -1,27 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import SliderImage from "../SliderImage";
 // Date picker
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import moment from 'moment';
-import { ArrowRightAltOutlined, CheckCircleRounded, Star } from '@mui/icons-material'
-import Fade from 'react-reveal/Fade';
+import { ArrowRightAltOutlined, CheckCircleRounded } from '@mui/icons-material';
 
-import momoImage from '../../img/momo.jpg'
-import paypalImage from '../../img/paypal.png'
-import cardImage from '../../img/thenganhang.png'
-import cash from '../../img/cash-icon.jpg'
 
-import svg2 from '../../img/2.svg';
-import svg3 from '../../img/3.svg';
-import svg5 from '../../img/5.svg';
-import picture3 from '../../img/room3.jpg';
-import HotelProgress from './HotelProgress';
 import { Link, useNavigate } from 'react-router-dom';
+import HotelProgress from './HotelProgress';
 
 const Wrapper = styled.div`
 max-width: 1200px;

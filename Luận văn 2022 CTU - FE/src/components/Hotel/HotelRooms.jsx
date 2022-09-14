@@ -1,27 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import styled from 'styled-components';
 // Date picker
+import { Star } from '@mui/icons-material';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import moment from 'moment';
-import { Star } from '@mui/icons-material'
 import Fade from 'react-reveal/Fade';
 
-import picture3 from '../../img/room3.jpg';
-import picture4 from '../../img/room4.jpg';
-import picture5 from '../../img/room5.jpg';
-import picture6 from '../../img/room6.jpg';
-import svg1 from '../../img/1.svg';
+import { useNavigate } from 'react-router-dom';
 import svg2 from '../../img/2.svg';
 import svg3 from '../../img/3.svg';
 import svg4 from '../../img/4.svg';
 import svg5 from '../../img/5.svg';
 import svg6 from '../../img/6.svg';
+import picture3 from '../../img/room3.jpg';
+import picture4 from '../../img/room4.jpg';
+import picture5 from '../../img/room5.jpg';
+import picture6 from '../../img/room6.jpg';
 import HotelProgress from './HotelProgress';
-import { useNavigate } from 'react-router-dom';
 
 const InputDateRangeFormItem = styled.div``
 const BookingNumberNiceSelect = styled.div``
@@ -38,70 +37,6 @@ const HotelItem = styled.div`
     padding-right: 15px;
     padding-left: 15px;
     margin-top: 1.5rem !important;
-`
-
-// Progress 
-const SectionProgress = styled.div``
-const SectionProgressBigger = styled.div``
-const SectionProgressContainer = styled.div``
-const SectionProgressRow = styled.div`
-    margin: 0;
-    height: 65px;
-    background-color: black;
-`
-const SectionProgressCol4 = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    width: 100%;
-    height: 100%;
-    font-size: 1rem;
-    font-weight: 300;
-    letter-spacing: 1px;
-    color: white;
-    -webkit-transition : all 0.3s ease-out;
-    -moz-transition : all 0.3s ease-out;
-    -o-transition :all 0.3s ease-out;
-    transition : all 0.3s ease-out;
-    &.active {
-        color: #333;
-        background-color: var(--color-primary);
-        &::after {
-            content: "";
-            display: block;
-            position: absolute;
-            top: 0px;
-            right: -32px;
-            width: 0; 
-            height: 0; 
-            border-top: 32px solid transparent;
-            border-bottom: 32px solid transparent;
-            border-left: 32px solid var(--color-primary);
-        }
-        &::before {
-            content: "";
-            display: block;
-            position: absolute;
-            top: 0px;
-            left: 0px;
-            width: 0; 
-            height: 0; 
-            border-top: 32px solid transparent;
-            border-bottom: 32px solid transparent;
-            border-left: 32px solid black;
-        }
-    }
-    &:last-child {
-        &::after {
-            display: none;
-        }
-    }
-    &:first-child {
-        &::before {
-            display: none;
-        }
-    }
 `
 
 // Button

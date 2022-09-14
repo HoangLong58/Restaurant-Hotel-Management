@@ -1,7 +1,7 @@
-import React from 'react'
+import React from 'react';
+import Fade from 'react-reveal/Fade';
 import pictureRoom1 from '../../img/room1.jpg';
 import pictureRoom2 from '../../img/room2.jpg';
-import Fade from 'react-reveal/Fade';
 
 const HomeView = () => {
     return (

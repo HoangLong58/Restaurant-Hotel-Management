@@ -5,7 +5,7 @@ import picture3 from '../../img/res-3.png'
 
 const RestaurantService = () => {
     return (
-        <div className="section padding-top over-hide" style={{paddingBottom: "75px"}}>
+        <div className="section padding-top over-hide" style={{ paddingBottom: "75px" }}>
             <div className="container">
                 <div className="row justify-content-center">
                     <div className="col-md-4">

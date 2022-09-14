@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 // Date picker
-import { AccessAlarmsOutlined, ReplayOutlined } from '@mui/icons-material';
+import { AccessAlarmsOutlined, CorporateFareOutlined } from '@mui/icons-material';
 
 import cash from '../../img/cash-icon.jpg';
 import momoImage from '../../img/momo.jpg';
 import paypalImage from '../../img/paypal.png';
 import cardImage from '../../img/thenganhang.png';
 
-import logo from '../../img/logos/logo.png';
-
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HotelProgress from './HotelProgress';
 
 
@@ -54,13 +52,13 @@ const ButtonClick = styled.button`
 // LEFT
 const Left = styled.div`
   padding: 30px;
-  background-color: #181818;
+  background-color: #f5f5f5;
 `
 const LeftRow = styled.div``
 const LeftColMd6 = styled.div``
 const LeftColMd12 = styled.div``
 const LeftTitle = styled.div`
-  color: white;
+  color: var(--color-dark);
   font-weight: 400;
 `
 
@@ -114,12 +112,6 @@ const InfoDetail = styled.div`
   }
 `
 
-const LeftRowH5 = styled.h5`
-  margin-left: 5px;
-  font-size: 20px;
-  font-weight: 400;
-  color: white;
-`
 const LeftDiscount = styled.div`
   display: flex;
   flex-direction: row;
@@ -167,6 +159,7 @@ const PaymentDescription = styled.div`
 `
 const PaymentDescriptionP = styled.p`
   margin: 10px 10px 10px 15px;
+  color: var(--color-dark);
 `
 
 const InputRadio = styled.input`
@@ -177,7 +170,7 @@ const InputRadio = styled.input`
   -ms-transform: scale(1.5);
   -webkit-transform: scale(1.5);
   transform: scale(1.3);
-  color: black;
+  color: var(--color-dark);
   &::before {
       border: 2px solid #333;
   }
@@ -185,7 +178,7 @@ const InputRadio = styled.input`
 
 
 const PaymentName = styled.div`
-  color: white;
+  color: var(--color-dark);
   margin-left: 10px;
 `
 
@@ -242,49 +235,161 @@ const Right = styled.div``
 const RightBackground = styled.div`
   padding: 30px;
 `
-const RightRow = styled.div`
-  margin-bottom: 8px;
-  color: white;
-`
-const RightCol12 = styled.div``
 const RightColMd6 = styled.div``
 
-const RightRowH5 = styled.h5`
-  margin: 10px 0px 20px 5px;
-  font-size: 20px;
-  font-weight: 600;
-  color: white;
+const InfomationTitle = styled.div`
+    font-size: 1.2rem;
+    color: var(--color-dark);
 `
 
-const BookingRoom = styled.div`
+// Right filter
+const TitleSolid = styled.div`
   position: relative;
+  color: var(--color-dark);
+  margin: 30px 0px 40px 0px;
+  display: flex;
+  align-items: center;
   &::after {
     content: "";
     display: block;
     position: absolute;
     bottom: -20px;
-    left: 25%;
-    width: 50%;
-    border-top: 2px solid var(--color-primary);
+    left: 0;
+    width: 100%;
+    border-top: 2px solid var(--color-dark);
   }
 `
-const RoomInfo = styled.div`
+const TitleDashed = styled.div`
   position: relative;
+  color: var(--color-dark);
+  margin: 30px 0px 40px 0px;
+  display: flex;
+  align-items: center;
   &::after {
     content: "";
     display: block;
     position: absolute;
     bottom: -20px;
-    left: 25%;
-    width: 50%;
-    border-top: 2px solid var(--color-primary);
+    left: 0;
+    width: 100%;
+    border-top: 2px dashed var(--color-dark);
   }
+`
+const BookingInfo = styled.div`
+position: relative;
+color: var(--color-dark);
+
+&::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    width: 100%;
+    border-top: 2px dashed var(--color-dark);
+  }
+`
+const BookingInfoTitle = styled.div`
+font-weight: bold;
+`
+const BookingInfoDetail = styled.div``
+const BookingInfoDetailRow = styled.div`
+padding: 10px 0px 10px 0px;
+`
+const BookingInfoDetailRowMd5 = styled.div`
+display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: column;
+`
+const BookingInfoDetailRowMd2 = styled.div`
+display: flex;
+justify-content: center;
+align-items: center;
+`
+
+const DayTitle = styled.div`
+font-size: 0.8rem;
+font-weight: bold;
+`
+const DayDetail = styled.div`
+font-size: 1.1rem;
+font-weight: bold;
+`
+
+const BookingNumber = styled.div``
+const BookingNumberRow = styled.div`
+padding: 10px 0px 10px 0px;
+`
+const BookingNumberRowMd5 = styled.div`
+display: flex;
+justify-content: center;
+align-items: center;
+background-color: white;
+padding: 10px;
+border-radius: 20px;
+font-weight: 400;
+`
+
+const DayNumber = styled.div``
+const DayNumberRow = styled.div``
+const DayNumberTitle = styled.div`
+font-size: 0.9rem;
+font-weight: 400;
+`
+const DayNumberDetail = styled.div`
+display: flex;
+justify-content: flex-end;
+align-items: center;
+color: var(--color-primary);
+font-weight: bold;
+
+`
+
+// Room Info
+const RoomInformation = styled.div`
+margin-top: 40px;
+position: relative;
+color: var(--color-dark);
+
+&::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    width: 100%;
+    border-top: 2px dashed var(--color-dark);
+  }
+`
+
+const RoomInformationTitle = styled.div`
+font-weight: bold;
+padding-bottom: 8px;
+`
+const RoomInformationDetail = styled.div``
+const RoomInformationRow = styled.div``
+const RoomDetailTitle = styled.div`
+font-size: 0.9rem;
+`
+const RoomDetailPrice = styled.div`
+font-size: 1.1rem;
+font-weight: bold;
+color: var(--color-primary);
+display: flex;
+justify-content: flex-end;
+align-items: center;
+`
+
+const TotalMoneyRow = styled.div`
+  margin-bottom: 8px;
+  color: white;
 `
 
 // Total money
 const TotalMoney = styled.div`
-  margin-top: 40px;
-  border: 2px solid var(--color-primary);
+  margin-top: 50px;
+  border: 2px solid var(--color-dark);
   position: relative;
 `
 const TotalMoneySpan = styled.span`
@@ -304,7 +409,8 @@ const TotalMoneySpan = styled.span`
 `
 
 const TotalMoneyBeforeH3 = styled.h3`
-  margin-top: 40px;
+  font-weight: bold;
+  margin-top: 30px;
   display: flex;
   justify-content: center;
   color: var(--color-primary);
@@ -314,13 +420,13 @@ const TotalMoneyBeforeH3 = styled.h3`
 `
 
 const TotalMoneyH5 = styled.h5`
-  color: white;
+  color: var(--color-dark);
   font-size: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  margin-top: 30px;
+  margin-top: 20px;
   text-transform: none;
   margin-bottom: 20px;
   cursor: pointer;
@@ -331,130 +437,8 @@ const TotalMoneyH5 = styled.h5`
     top: -10px;
     left: 25%;
     width: 50%;
-    border-top: 2px solid var(--color-primary);
+    border-top: 2px solid var(--color-dark);
   }
-`
-
-// Time
-const Time = styled.div`
-  position: relative;
-  color: white;
-  margin: 30px 0px 40px 0px;
-  display: flex;
-  align-items: center;
-  &::after {
-    content: "";
-    display: block;
-    position: absolute;
-    bottom: -20px;
-    left: 0;
-    width: 100%;
-    border-top: 2px solid var(--color-primary);
-  }
-`
-
-// Modal
-const Background = styled.div`
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    position: fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 99000;
-
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-
-    animation: fadeIn linear 0.1s;
-`
-
-const ModalWrapper = styled.div`
-    width: 750px;
-    height: auto;
-    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-    background: #F8F9FA;
-    color: var(--color-dark);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    border: 2px solid black;
-
-    position: relative;
-    z-index: 99999;
-    border-radius: 10px;
-    --growth-from: 0.7;
-    --growth-to: 1;
-    animation: growth linear 0.1s;
-`
-
-const H2 = styled.h2`
-  font-size: 1.8rem;
-  margin-top: 20px;
-  color: var(--color-primary);
-  font-weight: 700;
-  letter-spacing: 2px;
-`
-const Small = styled.small`
-  margin-top: 15px;
-  font-size: 1.2rem;
-`
-const ModalButtonContainer = styled.div`
-  justify-content: center;
-  position: relative;
-  margin: 22px 0;
-  display: flex;
-  &::after {
-      content: "";
-      border: 2px solid black;
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      background-color: transperent;
-      width: 300px;
-      height: 100%;
-      z-index: 5;
-  }
-`
-
-const ModalButton = styled.button`
-  padding: 10px;
-  width: 300px;
-  border: 2px solid black;
-  background-color: black;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
-  z-index: 10;
-  &:hover {
-      background-color: var(--color-primary);
-  }
-  &:active {
-      background-color: #333;
-      transform: translate(5px, 5px);
-      transition: transform 0.25s;
-  }
-`
-
-const MessageImage = styled.img`
-  transform: scale(0.8);
-`
-
-const MessageImageContainer = styled.div`
-  border-top: 1px solid black;
-  border-left: 2px solid black;
-  border-right: 2px solid black;
-  width: 750px;
-  height: auto;
-  background-color: #383838;
-  display: flex;
-  justify-content: center;
-  border-top-left-radius: 7px;
-  border-top-right-radius: 7px;
 `
 
 const Payment = (props) => {
@@ -497,6 +481,12 @@ const Payment = (props) => {
               <div className="row">
                 <Left className="col-lg-8 mt-4 mt-lg-0">
                   <InfoDetail>
+                    <div className="row">
+                      <InfomationTitle>
+                        <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Thông tin thanh toán</p>
+                        <p style={{ fontSize: "1rem" }}>Để hoàn tất quá trình thanh toán, Quý khách vui lòng điền đầy đủ thông tin bên dưới.</p>
+                      </InfomationTitle>
+                    </div>
                     <LeftRow className="row">
                       <LeftColMd6 className="col-md-6">
                         <LeftTitle >Họ của bạn <span style={{ color: "red", marginLeft: "2px" }}>*</span></LeftTitle>
@@ -525,7 +515,12 @@ const Payment = (props) => {
                     </LeftRow>
                   </InfoDetail>
                   <LeftRow className="row" style={{ marginTop: "40px" }}>
-                    <LeftRowH5>Áp dụng phiếu giảm giá</LeftRowH5>
+                    <div className="col-md-12">
+                      <InfomationTitle>
+                        <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Áp dụng mã giảm giá</p>
+                        <p style={{ fontSize: "1rem" }}>Mỗi mã giảm giá chỉ được dùng duy nhất cho một thanh toán.</p>
+                      </InfomationTitle>
+                    </div>
                     <LeftDiscount className='col-md-12'>
                       <Input className='col-md-5' type="text" />
                       <ButtonClick className='col-md-4' style={{ margin: "0px 0px 0px 20px", height: "40px" }}>
@@ -535,7 +530,12 @@ const Payment = (props) => {
                     </LeftDiscount>
                   </LeftRow>
                   <LeftRow className="row" style={{ marginTop: "40px" }}>
-                    <LeftRowH5>Chọn phương thức thanh toán</LeftRowH5>
+                    <div className="col-md-12">
+                      <InfomationTitle>
+                        <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Phương thức thanh toán</p>
+                        <p style={{ fontSize: "1rem" }}>Quý khách có thể chọn một trong các phương thức sau để hoàn tất đặt phòng.</p>
+                      </InfomationTitle>
+                    </div>
                     <LeftWayPayment className='col-md-12'>
                       <PaymentUl className="list">
                         <PaymentLi className="list__item">
@@ -636,57 +636,82 @@ const Payment = (props) => {
                     </ButtonContainer>
                   </Button>
                 </Left>
+
                 <Right className="col-lg-4 order-first order-lg-last" style={{ paddingRight: "0" }}>
-                  <RightBackground className="section background-dark p-4">
-                    {/* time */}
-                    <Time className="row">
+                  <RightBackground className="section background-dark p-4" style={{ backgroundColor: "#f5f5f5" }}>
+
+                    <TitleSolid className="row">
+                      <RightColMd6 className='col-md-8' style={{ fontWeight: "600", padding: "0" }}>Thông tin đặt phòng</RightColMd6>
+                    </TitleSolid>
+                    <TitleDashed className="row">
                       <RightColMd6 className='col-md-8' style={{ fontWeight: "600", padding: "0" }}>Thời gian giữ phòng:</RightColMd6>
                       <RightColMd6 className='col-md-4' style={{ fontWeight: "600", fontSize: "1.3rem", display: "flex", flexDirection: "row", alignItems: "center" }}>
                         <AccessAlarmsOutlined style={{ marginRight: "3px" }} />
                         {minutes}:{seconds < 10 ? '0' + seconds : seconds}
                       </RightColMd6>
-                    </Time>
+                    </TitleDashed>
 
-                    {/* Booking room */}
-                    <BookingRoom className="row">
-                      <RightRowH5>Đặt phòng của bạn</RightRowH5>
-                      <RightCol12 className="col-12">
-                        <RightRow className="row">
-                          <RightColMd6 className='col-md-6' style={{ fontWeight: "600" }}>Ngày nhận phòng:</RightColMd6>
-                          <RightColMd6 className='col-md-6'>08/09/2022</RightColMd6>
-                        </RightRow>
-                        <RightRow className="row">
-                          <RightColMd6 className='col-md-6' style={{ fontWeight: "600" }}>Ngày trả phòng:</RightColMd6>
-                          <RightColMd6 className='col-md-6'>12/09/2022</RightColMd6>
-                        </RightRow>
-                      </RightCol12>
-                    </BookingRoom>
+                    <BookingInfo className="row">
+                      <BookingInfoTitle className="col-md-12">Hoàng Long Hotel &amp; Restaurant</BookingInfoTitle>
+                      <BookingInfoDetail className="col-md-12">
+                        <BookingInfoDetailRow className="row">
+                          <BookingInfoDetailRowMd5 className="col-md-5">
+                            <DayTitle>Nhận phòng</DayTitle>
+                            <DayDetail>11/09/2022</DayDetail>
+                          </BookingInfoDetailRowMd5>
+                          <BookingInfoDetailRowMd2 className="col-md-2">
+                            <CorporateFareOutlined style={{ color: "var(--color-primary)" }} />
+                          </BookingInfoDetailRowMd2>
+                          <BookingInfoDetailRowMd5 className="col-md-5">
+                            <DayTitle>Trả phòng</DayTitle>
+                            <DayDetail>11/09/2022</DayDetail>
+                          </BookingInfoDetailRowMd5>
+                        </BookingInfoDetailRow>
+                      </BookingInfoDetail>
 
-                    {/* Room info */}
-                    <RoomInfo className="row" style={{ marginTop: "30px" }}>
-                      <RightRowH5>Phòng 1 của tầng 1</RightRowH5>
-                      <RightCol12 className="col-12">
-                        <RightRow className="row">
-                          <RightColMd6 className='col-md-6' style={{ fontWeight: "600" }}>Loại phòng:</RightColMd6>
-                          <RightColMd6 className='col-md-6'>Deluxe Room</RightColMd6>
-                        </RightRow>
-                        <RightRow className="row">
-                          <RightColMd6 className='col-md-6' style={{ fontWeight: "600" }}>Số khách:</RightColMd6>
-                          <RightColMd6 className='col-md-6'><b>2</b> Người lớn và <b>4</b> Trẻ em</RightColMd6>
-                        </RightRow>
-                      </RightCol12>
-                    </RoomInfo>
+                      <BookingNumber className="col-md-12">
+                        <BookingNumberRow className="row">
+                          <BookingNumberRowMd5 className="col-md-5">Người lớn: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> 2</b></BookingNumberRowMd5>
+                          <div className="col-md-2"></div>
+                          <BookingNumberRowMd5 className="col-md-5">Trẻ em: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> 0</b></BookingNumberRowMd5>
+                        </BookingNumberRow>
+                      </BookingNumber>
+
+                      <DayNumber className="col-md-12">
+                        <DayNumberRow className="row">
+                          <DayNumberTitle className="col-md-6">Số đêm</DayNumberTitle>
+                          <DayNumberDetail className="col-md-6"> 3 ngày 2 đêm</DayNumberDetail>
+                        </DayNumberRow>
+                      </DayNumber>
+                      <DayNumber className="col-md-12">
+                        <DayNumberRow className="row">
+                          <DayNumberTitle className="col-md-6">Số phòng</DayNumberTitle>
+                          <DayNumberDetail className="col-md-6"> 1</DayNumberDetail>
+                        </DayNumberRow>
+                      </DayNumber>
+                    </BookingInfo>
+
+                    <RoomInformation className="row">
+                      <RoomInformationTitle className="col-md-12">Thông tin phòng</RoomInformationTitle>
+                      <RoomInformationDetail className="col-md-12">
+                        <RoomInformationRow className="row">
+                          <RoomDetailTitle className="col-md-6"><b style={{ color: "var(--color-primary)", marginRight: "5px" }}>Phòng 12:</b> Deluxe, hướng biển, king bed</RoomDetailTitle>
+                          <RoomDetailPrice className="col-md-6">9.670.000 đ</RoomDetailPrice>
+                        </RoomInformationRow>
+                      </RoomInformationDetail>
+                    </RoomInformation>
 
                     {/* Total money */}
-                    <RightRow className="row">
+                    <TotalMoneyRow className="row">
                       <TotalMoney>
                         <TotalMoneySpan>Tổng cộng: </TotalMoneySpan>
-                        <TotalMoneyBeforeH3>4.578.000<b><u> đ</u></b></TotalMoneyBeforeH3>
+                        <TotalMoneyBeforeH3>4.578.000<b style={{ marginLeft: "5px" }}><u> đ</u></b></TotalMoneyBeforeH3>
                         <TotalMoneyH5>
                           Đã áp dụng mã giảm giá
                         </TotalMoneyH5>
                       </TotalMoney>
-                    </RightRow>
+                    </TotalMoneyRow>
+
                     <Button className="row">
                       <ButtonContainer style={{ paddingTop: "0" }}>
                         <ButtonClick
@@ -706,7 +731,7 @@ const Payment = (props) => {
       </div>
 
       {/* Modal */}
-      {
+      {/* {
         minutes === 0 && seconds === 0
           ?
           <Background>
@@ -724,7 +749,7 @@ const Payment = (props) => {
             </ModalWrapper>
           </Background>
           : null
-      }
+      } */}
     </>
   )
 }

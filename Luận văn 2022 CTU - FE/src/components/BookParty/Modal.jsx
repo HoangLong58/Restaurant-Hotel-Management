@@ -60,7 +60,7 @@ const CloseModalButton = styled.span`
     padding: 0;
     z-index: 10;
     &:hover {
-        color: white;
+        color: black;
         transform: scale(1.3);
         transition: all 200ms linear; 
     }
@@ -246,6 +246,7 @@ const Button = styled.div`
 `
 
 const ButtonContainer = styled.div`
+    /* position: relative; */
     float: right;
     margin: 0 22px 22px 0;
 `
@@ -266,6 +267,9 @@ const ButtonClick = styled.button`
     color: #fff;
     transition: all 0.3s ease-out;
     background-color: #41f1b6;
+    /* position: absolute;
+    bottom: 10px;
+    right: 15px; */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -305,7 +309,7 @@ const MoreImage = styled.div`
 const ViewLeft = styled.div``
 const ViewLeftRow = styled.div``
 const ViewLeftDetailRow = styled.div`
-    background-color: #f5f5f5;
+    background-color: var(--color-white);
     border-radius: var(--card-border-radius); 
     padding: 20px 20px;
     width: 98%;
@@ -332,6 +336,7 @@ const PriceDetailRow = styled.div`
 
 // Modal view right
 const ViewRight = styled.div`
+    /* width: 90%; */
     height: 95%;
 `
 
@@ -340,10 +345,12 @@ const ViewRightContainer = styled.div`
     overflow-y: scroll;
 
     margin: 20px auto auto auto;
-    background-color: #f5f5f5;
+    background-color: var(--color-white);
     border-radius: var(--card-border-radius); 
     padding: 20px 20px;
     width: auto;
+    /* max-height: 90%;  */
+    /* margin: 10px; */
 `
 
 const InputRadioService = styled.input`
@@ -2081,7 +2088,7 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
-                        <ModalWrapper showModal={showModal} className="row" style={{ paddingTop: "15px", paddingBottom: "15px", height: "98%", width: "93%", backgroundColor: "#181818" }}>
+                        <ModalWrapper showModal={showModal} className="row" style={{ paddingTop: "15px", paddingBottom: "15px", height: "98%", width: "93%", backgroundColor: "#f5f5f5" }}>
 
                             {/* <MenuImage src={imageView} className="col-md-6" /> */}
                             <ViewLeft className="col-md-6">

@@ -33,18 +33,18 @@ const Home = () => {
           <Loader />
           :
           <>
-            <Navbar pageName="Home"/>
-            <HomeLanding/>
-            <HomeDescription/>
-            <HomeView/>
-            <HomeServices/>
-            <HomeConvenience/>
-            <HomeRooms/>
-            <HomeComment/>
-            <HomeVideoPresentation/>
-            <HomeRestaurant/>
-            <HomeContact/>
-            <Footer/>
+            <Navbar pageName="Home" />
+            <HomeLanding />
+            <HomeDescription />
+            <HomeView />
+            <HomeServices />
+            <HomeConvenience />
+            <HomeRooms />
+            <HomeComment />
+            <HomeVideoPresentation />
+            <HomeRestaurant />
+            <HomeContact />
+            <Footer />
           </>
       }
 

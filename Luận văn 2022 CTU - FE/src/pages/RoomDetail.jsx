@@ -14,7 +14,7 @@ const RoomDetail = () => {
     // STATE
     const [isLoading, setIsLoading] = useState(true);
 
-    if(location.state === null) {
+    if (location.state === null) {
         navigate("/hotel");
     }
     // This will run one time after the component mounts
@@ -33,7 +33,7 @@ const RoomDetail = () => {
                     <>
                         <Navbar pageName="Hotel" />
                         <HotelLanding />
-                        <HotelRoomDetail data={location.state}/>
+                        <HotelRoomDetail data={location.state} />
                         <HomeServices />
                         <Footer />
                     </>

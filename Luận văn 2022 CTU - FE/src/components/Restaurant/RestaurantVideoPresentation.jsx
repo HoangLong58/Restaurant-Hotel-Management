@@ -1,6 +1,6 @@
 import { PlayArrow } from '@mui/icons-material';
-import React, { useState } from 'react'
-import Modal from './Modal'
+import React, { useState } from 'react';
+import Modal from './Modal';
 
 const RestaurantVideoPresentation = () => {
     // Modal
