@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Luận văn 2022 CTU.iml" filepath="$PROJECT_DIR$/.idea/Luận văn 2022 CTU.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thesis/thesis.iml" filepath="$PROJECT_DIR$/thesis/thesis.iml" />
+    </modules>
+  </component>
+</project>
