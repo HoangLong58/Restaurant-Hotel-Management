@@ -11,7 +11,7 @@ import moment from 'moment';
 // Time picker
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-import { AccessAlarmsOutlined, CelebrationOutlined, ReplayOutlined } from '@mui/icons-material';
+import { AccessAlarmsOutlined, Add, ArrowRightAltOutlined, CelebrationOutlined, CheckCircleRounded, Remove, ReplayOutlined } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../img/logos/logo.png';
 import Toast from '../Toast';
@@ -35,8 +35,14 @@ import view5 from '../../img/lavender1.jpg';
 import view2 from '../../img/lobby1.jpg';
 import view4 from '../../img/santhuong1.jpg';
 import view1 from '../../img/sanvuon1.jpg';
-import Modal from './Modal';
 
+import cash from '../../img/cash-icon.jpg';
+import momoImage from '../../img/momo.jpg';
+import paypalImage from '../../img/paypal.png';
+import cardImage from '../../img/thenganhang.png';
+
+import Modal from './Modal';
+import SliderImage from '../SliderImage';
 
 const Box2 = styled.div`
 width: 100%;
@@ -528,6 +534,389 @@ display: flex;
 justify-content: flex-end;
 align-items: center;
 `
+// Payment
+const InfomationForm = styled.div`
+    color: var(--color-dark);
+`
+
+const ModalChiTietItem = styled.div`
+margin: 2px 0px;
+display: flex;
+flex-direction: column;
+`
+
+const FormSpan = styled.span`
+font-size: 1.1rem;
+font-weight: 700;
+color: var(--color-dark-light);
+margin-bottom: 3px;
+`
+const FormInput = styled.input`
+background-color: var(--color-white);
+color: var(--color-dark);
+width: auto;
+padding: 8px 20px;
+margin: 5px 0;
+display: inline-block;
+outline: 0;
+border: 1px solid #ccc;
+border-radius: 4px;
+box-sizing: border-box;
+&:focus {
+    border: 1px solid var(--color-success);
+    box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
+}
+`
+
+const FormTextArea = styled.textarea`
+background-color: var(--color-white);
+color: var(--color-dark);
+width: auto;
+padding: 8px 20px;
+margin: 5px 0;
+display: inline-block;
+outline: 0;
+border: 1px solid #ccc;
+border-radius: 4px;
+box-sizing: border-box;
+&:focus {
+    border: 1px solid var(--color-success);
+    box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
+}
+`
+
+const Circle = styled.span`
+height: 12px;
+width: 12px;
+background: #ccc;
+border-radius: 50%;
+margin-right: 15px;
+border: 4px solid transparent;
+display: inline-block;
+`
+
+const LeftRow = styled.div``
+const LeftDiscount = styled.div`
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  align-items: center;
+  margin-top: 10px;
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: -96px;
+    left: 15px;
+    width: 96%;
+    border-top: 2px dashed var(--color-primary);
+  }
+`
+
+// Way payment
+const LeftWayPayment = styled.div`
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  width: 90% !important;
+`
+
+const PaymentWay = styled.div`
+  display: flex;
+  flex-direction: row;
+`
+const PaymentDescription = styled.div`
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  -webkit-transition: all 1500ms linear;
+	transition: all 1500ms linear; 
+`
+const PaymentDescriptionP = styled.p`
+  margin: 10px 10px 10px 15px;
+  color: var(--color-dark);
+`
+
+const InputRadio = styled.input`
+  padding: 0px 10px;
+  font-size: 2rem;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+  -ms-transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  transform: scale(1.3);
+  color: var(--color-dark);
+  &::before {
+      border: 2px solid #333;
+  }
+`
+
+
+const PaymentName = styled.div`
+  color: var(--color-dark);
+  margin-left: 10px;
+`
+
+const PaymentUl = styled.ul``
+const PaymentLi = styled.li`
+    margin-bottom: 10px;
+`
+const PaymentLabel = styled.label`
+  margin-top: 20px;
+  position: relative;
+  &:hover {
+    ${PaymentDescription} {
+      opacity: 1;
+      height: auto;
+    }
+  }
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: -10px;
+    left: 15px;
+    width: 70%;
+    border-top: 2px solid #202020;
+  }
+  &:last-child &::after {
+    display: none;
+  }
+
+`
+const PaymentCol9 = styled.div`
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: #333;
+`
+const PaymentImgContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: #333;
+`
+const PaymentImg = styled.img`
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    background-color: white;
+`
+const Input = styled.input`
+  width: 100% !important;
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  width: auto;
+  padding: 8px 20px;
+  margin: 5px 0;
+  display: inline-block;
+  outline: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  &:focus {
+      border: 1px solid var(--color-success);
+      box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
+  }
+`
+
+
+// More Image
+const ImgContainer = styled.div`
+`
+const MoreImage = styled.div`
+    width: 100%;
+`
+
+// Số bàn
+const BookingButton = styled.div``
+const BookingButtonA = styled.div`
+    cursor: pointer;
+    margin-top: 5px;
+    height: 40px;
+`
+
+const BookingRestaurantQuantity = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+`
+const BookingRestaurantQuantityInput = styled.input`
+background-color: var(--color-white);
+color: var(--color-dark);
+width: auto;
+padding: 8px 20px;
+margin: 5px 0;
+display: inline-block;
+outline: 0;
+border: 1px solid #ccc;
+border-radius: 4px;
+box-sizing: border-box;
+&:focus {
+    border: 1px solid var(--color-success);
+    box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
+}
+`
+const BookingRestaurantQuantityButton = styled.div`
+    background-color: var(--color-primary);
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    &::before {
+        width: 50px;
+        height: 50px;
+        top: -5px;
+        left: -5px;
+    }
+    &:hover {
+        background-color: var(--color-dark);
+        &::before {
+        top: -30px;
+        left: -30px;
+        width: 100px;
+        height: 100px;
+        background-color: rgba(65, 241, 182, 0.1);
+    }
+}
+`
+
+const Title = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    position: relative;
+    margin-top: 15px;
+    &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 15px;
+    width: 96%;
+    border-top: 2px dashed var(--color-primary);
+  }
+`
+
+
+const TotalMoneyRow = styled.div`
+  margin-bottom: 8px;
+  color: white;
+`
+
+// Total money
+const TotalMoney = styled.div`
+  margin-top: 50px;
+  border: 2px solid var(--color-dark);
+  position: relative;
+`
+const TotalMoneySpan = styled.span`
+  position: absolute;
+  background-color: #444444;
+  width: 168px;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 10px 5px 10px;
+  font-weight: 400;
+  top: -20px;
+  left: 35%;
+  font-weight: 600;
+  letter-spacing: 2px;
+`
+
+const TotalMoneyBeforeH3 = styled.h3`
+  font-weight: bold;
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  color: var(--color-primary);
+	text-transform: lowercase;
+  font-size: 1.8rem;
+  position: relative;
+`
+
+const TotalMoneyH5 = styled.h5`
+  color: var(--color-dark);
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-top: 20px;
+  text-transform: none;
+  margin-bottom: 20px;
+  cursor: pointer;
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: -10px;
+    left: 25%;
+    width: 50%;
+    border-top: 2px solid var(--color-dark);
+  }
+`
+
+// Finish
+const ModalContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.8;
+    color: #141414;
+    width: 100%;
+    background-color: #fafafa;
+    margin-top: 30px;
+    padding: 20px 20px 40px 20px;
+`
+const H2 = styled.h2`
+font-size: 1.8rem;
+margin-top: 20px;
+`
+const Small = styled.small`
+margin-top: 15px;
+font-size: 1.3rem;
+`
+const SuccessButtonContainer = styled.div`
+    justify-content: center;
+    position: relative;
+    margin: 22px 0;
+    display: flex;
+    &::after {
+        content: "";
+        border: 2px solid black;
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        background-color: transperent;
+        width: 300px;
+        height: 100%;
+        z-index: 5;
+    }
+`
+
+const SuccessButton = styled.button`
+    padding: 10px;
+    width: 300px;
+    border: 2px solid black;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    z-index: 10;
+    &:hover {
+        background-color: var(--color-primary);
+    }
+    &:active {
+        background-color: #333;
+        transform: translate(5px, 5px);
+        transition: transform 0.25s;
+    }
+`
 
 const BookPartyMain = () => {
     const navigate = useNavigate();
@@ -538,9 +927,15 @@ const BookPartyMain = () => {
 
     const [checkInDate, setCheckInDate] = useState();
     const [timeBooking, setTimeBooking] = useState();
+    const [quantityBooking, setQuantityBooking] = useState(0);
 
     //  --State khi chọn xong place -> Chọn menu
     const [isBookMenu, setIsBookMenu] = useState(true);
+    //  --State khi chọn xong menu -> Thanh toán
+    const [isPayment, setIsPayment] = useState(true);
+    //  --State khi thanh toán thành công -> Finish
+    const [isFinish, setIsFinish] = useState(true);
+
 
     //---------------------------------------------------------------- 
     // Modal
@@ -635,504 +1030,861 @@ const BookPartyMain = () => {
         openModal({ type: "showImageView" })
     }
 
+    // --Handle Increase/ Decrease quantity
+    const handleClickIncreaseQuantity = () => {
+        setQuantityBooking(prev => prev + 1);
+    }
+    const handleClickDecreaseQuantity = () => {
+        setQuantityBooking(prev => prev - 1);
+    }
     return (
         <>
             {/*-- BOOK PARTY PROGRESS -- */}
-            <BookPartyProgress step={isBookMenu ? "findMenu" : "findPlace"} />
+            <BookPartyProgress step={isFinish ? "finish" : isPayment ? "payment" : isBookMenu ? "findMenu" : "findPlace"} />
 
             <div class="section padding-top-bottom z-bigger" style={{ paddingTop: "0" }}>
                 <div class="container">
                     <div className="row">
                         {
-                            isBookMenu ? (
-                                // Left
-                                < div className="col-lg-8">
-                                    <Box2>
-                                        <div className="col-lg-12">
-                                            <div className="row">
-                                                <InfomationTitle>
-                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Lựa chọn Menu &amp; Món ăn cụ thể</p>
-                                                    <p style={{ fontSize: "1rem" }}>Dưới đây là những Menu phù hợp</p>
-                                                </InfomationTitle>
-                                            </div>
-                                            <Carousel
-                                                swipeable={false}
-                                                draggable={false}
-                                                showDots={false}
-                                                responsive={responsive}
-                                                ssr={true} // means to render carousel on server-side.
-                                                infinite={true}
-                                                autoPlay={false}
-                                                autoPlaySpeed={1000}
-                                                keyBoardControl={true}
-                                                customTransition="transform 500ms ease 0s"
-                                                transitionDuration={1500}
-                                                containerClass="carousel-container"
-                                                removeArrowOnDeviceType={["tablet", "mobile"]}
-                                                deviceType="desktop"
-                                                dotListClass="custom-dot-list-style"
-                                                itemClass="carousel-item-padding-40-px"
-                                                arrows={true}
-                                                rewindWithAnimation={true}
-                                            >
-                                                <MenuItem onClick={() => handleClickMenu(menu1)}>
-                                                    <MenuImage src={menu1} />
-                                                    <MenuInfo>
-                                                        <MenuTitle>MENU 4.950.000</MenuTitle>
-                                                        <MenuDescription>
-                                                            Bàn tiệc tiêu chuẩn với đầy đủ các món ngon, đảm bảo đầy đủ khẩu phần và sự sang trọng.
-                                                        </MenuDescription>
-                                                    </MenuInfo>
-                                                </MenuItem>
-                                                <MenuItem onClick={() => handleClickMenu(menu2)}>
-                                                    <MenuImage src={menu2} />
-                                                    <MenuInfo>
-                                                        <MenuTitle>MENU 5.950.000</MenuTitle>
-                                                        <MenuDescription>
-                                                            Bàn tiệc nâng cấp cho bữa tiệc sang trọng với các món ngon đa dạng và thịnh soạn hơn.
-                                                        </MenuDescription>
-                                                    </MenuInfo>
-                                                </MenuItem>
-                                                <MenuItem onClick={() => handleClickMenu(menu3)}>
-                                                    <MenuImage src={menu3} />
-                                                    <MenuInfo>
-                                                        <MenuTitle>MENU 6.250.000</MenuTitle>
-                                                        <MenuDescription>
-                                                            Bàn tiệc với những món ăn phong phú và sang trọng đem đến cho quý khách.
-                                                        </MenuDescription>
-                                                    </MenuInfo>
-                                                </MenuItem>
-                                                <MenuItem onClick={() => handleClickMenu(menu4)}>
-                                                    <MenuImage src={menu4} />
-                                                    <MenuInfo>
-                                                        <MenuTitle>Menu 6.950.000</MenuTitle>
-                                                        <MenuDescription>
-                                                            Bàn tiệc thịnh soạn, đầy đủ món ngon, hợp khẩu vị người châu Á sẽ là chọn lựa hoàn hảo...
-                                                        </MenuDescription>
-                                                    </MenuInfo>
-                                                </MenuItem>
-                                                <MenuItem onClick={() => handleClickMenu(menu5)}>
-                                                    <MenuImage src={menu5} />
-                                                    <MenuInfo>
-                                                        <MenuTitle>Menu 7.550.000</MenuTitle>
-                                                        <MenuDescription>
-                                                            Bàn tiệc sang trọng, giá trị nhất với những món ngon phong phú và giá trị dinh dưỡng cao nhất.
-                                                        </MenuDescription>
-                                                    </MenuInfo>
-                                                </MenuItem>
-                                                <MenuItem onClick={() => handleClickMenu(menu6)}>
-                                                    <MenuImage src={menu6} />
-                                                    <MenuInfo>
-                                                        <MenuTitle>Menu thức uống</MenuTitle>
-                                                        <MenuDescription>
-                                                            Những thức uống đa dạng, mức giá hợp lý tạo thêm điểm nhấn quan trọng cho bữa tiệc.
-                                                        </MenuDescription>
-                                                    </MenuInfo>
-                                                </MenuItem>
-                                                <MenuItem onClick={() => handleClickMenu(menu7)}>
-                                                    <MenuImage src={menu7} />
-                                                    <MenuInfo>
-                                                        <MenuTitle>Bảng giá dịch vụ</MenuTitle>
-                                                        <MenuDescription>
-                                                            Những dịch vụ trang trí, nghi thức lễ với phiên bản nâng cấp làm tăng giá trị của bữa tiệc.
-                                                        </MenuDescription>
-                                                    </MenuInfo>
-                                                </MenuItem>
-                                                <MenuItem onClick={() => handleClickMenu(menu8)}>
-                                                    <MenuImage src={menu8} />
-                                                    <MenuInfo>
-                                                        <MenuTitle>BẢNG GIÁ DỊCH VỤ</MenuTitle>
-                                                        <MenuDescription>
-                                                            Những hạng mục chương trình giải trí và dịch vụ phụ trợ giúp bữa tiệc hoàn hảo hơn.
-                                                        </MenuDescription>
-                                                    </MenuInfo>
-                                                </MenuItem>
-                                            </Carousel>
-
-                                            {/* Detail Service */}
-                                            <div className="row">
-                                                <InfomationTitle>
-                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Những món ăn bạn đã chọn</p>
-                                                    <CartItem>
-                                                        <CircleService />
-                                                        <Course>
-                                                            <Content>
-                                                                <span style={{ width: "320px", fontWeight: "bold" }}> Gè rén </span>
-                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                            </Content>
-                                                            <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                        </Course>
-                                                    </CartItem>
-                                                    <CartItem>
-                                                        <CircleService />
-                                                        <Course>
-                                                            <Content>
-                                                                <span style={{ width: "320px", fontWeight: "bold" }}> Gè rén </span>
-                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                            </Content>
-                                                            <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                        </Course>
-                                                    </CartItem>
-                                                    <CartItem>
-                                                        <CircleService />
-                                                        <Course>
-                                                            <Content>
-                                                                <span style={{ width: "320px", fontWeight: "bold" }}> Gè rén </span>
-                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                            </Content>
-                                                            <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                        </Course>
-                                                    </CartItem>
-                                                </InfomationTitle>
-                                            </div>
-
-                                            {/* Remind service */}
-                                            <div className="row">
-                                                <InfomationTitle>
-                                                    <p style={{ fontWeight: "300", margin: "15px 0 0 0", fontSize: "1.1rem" }}>Bạn đồng ý lựa chọn <b style={{ color: "var(--color-primary)" }}>MENU 6.250.000</b> với những món ăn trên ?</p>
-                                                    {/* <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p> */}
-                                                </InfomationTitle>
-                                            </div>
-
-                                            {/* Button service */}
-                                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
-                                                <BookButtonContainer>
-                                                    <BookButton
-                                                        onClick={() => setIsBookSuccess(true)}
-                                                    >Đồng ý</BookButton>
-                                                </BookButtonContainer>
-
-                                                <Link to={"/restaurant"}>
-                                                    <BookButtonContainer>
-                                                        <BookButton
-                                                        >Hủy đặt tiệc</BookButton>
-                                                    </BookButtonContainer>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </Box2>
+                            // Finish
+                            isFinish ? (
+                                <div className="col-lg-12">
+                                    <ModalContent>
+                                        <CheckCircleRounded style={{ fontSize: "6rem", color: "var(--color-success)", margin: "auto" }} />
+                                        <span style={{ color: "var(--color-success)", fontSize: "1.5rem", fontWeight: "700", letterSpacing: "2px" }}>ĐẶT TIỆC THÀNH CÔNG!</span>
+                                        <H2>Cảm ơn bạn đã tin tưởng và lựa chọn <span style={{ color: "var(--color-primary)" }}>Hoàng Long Hotel &amp; Restaurant</span></H2>
+                                        <Small className="text-muted">Buổi tiệc sẽ được nhanh chóng chuẩn bị một cách chỉnh chu và hoàn hảo nhất!</Small>
+                                        <Link to="/restaurant" style={{ textDecoration: "none" }}>
+                                            <SuccessButtonContainer>
+                                                <SuccessButton><ArrowRightAltOutlined />   Quay về trang chủ sau 4 giây ...</SuccessButton>
+                                            </SuccessButtonContainer>
+                                        </Link>
+                                    </ModalContent>
                                 </div>
-                            ) : (
-                                // Left
-                                <div className="col-lg-8">
-                                    <Box2>
-                                        <div className="col-lg-12">
-                                            <div className="row">
-                                                <InfomationTitle>
-                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Lựa chọn Sảnh cử hành tiệc &amp; Dịch vụ đi kèm</p>
-                                                    <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p>
-                                                </InfomationTitle>
-                                            </div>
-                                            <Carousel
-                                                swipeable={false}
-                                                draggable={false}
-                                                showDots={false}
-                                                responsive={responsive}
-                                                ssr={true} // means to render carousel on server-side.
-                                                infinite={true}
-                                                autoPlay={false}
-                                                autoPlaySpeed={1000}
-                                                keyBoardControl={true}
-                                                customTransition="transform 500ms ease 0s"
-                                                transitionDuration={1500}
-                                                containerClass="carousel-container"
-                                                removeArrowOnDeviceType={["tablet", "mobile"]}
-                                                deviceType="desktop"
-                                                dotListClass="custom-dot-list-style"
-                                                itemClass="carousel-item-padding-40-px"
-                                                arrows={true}
-                                                rewindWithAnimation={true}
-                                            >
-                                                <ViewItem onClick={() => handleClickView(view1)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                    <ViewImage src={view1} />
-                                                    <ViewInfo>
-                                                        <ViewTitle>SẢNH IRIS &#8211; SÂN VƯỜN</ViewTitle>
-                                                        <ViewDescription>
-                                                            Không gian tiệc ngoài trời thoáng đãng, tươi mát, rộng rãi, sức chứa khoảng 130-280 khách.
-                                                        </ViewDescription>
-                                                    </ViewInfo>
-                                                </ViewItem>
-                                                <ViewItem onClick={() => handleClickView(view2)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                    <ViewImage src={view2} />
-                                                    <ViewInfo>
-                                                        <ViewTitle>SẢNH DAISY &#8211; LOBBY</ViewTitle>
-                                                        <ViewDescription>
-                                                            Không gian tiệc trong nhà phong cách Rustic lãng mạn, duyên dáng, ấm cúng, sức chứa khoảng 120 khách.
-                                                        </ViewDescription>
-                                                    </ViewInfo>
-                                                </ViewItem>
-                                                <ViewItem onClick={() => handleClickView(view3)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                    <ViewImage src={view3} />
-                                                    <ViewInfo>
-                                                        <ViewTitle>SẢNH PEONY &#8211; HỒ BƠI</ViewTitle>
-                                                        <ViewDescription>
-                                                            Không gian tiệc ngoài trời độc đáo, ấn tượng, xanh mát, sức chứa đẹp nhất khoảng 120 khách.
-                                                        </ViewDescription>
-                                                    </ViewInfo>
-                                                </ViewItem>
-                                                <ViewItem onClick={() => handleClickView(view4)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                    <ViewImage src={view4} />
-                                                    <ViewInfo>
-                                                        <ViewTitle>SẢNH PANSEE &#8211; SÂN THƯỢNG</ViewTitle>
-                                                        <ViewDescription>
-                                                            Không gian tiệc ngoài trời trên tầng cao, thoáng mát, mới lạ, sức chứa tối đa khoảng 70 khách.
-                                                        </ViewDescription>
-                                                    </ViewInfo>
-                                                </ViewItem>
-                                                <ViewItem onClick={() => handleClickView(view5)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                    <ViewImage src={view5} />
-                                                    <ViewInfo>
-                                                        <ViewTitle>SẢNH LAVENDER &#8211; ÁP MÁI</ViewTitle>
-                                                        <ViewDescription>
-                                                            Không gian tiệc trong nhà nhỏ xinh, ấm áp, thanh lịch, sức chứa khoảng 50 khách.
-                                                        </ViewDescription>
-                                                    </ViewInfo>
-                                                </ViewItem>
-                                            </Carousel>
+                            ) :
+                                // When paymemt
+                                isPayment ? (
+                                    <div className="col-lg-8">
+                                        <Box2>
+                                            <div className="col-lg-12">
+                                                <div className="row">
+                                                    <InfomationTitle>
+                                                        <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi tiết Đặt Tiệc</p>
+                                                        <p style={{ fontSize: "1rem" }}>Hoàn tất Đặt tiệc bằng việc cung cấp những thông tin sau</p>
+                                                    </InfomationTitle>
+                                                </div>
+                                                <div className="row">
+                                                    <InfomationForm className="col-lg-12">
+                                                        <div className="row">
+                                                            <ModalChiTietItem className="col-lg-6">
+                                                                <FormSpan>Họ tên:</FormSpan>
+                                                                <FormInput type="text" placeholder="Họ tên của bạn là" />
+                                                            </ModalChiTietItem>
+                                                            <ModalChiTietItem className="col-lg-6">
+                                                                <FormSpan>Số điện thoại:</FormSpan>
+                                                                <FormInput type="text" placeholder="Số điện thoại của bạn là" />
+                                                            </ModalChiTietItem>
+                                                        </div>
+                                                        <div className="row">
 
-                                            {/* Detail Service */}
-                                            <div className="row">
-                                                <InfomationTitle>
-                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Những dịch vụ đã chọn</p>
-                                                    <CartItem>
-                                                        <CircleService />
-                                                        <Course>
-                                                            <Content>
-                                                                <span style={{ width: "320px", fontWeight: "bold" }}> Gè rén </span>
-                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                            </Content>
-                                                            <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                        </Course>
-                                                    </CartItem>
-                                                    <CartItem>
-                                                        <CircleService />
-                                                        <Course>
-                                                            <Content>
-                                                                <span style={{ width: "320px", fontWeight: "bold" }}> Gè rén </span>
-                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                            </Content>
-                                                            <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                        </Course>
-                                                    </CartItem>
-                                                    <CartItem>
-                                                        <CircleService />
-                                                        <Course>
-                                                            <Content>
-                                                                <span style={{ width: "320px", fontWeight: "bold" }}> Gè rén </span>
-                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                            </Content>
-                                                            <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                        </Course>
-                                                    </CartItem>
-                                                </InfomationTitle>
-                                            </div>
+                                                            <ModalChiTietItem className="col-lg-12">
+                                                                <FormSpan>Địa chỉ email:</FormSpan>
+                                                                <FormInput type="email" placeholder="Email của bạn là" />
+                                                            </ModalChiTietItem>
+                                                        </div>
+                                                        <div className="row">
+                                                            <ModalChiTietItem className="col-lg-12">
+                                                                <FormSpan>Ghi chú:</FormSpan>
+                                                                <FormTextArea rows="3" placeholder="Ghi chú về buổi tiệc này này" />
+                                                            </ModalChiTietItem>
+                                                        </div>
+                                                    </InfomationForm>
+                                                </div>
+                                                <div className="row">
+                                                    <InfomationTitle>
+                                                        <Title>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi phí Sảnh</p>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0", fontSize: "1.3rem", color: "var(--color-primary)" }}>9.200.000 đ</p>
+                                                        </Title>
+                                                        <p style={{ fontSize: "1rem" }}>Bạn đã lựa chọn sảnh sau để cử hành buổi tiệc</p>
+                                                    </InfomationTitle>
+                                                </div>
+                                                <CartItem>
+                                                    <Circle />
+                                                    <Course>
+                                                        <Content>
+                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Sảnh Iris - Hồ bơi </span>
+                                                            <span style={{ fontWeight: "bold", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>9.200.000 VNĐ</span>
+                                                        </Content>
+                                                    </Course>
+                                                </CartItem>
+                                                <ImgContainer className="row">
+                                                    <MoreImage >
+                                                        <SliderImage image={[view4, 'https://picsum.photos/id/1018/1000/600/', 'https://picsum.photos/id/1018/1000/600/', 'https://picsum.photos/id/1018/1000/600/']} />
+                                                    </MoreImage>
+                                                </ImgContainer>
 
-                                            {/* Remind service */}
-                                            <div className="row">
-                                                <InfomationTitle>
-                                                    <p style={{ fontWeight: "300", margin: "15px 0 0 0", fontSize: "1.1rem" }}>Bạn đồng ý lựa chọn <b style={{ color: "var(--color-primary)" }}>Sảnh LAVENDER - ÁP MÁI</b> và những dịch vụ trên ?</p>
-                                                    {/* <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p> */}
-                                                </InfomationTitle>
-                                            </div>
+                                                {/* List dịch vụ */}
+                                                <div className="row">
+                                                    <InfomationTitle>
+                                                        <Title>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi phí Dịch vụ</p>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0", fontSize: "1.3rem", color: "var(--color-primary)" }}>600.000 đ</p>
+                                                        </Title>
+                                                        <p style={{ fontSize: "1rem" }}>Tổng chi phí cho tất cả dịch vụ sau đây</p>
+                                                    </InfomationTitle>
+                                                </div>
+                                                <CartItem>
+                                                    <Circle />
+                                                    <Course>
+                                                        <Content>
+                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Hoa tươi </span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                        </Content>
+                                                    </Course>
+                                                </CartItem>
+                                                <CartItem>
+                                                    <Circle />
+                                                    <Course>
+                                                        <Content>
+                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Bánh cưới + Rượu sampal </span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                        </Content>
+                                                    </Course>
+                                                </CartItem>
+                                                <CartItem>
+                                                    <Circle />
+                                                    <Course>
+                                                        <Content>
+                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> MC ca hót </span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                        </Content>
+                                                    </Course>
+                                                </CartItem>
 
-                                            {/* Button service */}
-                                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
-                                                <BookButtonContainer>
-                                                    <BookButton
-                                                        onClick={() => setIsBookSuccess(true)}
-                                                    >Đồng ý</BookButton>
-                                                </BookButtonContainer>
+                                                {/* List Món ăn */}
+                                                <div className="row">
+                                                    <InfomationTitle>
+                                                        <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi tiết Menu</p>
+                                                        <p style={{ fontSize: "1rem" }}>Tất cả những món ăn mà bạn đã chọn như sau</p>
+                                                    </InfomationTitle>
+                                                </div>
+                                                <CartItem>
+                                                    <Circle />
+                                                    <Course>
+                                                        <Content>
+                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}>  Món Tráng miệng </span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                        </Content>
+                                                        <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                    </Course>
+                                                </CartItem>
+                                                <CartItem>
+                                                    <Circle />
+                                                    <Course>
+                                                        <Content>
+                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Món Cơm-Mì-Lẩu </span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                        </Content>
+                                                        <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                    </Course>
+                                                </CartItem>
+                                                <CartItem>
+                                                    <Circle />
+                                                    <Course>
+                                                        <Content>
+                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Món thịt </span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                        </Content>
+                                                        <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                    </Course>
+                                                </CartItem>
 
-                                                <Link to={"/restaurant"}>
-                                                    <BookButtonContainer>
-                                                        <BookButton
-                                                        >Hủy đặt tiệc</BookButton>
-                                                    </BookButtonContainer>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </Box2>
-                                </div>
-                            )
-                        }
+                                                {/* Tổng chi phí menu */}
+                                                <div className="row">
+                                                    <InfomationTitle>
+                                                        <Title>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi phí Món ăn</p>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0", fontSize: "1.3rem", color: "var(--color-primary)" }}>7.255.000 đ</p>
+                                                        </Title>
+                                                        <p style={{ fontSize: "1rem" }}>Tổng chi phí dựa vào số lượng bàn tiệc</p>
+                                                    </InfomationTitle>
+                                                </div>
 
-                        {/* Right */}
-                        <div className="col-lg-4 order-first order-lg-last mt-4">
-                            {
-                                isAvailableTable ? (
-                                    <div className="section background-dark p-4" style={{ backgroundColor: "#f5f5f5" }}>
-                                        <TitleSolid className="row">
-                                            <RightColMd6 className='col-md-8' style={{ fontWeight: "600", padding: "0" }}>Thông tin đặt tiệc</RightColMd6>
-                                        </TitleSolid>
-                                        <TitleDashed className="row">
-                                            <RightColMd6 className='col-md-8' style={{ fontWeight: "600", padding: "0" }}>Thời gian giữ sảnh:</RightColMd6>
-                                            <RightColMd6 className='col-md-4' style={{ fontWeight: "600", fontSize: "1.3rem", display: "flex", flexDirection: "row", alignItems: "center" }}>
-                                                <AccessAlarmsOutlined style={{ marginRight: "3px" }} />
-                                                {minutes}:{seconds < 10 ? '0' + seconds : seconds}
-                                            </RightColMd6>
-                                        </TitleDashed>
-
-                                        <BookingInfo className="row">
-                                            <BookingInfoTitle className="col-md-12">Hoàng Long Hotel &amp; Restaurant</BookingInfoTitle>
-                                            <BookingInfoDetail className="col-md-12">
                                                 <BookingInfoDetailRow className="row">
                                                     <BookingInfoDetailRowMd5 className="col-md-5">
-                                                        <DayTitle>Ngày đặt sảnh</DayTitle>
-                                                        <DayDetail>11/09/2022</DayDetail>
+                                                        <DayTitle style={{ fontSize: "1.1rem", color: "var(--color-dark)" }}>Chi phí một mâm</DayTitle>
+                                                        <DayDetail style={{ fontSize: "1.3rem", color: "var(--color-primary)" }}>2.400.000 đ</DayDetail>
                                                     </BookingInfoDetailRowMd5>
                                                     <BookingInfoDetailRowMd2 className="col-md-2">
                                                         <CelebrationOutlined style={{ color: "var(--color-primary)" }} />
                                                     </BookingInfoDetailRowMd2>
                                                     <BookingInfoDetailRowMd5 className="col-md-5">
-                                                        <DayTitle>Thời gian cử hành</DayTitle>
-                                                        <DayDetail>06:00 AM</DayDetail>
+                                                        <DayTitle style={{ fontSize: "1.1rem", color: "var(--color-dark)" }}>Số bàn tiệc</DayTitle>
+                                                        <DayDetail>
+                                                            <BookingNumberRow className="row">
+                                                                <BookingRestaurantQuantity className="quantity">
+                                                                    <BookingRestaurantQuantityButton className="video-button"
+                                                                        onClick={() => handleClickDecreaseQuantity()}
+                                                                        style={{ cursor: "pointer", marginRight: "10px" }}
+                                                                    >
+                                                                        <Remove />
+                                                                    </BookingRestaurantQuantityButton>
+                                                                    <BookingRestaurantQuantityInput
+                                                                        style={{ backgroundColor: "white", color: "var(--color-dark)" }}
+                                                                        type="number"
+                                                                        min="1"
+                                                                        max="200"
+                                                                        step="1"
+                                                                        value={quantityBooking}
+                                                                        onChange={(e) => setQuantityBooking(e.target.value)}
+                                                                    />
+                                                                    <BookingRestaurantQuantityButton className="video-button"
+                                                                        onClick={() => handleClickIncreaseQuantity()}
+                                                                        style={{ cursor: "pointer", marginLeft: "10px" }}
+                                                                    >
+                                                                        <Add />
+                                                                    </BookingRestaurantQuantityButton>
+                                                                </BookingRestaurantQuantity>
+                                                            </BookingNumberRow>
+                                                        </DayDetail>
                                                     </BookingInfoDetailRowMd5>
                                                 </BookingInfoDetailRow>
-                                            </BookingInfoDetail>
 
-                                            <BookingNumber className="col-md-12">
-                                                <BookingNumberRow className="row">
-                                                    <BookingNumberRowMd5 className="col-md-6">Số lượng khách: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> 200</b></BookingNumberRowMd5>
-                                                </BookingNumberRow>
-                                            </BookingNumber>
-                                        </BookingInfo>
-
-                                        <PartyInformation className="row">
-                                            <PartyInformationTitle className="col-md-12">Thông tin Sảnh</PartyInformationTitle>
-                                            <PartyInformationDetail className="col-md-12">
-                                                <PartyInformationRow className="row">
-                                                    <PartyDetailTitle className="col-md-6">Loại tiệc</PartyDetailTitle>
-                                                    <PartyDetailPrice className="col-md-6">Lễ cưới</PartyDetailPrice>
-                                                </PartyInformationRow>
-                                                <PartyInformationRow className="row">
-                                                    <PartyDetailTitle className="col-md-6">Vị trí</PartyDetailTitle>
-                                                    <PartyDetailPrice className="col-md-6">Ngoài trời</PartyDetailPrice>
-                                                </PartyInformationRow>
-                                            </PartyInformationDetail>
-                                        </PartyInformation>
-
-                                        <Button className="row">
-                                            <ButtonContainer style={{ paddingTop: "40px" }}>
-                                                <ButtonClick
-                                                    onClick={() => navigate('/hotel')}
-                                                >
-                                                    {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
-                                                    Chỉnh sửa đặt tiệc
-                                                </ButtonClick>
-                                            </ButtonContainer>
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <div className="section background-dark p-4">
-                                        <div className="row">
-                                            <div className="col-12">
-                                                <div className="input-daterange input-group" id="flight-datepicker">
-                                                    <div className="row">
-                                                        <div className="col-12">
-                                                            <InputDateRangeFormItem classNameName="form-item">
-                                                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                                    <Stack spacing={3}>
-                                                                        <DesktopDatePicker
-                                                                            label="Ngày đặt bàn"
-                                                                            inputFormat="dd/MM/yyyy"
-                                                                            value={checkInDate}
-                                                                            onChange={(newValue) => handleChangeCheckInDate(newValue)}
-                                                                            renderInput={(params) => <TextField {...params} />}
-                                                                            InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "white" } } }}
-                                                                        />
-                                                                    </Stack>
-                                                                </LocalizationProvider>
-                                                            </InputDateRangeFormItem>
-                                                        </div>
-                                                        <div className="col-12 pt-4">
-                                                            <InputDateRangeFormItem>
-                                                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                                    <Stack spacing={3}>
-                                                                        <TimePicker
-                                                                            label="Thời gian đến"
-                                                                            value={timeBooking}
-                                                                            onChange={(newValue) => {
-                                                                                setTimeBooking(newValue);
-                                                                            }}
-                                                                            renderInput={(params) => <TextField {...params} />}
-                                                                            InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "white" } } }}
-                                                                        />
-                                                                    </Stack>
-                                                                </LocalizationProvider>
-                                                            </InputDateRangeFormItem>
-                                                        </div>
+                                                {/* Giảm giá */}
+                                                <LeftRow className="row">
+                                                    <div className="col-md-12">
+                                                        <InfomationTitle>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Áp dụng mã giảm giá</p>
+                                                            <p style={{ fontSize: "1rem" }}>Mỗi mã giảm giá chỉ được dùng duy nhất cho một thanh toán.</p>
+                                                        </InfomationTitle>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-12">
-                                                <div className="row">
-                                                    <div className="col-12 pt-4">
-                                                        <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
-                                                            <BookingNumberNiceSelectSpan className='current'>Loại tiệc</BookingNumberNiceSelectSpan>
-                                                            <BookingNumberNiceSelectUl className='list'>
-                                                                <BookingNumberNiceSelectLi data-value="adults" data-display="adults" className='option focus selected'>Loại tiệc</BookingNumberNiceSelectLi>
-                                                                <BookingNumberNiceSelectLi data-value="1" className='option'>Lễ cưới</BookingNumberNiceSelectLi>
-                                                                <BookingNumberNiceSelectLi data-value="2" className='option'>Tiệc cá nhân</BookingNumberNiceSelectLi>
-                                                                <BookingNumberNiceSelectLi data-value="3" className='option'>Hội nghị &amp; Tiệc công ty</BookingNumberNiceSelectLi>
-                                                            </BookingNumberNiceSelectUl>
-                                                        </BookingNumberNiceSelect>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-12">
-                                                <div className="row">
-                                                    <div className="col-12 pt-4">
-                                                        <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
-                                                            <BookingNumberNiceSelectSpan className='current'>Số lượng khách</BookingNumberNiceSelectSpan>
-                                                            <BookingNumberNiceSelectUl className='list'>
-                                                                <BookingNumberNiceSelectLi data-value="adults" data-display="adults" className='option focus selected'>Số lượng khách</BookingNumberNiceSelectLi>
-                                                                <BookingNumberNiceSelectLi data-value="1" className='option'>1</BookingNumberNiceSelectLi>
-                                                                <BookingNumberNiceSelectLi data-value="2" className='option'>2</BookingNumberNiceSelectLi>
-                                                                <BookingNumberNiceSelectLi data-value="3" className='option'>3</BookingNumberNiceSelectLi>
-                                                                <BookingNumberNiceSelectLi data-value="4" className='option'>4</BookingNumberNiceSelectLi>
-                                                                <BookingNumberNiceSelectLi data-value="4+" className='option'>4+</BookingNumberNiceSelectLi>
-                                                            </BookingNumberNiceSelectUl>
-                                                        </BookingNumberNiceSelect>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-12 col-md-6 col-lg-12 pt-5">
-                                                <h6 className="color-white mb-3">Bộ lọc:</h6>
-                                                <ul className="list">
-                                                    <li className="list__item">
-                                                        <label className="label--checkbox">
-                                                            <input type="checkbox" className="checkbox" />
-                                                            Trong nhà
-                                                        </label>
-                                                    </li>
-                                                    <li className="list__item">
-                                                        <label className="label--checkbox">
-                                                            <input type="checkbox" className="checkbox" />
-                                                            Ngoài trời
-                                                        </label>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <div className="col-12 col-md-6 col-lg-12 pt-5" style={{ padding: "0", margin: "0" }}>
-                                                <Button className="row">
-                                                    <ButtonContainer>
-                                                        <ButtonClick
-                                                            onClick={() => handleCheckAvailableTable()}
-                                                        >
+                                                    <LeftDiscount className='col-md-12'>
+                                                        <Input className='col-md-5' type="text" />
+                                                        <ButtonClick className='col-md-4' style={{ margin: "0px 0px 0px 20px", height: "40px" }}>
                                                             {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
-                                                            CHECK AVAILABLE
+                                                            Áp dụng mã giảm giá
                                                         </ButtonClick>
-                                                    </ButtonContainer>
-                                                </Button>
+                                                    </LeftDiscount>
+                                                </LeftRow>
+
+
+                                                {/* Total money */}
+                                                <TotalMoneyRow className="row">
+                                                    <TotalMoney>
+                                                        <TotalMoneySpan>Tổng cộng: </TotalMoneySpan>
+                                                        <TotalMoneyBeforeH3>4.578.000<b style={{ marginLeft: "5px" }}><u> đ</u></b></TotalMoneyBeforeH3>
+                                                        <TotalMoneyH5>
+                                                            Đã áp dụng mã giảm giá
+                                                        </TotalMoneyH5>
+                                                    </TotalMoney>
+                                                </TotalMoneyRow>
+
+                                                {/* Phương thức thanh toán */}
+                                                <LeftRow className="row" style={{ marginTop: "40px" }}>
+                                                    <div className="col-md-12">
+                                                        <InfomationTitle>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Phương thức thanh toán</p>
+                                                            <p style={{ fontSize: "1rem" }}>Quý khách có thể chọn một trong các phương thức sau để hoàn tất đặt phòng.</p>
+                                                        </InfomationTitle>
+                                                    </div>
+                                                    <LeftWayPayment className='col-md-12'>
+                                                        <PaymentUl className="list">
+                                                            <PaymentLi className="list__item">
+                                                                <PaymentLabel className="row label--checkbox">
+                                                                    <PaymentWay>
+                                                                        <PaymentCol9 className="col-md-5">
+                                                                            <InputRadio type="checkbox" className="checkbox" />
+                                                                            <PaymentName>
+                                                                                Momo
+                                                                            </PaymentName>
+                                                                        </PaymentCol9>
+                                                                        <PaymentImgContainer className="col-md-3">
+                                                                            <PaymentImg src={momoImage} alt="" />
+                                                                        </PaymentImgContainer>
+                                                                    </PaymentWay>
+                                                                    <PaymentDescription>
+                                                                        <PaymentDescriptionP>
+                                                                            Thanh toán qua ví điện tử Momo.
+                                                                        </PaymentDescriptionP>
+                                                                    </PaymentDescription>
+                                                                </PaymentLabel>
+                                                            </PaymentLi>
+                                                            <PaymentLi className="list__item">
+                                                                <PaymentLabel className="row label--checkbox">
+                                                                    <PaymentWay>
+                                                                        <PaymentCol9 className="col-md-5">
+                                                                            <InputRadio type="checkbox" className="checkbox" />
+                                                                            <PaymentName>
+                                                                                Paypal
+                                                                            </PaymentName>
+                                                                        </PaymentCol9>
+                                                                        <PaymentImgContainer className="col-md-3">
+                                                                            <PaymentImg src={paypalImage} alt="" />
+                                                                        </PaymentImgContainer>
+                                                                    </PaymentWay>
+                                                                    <PaymentDescription>
+                                                                        <PaymentDescriptionP>
+                                                                            Thanh toán qua Paypal. Chấp nhận tất cả các thẻ tín dụng và thẻ ghi nợ chính.
+                                                                        </PaymentDescriptionP>
+                                                                    </PaymentDescription>
+                                                                </PaymentLabel>
+                                                            </PaymentLi>
+                                                            <PaymentLi className="list__item">
+                                                                <PaymentLabel className="row label--checkbox">
+                                                                    <PaymentWay>
+                                                                        <PaymentCol9 className="col-md-5">
+                                                                            <InputRadio type="checkbox" className="checkbox" />
+                                                                            <PaymentName>
+                                                                                Chuyển khoản ngân hàng
+                                                                            </PaymentName>
+                                                                        </PaymentCol9>
+                                                                        <PaymentImgContainer className="col-md-3">
+                                                                            <PaymentImg src={cardImage} alt="" />
+                                                                        </PaymentImgContainer>
+                                                                    </PaymentWay>
+                                                                    <PaymentDescription>
+                                                                        <PaymentDescriptionP>
+                                                                            Thanh toán qua chuyển khoản ngân hàng trực tiếp.
+                                                                        </PaymentDescriptionP>
+                                                                    </PaymentDescription>
+                                                                </PaymentLabel>
+                                                            </PaymentLi>
+                                                            <PaymentLi className="list__item" >
+                                                                <PaymentLabel className="row label--checkbox">
+                                                                    <PaymentWay>
+                                                                        <PaymentCol9 className="col-md-5">
+                                                                            <InputRadio type="checkbox" className="checkbox" />
+                                                                            <PaymentName>
+                                                                                Thanh toán khi đến nơi
+                                                                            </PaymentName>
+                                                                        </PaymentCol9>
+                                                                        <PaymentImgContainer className="col-md-3">
+                                                                            <PaymentImg src={cash} alt="" style={{ backgroundColor: "white" }} />
+                                                                        </PaymentImgContainer>
+                                                                    </PaymentWay>
+                                                                    <PaymentDescription>
+                                                                        <PaymentDescriptionP>
+                                                                            Thanh toán khi đến nơi. Thanh toán bằng thẻ tín dụng hoặc tiền mặt khi bạn đến nơi.
+                                                                        </PaymentDescriptionP>
+                                                                    </PaymentDescription>
+                                                                </PaymentLabel>
+                                                            </PaymentLi>
+                                                        </PaymentUl>
+                                                    </LeftWayPayment>
+                                                </LeftRow>
+
+                                                {/* Button */}
+                                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
+                                                    <BookButtonContainer>
+                                                        <BookButton
+                                                            onClick={() => setIsBookSuccess(true)}
+                                                        >Đặt tiệc</BookButton>
+                                                    </BookButtonContainer>
+
+                                                    <Link to={"/restaurant"}>
+                                                        <BookButtonContainer>
+                                                            <BookButton
+                                                            >Hủy đặt tiệc</BookButton>
+                                                        </BookButtonContainer>
+                                                    </Link>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </Box2>
                                     </div>
                                 )
+                                    :
+                                    // When book menu
+                                    isBookMenu ? (
+                                        // Left book menu
+                                        < div className="col-lg-8">
+                                            <Box2>
+                                                <div className="col-lg-12">
+                                                    <div className="row">
+                                                        <InfomationTitle>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Lựa chọn Menu &amp; Món ăn cụ thể</p>
+                                                            <p style={{ fontSize: "1rem" }}>Dưới đây là những Menu phù hợp</p>
+                                                        </InfomationTitle>
+                                                    </div>
+                                                    <Carousel
+                                                        swipeable={false}
+                                                        draggable={false}
+                                                        showDots={false}
+                                                        responsive={responsive}
+                                                        ssr={true} // means to render carousel on server-side.
+                                                        infinite={true}
+                                                        autoPlay={false}
+                                                        autoPlaySpeed={1000}
+                                                        keyBoardControl={true}
+                                                        customTransition="transform 500ms ease 0s"
+                                                        transitionDuration={1500}
+                                                        containerClass="carousel-container"
+                                                        removeArrowOnDeviceType={["tablet", "mobile"]}
+                                                        deviceType="desktop"
+                                                        dotListClass="custom-dot-list-style"
+                                                        itemClass="carousel-item-padding-40-px"
+                                                        arrows={true}
+                                                        rewindWithAnimation={true}
+                                                    >
+                                                        <MenuItem onClick={() => handleClickMenu(menu1)}>
+                                                            <MenuImage src={menu1} />
+                                                            <MenuInfo>
+                                                                <MenuTitle>MENU 4.950.000</MenuTitle>
+                                                                <MenuDescription>
+                                                                    Bàn tiệc tiêu chuẩn với đầy đủ các món ngon, đảm bảo đầy đủ khẩu phần và sự sang trọng.
+                                                                </MenuDescription>
+                                                            </MenuInfo>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => handleClickMenu(menu2)}>
+                                                            <MenuImage src={menu2} />
+                                                            <MenuInfo>
+                                                                <MenuTitle>MENU 5.950.000</MenuTitle>
+                                                                <MenuDescription>
+                                                                    Bàn tiệc nâng cấp cho bữa tiệc sang trọng với các món ngon đa dạng và thịnh soạn hơn.
+                                                                </MenuDescription>
+                                                            </MenuInfo>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => handleClickMenu(menu3)}>
+                                                            <MenuImage src={menu3} />
+                                                            <MenuInfo>
+                                                                <MenuTitle>MENU 6.250.000</MenuTitle>
+                                                                <MenuDescription>
+                                                                    Bàn tiệc với những món ăn phong phú và sang trọng đem đến cho quý khách.
+                                                                </MenuDescription>
+                                                            </MenuInfo>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => handleClickMenu(menu4)}>
+                                                            <MenuImage src={menu4} />
+                                                            <MenuInfo>
+                                                                <MenuTitle>Menu 6.950.000</MenuTitle>
+                                                                <MenuDescription>
+                                                                    Bàn tiệc thịnh soạn, đầy đủ món ngon, hợp khẩu vị người châu Á sẽ là chọn lựa hoàn hảo...
+                                                                </MenuDescription>
+                                                            </MenuInfo>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => handleClickMenu(menu5)}>
+                                                            <MenuImage src={menu5} />
+                                                            <MenuInfo>
+                                                                <MenuTitle>Menu 7.550.000</MenuTitle>
+                                                                <MenuDescription>
+                                                                    Bàn tiệc sang trọng, giá trị nhất với những món ngon phong phú và giá trị dinh dưỡng cao nhất.
+                                                                </MenuDescription>
+                                                            </MenuInfo>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => handleClickMenu(menu6)}>
+                                                            <MenuImage src={menu6} />
+                                                            <MenuInfo>
+                                                                <MenuTitle>Menu thức uống</MenuTitle>
+                                                                <MenuDescription>
+                                                                    Những thức uống đa dạng, mức giá hợp lý tạo thêm điểm nhấn quan trọng cho bữa tiệc.
+                                                                </MenuDescription>
+                                                            </MenuInfo>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => handleClickMenu(menu7)}>
+                                                            <MenuImage src={menu7} />
+                                                            <MenuInfo>
+                                                                <MenuTitle>Bảng giá dịch vụ</MenuTitle>
+                                                                <MenuDescription>
+                                                                    Những dịch vụ trang trí, nghi thức lễ với phiên bản nâng cấp làm tăng giá trị của bữa tiệc.
+                                                                </MenuDescription>
+                                                            </MenuInfo>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => handleClickMenu(menu8)}>
+                                                            <MenuImage src={menu8} />
+                                                            <MenuInfo>
+                                                                <MenuTitle>BẢNG GIÁ DỊCH VỤ</MenuTitle>
+                                                                <MenuDescription>
+                                                                    Những hạng mục chương trình giải trí và dịch vụ phụ trợ giúp bữa tiệc hoàn hảo hơn.
+                                                                </MenuDescription>
+                                                            </MenuInfo>
+                                                        </MenuItem>
+                                                    </Carousel>
+
+                                                    {/* Detail Service */}
+                                                    <div className="row">
+                                                        <InfomationTitle>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Những món ăn bạn đã chọn</p>
+                                                            <CartItem>
+                                                                <CircleService />
+                                                                <Course>
+                                                                    <Content>
+                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
+                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                    </Content>
+                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                                </Course>
+                                                            </CartItem>
+                                                            <CartItem>
+                                                                <CircleService />
+                                                                <Course>
+                                                                    <Content>
+                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
+                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                    </Content>
+                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                                </Course>
+                                                            </CartItem>
+                                                            <CartItem>
+                                                                <CircleService />
+                                                                <Course>
+                                                                    <Content>
+                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
+                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                    </Content>
+                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                                </Course>
+                                                            </CartItem>
+                                                        </InfomationTitle>
+                                                    </div>
+
+                                                    {/* Remind service */}
+                                                    <div className="row">
+                                                        <InfomationTitle>
+                                                            <p style={{ fontWeight: "300", margin: "15px 0 0 0", fontSize: "1.1rem" }}>Bạn đồng ý lựa chọn <b style={{ color: "var(--color-primary)" }}>MENU 6.250.000</b> với những món ăn trên ?</p>
+                                                            {/* <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p> */}
+                                                        </InfomationTitle>
+                                                    </div>
+
+                                                    {/* Button service */}
+                                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
+                                                        <BookButtonContainer>
+                                                            <BookButton
+                                                                onClick={() => setIsBookSuccess(true)}
+                                                            >Đồng ý</BookButton>
+                                                        </BookButtonContainer>
+
+                                                        <Link to={"/restaurant"}>
+                                                            <BookButtonContainer>
+                                                                <BookButton
+                                                                >Hủy đặt tiệc</BookButton>
+                                                            </BookButtonContainer>
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            </Box2>
+                                        </div>
+                                    ) : (
+                                        // Left book place
+                                        <div className="col-lg-8">
+                                            <Box2>
+                                                <div className="col-lg-12">
+                                                    <div className="row">
+                                                        <InfomationTitle>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Lựa chọn Sảnh cử hành tiệc &amp; Dịch vụ đi kèm</p>
+                                                            <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p>
+                                                        </InfomationTitle>
+                                                    </div>
+                                                    <Carousel
+                                                        swipeable={false}
+                                                        draggable={false}
+                                                        showDots={false}
+                                                        responsive={responsive}
+                                                        ssr={true} // means to render carousel on server-side.
+                                                        infinite={true}
+                                                        autoPlay={false}
+                                                        autoPlaySpeed={1000}
+                                                        keyBoardControl={true}
+                                                        customTransition="transform 500ms ease 0s"
+                                                        transitionDuration={1500}
+                                                        containerClass="carousel-container"
+                                                        removeArrowOnDeviceType={["tablet", "mobile"]}
+                                                        deviceType="desktop"
+                                                        dotListClass="custom-dot-list-style"
+                                                        itemClass="carousel-item-padding-40-px"
+                                                        arrows={true}
+                                                        rewindWithAnimation={true}
+                                                    >
+                                                        <ViewItem onClick={() => handleClickView(view1)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                                                            <ViewImage src={view1} />
+                                                            <ViewInfo>
+                                                                <ViewTitle>SẢNH IRIS &#8211; SÂN VƯỜN</ViewTitle>
+                                                                <ViewDescription>
+                                                                    Không gian tiệc ngoài trời thoáng đãng, tươi mát, rộng rãi, sức chứa khoảng 130-280 khách.
+                                                                </ViewDescription>
+                                                            </ViewInfo>
+                                                        </ViewItem>
+                                                        <ViewItem onClick={() => handleClickView(view2)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                                                            <ViewImage src={view2} />
+                                                            <ViewInfo>
+                                                                <ViewTitle>SẢNH DAISY &#8211; LOBBY</ViewTitle>
+                                                                <ViewDescription>
+                                                                    Không gian tiệc trong nhà phong cách Rustic lãng mạn, duyên dáng, ấm cúng, sức chứa khoảng 120 khách.
+                                                                </ViewDescription>
+                                                            </ViewInfo>
+                                                        </ViewItem>
+                                                        <ViewItem onClick={() => handleClickView(view3)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                                                            <ViewImage src={view3} />
+                                                            <ViewInfo>
+                                                                <ViewTitle>SẢNH PEONY &#8211; HỒ BƠI</ViewTitle>
+                                                                <ViewDescription>
+                                                                    Không gian tiệc ngoài trời độc đáo, ấn tượng, xanh mát, sức chứa đẹp nhất khoảng 120 khách.
+                                                                </ViewDescription>
+                                                            </ViewInfo>
+                                                        </ViewItem>
+                                                        <ViewItem onClick={() => handleClickView(view4)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                                                            <ViewImage src={view4} />
+                                                            <ViewInfo>
+                                                                <ViewTitle>SẢNH PANSEE &#8211; SÂN THƯỢNG</ViewTitle>
+                                                                <ViewDescription>
+                                                                    Không gian tiệc ngoài trời trên tầng cao, thoáng mát, mới lạ, sức chứa tối đa khoảng 70 khách.
+                                                                </ViewDescription>
+                                                            </ViewInfo>
+                                                        </ViewItem>
+                                                        <ViewItem onClick={() => handleClickView(view5)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                                                            <ViewImage src={view5} />
+                                                            <ViewInfo>
+                                                                <ViewTitle>SẢNH LAVENDER &#8211; ÁP MÁI</ViewTitle>
+                                                                <ViewDescription>
+                                                                    Không gian tiệc trong nhà nhỏ xinh, ấm áp, thanh lịch, sức chứa khoảng 50 khách.
+                                                                </ViewDescription>
+                                                            </ViewInfo>
+                                                        </ViewItem>
+                                                    </Carousel>
+
+                                                    {/* Detail Service */}
+                                                    <div className="row">
+                                                        <InfomationTitle>
+                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Những dịch vụ đã chọn</p>
+                                                            <CartItem>
+                                                                <CircleService />
+                                                                <Course>
+                                                                    <Content>
+                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
+                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                    </Content>
+                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                                </Course>
+                                                            </CartItem>
+                                                            <CartItem>
+                                                                <CircleService />
+                                                                <Course>
+                                                                    <Content>
+                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
+                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                    </Content>
+                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                                </Course>
+                                                            </CartItem>
+                                                            <CartItem>
+                                                                <CircleService />
+                                                                <Course>
+                                                                    <Content>
+                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
+                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                    </Content>
+                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                                </Course>
+                                                            </CartItem>
+                                                        </InfomationTitle>
+                                                    </div>
+
+                                                    {/* Remind service */}
+                                                    <div className="row">
+                                                        <InfomationTitle>
+                                                            <p style={{ fontWeight: "300", margin: "15px 0 0 0", fontSize: "1.1rem" }}>Bạn đồng ý lựa chọn <b style={{ color: "var(--color-primary)" }}>Sảnh LAVENDER - ÁP MÁI</b> và những dịch vụ trên ?</p>
+                                                            {/* <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p> */}
+                                                        </InfomationTitle>
+                                                    </div>
+
+                                                    {/* Button service */}
+                                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
+                                                        <BookButtonContainer>
+                                                            <BookButton
+                                                                onClick={() => setIsBookSuccess(true)}
+                                                            >Đồng ý</BookButton>
+                                                        </BookButtonContainer>
+
+                                                        <Link to={"/restaurant"}>
+                                                            <BookButtonContainer>
+                                                                <BookButton
+                                                                >Hủy đặt tiệc</BookButton>
+                                                            </BookButtonContainer>
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            </Box2>
+                                        </div>
+                                    )
+                        }
+
+                        {/* Right */}
+                        <div className="col-lg-4 order-first order-lg-last mt-4">
+                            {
+                                isFinish ? null :
+                                    isAvailableTable ? (
+                                        <div className="section background-dark p-4" style={{ backgroundColor: "#f5f5f5" }}>
+                                            <TitleSolid className="row">
+                                                <RightColMd6 className='col-md-8' style={{ fontWeight: "600", padding: "0" }}>Thông tin đặt tiệc</RightColMd6>
+                                            </TitleSolid>
+                                            <TitleDashed className="row">
+                                                <RightColMd6 className='col-md-8' style={{ fontWeight: "600", padding: "0" }}>Thời gian giữ sảnh:</RightColMd6>
+                                                <RightColMd6 className='col-md-4' style={{ fontWeight: "600", fontSize: "1.3rem", display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                                    <AccessAlarmsOutlined style={{ marginRight: "3px" }} />
+                                                    {minutes}:{seconds < 10 ? '0' + seconds : seconds}
+                                                </RightColMd6>
+                                            </TitleDashed>
+
+                                            <BookingInfo className="row">
+                                                <BookingInfoTitle className="col-md-12">Hoàng Long Hotel &amp; Restaurant</BookingInfoTitle>
+                                                <BookingInfoDetail className="col-md-12">
+                                                    <BookingInfoDetailRow className="row">
+                                                        <BookingInfoDetailRowMd5 className="col-md-5">
+                                                            <DayTitle>Ngày đặt sảnh</DayTitle>
+                                                            <DayDetail>11/09/2022</DayDetail>
+                                                        </BookingInfoDetailRowMd5>
+                                                        <BookingInfoDetailRowMd2 className="col-md-2">
+                                                            <CelebrationOutlined style={{ color: "var(--color-primary)" }} />
+                                                        </BookingInfoDetailRowMd2>
+                                                        <BookingInfoDetailRowMd5 className="col-md-5">
+                                                            <DayTitle>Thời gian cử hành</DayTitle>
+                                                            <DayDetail>06:00 AM</DayDetail>
+                                                        </BookingInfoDetailRowMd5>
+                                                    </BookingInfoDetailRow>
+                                                </BookingInfoDetail>
+
+                                                <BookingNumber className="col-md-12">
+                                                    <BookingNumberRow className="row">
+                                                        <BookingNumberRowMd5 className="col-md-6">Số lượng khách: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> 200</b></BookingNumberRowMd5>
+                                                    </BookingNumberRow>
+                                                </BookingNumber>
+                                            </BookingInfo>
+
+                                            <PartyInformation className="row">
+                                                <PartyInformationTitle className="col-md-12">Thông tin Sảnh</PartyInformationTitle>
+                                                <PartyInformationDetail className="col-md-12">
+                                                    <PartyInformationRow className="row">
+                                                        <PartyDetailTitle className="col-md-6">Loại tiệc</PartyDetailTitle>
+                                                        <PartyDetailPrice className="col-md-6">Lễ cưới</PartyDetailPrice>
+                                                    </PartyInformationRow>
+                                                    <PartyInformationRow className="row">
+                                                        <PartyDetailTitle className="col-md-6">Vị trí</PartyDetailTitle>
+                                                        <PartyDetailPrice className="col-md-6">Ngoài trời</PartyDetailPrice>
+                                                    </PartyInformationRow>
+                                                </PartyInformationDetail>
+                                            </PartyInformation>
+
+                                            <Button className="row">
+                                                <ButtonContainer style={{ paddingTop: "40px" }}>
+                                                    <ButtonClick
+                                                        onClick={() => navigate('/hotel')}
+                                                    >
+                                                        {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
+                                                        Chỉnh sửa đặt tiệc
+                                                    </ButtonClick>
+                                                </ButtonContainer>
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <div className="section background-dark p-4">
+                                            <div className="row">
+                                                <div className="col-12">
+                                                    <div className="input-daterange input-group" id="flight-datepicker">
+                                                        <div className="row">
+                                                            <div className="col-12">
+                                                                <InputDateRangeFormItem classNameName="form-item">
+                                                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                        <Stack spacing={3}>
+                                                                            <DesktopDatePicker
+                                                                                label="Ngày đặt bàn"
+                                                                                inputFormat="dd/MM/yyyy"
+                                                                                value={checkInDate}
+                                                                                onChange={(newValue) => handleChangeCheckInDate(newValue)}
+                                                                                renderInput={(params) => <TextField {...params} />}
+                                                                                InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "white" } } }}
+                                                                            />
+                                                                        </Stack>
+                                                                    </LocalizationProvider>
+                                                                </InputDateRangeFormItem>
+                                                            </div>
+                                                            <div className="col-12 pt-4">
+                                                                <InputDateRangeFormItem>
+                                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                                        <Stack spacing={3}>
+                                                                            <TimePicker
+                                                                                label="Thời gian đến"
+                                                                                value={timeBooking}
+                                                                                onChange={(newValue) => {
+                                                                                    setTimeBooking(newValue);
+                                                                                }}
+                                                                                renderInput={(params) => <TextField {...params} />}
+                                                                                InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "white" } } }}
+                                                                            />
+                                                                        </Stack>
+                                                                    </LocalizationProvider>
+                                                                </InputDateRangeFormItem>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12">
+                                                    <div className="row">
+                                                        <div className="col-12 pt-4">
+                                                            <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
+                                                                <BookingNumberNiceSelectSpan className='current'>Loại tiệc</BookingNumberNiceSelectSpan>
+                                                                <BookingNumberNiceSelectUl className='list'>
+                                                                    <BookingNumberNiceSelectLi data-value="adults" data-display="adults" className='option focus selected'>Loại tiệc</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi data-value="1" className='option'>Lễ cưới</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi data-value="2" className='option'>Tiệc cá nhân</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi data-value="3" className='option'>Hội nghị &amp; Tiệc công ty</BookingNumberNiceSelectLi>
+                                                                </BookingNumberNiceSelectUl>
+                                                            </BookingNumberNiceSelect>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12">
+                                                    <div className="row">
+                                                        <div className="col-12 pt-4">
+                                                            <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
+                                                                <BookingNumberNiceSelectSpan className='current'>Số lượng khách</BookingNumberNiceSelectSpan>
+                                                                <BookingNumberNiceSelectUl className='list'>
+                                                                    <BookingNumberNiceSelectLi data-value="adults" data-display="adults" className='option focus selected'>Số lượng khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi data-value="1" className='option'>1</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi data-value="2" className='option'>2</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi data-value="3" className='option'>3</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi data-value="4" className='option'>4</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi data-value="4+" className='option'>4+</BookingNumberNiceSelectLi>
+                                                                </BookingNumberNiceSelectUl>
+                                                            </BookingNumberNiceSelect>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-md-6 col-lg-12 pt-5">
+                                                    <h6 className="color-white mb-3">Bộ lọc:</h6>
+                                                    <ul className="list">
+                                                        <li className="list__item">
+                                                            <label className="label--checkbox">
+                                                                <input type="checkbox" className="checkbox" />
+                                                                Trong nhà
+                                                            </label>
+                                                        </li>
+                                                        <li className="list__item">
+                                                            <label className="label--checkbox">
+                                                                <input type="checkbox" className="checkbox" />
+                                                                Ngoài trời
+                                                            </label>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div className="col-12 col-md-6 col-lg-12 pt-5" style={{ padding: "0", margin: "0" }}>
+                                                    <Button className="row">
+                                                        <ButtonContainer>
+                                                            <ButtonClick
+                                                                onClick={() => handleCheckAvailableTable()}
+                                                            >
+                                                                {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
+                                                                CHECK AVAILABLE
+                                                            </ButtonClick>
+                                                        </ButtonContainer>
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
                             }
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
             {/* Modal Mess */}
             {
                 minutes === 0 && seconds === 0
