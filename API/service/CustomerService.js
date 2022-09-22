@@ -1,7 +1,7 @@
 const con = require("../config/database.config");
 
 module.exports = {
-    create: (data, callBack) => {
+    createCustomer: (data, callBack) => {
         con.query(
             `insert into customer( first_name, last_name, birthday, gender, phone_number, email, password, state)
                 values(?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -23,7 +23,7 @@ module.exports = {
             }
         );
     },
-    getUsers: callBack => {
+    getCustomers: callBack => {
         con.query(
             `select customer_id, first_name, last_name, birthday, gender, phone_number, email, password, state from customer`,
             [],
@@ -35,7 +35,7 @@ module.exports = {
             }
         );
     },
-    getUserByCustomerId: (customerId, callBack) => {
+    getCustomerByCustomerId: (customerId, callBack) => {
         con.query(
             `select customer_id, first_name, last_name, birthday, gender, phone_number, email, password, state from customer where customer_id = ?`,
             [customerId],
@@ -47,7 +47,7 @@ module.exports = {
             }
         );
     },
-    updateUser: (data, callBack) => {
+    updateCustomer: (data, callBack) => {
         con.query(
             `update customer set first_name = ?, last_name = ?, birthday = ?, gender = ?, phone_number = ?, email = ?, password = ?, state = ? where customer_id = ?`,
             [
@@ -69,10 +69,22 @@ module.exports = {
             }
         )
     },
-    deleteUser: (data, callBack) => {
+    deleteCustomer: (data, callBack) => {
         con.query(
             `delete from customer where customer_id = ?`,
             [data.customerId],
+            (error, results, fields) => {
+                if(error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+    getCustomerByEmail: (email, callBack) => {
+        con.query(
+            `select * from customer where email = ?`,
+            [email],
             (error, results, fields) => {
                 if(error) {
                     return callBack(error);

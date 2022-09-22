@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 const cookieParser = require('cookie-parser');  //Sử dụng module cookie-parser
 const cors = require("cors");
 
-const userRouter = require("./router/UserRouter");
+const customerRouter = require("./router/CustomerRouter");
 
 dotenv.config();
 app.use(cors({
@@ -14,7 +14,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/users", userRouter);
+app.use("/api/users", customerRouter);
 
 app.listen(process.env.PORT || 5000, () => {
     console.log("BACKEND server is running at:", process.env.PORT);
