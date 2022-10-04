@@ -1,0 +1,2 @@
+export const REACT_APP_STRIPE = "pk_test_51KcfU1HWOpDhBVdmVE6IQkkjvSAFRNoVhB6h5301Y9UTYWsrXIJietqPsk1QNHewyvdYmFEnSl9rhePsiSkLPT1y00BRJDuyVt";
+export const TRACE_VND_USA = 23760;

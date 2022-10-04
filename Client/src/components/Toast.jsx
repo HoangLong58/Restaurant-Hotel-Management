@@ -1,4 +1,4 @@
-import { DoneOutlined, ErrorOutlineOutlined } from '@mui/icons-material';
+import { DoneOutlined, ErrorOutlineOutlined, SearchOffOutlined } from '@mui/icons-material';
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import styled from "styled-components";
 
@@ -16,6 +16,7 @@ const Container = styled.div`
 `
 const Icon = styled.div`
     flex: 20%;
+    padding-bottom: 10px;
 `
 const Message = styled.div`
     flex: 80%;
@@ -38,12 +39,12 @@ const Toast = forwardRef((props, ref) => {
         <Container
             id={showToast ? "showToast" : "hideToast"}
             style={{
-                backgroundColor: props.dataToast.type === "success" ? "var(--color-success-toast)" : "var(--color-danger)",
+                backgroundColor: props.dataToast.type === "success" ? "var(--color-success-toast)" : props.dataToast.type === "warning" ? "var(--color-warning)" : "var(--color-danger)",
                 color: props.dataToast.type === "success" ? "var(--color-black)" : "var(--color-white)",
             }}
         >
             <Icon>
-                {props.dataToast.type === "success" ? <h1><DoneOutlined /></h1> : <h1><ErrorOutlineOutlined /></h1>}
+                {props.dataToast.type === "success" ? <h1><DoneOutlined /></h1> : props.dataToast.type === "warning" ? <h1><SearchOffOutlined /></h1> : <h1><ErrorOutlineOutlined /></h1>}
             </Icon>
             <Message>{props.dataToast.message}</Message>
         </Container>

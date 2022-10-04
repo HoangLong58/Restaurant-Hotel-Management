@@ -33,7 +33,7 @@ const HotelPayment = () => {
                     <>
                         <Navbar pageName="Hotel" />
                         <HotelLanding />
-                        <Payment />
+                        <Payment data={location.state} />
                         <HomeServices />
                         <Footer />
                     </>

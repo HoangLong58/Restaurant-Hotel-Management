@@ -12,14 +12,15 @@ import OrderFood from "./pages/OrderFood";
 import BookTable from "./pages/BookTable";
 import BookParty from "./pages/BookParty";
 
+import { useSelector } from "react-redux";
+
 function App() {
+  const customer = useSelector((state) => state.customer.currentCustomer);
   return (
     <Router>
       <Routes>
         <Route path='/home' element={
-          <PrivateRoute>
-            <Home />
-          </PrivateRoute>
+          <Home />
         } />
         {/* HOTEL */}
         <Route path='/hotel' element={
@@ -63,11 +64,9 @@ function App() {
             <BookParty />
           </PrivateRoute>
         } />
-        {/* <Route path='/login' element={
-          <PrivateRoute>
-            <LoginRegister />
-          </PrivateRoute>
-        } /> */}
+
+        <Route path='/login' element={customer ? <Navigate to="/" /> : <LoginRegister />} />
+
         <Route path='*' element={
           <NotFound />
         } />

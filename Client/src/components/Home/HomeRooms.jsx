@@ -1,5 +1,5 @@
 import { Star } from '@mui/icons-material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import svg1 from '../../img/1.svg';
 import svg2 from '../../img/2.svg';
 import svg3 from '../../img/3.svg';
@@ -11,7 +11,22 @@ import picture4 from '../../img/room4.jpg';
 import picture5 from '../../img/room5.jpg';
 import picture6 from '../../img/room6.jpg';
 
+// Service
+import * as RoomService from "../../service/RoomService";
+
 const HomeRooms = () => {
+	// State
+	const [roomList, setRoomList] = useState([]);
+
+	useEffect(() => {
+		const getRooms = async () => {
+			const res = await RoomService.getRooms();
+			setRoomList(res.data.data);
+			console.log(res);
+		};
+		getRooms();
+	}, []);
+
 	return (
 		<div className="section padding-top-bottom over-hide background-grey">
 			<div className="container">
@@ -21,7 +36,41 @@ const HomeRooms = () => {
 						<h3 className="text-center padding-bottom-small">Những loại phòng của chúng tôi</h3>
 					</div>
 					<div className="section clearfix"></div>
-					<div className="col-md-6">
+					{
+						roomList ?
+							roomList.map((room, key) => {
+								return (
+									<div className="col-md-6 mt-4">
+										<div className="room-box background-white">
+											<div className="room-name">{room.floor_name}</div>
+											<div className="room-per">
+												<Star style={{ color: "yellow" }} />
+												<Star style={{ color: "yellow" }} />
+												<Star style={{ color: "yellow" }} />
+												<Star style={{ color: "yellow" }} />
+												<Star style={{ color: "yellow" }} />
+											</div>
+											<img src={room.room_image_content} alt="" style={{ height: "360px", objectFit: "cover", objectPosition: "center" }} />
+											<div className="room-box-in">
+												<h5 className="">{room.room_type_name}</h5>
+												<p className="mt-3" style={{ overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: "3" }}>{room.room_description}</p>
+												<a className="mt-1 btn btn-primary" href="rooms-gallery.html">Đặt ngay {room.room_price}$</a>
+												<div className="room-icons mt-4 pt-4">
+													<img src={svg5} alt="" />
+													<img src={svg2} alt="" />
+													<img src={svg3} alt="" />
+													<img src={svg1} alt="" />
+													<a href="rooms-gallery.html">Xem chi tiết</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								);
+							})
+							: null
+					}
+
+					{/* <div className="col-md-6">
 						<div className="room-box background-white">
 							<div className="room-name">suite tanya</div>
 							<div className="room-per">
@@ -120,7 +169,7 @@ const HomeRooms = () => {
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> */}
 				</div>
 			</div>
 		</div>

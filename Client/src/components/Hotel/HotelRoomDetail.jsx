@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from "react-redux";
 import styled from 'styled-components';
 import SliderImage from "../SliderImage";
 // Date picker
@@ -15,8 +16,17 @@ import { useNavigate } from 'react-router-dom';
 import svg2 from '../../img/2.svg';
 import svg3 from '../../img/3.svg';
 import svg5 from '../../img/5.svg';
+import spaIcon from '../../img/spa.png';
+import bedIcon from '../../img/double-bed.png';
+import tiviMoi from '../../img/tivi-moi.jpg';
 import picture3 from '../../img/room3.jpg';
 import HotelProgress from './HotelProgress';
+
+// Service
+import * as RoomService from "../../service/RoomService";
+import { handleShowStar } from '../../utils/utils';
+import Toast from '../Toast';
+import { addCustomerBookingRoom, addRoomBookingRoom, chooseDayAndQuantity } from '../../redux/roomBookingRedux';
 
 const HotelItem = styled.div``
 
@@ -71,28 +81,259 @@ const ButtonClick = styled.button`
     }
 `
 
+const DetailRoomButton = styled.a`
+    cursor: pointer;
+    &:hover {
+        color: #41f1b6 !important;
+    }
+`
+// Service Item
+const ServiceItem = styled.div`
+    margin-bottom: 5px;
+`;
+const ServiceIcon = styled.img`
+    width: 40px;
+    height: auto;
+`;
+const ServiceName = styled.div`
+    font-size: 1rem;
+    font-weight: bold;
+`;
+const ServiceTime = styled.div`
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+`;
+const ServiceTitle = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+`;
+const ServiceInfo = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+`;
+const ServiceIconContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+// Device Item
+const DeviceIcon = styled.img`
+    width: 40px;
+    height: auto;
+`;
+const DeviceName = styled.div`
+    font-size: 1rem;
+    font-weight: bold;
+`;
+const DeviceTime = styled.div`
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+`;
+const DeviceTitle = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+`;
+const DeviceInfo = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+`;
+const DeviceIconContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+// Device detail
+const DeviceDetailContainer = styled.div`
+    border-radius: 5px;
+    padding: 12px;
+    position: absolute;
+    bottom: calc(100% + 20px);
+    right: -100px;
+    background-color: #f5f5f5;
+    width: 250px;
+    border-radius: 2px;
+    box-shadow: 0 1px 3.125rem 0 rgb(0 0 0 / 20%);
+    -webkit-animation: fadeIn ease-in 0.2s;
+    animation: fadeIn ease-in 0.2s;
+    transition: all 0.85s ease;
+    cursor: default;
+    z-index: 10;
+    display: block;
+    opacity: 0;
+    &::after {
+        content: "";
+        position: absolute;
+        cursor: pointer;
+        left: 24px;
+        bottom: -28px;
+        border-width: 16px 20px;
+        border-style: solid;
+        border-color: #f5f5f5 transparent transparent transparent;
+    }
+`;
+const DeviceDetailImage = styled.img`
+    border-radius: 5px;
+    width: 100%;
+`;
+
+const DeviceItem = styled.div`
+    border-radius: 5px;
+    margin-bottom: 5px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    &:hover {
+        background-color: #f5f5f5;
+        ${DeviceDetailContainer} {
+            opacity: 1;
+        }
+        &::after {
+            opacity: 1;
+        }
+    }
+    &::after {
+        content: "";
+        position: absolute;
+        top: 10px;
+        right: 0;
+        height: 12px;
+        width: 12px;
+        background: var(--color-primary);
+        border-radius: 50%;
+        margin-right: 15px;
+        border: 4px solid transparent;
+        display: block;
+        opacity: 0;
+    }
+`;
 
 const HotelRoomDetail = (props) => {
     // Truyền data Từ trang chi tiết vào
     console.log("props data: ", props.data);
-
+    const customer = useSelector((state) => state.customer.currentCustomer);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     // STATE
-    const [isSelectAdults, setIsSelectAdults] = useState(false);
-    const [isSelectChildren, setIsSelectChildren] = useState(false);
+    const [roomId, setRoomId] = useState(props.data.room_id);
+    const [roomsSuggest, setRoomSuggest] = useState(props.data.roomsSuggest);
+    const [roomsSuggestDisplay, setRoomSuggestDisplay] = useState([]);
 
-    const [checkInDate, setCheckInDate] = useState();
-    const [checkOutDate, setCheckOutDate] = useState();
+    const [checkInDate, setCheckInDate] = useState(props.data.checkInDate);
+    const [checkOutDate, setCheckOutDate] = useState(props.data.checkOutDate);
+    const [adultsQuantity, setAdultsQuantity] = useState(props.data.adultsQuantity);
+    const [childrenQuantity, setChildrenQuantity] = useState(props.data.childrenQuantity);
+
+    const [room, setRoom] = useState();
+    const [roomImages, setRoomImages] = useState([]);
+    const [roomServices, setRoomServices] = useState([]);
+    const [roomDevices, setRoomDevices] = useState([]);
+
+    const [roomDescription, setRoomDescription] = useState();
+    const [roomSize, setRoomSize] = useState();
+    const [roomAdultQuantity, setRoomAdultQuantity] = useState();
+    const [roomChildQuantity, setRoomChildQuantity] = useState();
+    const [roomView, setRoomView] = useState();
+    const [roomTypeName, setRoomTypeName] = useState();
+    const [floorName, setFloorName] = useState();
+    const [roomTypeVoteTotal, setRoomTypeVoteTotal] = useState();
+    const [roomFeature, setRoomFeature] = useState();
+
 
     // HANDLE
-    const handleChangeCheckInDate = (newValue) => {
-        setCheckInDate(newValue);
-        console.log(moment(newValue).format("DD/MM/yyyy"));
+    useEffect(() => {
+        try {
+            const getRoom = async (roomId) => {
+                const res = await RoomService.getRoomByRoomId(roomId);
+                setRoom(res.data.data);
+                setRoomImages(res.data.data.roomImages);
+                setRoomServices(res.data.data.roomServices);
+                setRoomDevices(res.data.data.roomDevices)
+
+                setRoomDescription(res.data.data.room_description);
+                setRoomSize(res.data.data.room_size);
+                setRoomAdultQuantity(res.data.data.room_adult_quantity);
+                setRoomChildQuantity(res.data.data.room_child_quantity);
+                setRoomView(res.data.data.room_view);
+                setRoomTypeName(res.data.data.room_type_name);
+                setFloorName(res.data.data.floor_name);
+                setRoomTypeVoteTotal(res.data.data.room_type_vote_total);
+                setRoomFeature(res.data.data.room_feature);
+
+                // Bỏ phòng hiện tại khỏi suggest
+                let roomsSuggestAnother = roomsSuggest.filter(item => item.room_id !== roomId);
+                setRoomSuggestDisplay(roomsSuggestAnother);
+            };
+            getRoom(roomId);
+
+
+        } catch (error) {
+            console.log("Error: ", error);
+        }
+    }, [roomId]);
+    console.log("room: ", room);
+
+    // Toast
+    const [dataToast, setDataToast] = useState({ message: "alo alo", type: "success" });
+    const toastRef = useRef(null);
+
+    const showToastFromOut = (dataShow) => {
+        setDataToast(dataShow);
+        toastRef.current.show();
+    }
+
+    // Fake loading when fetch data
+    const [isLoading, setIsLoading] = useState(false);
+    const handleLoading = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 1200);
     };
-    const handleChangeCheckOutDate = (newValue) => {
-        setCheckOutDate(newValue);
-        console.log(moment(newValue).format("DD/MM/yyyy"));
+
+    const handleClickFullInfo = (roomId) => {
+        console.log(checkInDate, checkOutDate, adultsQuantity, childrenQuantity)
+        if (!checkInDate || !checkOutDate || !adultsQuantity || !childrenQuantity) {
+            // Toast
+            const dataToast = { message: "Vui lòng chọn thời gian Checkin/ Checkout & số lượng khách.", type: "warning" };
+            showToastFromOut(dataToast);
+            return;
+        };
+
+        setRoomId(roomId);
+
+        // Scroll lên kết quả mới
+        window.scrollTo({
+            top: 300,
+            behavior: "smooth"
+        });
+        handleLoading();
     };
+
+    const handleBookNow = () => {
+        dispatch(addCustomerBookingRoom({customer: customer}));
+        dispatch(addRoomBookingRoom({room: room}));
+        dispatch(chooseDayAndQuantity({
+            checkInDate: checkInDate,
+            checkOutDate: checkOutDate,
+            adultsQuantity: adultsQuantity,
+            childrenQuantity: childrenQuantity
+        }))
+        navigate('/hotel-payment', {
+            state: {
+                room_id: roomId,
+                customer: customer
+            }
+        });
+    };
+
     return (
         <>
             {/*-- HOTEL PROGRESS -- */}
@@ -103,38 +344,143 @@ const HotelRoomDetail = (props) => {
                     <div className="container">
                         <div className="row">
                             <div className="col-lg-8 mt-4 mt-lg-0">
-                                <ImgContainer className="row">
-                                    <MoreImage >
-                                        <SliderImage image={['https://picsum.photos/id/1018/1000/600/', 'https://picsum.photos/id/1018/1000/600/', 'https://picsum.photos/id/1018/1000/600/']} />
-                                    </MoreImage>
-                                </ImgContainer>
-                                <div className="section pt-5">
-                                    <h5>discription</h5>
-                                    <p className="mt-3">Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur.</p>
-                                </div>
-                                <div className="section pt-4">
+                                {/* FETCH DATA */}
+                                {isLoading ? (
                                     <div className="row">
-                                        <div className="col-12">
-                                            <h5 className="mb-3">Overview</h5>
-                                        </div>
-                                        <div className="col-lg-6">
-                                            <p><strong className="color-black">Room size:</strong> 47 - 54 sq m</p>
-                                            <p><strong className="color-black">Occupancy:</strong> Up to 4 adulds</p>
-                                            <p><strong className="color-black">View:</strong> Sea view</p>
-                                            <p><strong className="color-black">Smoking:</strong> No smoking</p>
-                                        </div>
-                                        <div className="col-lg-6">
-                                            <p><strong className="color-black">Bed size:</strong> King and regular</p>
-                                            <p><strong className="color-black">Location:</strong> Big room 2nd floor</p>
-                                            <p><strong className="color-black">Room service:</strong> Yes</p>
-                                            <p><strong className="color-black">Swimming pool:</strong> Yes</p>
+                                        <div
+                                            class="spinner-border"
+                                            style={{ color: '#41F1B6', position: 'absolute', left: '50%', top: "55%", scale: "1.5" }}
+                                            role="status"
+                                        >
+                                            <span class="visually-hidden"></span>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="section pt-4">
-                                    <h5>Features</h5>
-                                    <p className="mt-3">Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur.</p>
-                                </div>
+                                ) : (
+                                    <>
+                                        <ImgContainer className="row">
+                                            <MoreImage >
+                                                <SliderImage image={roomImages} />
+                                            </MoreImage>
+                                        </ImgContainer>
+                                        <div className="section pt-5">
+                                            <h5>Mô tả</h5>
+                                            <p className="mt-3">{roomDescription}</p>
+                                        </div>
+                                        <div className="section pt-4">
+                                            <div className="row">
+                                                <div className="col-12">
+                                                    <h5 className="mb-3">Tổng quan</h5>
+                                                </div>
+                                                <div className="col-lg-6">
+                                                    <p><strong className="color-black">Kích thước:</strong> {roomSize} </p>
+                                                    <p><strong className="color-black">Sức chứa:</strong> Lên đến {roomAdultQuantity} Người lớn &amp; {roomChildQuantity} Trẻ em</p>
+                                                    <p><strong className="color-black">View:</strong> {roomView}</p>
+                                                    <p><strong className="color-black">Smoking:</strong> No smoking</p>
+                                                </div>
+                                                <div className="col-lg-6">
+                                                    <p><strong className="color-black">Loại phòng:</strong> {roomTypeName}</p>
+                                                    <p><strong className="color-black">Vị trí:</strong> {floorName}</p>
+                                                    <p><strong className="color-black">Đánh giá:</strong> {roomTypeVoteTotal}/5.0</p>
+                                                    <p><strong className="color-black">Dịch vụ phòng:</strong> Có</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="section pt-4">
+                                            <div className="row">
+                                                <div className="col-12">
+                                                    <h5 className="mb-3">Dịch vụ &amp; Thiết bị</h5>
+                                                </div>
+                                                <div className="col-lg-6">
+                                                    {
+                                                        roomServices.map((service, key) => {
+                                                            return (
+                                                                <ServiceItem className="row">
+                                                                    <ServiceIconContainer className="col-lg-3">
+                                                                        {/* service_image */}
+                                                                        <ServiceIcon src={spaIcon} />
+                                                                    </ServiceIconContainer>
+                                                                    <div className="col-lg-9">
+                                                                        <ServiceTitle className="row">
+                                                                            <ServiceName>{service.service_name}</ServiceName>
+                                                                        </ServiceTitle>
+                                                                        <ServiceInfo className="row">
+                                                                            <ServiceTime>{service.service_time}</ServiceTime>
+                                                                        </ServiceInfo>
+                                                                    </div>
+                                                                </ServiceItem>
+                                                            );
+                                                        })
+                                                    }
+                                                </div>
+                                                <div className="col-lg-6">
+                                                    {
+                                                        roomDevices.map((device, key) => {
+                                                            return (
+                                                                <DeviceItem className="row">
+                                                                    <DeviceIconContainer className="col-lg-3">
+                                                                        {/* device.device_type_image */}
+                                                                        <DeviceIcon src={bedIcon} />
+                                                                    </DeviceIconContainer>
+                                                                    <div className="col-lg-9">
+                                                                        <DeviceTitle className="row">
+                                                                            <DeviceName>{device.device_type_name} </DeviceName>
+                                                                        </DeviceTitle>
+                                                                        <DeviceInfo className="row">
+                                                                            <DeviceTime>{device.device_name}</DeviceTime>
+                                                                        </DeviceInfo>
+                                                                    </div>
+                                                                    <DeviceDetailContainer>
+                                                                        {/* deice.device_image */}
+                                                                        <DeviceDetailImage src={tiviMoi} />
+                                                                    </DeviceDetailContainer>
+                                                                </DeviceItem>
+                                                            );
+                                                        })
+                                                    }
+
+                                                    <DeviceItem className="row">
+                                                        <DeviceIconContainer className="col-lg-3">
+                                                            {/* service_image */}
+                                                            <DeviceIcon src={bedIcon} />
+                                                        </DeviceIconContainer>
+                                                        <div className="col-lg-9">
+                                                            <DeviceTitle className="row">
+                                                                <DeviceName>Giường ngủ </DeviceName>
+                                                            </DeviceTitle>
+                                                            <DeviceInfo className="row">
+                                                                <DeviceTime>Giường KING bed</DeviceTime>
+                                                            </DeviceInfo>
+                                                        </div>
+                                                        <DeviceDetailContainer>
+                                                            <DeviceDetailImage src={tiviMoi} />
+                                                        </DeviceDetailContainer>
+                                                    </DeviceItem>
+                                                    <DeviceItem className="row">
+                                                        <DeviceIconContainer className="col-lg-3">
+                                                            {/* service_image */}
+                                                            <DeviceIcon src={bedIcon} />
+                                                        </DeviceIconContainer>
+                                                        <div className="col-lg-9">
+                                                            <DeviceTitle className="row">
+                                                                <DeviceName>Giường ngủ </DeviceName>
+                                                            </DeviceTitle>
+                                                            <DeviceInfo className="row">
+                                                                <DeviceTime>Giường KING bed</DeviceTime>
+                                                            </DeviceInfo>
+                                                        </div>
+                                                        <DeviceDetailContainer>
+                                                            <DeviceDetailImage src={tiviMoi} />
+                                                        </DeviceDetailContainer>
+                                                    </DeviceItem>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="section pt-4">
+                                            <h5>Đặc trưng</h5>
+                                            <p className="mt-3">{roomFeature}</p>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                             <div className="col-lg-4 order-first order-lg-last">
                                 <div className="section background-dark p-4">
@@ -148,9 +494,9 @@ const HotelRoomDetail = (props) => {
                                                                 <Stack spacing={3}>
                                                                     <DesktopDatePicker
                                                                         label="Ngày đặt phòng"
+                                                                        disableOpenPicker={true}
                                                                         inputFormat="dd/MM/yyyy"
                                                                         value={checkInDate}
-                                                                        onChange={(newValue) => handleChangeCheckInDate(newValue)}
                                                                         renderInput={(params) => <TextField {...params} />}
                                                                         InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "white" } } }}
                                                                     />
@@ -163,9 +509,9 @@ const HotelRoomDetail = (props) => {
                                                             <Stack spacing={3}>
                                                                 <DesktopDatePicker
                                                                     label="Ngày trả phòng"
+                                                                    disableOpenPicker={true}
                                                                     inputFormat="dd/MM/yyyy"
                                                                     value={checkOutDate}
-                                                                    onChange={(newValue) => handleChangeCheckOutDate(newValue)}
                                                                     renderInput={(params) => <TextField {...params} />}
                                                                     InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "white" } } }}
                                                                 />
@@ -178,29 +524,13 @@ const HotelRoomDetail = (props) => {
                                         <div className="col-12">
                                             <div class="row">
                                                 <div class="col-12 pt-4">
-                                                    <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
-                                                        <BookingNumberNiceSelectSpan className='current'>Người lớn</BookingNumberNiceSelectSpan>
-                                                        <BookingNumberNiceSelectUl className='list'>
-                                                            <BookingNumberNiceSelectLi data-value="adults" data-display="adults" className='option focus selected'>Người lớn</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="1" className='option'>1</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="2" className='option'>2</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="3" className='option'>3</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="4" className='option'>4</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="5" className='option'>5</BookingNumberNiceSelectLi>
-                                                        </BookingNumberNiceSelectUl>
+                                                    <BookingNumberNiceSelect name="adults" className="nice-select wide">
+                                                        <BookingNumberNiceSelectSpan className='current'>{adultsQuantity} Người lớn</BookingNumberNiceSelectSpan>
                                                     </BookingNumberNiceSelect>
                                                 </div>
                                                 <div class="col-12 pt-4">
-                                                    <BookingNumberNiceSelect name="children" className={isSelectChildren ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectChildren(prev => !prev)}>
-                                                        <BookingNumberNiceSelectSpan className='current'>Trẻ em</BookingNumberNiceSelectSpan>
-                                                        <BookingNumberNiceSelectUl className='list'>
-                                                            <BookingNumberNiceSelectLi data-value="children" data-display="children" className='option focus selected'>Trẻ em</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="1" className='option'>1</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="2" className='option'>2</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="3" className='option'>3</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="4" className='option'>4</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="5" className='option'>5</BookingNumberNiceSelectLi>
-                                                        </BookingNumberNiceSelectUl>
+                                                    <BookingNumberNiceSelect name="children" className="nice-select wide">
+                                                        <BookingNumberNiceSelectSpan className='current'>{childrenQuantity} Trẻ em</BookingNumberNiceSelectSpan>
                                                     </BookingNumberNiceSelect>
                                                 </div>
                                             </div>
@@ -209,12 +539,7 @@ const HotelRoomDetail = (props) => {
                                             <Button className="row">
                                                 <ButtonContainer>
                                                     <ButtonClick
-                                                        onClick={() => navigate('/hotel-payment', {
-                                                            state: {
-                                                                id: 123,
-                                                                roomName: "Bungalow"
-                                                            }
-                                                        })}
+                                                        onClick={() => handleBookNow()}
                                                     >
                                                         {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
                                                         BOOK NOW
@@ -232,6 +557,7 @@ const HotelRoomDetail = (props) => {
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -239,93 +565,46 @@ const HotelRoomDetail = (props) => {
             <div className="section padding-bottom over-hide">
                 <div className="container">
                     <div className="row justify-content-center">
-                        <div className="col-lg-4" data-scroll-reveal="enter bottom move 50px over 0.7s after 0.2s">
-                            <HotelItem>
-                                <div class="room-box background-grey">
-                                    <div class="room-name">suite tanya</div>
-                                    <div class="room-per">
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                    </div>
-                                    <Fade bottom>
-                                        <img src={picture3} alt="" />
-                                    </Fade>
-                                    <div class="room-box-in">
-                                        <h5 class="">pool suite</h5>
-                                        <p class="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                        <a class="mt-1 btn btn-primary" href="rooms-gallery.html">book from 130$</a>
-                                        <div class="room-icons mt-4 pt-4">
-                                            <img src={svg5} alt="" />
-                                            <img src={svg2} alt="" />
-                                            <img src={svg3} alt="" />
-                                            <a href="rooms-gallery.html">full info</a>
+                        {roomsSuggestDisplay.length > 0 ?
+                            (
+                                roomsSuggestDisplay.map((room, key) => {
+                                    if (key > 2) return null;
+                                    return (
+                                        <div className="col-lg-4">
+                                            <HotelItem>
+                                                <div className="room-box background-grey">
+                                                    <div className="room-name">{room.floor_name}</div>
+                                                    {handleShowStar(room.room_type_vote_total)}
+                                                    <Fade bottom>
+                                                        <img src={room.room_image_content} alt="" style={{ height: "234px", objectFit: "cover", objectPosition: "center" }} />
+                                                    </Fade>
+                                                    <div className="room-box-in">
+                                                        <h5 className="">{room.room_type_name}</h5>
+                                                        <p className="mt-3" style={{ overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: "3" }}>{room.room_description}</p>
+                                                        <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from {room.room_price}$</a>
+                                                        <div className="room-icons mt-4 pt-4">
+                                                            <img src={svg5} alt="" />
+                                                            <img src={svg2} alt="" />
+                                                            <img src={svg3} alt="" />
+                                                            <DetailRoomButton
+                                                                onClick={() => handleClickFullInfo(room.room_id)}
+                                                            >full info</DetailRoomButton>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </HotelItem>
                                         </div>
-                                    </div>
-                                </div>
-                            </HotelItem>
-                        </div>
-                        <div className="col-lg-4 mt-4 mt-lg-0" data-scroll-reveal="enter bottom move 50px over 0.7s after 0.4s">
-                            <HotelItem>
-                                <div class="room-box background-grey">
-                                    <div class="room-name">suite tanya</div>
-                                    <div class="room-per">
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                    </div>
-                                    <Fade bottom>
-                                        <img src={picture3} alt="" />
-                                    </Fade>
-                                    <div class="room-box-in">
-                                        <h5 class="">pool suite</h5>
-                                        <p class="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                        <a class="mt-1 btn btn-primary" href="rooms-gallery.html">book from 130$</a>
-                                        <div class="room-icons mt-4 pt-4">
-                                            <img src={svg5} alt="" />
-                                            <img src={svg2} alt="" />
-                                            <img src={svg3} alt="" />
-                                            <a href="rooms-gallery.html">full info</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </HotelItem>
-                        </div>
-                        <div className="col-lg-4 mt-4 mt-lg-0" data-scroll-reveal="enter bottom move 50px over 0.7s after 0.6s">
-                            <HotelItem>
-                                <div class="room-box background-grey">
-                                    <div class="room-name">suite tanya</div>
-                                    <div class="room-per">
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                        <Star style={{ color: "yellow" }} />
-                                    </div>
-                                    <Fade bottom>
-                                        <img src={picture3} alt="" />
-                                    </Fade>
-                                    <div class="room-box-in">
-                                        <h5 class="">pool suite</h5>
-                                        <p class="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                        <a class="mt-1 btn btn-primary" href="rooms-gallery.html">book from 130$</a>
-                                        <div class="room-icons mt-4 pt-4">
-                                            <img src={svg5} alt="" />
-                                            <img src={svg2} alt="" />
-                                            <img src={svg3} alt="" />
-                                            <a href="rooms-gallery.html">full info</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </HotelItem>
-                        </div>
+                                    );
+                                })
+                            ) : null}
                     </div>
                 </div>
             </div>
+            {/* TOAST */}
+            <Toast
+                ref={toastRef}
+                dataToast={dataToast}
+            />
         </>
     )
 }

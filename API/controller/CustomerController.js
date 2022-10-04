@@ -1,45 +1,67 @@
-const { createCustomer, getCustomerByCustomerId, getCustomers, updateCustomer, deleteCustomer, getCustomerByEmail } = require("../service/CustomerService");
+const { createCustomer, getCustomerByCustomerId, getCustomers, updateCustomer, deleteCustomer, getCustomerByEmail, checkEmailUnit, checkPhoneNumberUnit, getCustomerByEmailOrPhoneNumber } = require("../service/CustomerService");
 
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 
 module.exports = {
-    createCustomer: (req, res) => {
+    createCustomer: async (req, res) => {
         const body = req.body;
         const salt = genSaltSync(10);
         body.password = hashSync(body.password, salt);
-        createCustomer(body, (err, results) => {
-            if (err) {
-                console.log("Lỗi create: ", err);
-                return res.status(500).json({
-                    status: "fail",
-                    message: "Database connection error"
+
+        // Check email & phone number
+        let isEmailUnit = await checkEmailUnit(body);
+        let isPhoneNumberUnit = await checkPhoneNumberUnit(body);
+
+        if (isEmailUnit && isPhoneNumberUnit) {
+            createCustomer(body, (err, results) => {
+                if (err) {
+                    console.log("Lỗi create: ", err);
+                    return res.status(500).json({
+                        status: "fail",
+                        message: "Database connection error"
+                    });
+                }
+                return res.status(200).json({
+                    status: "success",
+                    data: results
                 });
-            }
-            return res.status(200).json({
-                status: "success",
-                data: results
             });
-        });
+        }
+        if (!isEmailUnit) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Email are used"
+            });
+        }
+        if (!isPhoneNumberUnit) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Phone number are used"
+            });
+        }
     },
-    getCustomerByCustomerId: (req, res) => {
+    getCustomerByCustomerId: async (req, res) => {
         const customerId = req.params.customerId;
-        getCustomerByCustomerId(customerId, (err, results) => {
-            if (err) {
-                console.log("Lỗi getCustomerByCustomerId: ", err);
-                return;
-            }
-            if (!results) {
-                return res.json({
+        try {
+            const result = await getCustomerByCustomerId(customerId);
+            if (!result) {
+                return res.status(200).json({
                     status: "fail",
                     message: "Record not found"
                 });
             }
-            return res.json({
+            return res.status(200).json({
                 status: "success",
-                data: results
+                data: result
             });
-        });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi getCustomerByCustomerId",
+                err: err
+            });
+        }
     },
     getCustomers: (req, res) => {
         getCustomers((err, results) => {
@@ -62,7 +84,7 @@ module.exports = {
                 console.log("Lỗi updateCustomer: ", err);
                 return;
             }
-            if(!results) {
+            if (!results) {
                 return res.json({
                     status: "fail",
                     message: "Failed to update user"
@@ -77,11 +99,11 @@ module.exports = {
     deleteCustomer: (req, res) => {
         const data = req.body;
         deleteCustomer(data, (err, results) => {
-            if(err) {
+            if (err) {
                 console.log("Lỗi deleteCustomer: ", err);
                 return;
             }
-            if(!results) {
+            if (!results) {
                 return res.json({
                     status: "fail",
                     message: "Record not found"
@@ -95,31 +117,32 @@ module.exports = {
     },
     login: (req, res) => {
         const body = req.body;
-        getCustomerByEmail(body.email, (err, results) => {
-            if(err) {
+        getCustomerByEmailOrPhoneNumber(body.email, (err, results) => {
+            if (err) {
                 console.log("Lỗi login: ", err);
             }
-            if(!results) {
-                return res.json({
+            if (!results) {
+                return res.status(400).json({
                     status: "fail",
-                    message: "Invalid email or password"
+                    message: "Account does not exist"
                 });
             }
-            const result = compareSync(body.password, results.password);
-            if(result) {
-                result.password = undefined;
+            const result = compareSync(body.password, results.customer_password);
+            if (result) {
+                results.customer_password = undefined;
                 const jsontoken = sign({ result: results }, process.env.JWT_SEC, {
                     expiresIn: "1h"
                 });
-                return res.json({
+                return res.status(200).json({
                     status: "success",
                     message: "Login successfully",
+                    customer: results,
                     token: jsontoken
                 });
             } else {
-                return res.json({
+                return res.status(400).json({
                     status: "fail",
-                    message: "Invalid email or password"
+                    message: "Your password is not correct"
                 });
             }
         });

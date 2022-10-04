@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 // Date picker
-import { Star } from '@mui/icons-material';
+import { Star, StarBorder, StarHalf } from '@mui/icons-material';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -21,6 +21,12 @@ import picture4 from '../../img/room4.jpg';
 import picture5 from '../../img/room5.jpg';
 import picture6 from '../../img/room6.jpg';
 import HotelProgress from './HotelProgress';
+
+// Service
+import * as ServiceService from "../../service/ServiceService";
+import * as RoomService from "../../service/RoomService";
+import Toast from '../Toast';
+import { handleShowStar } from '../../utils/utils';
 
 const InputDateRangeFormItem = styled.div``
 const BookingNumberNiceSelect = styled.div``
@@ -78,20 +84,39 @@ const DetailRoomButton = styled.a`
     &:hover {
         color: #41f1b6 !important;
     }
-
 `
+
+const PictureNoResultFound = styled.div`
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10%;
+`;
+
+const Img = styled.img`
+    width: 500px;
+    max-height: 600px;
+    object-fit: cover;
+`;
+
+const H1NoResultFound = styled.h1`
+    letter-spacing: 2px;
+    font-size: 1.4rem;
+    color: var(--color-primary);
+    font-weight: bold;
+`;
+
 const HotelRooms = () => {
     const navigate = useNavigate();
     // STATE
-    const [isSelectAdults, setIsSelectAdults] = useState(false);
-    const [isSelectChildren, setIsSelectChildren] = useState(false);
+    const [maxPrice, setMaxPrice] = useState();
 
+    // HANDLE - date
     const [checkInDate, setCheckInDate] = useState();
     const [checkOutDate, setCheckOutDate] = useState();
 
-    const [maxPrice, setMaxPrice] = useState();
-
-    // HANDLE
     const handleChangeCheckInDate = (newValue) => {
         setCheckInDate(newValue);
         console.log(moment(newValue).format("DD/MM/yyyy"));
@@ -100,10 +125,191 @@ const HotelRooms = () => {
         setCheckOutDate(newValue);
         console.log(moment(newValue).format("DD/MM/yyyy"));
     };
-    // Sort
-    const handleClickSearch = () => {
 
+    // Toast
+    const [dataToast, setDataToast] = useState({ message: "alo alo", type: "success" });
+    const toastRef = useRef(null);
+
+    const showToastFromOut = (dataShow) => {
+        setDataToast(dataShow);
+        toastRef.current.show();
     }
+
+    // Children & adults quantity
+    const [isSelectAdults, setIsSelectAdults] = useState(false);
+    const [isSelectChildren, setIsSelectChildren] = useState(false);
+    const [adultsQuantity, setAdultsQuantity] = useState();
+    const [childrenQuantity, setChildrenQuantity] = useState();
+
+
+    const handleClickAdult = (quantity) => {
+        setAdultsQuantity(quantity);
+        setIsSelectAdults(prev => !prev);
+    };
+    const handleClickChildren = (quantity) => {
+        setChildrenQuantity(quantity);
+        setIsSelectChildren(prev => !prev);
+    };
+
+    // Service checkbox
+    const [servicesList, setServicesList] = useState([]);
+    useEffect(() => {
+        const getServices = async () => {
+            const res = await ServiceService.getServices();
+            setServicesList(res.data.data);
+            console.log(res);
+        };
+        getServices();
+    }, []);
+
+    // Get rooms and services
+    const [isLoading, setIsLoading] = useState(false);
+    const [filterList, setFilterList] = useState([]);
+    const [roomList, setRoomList] = useState([]);
+    const [roomListFiltered, setRoomListFiltered] = useState([]);
+    const [minRoomPrice, setMinRoomPrice] = useState();
+    const [maxRoomPrice, setMaxRoomPrice] = useState();
+    const [noResultFound, setNoResultFound] = useState(false);
+    const [sort, setSort] = useState();
+    const [isSelectSort, setIsSelectSort] = useState(false);
+
+
+
+    useEffect(() => {
+        const getRoomsAndServices = async () => {
+            const res = await RoomService.getRoomsAndServices();
+            setRoomList(res.data.data);
+            console.log(res);
+            // Loading when fetch data
+            handleLoading();
+        };
+        getRoomsAndServices();
+        const getMinMaxRoomPrice = async () => {
+            const res = await RoomService.getMinMaxRoomPrice();
+            setMinRoomPrice(res.data.data.min_room_price);
+            setMaxRoomPrice(res.data.data.max_room_price);
+        };
+        getMinMaxRoomPrice();
+    }, []);
+
+
+    const handleCheckService = (e) => {
+        const value = parseInt(e.target.value);
+        if (e.currentTarget.checked) {
+            if (!filterList.includes(value)) {
+                filterList.push(value);
+            }
+        } else {
+            if (filterList.includes(value)) {
+                let index = filterList.indexOf(value);
+                filterList.splice(index, 1);
+            }
+        }
+        console.log("filterList: ", filterList);
+    };
+
+    useEffect(() => {
+        if (sort === "decreasePrice") {
+            setRoomList((prev) =>
+                [...prev].sort((a, b) => b.room_price - a.room_price)
+            );
+            setRoomListFiltered((prev) =>
+                [...prev].sort((a, b) => b.room_price - a.room_price)
+            );
+        } else if (sort === "increasePrice") {
+            setRoomList((prev) =>
+                [...prev].sort((a, b) => a.room_price - b.room_price)
+            );
+            setRoomListFiltered((prev) =>
+                [...prev].sort((a, b) => a.room_price - b.room_price)
+            );
+        } else if (sort === "decreaseVote") {
+            setRoomList((prev) =>
+                [...prev].sort((a, b) => b.room_type_vote_total - a.room_type_vote_total)
+            );
+            setRoomListFiltered((prev) =>
+                [...prev].sort((a, b) => b.room_type_vote_total - a.room_type_vote_total)
+            );
+        } else {
+            setRoomList((prev) =>
+                [...prev].sort((a, b) => a.room_type_vote_total - b.room_type_vote_total)
+            );
+            setRoomListFiltered((prev) =>
+                [...prev].sort((a, b) => a.room_type_vote_total - b.room_type_vote_total)
+            );
+        }
+    }, [sort]);
+
+    // Fake loading when fetch data
+    const handleLoading = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 1200);
+    };
+    // Search
+    const handleClickSearch = () => {
+        setSort();
+        const findRoomsAndServices = async () => {
+            try {
+                const res = await RoomService.findRoomsAndServices({
+                    checkInDate: checkInDate,
+                    checkOutDate: checkOutDate,
+                    adultsQuantity: adultsQuantity,
+                    childrenQuantity: childrenQuantity,
+                    maxPrice: maxPrice,
+                    filterList: filterList
+                });
+                const roomListFiltered = res.data.data;
+                setRoomListFiltered(res.data.data);
+                if (roomListFiltered.length > 0) {
+                    setNoResultFound(false);
+                    // Toast
+                    const dataToast = { message: "Đã tìm được phòng phù hợp!", type: "success" };
+                    showToastFromOut(dataToast);
+                } else {
+                    setNoResultFound(true);
+                    // Toast
+                    const dataToast = { message: "Không tìm thấy phòng phù hợp!", type: "warning" };
+                    showToastFromOut(dataToast);
+                }
+                handleLoading();
+                console.log(res);
+            } catch (err) {
+                console.log("err: ", err);
+                const errorMessage = err.response.data.message;
+                const dataToast = { message: errorMessage, type: "danger" };
+                showToastFromOut(dataToast);
+
+                // Có lỗi thì quay về các phòng đầu tiên
+                setNoResultFound(false);
+                setRoomListFiltered([]);
+            }
+        };
+        findRoomsAndServices();
+    };
+
+    const handleClickFullInfo = (roomId) => {
+        console.log(checkInDate, checkOutDate, adultsQuantity, childrenQuantity)
+        if (!checkInDate || !checkOutDate || !adultsQuantity || !childrenQuantity) {
+            // Toast
+            const dataToast = { message: "Vui lòng chọn thời gian Checkin/ Checkout & số lượng khách.", type: "warning" };
+            showToastFromOut(dataToast);
+            return;
+        };
+        navigate("/room-detail", {
+            state: {
+                room_id: roomId,
+                checkInDate: checkInDate,
+                checkOutDate: checkOutDate,
+                adultsQuantity: adultsQuantity,
+                childrenQuantity: childrenQuantity,
+                roomsSuggest: roomListFiltered.length > 0 ? roomListFiltered : roomList
+            }
+        });
+    };
+
+    console.log("roomList: ", roomList);
     return (
         <>
             {/*-- HOTEL PROGRESS -- */}
@@ -114,8 +320,92 @@ const HotelRooms = () => {
                     <div className="container">
                         <div className="row">
                             <div className="col-lg-8 mt-4 mt-lg-0">
-                                <div className="row">
-                                    <HotelItem>
+                                {/* FETCH DATA */}
+                                {isLoading ? (
+                                    <div className="row">
+                                        <div
+                                            class="spinner-border"
+                                            style={{ color: '#41F1B6', position: 'absolute', left: '50%', top: "25%", scale: "1.5" }}
+                                            role="status"
+                                        >
+                                            <span class="visually-hidden"></span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="row">
+                                        {
+                                            noResultFound ? (
+                                                <PictureNoResultFound id="No_Result_Found_Picture">
+                                                    <Img
+                                                        src="https://img.freepik.com/premium-vector/file-found-illustration-with-confused-people-holding-big-magnifier-search-no-result_258153-336.jpg?w=2000"
+                                                        alt="Not Found Result"
+                                                    />
+                                                    <H1NoResultFound>No result found</H1NoResultFound>
+                                                </PictureNoResultFound>
+                                            )
+                                                : (
+                                                    roomListFiltered.length > 0 ?
+                                                        (
+                                                            roomListFiltered.map((room, key) => {
+                                                                return (
+                                                                    <HotelItem>
+                                                                        <div className="room-box background-grey">
+                                                                            <div className="room-name">{room.floor_name}</div>
+                                                                            {handleShowStar(room.room_type_vote_total)}
+                                                                            <Fade bottom>
+                                                                                <img src={room.room_image_content} alt="" style={{ height: "234px", objectFit: "cover", objectPosition: "center" }} />
+                                                                            </Fade>
+                                                                            <div className="room-box-in">
+                                                                                <h5 className="">{room.room_type_name}</h5>
+                                                                                <p className="mt-3" style={{ overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: "3" }}>{room.room_description}</p>
+                                                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from {room.room_price}$</a>
+                                                                                <div className="room-icons mt-4 pt-4">
+                                                                                    <img src={svg5} alt="" />
+                                                                                    <img src={svg2} alt="" />
+                                                                                    <img src={svg3} alt="" />
+                                                                                    <DetailRoomButton
+                                                                                        onClick={() => handleClickFullInfo(room.room_id)}
+                                                                                    >full info</DetailRoomButton>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </HotelItem>
+                                                                );
+                                                            })
+                                                        )
+                                                        : (
+                                                            roomList ? (
+                                                                roomList.map((room, key) => {
+                                                                    return (
+                                                                        <HotelItem>
+                                                                            <div className="room-box background-grey">
+                                                                                <div className="room-name">{room.floor_name}</div>
+                                                                                {handleShowStar(room.room_type_vote_total)}
+                                                                                <Fade bottom>
+                                                                                    <img src={room.room_image_content} alt="" style={{ height: "234px", objectFit: "cover", objectPosition: "center" }} />
+                                                                                </Fade>
+                                                                                <div className="room-box-in">
+                                                                                    <h5 className="">{room.room_type_name}</h5>
+                                                                                    <p className="mt-3" style={{ overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: "3" }}>{room.room_description}</p>
+                                                                                    <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from {room.room_price}$</a>
+                                                                                    <div className="room-icons mt-4 pt-4">
+                                                                                        <img src={svg5} alt="" />
+                                                                                        <img src={svg2} alt="" />
+                                                                                        <img src={svg3} alt="" />
+                                                                                        <DetailRoomButton
+                                                                                            onClick={() => handleClickFullInfo(room.room_id)}
+                                                                                        >full info</DetailRoomButton>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </HotelItem>
+                                                                    );
+                                                                })
+                                                            ) : null
+                                                        )
+                                                )
+                                        }
+                                        {/* <HotelItem>
                                         <div className="room-box background-grey">
                                             <div className="room-name">suite tanya</div>
                                             <div className="room-per">
@@ -312,11 +602,40 @@ const HotelRooms = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </HotelItem>
-                                </div>
+                                    </HotelItem> */}
+                                    </div>
+                                )}
+
                             </div>
                             <div className="col-lg-4 order-first order-lg-last mt-4">
                                 <div className="section background-dark p-4">
+                                    <div className="row">
+                                        <div className="col-12">
+                                            <div className="row">
+                                                <div className="col-12">
+                                                    <BookingNumberNiceSelect name="adults" className={isSelectSort ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectSort(prev => !prev)}>
+                                                        <BookingNumberNiceSelectSpan className='current'>{
+                                                            sort ?
+                                                                sort === "decreasePrice" ? "Giá giảm dần"
+                                                                    : sort === "increasePrice" ? "Giá tăng dần"
+                                                                        : sort === "decreaseVote" ? "Đánh giá giảm dần"
+                                                                            : sort === "increaseVote" ? "Đánh giá tăng dần"
+                                                                                : null : "Sắp xếp theo"}
+                                                        </BookingNumberNiceSelectSpan>
+                                                        <BookingNumberNiceSelectUl className='list'>
+                                                            <BookingNumberNiceSelectLi className='option focus selected'>Sắp xếp theo</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => setSort("decreasePrice")} className='option'>Giá giảm dần</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => setSort("increasePrice")} className='option'>Giá tăng dần</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => setSort("decreaseVote")} className='option'>Đánh giá giảm dần</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => setSort("increaseVote")} className='option'>Đánh giá tăng dần</BookingNumberNiceSelectLi>
+                                                        </BookingNumberNiceSelectUl>
+                                                    </BookingNumberNiceSelect>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="section background-dark p-4 mt-4">
                                     <div className="row">
                                         <div className="col-12">
                                             <div className="input-daterange input-group" id="flight-datepicker">
@@ -328,6 +647,7 @@ const HotelRooms = () => {
                                                                     <DesktopDatePicker
                                                                         label="Ngày đặt phòng"
                                                                         inputFormat="dd/MM/yyyy"
+                                                                        minDate={new Date()}
                                                                         value={checkInDate}
                                                                         onChange={(newValue) => handleChangeCheckInDate(newValue)}
                                                                         renderInput={(params) => <TextField {...params} />}
@@ -343,6 +663,7 @@ const HotelRooms = () => {
                                                                 <DesktopDatePicker
                                                                     label="Ngày trả phòng"
                                                                     inputFormat="dd/MM/yyyy"
+                                                                    minDate={checkInDate}
                                                                     value={checkOutDate}
                                                                     onChange={(newValue) => handleChangeCheckOutDate(newValue)}
                                                                     renderInput={(params) => <TextField {...params} />}
@@ -358,27 +679,27 @@ const HotelRooms = () => {
                                             <div className="row">
                                                 <div className="col-12 pt-4">
                                                     <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
-                                                        <BookingNumberNiceSelectSpan className='current'>Người lớn</BookingNumberNiceSelectSpan>
+                                                        <BookingNumberNiceSelectSpan className='current'>{adultsQuantity ? adultsQuantity : "Người lớn"}</BookingNumberNiceSelectSpan>
                                                         <BookingNumberNiceSelectUl className='list'>
-                                                            <BookingNumberNiceSelectLi data-value="adults" data-display="adults" className='option focus selected'>Người lớn</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="1" className='option'>1</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="2" className='option'>2</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="3" className='option'>3</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="4" className='option'>4</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="5" className='option'>5</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi className='option focus selected'>Người lớn</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickAdult(1); setIsSelectAdults(prev => !prev); }} className='option'>1 người lớn</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickAdult(2); setIsSelectAdults(prev => !prev); }} className='option'>2 người lớn</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickAdult(3); setIsSelectAdults(prev => !prev); }} className='option'>3 người lớn</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickAdult(4); setIsSelectAdults(prev => !prev); }} className='option'>4 người lớn</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickAdult(5); setIsSelectAdults(prev => !prev); }} className='option'>5 người lớn</BookingNumberNiceSelectLi>
                                                         </BookingNumberNiceSelectUl>
                                                     </BookingNumberNiceSelect>
                                                 </div>
                                                 <div className="col-12 pt-4">
                                                     <BookingNumberNiceSelect name="children" className={isSelectChildren ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectChildren(prev => !prev)}>
-                                                        <BookingNumberNiceSelectSpan className='current'>Trẻ em</BookingNumberNiceSelectSpan>
+                                                        <BookingNumberNiceSelectSpan className='current'>{childrenQuantity ? childrenQuantity : "Trẻ em"}</BookingNumberNiceSelectSpan>
                                                         <BookingNumberNiceSelectUl className='list'>
-                                                            <BookingNumberNiceSelectLi data-value="children" data-display="children" className='option focus selected'>Trẻ em</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="1" className='option'>1</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="2" className='option'>2</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="3" className='option'>3</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="4" className='option'>4</BookingNumberNiceSelectLi>
-                                                            <BookingNumberNiceSelectLi data-value="5" className='option'>5</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi className='option focus selected'>Trẻ em</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickChildren(1); setIsSelectChildren(prev => !prev); }} className='option'>1 trẻ em</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickChildren(2); setIsSelectChildren(prev => !prev); }} className='option'>2 trẻ em</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickChildren(3); setIsSelectChildren(prev => !prev); }} className='option'>3 trẻ em</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickChildren(4); setIsSelectChildren(prev => !prev); }} className='option'>4 trẻ em</BookingNumberNiceSelectLi>
+                                                            <BookingNumberNiceSelectLi onClick={() => { handleClickChildren(5); setIsSelectChildren(prev => !prev); }} className='option'>5 trẻ em</BookingNumberNiceSelectLi>
                                                         </BookingNumberNiceSelectUl>
                                                     </BookingNumberNiceSelect>
                                                 </div>
@@ -388,81 +709,58 @@ const HotelRooms = () => {
                                             <h6 className="color-white mb-3">Max night price:</h6>
                                             <div className="selecteurPrix">
                                                 <div className="range-slider">
-                                                    <input className="input-range" type="range" min="1" max="500" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+                                                    <input className="input-range" type="range" min={minRoomPrice} max={maxRoomPrice} value={maxPrice} onChange={(e) => setMaxPrice(parseInt(e.target.value))} />
                                                     <div className="valeurPrix">
                                                         <span className="range-value">{maxPrice} $</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="col-12 col-md-6 col-lg-12 pt-5">
-                                            <h6 className="color-white mb-3">Services:</h6>
+                                        {/* <div className="col-12 col-md-6 col-lg-12 pt-5">
+                                            <h6 className="color-white mb-3">SORT:</h6>
                                             <ul className="list">
-                                                <li className="list__item">
+                                                <li className="list__item" onClick={() => setSort("decreasePrice")}>
                                                     <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        welcome drink
+                                                        <input type="radio" name='hotelRooms_Sort' className="checkbox" />
+                                                        Giá giảm dần
                                                     </label>
                                                 </li>
-                                                <li className="list__item">
+                                                <li className="list__item" onClick={() => setSort("increasePrice")}>
                                                     <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        television
+                                                        <input type="radio" name='hotelRooms_Sort' className="checkbox" />
+                                                        Giá tăng dần
                                                     </label>
                                                 </li>
-                                                <li className="list__item">
+                                                <li className="list__item" onClick={() => setSort("decreaseVote")}>
                                                     <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        king beds
+                                                        <input type="radio" name='hotelRooms_Sort' className="checkbox" />
+                                                        Đánh giá giảm dần
                                                     </label>
                                                 </li>
-                                                <li className="list__item">
+                                                <li className="list__item" onClick={() => setSort("increaseVote")}>
                                                     <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        bike rental
-                                                    </label>
-                                                </li>
-                                                <li className="list__item">
-                                                    <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        no smoking
+                                                        <input type="radio" name='hotelRooms_Sort' className="checkbox" />
+                                                        Đánh giá tăng dần
                                                     </label>
                                                 </li>
                                             </ul>
-                                        </div>
+                                        </div> */}
                                         <div className="col-12 col-md-6 col-lg-12 pt-5">
                                             <h6 className="color-white mb-3">Extra services:</h6>
                                             <ul className="list">
-                                                <li className="list__item">
-                                                    <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        breakfast
-                                                    </label>
-                                                </li>
-                                                <li className="list__item">
-                                                    <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        swimming pool
-                                                    </label>
-                                                </li>
-                                                <li className="list__item">
-                                                    <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        car rental
-                                                    </label>
-                                                </li>
-                                                <li className="list__item">
-                                                    <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        sea view
-                                                    </label>
-                                                </li>
-                                                <li className="list__item">
-                                                    <label className="label--checkbox">
-                                                        <input type="checkbox" className="checkbox" />
-                                                        laundry
-                                                    </label>
-                                                </li>
+                                                {
+                                                    servicesList ?
+                                                        servicesList.map((service, key) => {
+                                                            return (
+                                                                <li className="list__item">
+                                                                    <label className="label--checkbox">
+                                                                        <input type="checkbox" className="checkbox" value={service.service_id} onChange={(e) => handleCheckService(e)} />
+                                                                        {service.service_name}
+                                                                    </label>
+                                                                </li>
+                                                            );
+                                                        }) : null
+                                                }
                                             </ul>
                                         </div>
                                         <div className="col-12 col-md-6 col-lg-12 pt-5" style={{ padding: "0", margin: "0" }}>
@@ -482,6 +780,11 @@ const HotelRooms = () => {
                     </div>
                 </div>
             </div>
+            {/* TOAST */}
+            <Toast
+                ref={toastRef}
+                dataToast={dataToast}
+            />
         </>
     )
 }

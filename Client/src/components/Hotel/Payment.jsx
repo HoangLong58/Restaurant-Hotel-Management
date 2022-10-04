@@ -1,16 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 // Date picker
 import { AccessAlarmsOutlined, CorporateFareOutlined } from '@mui/icons-material';
+import moment from 'moment';
 
 import cash from '../../img/cash-icon.jpg';
 import momoImage from '../../img/momo.jpg';
-import paypalImage from '../../img/paypal.png';
+import stripeImage from '../../img/stripe.png';
 import cardImage from '../../img/thenganhang.png';
 
 import { useNavigate } from 'react-router-dom';
 import HotelProgress from './HotelProgress';
+import { useDispatch, useSelector } from 'react-redux';
+import { format_money, getQuantityFromDayToDay, traceCurrency } from '../../utils/utils';
 
+import axios from 'axios';
+import StripeCheckout from 'react-stripe-checkout';
+
+// Service
+import { REACT_APP_STRIPE } from "../../constants/Var";
+import * as PaymentService from "../../service/PaymentService";
+import * as DiscountService from "../../service/DiscountService";
+import Toast from '../Toast';
+import { addDiscount, addRoomTotal } from '../../redux/roomBookingRedux';
 
 // Button
 const Button = styled.div``
@@ -77,7 +89,7 @@ const Input = styled.input`
   &:focus {
       border: 1px solid var(--color-success);
       box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-  }
+  };
 `
 
 const TextArea = styled.textarea`
@@ -443,10 +455,45 @@ const TotalMoneyH5 = styled.h5`
 
 const Payment = (props) => {
   // Truyền data Từ trang chi tiết vào
-  console.log("props data: ", props.data);
+  console.log("props data payment: ", props.data);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const customerRoomBooking = useSelector((state) => state.roomBooking.customer);
+  const roomRoomBooking = useSelector((state) => state.roomBooking.room);
+  const discountRoomBooking = useSelector((state) => state.roomBooking.discount);
+  const roomTotalRoomBooking = useSelector((state) => state.roomBooking.roomTotal);
+  const roomBooking = useSelector((state) => state.roomBooking);
   // STATE
+  const [customer, setCustomer] = useState(customerRoomBooking);
+  const [room, setRoom] = useState(roomRoomBooking);
+
+  const [firstName, setFirstName] = useState(customerRoomBooking.customer_first_name);
+  const [lastName, setLastName] = useState(customerRoomBooking.customer_last_name);
+  const [email, setEmail] = useState(customerRoomBooking.customer_email);
+  const [phoneNumber, setPhoneNumber] = useState(customerRoomBooking.customer_phone_number);
+  const [note, setNote] = useState("");
+  const [discount, setDiscount] = useState("GIAM0");
+
+  const [checkInDate, setCheckInDate] = useState(moment(roomBooking.checkInDate).format('DD/MM/YYYY'));
+  const [checkOutDate, setCheckOutDate] = useState(moment(roomBooking.checkOutDate).format('DD/MM/YYYY'));
+  const [adultsQuantity, setAdultsQuantity] = useState(roomBooking.adultsQuantity);
+  const [childrenQuantity, setChildrenQuantity] = useState(roomBooking.childrenQuantity);
+
+  const [roomName, setRoomName] = useState(roomRoomBooking.room_name);
+  const [floorName, setFloorName] = useState(roomRoomBooking.floor_name);
+  const [roomTypeName, setRoomTypeName] = useState(roomRoomBooking.room_type_name);
+  const [roomView, setRoomView] = useState(roomRoomBooking.room_view);
+  const [roomPrice, setRoomPrice] = useState(roomRoomBooking.room_price);
+
+  // Toast
+  const [dataToast, setDataToast] = useState({ message: "alo alo", type: "success" });
+  const toastRef = useRef(null);
+
+  const showToastFromOut = (dataShow) => {
+    setDataToast(dataShow);
+    toastRef.current.show();
+  }
 
   // Handle time
   const [minutes, setMinutes] = useState(4);
@@ -469,6 +516,176 @@ const Payment = (props) => {
       clearInterval(myInterval);
     };
   });
+
+  // Handle payment way
+  const [paymentWay, setPaymentWay] = useState();
+  const handlePaymentWay = (e) => {
+    setPaymentWay(e.target.value);
+  };
+
+  const showPaymentWay = (way) => {
+    switch (true) {
+      // TODO: Update later
+      // case way === "momo": return null;
+      // case way === "card": return null;
+      // case way === "onStage": return null;
+
+      case way === "stripe":
+        return (
+          <div>
+            {stripeToken ? (<span>Đang xử lý...</span>) : (
+              <StripeCheckout
+                name="Hoàng Long Hotel."
+                image="https://i.ibb.co/DkbxyCK/favicon-logo.png"
+                description={roomTotalDescription}
+                amount={traceCurrency(roomTotalRoomBooking) * 100}
+                token={onToken}
+                stripeKey={REACT_APP_STRIPE}
+              >
+                <ButtonClick
+                  onClick={() => {
+                    handleRoomBookingOrder()
+                  }}
+                >
+                  {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
+                  Tiến hành thanh toán
+                </ButtonClick>
+              </StripeCheckout>
+            )}
+          </div>
+        );
+      default:
+        return (
+          <ButtonClick
+            onClick={() => {
+              handleRoomBookingOrder()
+            }}
+          >
+            {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
+            Tiến hành thanh toán
+          </ButtonClick>
+        );
+    }
+  };
+
+  // Handle discount
+  const handleDiscount = () => {
+    if (discountRoomBooking) {
+      // Toast
+      const dataToast = { message: "Thanh toán của bạn đã được giảm giá " + discountRoomBooking.discount_percent + "% trước đó!", type: "success" };
+      showToastFromOut(dataToast);
+      return;
+    }
+    if (!discount) {
+      // Toast
+      const dataToast = { message: "Bạn chưa nhập Mã giảm giá!", type: "warning" };
+      showToastFromOut(dataToast);
+      return;
+    }
+    try {
+      const getDiscount = async () => {
+        const res = await DiscountService.getDiscountByDiscountCode(discount);
+        console.log("RES: ", res);
+        const discountData = res.data.data;
+        if (discountData) {
+          dispatch(addDiscount({ discount: discountData }));
+          // Toast
+          const dataToast = { message: res.data.message, type: "success" };
+          showToastFromOut(dataToast);
+          return;
+        } else {
+          // Toast
+          const dataToast = { message: res.data.message, type: "warning" };
+          showToastFromOut(dataToast);
+          return;
+        }
+      };
+      getDiscount();
+    } catch (err) {
+      // Toast
+      const dataToast = { message: err.response.data.message, type: "danger" };
+      showToastFromOut(dataToast);
+      return;
+    }
+  };
+
+  useEffect(() => {
+    if (discountRoomBooking) {
+      const discountPercent = discountRoomBooking.discount_percent;
+      dispatch(addRoomTotal({
+        roomTotal: roomPrice - (roomPrice * discountPercent / 100)
+      }));
+    } else {
+      dispatch(addRoomTotal({
+        roomTotal: roomPrice
+      }));
+    }
+  }, [roomPrice, discountRoomBooking]);
+
+  // STRIPE
+  const [stripeToken, setStripeToken] = useState(null);
+  // STRIPE --- Thanh toán
+  const roomTotalDescription = "Your total is " + format_money(roomTotalRoomBooking) + "VNĐ ~ " + traceCurrency(roomTotalRoomBooking) + "$";
+
+  const onToken = (token) => {
+    setStripeToken(token);
+  };
+
+  useEffect(() => {
+    const makeRequest = async () => {
+      try {
+        const res = await PaymentService.postPaymentStripe({
+          tokenId: stripeToken.id,
+          amount: traceCurrency(roomTotalRoomBooking) * 100,
+        });
+        console.log(res.data);
+        navigate("/hotel-success", {
+          state: {
+            bookingState: "success"
+          }
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    stripeToken && makeRequest();
+  }, [stripeToken, navigate]);
+
+  const handleRoomBookingOrder = () => {
+    if (!firstName) {
+      // Toast
+      const dataToast = { message: "Bạn chưa nhập first name!", type: "danger" };
+      showToastFromOut(dataToast);
+      return;
+    }
+    if (!lastName) {
+      // Toast
+      const dataToast = { message: "Bạn chưa nhập last name!", type: "danger" };
+      showToastFromOut(dataToast);
+      return;
+    }
+    if (!email) {
+      // Toast
+      const dataToast = { message: "Bạn chưa nhập email!", type: "danger" };
+      showToastFromOut(dataToast);
+      return;
+    }
+    if (!phoneNumber) {
+      // Toast
+      const dataToast = { message: "Bạn chưa nhập số điện thoại!", type: "danger" };
+      showToastFromOut(dataToast);
+      return;
+    }
+    if (!paymentWay) {
+      // Toast
+      const dataToast = { message: "Bạn chưa chọn phương thức thanh toán!", type: "danger" };
+      showToastFromOut(dataToast);
+      return;
+    }
+  };
+
+
+  console.log("paymentWay: ", paymentWay);
   return (
     <>
       {/*-- HOTEL PROGRESS -- */}
@@ -490,27 +707,27 @@ const Payment = (props) => {
                     <LeftRow className="row">
                       <LeftColMd6 className="col-md-6">
                         <LeftTitle >Họ của bạn <span style={{ color: "red", marginLeft: "2px" }}>*</span></LeftTitle>
-                        <Input type="text" />
+                        <Input type="text" value={firstName} disabled />
                       </LeftColMd6>
                       <LeftColMd6 className="col-md-6">
                         <LeftTitle >Tên của bạn <span style={{ color: "red", marginLeft: "2px" }}>*</span></LeftTitle>
-                        <Input type="text" />
+                        <Input type="text" value={lastName} disabled />
                       </LeftColMd6>
                     </LeftRow>
                     <LeftRow className="row" style={{ marginTop: "10px" }}>
                       <LeftColMd6 className="col-md-6">
                         <LeftTitle >Email của bạn <span style={{ color: "red", marginLeft: "2px" }}>*</span></LeftTitle>
-                        <Input type="text" />
+                        <Input type="text" value={email} disabled />
                       </LeftColMd6>
                       <LeftColMd6 className="col-md-6">
                         <LeftTitle >Số điện thoại của bạn <span style={{ color: "red", marginLeft: "2px" }}>*</span></LeftTitle>
-                        <Input type="text" />
+                        <Input type="text" value={phoneNumber} disabled />
                       </LeftColMd6>
                     </LeftRow>
                     <LeftRow className="row" style={{ marginTop: "10px" }}>
                       <LeftColMd12 className="col-md-12">
                         <LeftTitle >Yêu cầu thêm của bạn</LeftTitle>
-                        <TextArea rows="3" />
+                        <TextArea rows="3" value={note} onChange={(e) => setNote(e.target.value)} />
                       </LeftColMd12>
                     </LeftRow>
                   </InfoDetail>
@@ -522,8 +739,10 @@ const Payment = (props) => {
                       </InfomationTitle>
                     </div>
                     <LeftDiscount className='col-md-12'>
-                      <Input className='col-md-5' type="text" />
-                      <ButtonClick className='col-md-4' style={{ margin: "0px 0px 0px 20px", height: "40px" }}>
+                      <Input className='col-md-5' type="text" value={discount} onChange={(e) => setDiscount(e.target.value)} />
+                      <ButtonClick className='col-md-4' style={{ margin: "0px 0px 0px 20px", height: "40px" }}
+                        onClick={() => handleDiscount()}
+                      >
                         {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
                         Áp dụng mã giảm giá
                       </ButtonClick>
@@ -542,7 +761,15 @@ const Payment = (props) => {
                           <PaymentLabel className="row label--checkbox">
                             <PaymentWay>
                               <PaymentCol9 className="col-md-5">
-                                <InputRadio type="checkbox" className="checkbox" />
+                                <InputRadio
+                                  type="radio"
+                                  name="payment"
+                                  value="momo"
+                                  className="checkbox"
+                                  onClick={(e) => {
+                                    handlePaymentWay(e)
+                                  }}
+                                />
                                 <PaymentName>
                                   Momo
                                 </PaymentName>
@@ -562,18 +789,26 @@ const Payment = (props) => {
                           <PaymentLabel className="row label--checkbox">
                             <PaymentWay>
                               <PaymentCol9 className="col-md-5">
-                                <InputRadio type="checkbox" className="checkbox" />
+                                <InputRadio
+                                  type="radio"
+                                  name="payment"
+                                  value="stripe"
+                                  className="checkbox"
+                                  onClick={(e) => {
+                                    handlePaymentWay(e)
+                                  }}
+                                />
                                 <PaymentName>
-                                  Paypal
+                                  Stripe
                                 </PaymentName>
                               </PaymentCol9>
                               <PaymentImgContainer className="col-md-3">
-                                <PaymentImg src={paypalImage} alt="" />
+                                <PaymentImg src={stripeImage} alt="" />
                               </PaymentImgContainer>
                             </PaymentWay>
                             <PaymentDescription>
                               <PaymentDescriptionP>
-                                Thanh toán qua Paypal. Chấp nhận tất cả các thẻ tín dụng và thẻ ghi nợ chính.
+                                Thanh toán qua Stripe. Chấp nhận tất cả các thẻ tín dụng và thẻ ghi nợ chính.
                               </PaymentDescriptionP>
                             </PaymentDescription>
                           </PaymentLabel>
@@ -582,7 +817,15 @@ const Payment = (props) => {
                           <PaymentLabel className="row label--checkbox">
                             <PaymentWay>
                               <PaymentCol9 className="col-md-5">
-                                <InputRadio type="checkbox" className="checkbox" />
+                                <InputRadio
+                                  type="radio"
+                                  name="payment"
+                                  value="card"
+                                  className="checkbox"
+                                  onClick={(e) => {
+                                    handlePaymentWay(e)
+                                  }}
+                                />
                                 <PaymentName>
                                   Chuyển khoản ngân hàng
                                 </PaymentName>
@@ -602,7 +845,15 @@ const Payment = (props) => {
                           <PaymentLabel className="row label--checkbox">
                             <PaymentWay>
                               <PaymentCol9 className="col-md-5">
-                                <InputRadio type="checkbox" className="checkbox" />
+                                <InputRadio
+                                  type="radio"
+                                  name="payment"
+                                  value="onStage"
+                                  className="checkbox"
+                                  onClick={(e) => {
+                                    handlePaymentWay(e)
+                                  }}
+                                />
                                 <PaymentName>
                                   Thanh toán khi đến nơi
                                 </PaymentName>
@@ -623,16 +874,7 @@ const Payment = (props) => {
                   </LeftRow>
                   <Button className="row" style={{ marginTop: "30px" }}>
                     <ButtonContainer>
-                      <ButtonClick
-                        onClick={() => navigate("/hotel-success", {
-                          state: {
-                            bookingState: "success"
-                          }
-                        })}
-                      >
-                        {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
-                        Tiến hành thanh toán
-                      </ButtonClick>
+                      {showPaymentWay(paymentWay)}
                     </ButtonContainer>
                   </Button>
                 </Left>
@@ -657,30 +899,30 @@ const Payment = (props) => {
                         <BookingInfoDetailRow className="row">
                           <BookingInfoDetailRowMd5 className="col-md-5">
                             <DayTitle>Nhận phòng</DayTitle>
-                            <DayDetail>11/09/2022</DayDetail>
+                            <DayDetail>{checkInDate}</DayDetail>
                           </BookingInfoDetailRowMd5>
                           <BookingInfoDetailRowMd2 className="col-md-2">
                             <CorporateFareOutlined style={{ color: "var(--color-primary)" }} />
                           </BookingInfoDetailRowMd2>
                           <BookingInfoDetailRowMd5 className="col-md-5">
                             <DayTitle>Trả phòng</DayTitle>
-                            <DayDetail>11/09/2022</DayDetail>
+                            <DayDetail>{checkOutDate}</DayDetail>
                           </BookingInfoDetailRowMd5>
                         </BookingInfoDetailRow>
                       </BookingInfoDetail>
 
                       <BookingNumber className="col-md-12">
                         <BookingNumberRow className="row">
-                          <BookingNumberRowMd5 className="col-md-5">Người lớn: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> 2</b></BookingNumberRowMd5>
+                          <BookingNumberRowMd5 className="col-md-5">Người lớn: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> {adultsQuantity}</b></BookingNumberRowMd5>
                           <div className="col-md-2"></div>
-                          <BookingNumberRowMd5 className="col-md-5">Trẻ em: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> 0</b></BookingNumberRowMd5>
+                          <BookingNumberRowMd5 className="col-md-5">Trẻ em: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> {childrenQuantity}</b></BookingNumberRowMd5>
                         </BookingNumberRow>
                       </BookingNumber>
 
                       <DayNumber className="col-md-12">
                         <DayNumberRow className="row">
                           <DayNumberTitle className="col-md-6">Số đêm</DayNumberTitle>
-                          <DayNumberDetail className="col-md-6"> 3 ngày 2 đêm</DayNumberDetail>
+                          <DayNumberDetail className="col-md-6"> {getQuantityFromDayToDay(checkInDate, checkOutDate)}</DayNumberDetail>
                         </DayNumberRow>
                       </DayNumber>
                       <DayNumber className="col-md-12">
@@ -695,8 +937,8 @@ const Payment = (props) => {
                       <RoomInformationTitle className="col-md-12">Thông tin phòng</RoomInformationTitle>
                       <RoomInformationDetail className="col-md-12">
                         <RoomInformationRow className="row">
-                          <RoomDetailTitle className="col-md-6"><b style={{ color: "var(--color-primary)", marginRight: "5px" }}>Phòng 12:</b> Deluxe, hướng biển, king bed</RoomDetailTitle>
-                          <RoomDetailPrice className="col-md-6">9.670.000 đ</RoomDetailPrice>
+                          <RoomDetailTitle className="col-md-6"><b style={{ color: "var(--color-primary)", marginRight: "5px" }}>{roomName}:</b> {roomTypeName}, {roomView}, {floorName}</RoomDetailTitle>
+                          <RoomDetailPrice className="col-md-6">{format_money(roomPrice)} đ</RoomDetailPrice>
                         </RoomInformationRow>
                       </RoomInformationDetail>
                     </RoomInformation>
@@ -705,10 +947,17 @@ const Payment = (props) => {
                     <TotalMoneyRow className="row">
                       <TotalMoney>
                         <TotalMoneySpan>Tổng cộng: </TotalMoneySpan>
-                        <TotalMoneyBeforeH3>4.578.000<b style={{ marginLeft: "5px" }}><u> đ</u></b></TotalMoneyBeforeH3>
-                        <TotalMoneyH5>
-                          Đã áp dụng mã giảm giá
-                        </TotalMoneyH5>
+                        <TotalMoneyBeforeH3>{format_money(roomTotalRoomBooking)}<b style={{ marginLeft: "5px" }}><u> đ</u></b></TotalMoneyBeforeH3>
+                        {
+                          discountRoomBooking ? (
+                            <TotalMoneyH5>
+                              Đã áp dụng mã giảm giá
+                            </TotalMoneyH5>
+                          ) : (
+                            null
+                          )
+                        }
+
                       </TotalMoney>
                     </TotalMoneyRow>
 
@@ -750,6 +999,11 @@ const Payment = (props) => {
           </Background>
           : null
       } */}
+      {/* TOAST */}
+      <Toast
+        ref={toastRef}
+        dataToast={dataToast}
+      />
     </>
   )
 }
