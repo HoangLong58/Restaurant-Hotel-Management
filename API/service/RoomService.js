@@ -192,4 +192,24 @@ module.exports = {
             );
         });
     },
+    updateRoomState: (discountId, state) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                room
+                set room_state = ? 
+                where room_id = ?`,
+                [state, discountId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        });
+    }
 };

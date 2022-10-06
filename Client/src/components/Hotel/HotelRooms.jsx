@@ -253,8 +253,8 @@ const HotelRooms = () => {
         const findRoomsAndServices = async () => {
             try {
                 const res = await RoomService.findRoomsAndServices({
-                    checkInDate: checkInDate,
-                    checkOutDate: checkOutDate,
+                    checkInDate: moment(checkInDate).format('YYYY-MM-DD'),
+                    checkOutDate: moment(checkOutDate).format('YYYY-MM-DD'),
                     adultsQuantity: adultsQuantity,
                     childrenQuantity: childrenQuantity,
                     maxPrice: maxPrice,
@@ -387,14 +387,14 @@ const HotelRooms = () => {
                                                                                 <div className="room-box-in">
                                                                                     <h5 className="">{room.room_type_name}</h5>
                                                                                     <p className="mt-3" style={{ overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: "3" }}>{room.room_description}</p>
-                                                                                    <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from {room.room_price}$</a>
+                                                                                    {/* <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from {room.room_price}$</a> */}
                                                                                     <div className="room-icons mt-4 pt-4">
                                                                                         <img src={svg5} alt="" />
                                                                                         <img src={svg2} alt="" />
                                                                                         <img src={svg3} alt="" />
-                                                                                        <DetailRoomButton
+                                                                                        {/* <DetailRoomButton
                                                                                             onClick={() => handleClickFullInfo(room.room_id)}
-                                                                                        >full info</DetailRoomButton>
+                                                                                        >full info</DetailRoomButton> */}
                                                                                     </div>
                                                                                 </div>
                                                                             </div>

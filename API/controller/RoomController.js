@@ -1,7 +1,8 @@
-const { getRoomByRoomId, getRooms, getRoomsWithTypeAndFloor, getRoomsWithImageTypeFloor, getMinMaxRoomPrice, getRoomWithTypeAndFloorByRoomId } = require("../service/RoomService");
+const { getRoomByRoomId, getRooms, getRoomsWithTypeAndFloor, getRoomsWithImageTypeFloor, getMinMaxRoomPrice, getRoomWithTypeAndFloorByRoomId, updateRoomState } = require("../service/RoomService");
 const { getServicesByRoomTypeId } = require("../service/ServiceService");
 const { getDevicesByRoomId } = require("../service/DeviceService");
 const { getRoomImagesByRoomId } = require("../service/RoomImageService");
+const { getRoomBookingDetailByRoomId } = require("../service/RoomBookingDetailService");
 
 module.exports = {
     getRoomsWithTypeAndFloor: (req, res) => {
@@ -90,8 +91,10 @@ module.exports = {
         const childrenQuantity = req.body.childrenQuantity;
         const maxPrice = req.body.maxPrice;
         const filterList = req.body.filterList;
+        const checkinDateReq = new Date(checkInDate);
+        const checkoutDateReq = new Date(checkOutDate);
 
-        getRoomsWithImageTypeFloor((err, results) => {
+        getRoomsWithImageTypeFloor(async (err, results) => {
             if (err) {
                 console.log("Lỗi getRoomsWithImageTypeFloor: ", err);
                 return;
@@ -106,6 +109,12 @@ module.exports = {
                 return res.status(400).json({
                     status: "fail",
                     message: "Bạn chưa chọn ngày Check out!"
+                });
+            }
+            if (checkinDateReq > checkoutDateReq) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Ngày check-in và check-out không hợp lệ!"
                 });
             }
             if (!adultsQuantity) {
@@ -141,17 +150,47 @@ module.exports = {
                 let finalResultArray = [];
                 let finalResultFilteredArray = [];
                 results.forEach(room => {
+                    const roomId = room.room_id;
                     const getServicesByRoomTypeIds = async (roomTypeId) => {
                         const serviceList = await getServicesByRoomTypeId(roomTypeId);
                         let finalResultItem = { ...room, serviceList };
                         return finalResultItem;
                     };
                     // Check date here
+                    try {
+                        const getRoomBookingDetail = async (roomId) => {
+                            const roomBookingDetail = await getRoomBookingDetailByRoomId(roomId);
+                            if (roomBookingDetail) {
+                                const roomDetailCheckinDate = new Date(roomBookingDetail.room_booking_detail_checkin_date);
+                                const roomDetailCheckoutDate = new Date(roomBookingDetail.room_booking_detail_checkout_date);
 
-                    finalResultArray.push(getServicesByRoomTypeIds(room.room_type_id));
+                                if (
+                                    checkinDateReq <= roomDetailCheckinDate
+                                    && checkoutDateReq <= roomDetailCheckinDate
+                                ) {
+                                    return getServicesByRoomTypeIds(room.room_type_id);
+
+                                } else if (checkinDateReq >= roomDetailCheckoutDate
+                                    && checkoutDateReq >= roomDetailCheckoutDate) {
+                                    return getServicesByRoomTypeIds(room.room_type_id);
+                                } else {
+                                    return null;
+                                }
+                            } else {
+                                return getServicesByRoomTypeIds(room.room_type_id);
+                            }
+                        };
+                        finalResultArray.push(getRoomBookingDetail(roomId));
+                    } catch (err) {
+                        console.log("Lỗi getRoomBookingDetail: ", err);
+                    }
                 });
                 // Đợi tất cả promise hoàn thành thì trả result về
                 Promise.all(finalResultArray).then((result) => {
+                    console.log("Resule before:", result);
+
+                    result = result.filter(prev => prev !== null)
+                    console.log("Resule after:", result);
                     // ---Filter
                     result.map((room, key) => {
                         if (
@@ -224,5 +263,29 @@ module.exports = {
             status: "success",
             data: finalResult
         });
+    },
+    updateRoomState: async (req, res) => {
+        const roomId = req.body.roomId;
+        const roomState = req.body.roomState;
+        try {
+            const result = await updateRoomState(roomId, roomState);
+            if(result) {
+                return res.status(200).json({
+                    status: "success",
+                    message: "Update room state successfully!",
+                });
+            } else {
+                return res.status(200).json({
+                    status: "fail",
+                    message: "Update room state fail!",
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when update room state!",
+                error: err
+            });
+        }
     },
 };

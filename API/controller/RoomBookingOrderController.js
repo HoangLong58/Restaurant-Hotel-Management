@@ -25,7 +25,8 @@ module.exports = {
         const checkinDate = req.body.checkinDate;
         const checkoutDate = req.body.checkoutDate;
         const roomId = req.body.roomId;
-
+        const roomBookingOrderNote = req.body.roomBookingOrderNote;
+        console.log("roomBookingOrderSurcharge: ", roomBookingOrderSurcharge)
         // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
         var today = new Date();
         var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
@@ -44,7 +45,7 @@ module.exports = {
                 message: "Book price không hợp lệ!"
             });
         }
-        if (!roomBookingOrderSurcharge || !Number.isInteger(roomBookingOrderSurcharge) || roomBookingOrderSurcharge <= 0) {
+        if (roomBookingOrderSurcharge === null) {
             return res.status(404).json({
                 status: "fail",
                 message: "Book surcharge không hợp lệ!"
@@ -62,7 +63,7 @@ module.exports = {
                 message: "Customer id không hợp lệ!"
             });
         }
-        if (!discountId || !Number.isInteger(discountId) || discountId <= 0) {
+        if (discountId === null) {
             return res.status(404).json({
                 status: "fail",
                 message: "Discount id không hợp lệ!"
@@ -93,7 +94,8 @@ module.exports = {
                 roomBookingOrderSurcharge,
                 roomBookingOrderTotal,
                 customerId,
-                discountId
+                discountId,
+                roomBookingOrderNote
             );
             if (createRoomBookingOrderRes) {
 
@@ -104,7 +106,8 @@ module.exports = {
                         roomBookingOrderSurcharge,
                         roomBookingOrderTotal,
                         customerId,
-                        discountId
+                        discountId,
+                        roomBookingOrderNote
                     );
                     if (roomBookingOrderRes) {
                         var roomBookingOrderId = roomBookingOrderRes.room_booking_order_id;

@@ -30,3 +30,11 @@ export const findRoomsAndServices = async (body) => {
     const res = await axios.post(`${url_Room}/find-rooms-and-services`, body);
     return res;
 };
+export const updateRoomState = async (id, state) => {
+    authToken(localStorage.getItem("customer_token"));
+    const res = await axios.put(`${url_Room}/update-state`, {
+        roomId: id,
+        roomState: state
+    });
+    return res;
+};

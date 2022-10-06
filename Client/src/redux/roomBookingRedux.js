@@ -10,7 +10,7 @@ const roomBookingSlice = createSlice({
         checkOutDate: null,
         adultsQuantity: null,
         childrenQuantity: null,
-        roomTotal: 2400000,
+        roomTotal: 0,
         discount: null,
     },
     reducers: {
@@ -32,8 +32,18 @@ const roomBookingSlice = createSlice({
         addRoomTotal: (state, action) => {
             state.roomTotal = action.payload.roomTotal;
         },
+        logoutRoomBooking: (state) => {
+            state.room = null;
+            state.roomQuantity = 0;
+            state.checkInDate = null;
+            state.checkOutDate = null;
+            state.adultsQuantity = null;
+            state.childrenQuantity = null;
+            state.roomTotal = 0;
+            state.discount = null;
+        }
     }
 });
 
-export const { chooseDayAndQuantity, addCustomerBookingRoom, addRoomBookingRoom, addDiscount, addRoomTotal } = roomBookingSlice.actions
+export const { chooseDayAndQuantity, addCustomerBookingRoom, addRoomBookingRoom, addDiscount, addRoomTotal, logoutRoomBooking } = roomBookingSlice.actions
 export default roomBookingSlice.reducer;

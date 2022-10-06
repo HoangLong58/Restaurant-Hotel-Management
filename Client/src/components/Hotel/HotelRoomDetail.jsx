@@ -26,7 +26,7 @@ import HotelProgress from './HotelProgress';
 import * as RoomService from "../../service/RoomService";
 import { handleShowStar } from '../../utils/utils';
 import Toast from '../Toast';
-import { addCustomerBookingRoom, addRoomBookingRoom, chooseDayAndQuantity } from '../../redux/roomBookingRedux';
+import { addCustomerBookingRoom, addRoomBookingRoom, addRoomTotal, chooseDayAndQuantity } from '../../redux/roomBookingRedux';
 
 const HotelItem = styled.div``
 
@@ -241,6 +241,7 @@ const HotelRoomDetail = (props) => {
     const [roomAdultQuantity, setRoomAdultQuantity] = useState();
     const [roomChildQuantity, setRoomChildQuantity] = useState();
     const [roomView, setRoomView] = useState();
+    const [roomPrice, setRoomPrice] = useState();
     const [roomTypeName, setRoomTypeName] = useState();
     const [floorName, setFloorName] = useState();
     const [roomTypeVoteTotal, setRoomTypeVoteTotal] = useState();
@@ -262,6 +263,7 @@ const HotelRoomDetail = (props) => {
                 setRoomAdultQuantity(res.data.data.room_adult_quantity);
                 setRoomChildQuantity(res.data.data.room_child_quantity);
                 setRoomView(res.data.data.room_view);
+                setRoomPrice(res.data.data.room_price);
                 setRoomTypeName(res.data.data.room_type_name);
                 setFloorName(res.data.data.floor_name);
                 setRoomTypeVoteTotal(res.data.data.room_type_vote_total);
@@ -318,14 +320,39 @@ const HotelRoomDetail = (props) => {
     };
 
     const handleBookNow = () => {
-        dispatch(addCustomerBookingRoom({customer: customer}));
-        dispatch(addRoomBookingRoom({room: room}));
+        dispatch(addCustomerBookingRoom({ customer: customer }));
+        dispatch(addRoomBookingRoom({ room: room }));
         dispatch(chooseDayAndQuantity({
             checkInDate: checkInDate,
             checkOutDate: checkOutDate,
             adultsQuantity: adultsQuantity,
             childrenQuantity: childrenQuantity
-        }))
+        }));
+        dispatch(addRoomTotal({
+            roomTotal: roomPrice
+        }));
+        try {
+            const updateRoomState = async () => {
+                const updateRoomStateRes = await RoomService.updateRoomState(roomId, 1);
+                if (updateRoomStateRes) {
+                    // Toast
+                    const dataToast = { message: "Phòng đã được giữ trong 5 phút", type: "success" };
+                    showToastFromOut(dataToast);
+                    return;
+                } else {
+                    // Toast
+                    const dataToast = { message: updateRoomStateRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+            }
+            updateRoomState();
+        } catch (err) {
+            // Toast
+            const dataToast = { message: err.response.data.message, type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
         navigate('/hotel-payment', {
             state: {
                 room_id: roomId,

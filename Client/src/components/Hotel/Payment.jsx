@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 // Date picker
-import { AccessAlarmsOutlined, CorporateFareOutlined } from '@mui/icons-material';
+import { AccessAlarmsOutlined, CorporateFareOutlined, ReplayOutlined } from '@mui/icons-material';
 import moment from 'moment';
 
 import cash from '../../img/cash-icon.jpg';
@@ -9,7 +9,7 @@ import momoImage from '../../img/momo.jpg';
 import stripeImage from '../../img/stripe.png';
 import cardImage from '../../img/thenganhang.png';
 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import HotelProgress from './HotelProgress';
 import { useDispatch, useSelector } from 'react-redux';
 import { format_money, getQuantityFromDayToDay, traceCurrency } from '../../utils/utils';
@@ -17,12 +17,16 @@ import { format_money, getQuantityFromDayToDay, traceCurrency } from '../../util
 import axios from 'axios';
 import StripeCheckout from 'react-stripe-checkout';
 
+import logo from '../../img/logos/logo.png';
+
 // Service
 import { REACT_APP_STRIPE } from "../../constants/Var";
 import * as PaymentService from "../../service/PaymentService";
 import * as DiscountService from "../../service/DiscountService";
+import * as RoomService from "../../service/RoomService";
+import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
 import Toast from '../Toast';
-import { addDiscount, addRoomTotal } from '../../redux/roomBookingRedux';
+import { addDiscount, addRoomTotal, logoutRoomBooking } from '../../redux/roomBookingRedux';
 
 // Button
 const Button = styled.div``
@@ -453,6 +457,111 @@ const TotalMoneyH5 = styled.h5`
   }
 `
 
+
+// Modal
+const ModalBackground = styled.div`
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99000;
+
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    animation: fadeIn linear 0.1s;
+`
+
+const ModalWrapperMessage = styled.div`
+    width: 750px;
+    height: auto;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
+    background: #F8F9FA;
+    color: var(--color-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border: 2px solid black;
+
+    position: relative;
+    z-index: 99999;
+    border-radius: 10px;
+    --growth-from: 0.7;
+    --growth-to: 1;
+    animation: growth linear 0.1s;
+`
+
+const ModalH2 = styled.h2`
+  font-size: 1.8rem;
+  margin-top: 20px;
+  color: var(--color-primary);
+  font-weight: 700;
+  letter-spacing: 2px;
+`
+const ModalSmall = styled.small`
+  margin-top: 15px;
+  font-size: 1.2rem;
+`
+const ModalButtonContainer = styled.div`
+  justify-content: center;
+  position: relative;
+  margin: 22px 0;
+  display: flex;
+  &::after {
+      content: "";
+      border: 2px solid black;
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background-color: transperent;
+      width: 300px;
+      height: 100%;
+      z-index: 5;
+  }
+`
+
+const ModalButton = styled.button`
+  padding: 10px;
+  width: 300px;
+  border: 2px solid black;
+  background-color: black;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  z-index: 10;
+  &:hover {
+      background-color: var(--color-primary);
+  }
+  &:active {
+      background-color: #333;
+      transform: translate(5px, 5px);
+      transition: transform 0.25s;
+  }
+`
+
+const MessageImage = styled.img`
+  transform: scale(0.8);
+`
+
+const MessageImageContainer = styled.div`
+  border-top: 1px solid black;
+  border-left: 2px solid black;
+  border-right: 2px solid black;
+  width: 750px;
+  height: auto;
+  background-color: #383838;
+  display: flex;
+  justify-content: center;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+`
+
 const Payment = (props) => {
   // Truyền data Từ trang chi tiết vào
   console.log("props data payment: ", props.data);
@@ -468,23 +577,27 @@ const Payment = (props) => {
   const [customer, setCustomer] = useState(customerRoomBooking);
   const [room, setRoom] = useState(roomRoomBooking);
 
+  const [customerId, setCustomerId] = useState(customerRoomBooking.customer_id);
   const [firstName, setFirstName] = useState(customerRoomBooking.customer_first_name);
   const [lastName, setLastName] = useState(customerRoomBooking.customer_last_name);
   const [email, setEmail] = useState(customerRoomBooking.customer_email);
   const [phoneNumber, setPhoneNumber] = useState(customerRoomBooking.customer_phone_number);
   const [note, setNote] = useState("");
-  const [discount, setDiscount] = useState("GIAM0");
+  const [discount, setDiscount] = useState("");
 
   const [checkInDate, setCheckInDate] = useState(moment(roomBooking.checkInDate).format('DD/MM/YYYY'));
   const [checkOutDate, setCheckOutDate] = useState(moment(roomBooking.checkOutDate).format('DD/MM/YYYY'));
   const [adultsQuantity, setAdultsQuantity] = useState(roomBooking.adultsQuantity);
   const [childrenQuantity, setChildrenQuantity] = useState(roomBooking.childrenQuantity);
 
+  const [roomId, setRoomId] = useState(roomRoomBooking.room_id);
   const [roomName, setRoomName] = useState(roomRoomBooking.room_name);
   const [floorName, setFloorName] = useState(roomRoomBooking.floor_name);
   const [roomTypeName, setRoomTypeName] = useState(roomRoomBooking.room_type_name);
   const [roomView, setRoomView] = useState(roomRoomBooking.room_view);
   const [roomPrice, setRoomPrice] = useState(roomRoomBooking.room_price);
+
+  const [discountId, setDiscountId] = useState();
 
   // Toast
   const [dataToast, setDataToast] = useState({ message: "alo alo", type: "success" });
@@ -511,11 +624,38 @@ const Payment = (props) => {
           setSeconds(59);
         }
       }
-    }, 1000)
+    }, 1000);
     return () => {
       clearInterval(myInterval);
     };
   });
+
+  useEffect(() => {
+    if (minutes === 0 && seconds === 0) {
+      try {
+        const updateRoomState = async () => {
+          const updateRoomStateRes = await RoomService.updateRoomState(roomId, 0);
+          if (updateRoomStateRes) {
+            // Toast
+            const dataToast = { message: "Thời gian giữ phòng đã hết!", type: "success" };
+            showToastFromOut(dataToast);
+            return;
+          } else {
+            // Toast
+            const dataToast = { message: updateRoomStateRes.data.message, type: "warning" };
+            showToastFromOut(dataToast);
+            return;
+          }
+        }
+        updateRoomState();
+      } catch (err) {
+        // Toast
+        const dataToast = { message: err.response.data.message, type: "danger" };
+        showToastFromOut(dataToast);
+        return;
+      }
+    }
+  }, [minutes, seconds])
 
   // Handle payment way
   const [paymentWay, setPaymentWay] = useState();
@@ -589,6 +729,7 @@ const Payment = (props) => {
         const discountData = res.data.data;
         if (discountData) {
           dispatch(addDiscount({ discount: discountData }));
+          setDiscountId(discountData.discount_id);
           // Toast
           const dataToast = { message: res.data.message, type: "success" };
           showToastFromOut(dataToast);
@@ -639,11 +780,49 @@ const Payment = (props) => {
           amount: traceCurrency(roomTotalRoomBooking) * 100,
         });
         console.log(res.data);
-        navigate("/hotel-success", {
-          state: {
-            bookingState: "success"
-          }
-        });
+        try {
+          const createRoomBookingOrder = async () => {
+            const bookingRes = await RoomBookingOrderService.createRoomBookingOrder({
+              roomBookingOrderPrice: roomPrice,
+              roomBookingOrderSurcharge: 0,
+              roomBookingOrderTotal: roomTotalRoomBooking,
+              customerId: customerId,
+              discountId: discountId ? discountId : 9,
+              checkinDate: moment(checkInDate).format('YYYY-MM-DD'),
+              checkoutDate: moment(checkOutDate).format('YYYY-MM-DD'),
+              roomId: roomId,
+              roomBookingOrderNote: note
+            });
+            if (bookingRes) {
+              dispatch(logoutRoomBooking());
+              navigate("/hotel-success", {
+                state: {
+                  bookingState: "success"
+                }
+              });
+              // Toast
+              const dataToast = { message: bookingRes.data.message, type: "success" };
+              showToastFromOut(dataToast);
+              return;
+            } else {
+              // Toast
+              const dataToast = { message: bookingRes.data.message, type: "warning" };
+              showToastFromOut(dataToast);
+              return;
+            }
+          };
+          createRoomBookingOrder();
+        } catch (err) {
+          // Toast
+          const dataToast = { message: err.response.data.message, type: "danger" };
+          showToastFromOut(dataToast);
+          return;
+        }
+        // navigate("/hotel-success", {
+        //   state: {
+        //     bookingState: "success"
+        //   }
+        // });
       } catch (err) {
         console.log(err);
       }
@@ -651,6 +830,7 @@ const Payment = (props) => {
     stripeToken && makeRequest();
   }, [stripeToken, navigate]);
 
+  // Xử lý đặt phòng
   const handleRoomBookingOrder = () => {
     if (!firstName) {
       // Toast
@@ -682,8 +862,27 @@ const Payment = (props) => {
       showToastFromOut(dataToast);
       return;
     }
+    // const makeRequest = async () => {
+    //   try {
+    //     const res = await PaymentService.postPaymentStripe({
+    //       tokenId: stripeToken.id,
+    //       amount: traceCurrency(roomTotalRoomBooking) * 100,
+    //     });
+    //     console.log(res.data);
+
+
+    //   } catch (err) {
+    //     console.log(err);
+    //   }
+    // }
+    // makeRequest();
   };
 
+  // Reload after 5 minute 
+  const handleReloadPage = () => {
+    navigate("/hotel");
+    dispatch(logoutRoomBooking());
+  };
 
   console.log("paymentWay: ", paymentWay);
   return (
@@ -980,25 +1179,25 @@ const Payment = (props) => {
       </div>
 
       {/* Modal */}
-      {/* {
+      {
         minutes === 0 && seconds === 0
           ?
-          <Background>
-            <ModalWrapper>
+          <ModalBackground>
+            <ModalWrapperMessage>
               <MessageImageContainer>
                 <MessageImage src={logo} />
               </MessageImageContainer>
-              <H2>Chúc mừng bạn đã quay lại!</H2>
-              <Small className="text-muted">Giá phòng có thể đã thay đổi, vui lòng tải lại trang để cập nhật giá mới nhất</Small>
-              <Link to="/hotel" style={{ textDecoration: "none" }}>
-                <ModalButtonContainer>
-                  <ModalButton><ReplayOutlined />   Tải lại trang</ModalButton>
-                </ModalButtonContainer>
-              </Link>
-            </ModalWrapper>
-          </Background>
+              <ModalH2>Chúc mừng bạn đã quay lại!</ModalH2>
+              <ModalSmall className="text-muted">Giá phòng có thể đã thay đổi, vui lòng tải lại trang để cập nhật giá mới nhất</ModalSmall>
+              {/* <Link to="/hotel" style={{ textDecoration: "none" }}>// */}
+              <ModalButtonContainer>
+                <ModalButton onClick={() => handleReloadPage()}><ReplayOutlined />   Tải lại trang</ModalButton>
+              </ModalButtonContainer>
+              {/* </Link> */}
+            </ModalWrapperMessage>
+          </ModalBackground>
           : null
-      } */}
+      }
       {/* TOAST */}
       <Toast
         ref={toastRef}
