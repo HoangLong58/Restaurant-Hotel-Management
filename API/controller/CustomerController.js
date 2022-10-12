@@ -131,7 +131,8 @@ module.exports = {
             if (result) {
                 results.customer_password = undefined;
                 const jsontoken = sign({ result: results }, process.env.JWT_SEC, {
-                    expiresIn: "1h"
+                    // expiresIn: "1h"
+                    expiresIn: "365d"
                 });
                 return res.status(200).json({
                     status: "success",

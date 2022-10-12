@@ -11,7 +11,7 @@ import moment from 'moment';
 // Time picker
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-import { AccessAlarmsOutlined, Add, ArrowRightAltOutlined, CelebrationOutlined, CheckCircleRounded, Remove, ReplayOutlined } from '@mui/icons-material';
+import { AccessAlarmsOutlined, Add, ArrowRightAltOutlined, CelebrationOutlined, CheckCircleRounded, CheckOutlined, Remove, ReplayOutlined } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../img/logos/logo.png';
 import Toast from '../Toast';
@@ -42,7 +42,20 @@ import paypalImage from '../../img/paypal.png';
 import cardImage from '../../img/thenganhang.png';
 
 import Modal from './Modal';
-import SliderImage from '../SliderImage';
+import SliderImage from './SliderImage';
+
+// SERVICES
+import * as PartyHallTimeService from "../../service/PartyHallTimeService";
+import * as PartyBookingTypeService from "../../service/PartyBookingTypeService";
+import * as PartyHallTypeService from "../../service/PartyHallTypeService";
+import * as PartyHallService from "../../service/PartyHallService";
+import * as SetMenuService from "../../service/SetMenuService";
+import * as DiscountService from "../../service/DiscountService";
+
+import { addCustomerBookingParty, addDiscountBookingParty, addPartyBookingTotal, chooseDayAndQuantityBookingParty, logoutPartyBooking } from '../../redux/partyBookingRedux';
+import { useDispatch, useSelector } from 'react-redux';
+import { format_money } from '../../utils/utils';
+import { add } from 'date-fns/esm';
 
 const Box2 = styled.div`
 width: 100%;
@@ -249,6 +262,43 @@ const Info = styled.div`
     justify-content: center;
     transition: all 0.5s ease;
 `
+const InfoDark = styled.div`
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.65);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+`
+const IconDark = styled.div`
+    width: auto;
+    height: auto;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+    transition: all 0.5s ease;
+    &:hover {
+        background-color: #e9f5f5;
+        transform: scale(1.1);
+    }
+`
+
+const SpanDark = styled.span`
+    color: var(--color-dark);
+    margin-left: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+`
 
 const MealName = styled.h6`
     position: absolute;
@@ -335,6 +385,9 @@ const ViewItem = styled.div`
     position: relative;
     &:hover ${ViewImage} {
         transform: scale(1.1);
+    }
+    &:hover ${InfoDark} {
+        opacity: 1;
     }
 `
 
@@ -918,30 +971,166 @@ const SuccessButton = styled.button`
     }
 `
 
+const PictureNoResultFound = styled.div`
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10%;
+`;
+
+const Img = styled.img`
+    width: 500px;
+    max-height: 600px;
+    object-fit: cover;
+`;
+
+const H1NoResultFound = styled.h1`
+    letter-spacing: 2px;
+    font-size: 1.4rem;
+    color: var(--color-primary);
+    font-weight: bold;
+`;
+
+// Empty item
+const EmptyItem = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+`
+const EmptyItemSvg = styled.div``
+const EmptyContent = styled.div`
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    font-weight: bold;
+`
+
 const BookPartyMain = () => {
+    const customer = useSelector((state) => state.customer.currentCustomer);
+    const partyBooking = useSelector((state) => state.partyBooking);
+    const customerPartyBooking = useSelector((state) => state.partyBooking.customer);
+    const discountPartyBooking = useSelector((state) => state.partyBooking.discount);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     // STATE
-    const [isSelectAdults, setIsSelectAdults] = useState(false);
+    const [isSelectType, setIsSelectType] = useState(false);
+    const [isSelectTime, setIsSelectTime] = useState(false);
+    const [isSelectQuantity, setIsSelectQuantity] = useState(false);
     const [isAvailableTable, setIsAvailableTable] = useState(false);
     const [isBookSuccess, setIsBookSuccess] = useState(false);
 
-    const [checkInDate, setCheckInDate] = useState();
+    const [partyHallList, setPartyHallList] = useState([]);
+    const [partyHallListFiltered, setPartyHallListFiltered] = useState([]);
+
+    const [dateBooking, setDateBooking] = useState();
     const [timeBooking, setTimeBooking] = useState();
-    const [quantityBooking, setQuantityBooking] = useState(0);
+    const [typeBooking, setTypeBooking] = useState();
+    const [quantityBooking, setQuantityBooking] = useState();
+    const [partyHallType, setPartyHallType] = useState();
+    const [partyHallTimeList, setPartyHallTimeList] = useState([]);
+    const [partyBookingTypeList, setPartyBookingTypeList] = useState([]);
+    const [partyHallTypeList, setPartyHallTypeList] = useState([]);
+    const [setMenuList, setSetMenuList] = useState([]);
+
+    // State from redux
+    const [dateBookingRedux, setDateBookingRedux] = useState(moment(partyBooking.dateBooking, "YYYY-MM-DD").format('DD/MM/YYYY'));
+    const [timeBookingRedux, setTimeBookingRedux] = useState(partyBooking.timeBooking);
+    const [typeBookingRedux, setTypeBookingRedux] = useState(partyBooking.typeBooking);
+    const [quantityBookingRedux, setQuantityBookingRedux] = useState(partyBooking.quantityBooking);
+    const [partyHallTypeRedux, setPartyHallTypeRedux] = useState(partyBooking.partyHallType);
+    const [partyHallRedux, setPartyHallRedux] = useState(partyBooking.partyHall);
+    const [partyServiceRedux, setPartyServiceRedux] = useState(partyBooking.partyService);
+    const [setMenuRedux, setSetMenuRedux] = useState(partyBooking.setMenu);
+    const [foodListRedux, setFoodListRedux] = useState(partyBooking.foodList);
+
+    const [customerId, setCustomerId] = useState(customer.customer_id);
+    const [firstName, setFirstName] = useState(customer.customer_first_name);
+    const [lastName, setLastName] = useState(customer.customer_last_name);
+    const [email, setEmail] = useState(customer.customer_email);
+    const [phoneNumber, setPhoneNumber] = useState(customer.customer_phone_number);
+    const [note, setNote] = useState("");
+    const [discount, setDiscount] = useState("");
+
+    const [partyServiceTotal, setPartyServiceTotal] = useState(0);
+    const [partyHallTotal, setPartyHallTotal] = useState(0);
+    const [setMenuTotal, setSetMenuTotal] = useState(0);
+    const [partyBookingTotal, setPartyBookingTotal] = useState(0);
+
+    const [tableQuantity, setTableQuantity] = useState(0);
+
+    const [discountId, setDiscountId] = useState();
+
+    useEffect(() => {
+        setDateBookingRedux(moment(partyBooking.dateBooking, "YYYY-MM-DD").format('DD/MM/YYYY'));
+        setTimeBookingRedux(partyBooking.timeBooking);
+        setTypeBookingRedux(partyBooking.typeBooking);
+        setQuantityBookingRedux(partyBooking.quantityBooking);
+        setPartyHallTypeRedux(partyBooking.partyHallType);
+        setPartyHallRedux(partyBooking.partyHall);
+        setPartyServiceRedux(partyBooking.partyService);
+        setSetMenuRedux(partyBooking.setMenu);
+        setFoodListRedux(partyBooking.foodList);
+
+        if (partyBooking.partyService && partyBooking.partyHall && partyBooking.setMenu) {
+            // Tính toán tổng tiền
+            const partyServiceList = partyBooking.partyService;
+            const partyHallPrice = partyBooking.partyHall.party_hall_price;
+            const setMenuPrice = partyBooking.setMenu.set_menu_price;
+            let partyServiceTotal = 0;
+            for (var i = 0; i < partyServiceList.length; i++) {
+                partyServiceTotal += partyServiceList[i].party_service_price;
+            }
+            setPartyServiceTotal(partyServiceTotal);
+            setPartyHallTotal(partyHallPrice);
+            setSetMenuTotal(setMenuPrice);
+        }
+    }, [partyBooking,
+        partyBooking.partyHall,
+        partyBooking.partyService,
+        partyBooking.setMenu,
+        partyBooking.foodList
+    ]);
+
+    // Tổng tiền
+    useEffect(() => {
+        if (discountPartyBooking) {
+            const discountPercent = discountPartyBooking.discount_percent;
+            let partyBookingTotal = partyHallTotal + partyServiceTotal + setMenuTotal * tableQuantity;
+            partyBookingTotal = partyBookingTotal - (partyBookingTotal * discountPercent / 100)
+            setPartyBookingTotal(partyBookingTotal);
+            dispatch(addPartyBookingTotal({
+                partyBookingTotal: partyBookingTotal
+            }));
+        } else {
+            let partyBookingTotal = partyHallTotal + partyServiceTotal + setMenuTotal * tableQuantity;
+            setPartyBookingTotal(partyBookingTotal);
+            dispatch(addPartyBookingTotal({
+                partyBookingTotal: partyBookingTotal
+            }));
+        }
+    }, [tableQuantity,
+        partyHallTotal,
+        partyServiceTotal,
+        setMenuTotal,
+        discountPartyBooking
+    ]);
 
     //  --State khi chọn xong place -> Chọn menu
-    const [isBookMenu, setIsBookMenu] = useState(true);
+    const [isBookMenu, setIsBookMenu] = useState(false);
     //  --State khi chọn xong menu -> Thanh toán
-    const [isPayment, setIsPayment] = useState(true);
+    const [isPayment, setIsPayment] = useState(false);
     //  --State khi thanh toán thành công -> Finish
-    const [isFinish, setIsFinish] = useState(true);
+    const [isFinish, setIsFinish] = useState(false);
 
+    const [noResultFound, setNoResultFound] = useState(false);
 
     //---------------------------------------------------------------- 
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
-    const [danhMucModal, setDanhMucModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
@@ -955,48 +1144,137 @@ const BookPartyMain = () => {
         setDataToast(dataShow);
         toastRef.current.show();
     }
+
     //---------------------------------------------------------------- 
+    useEffect(() => {
+        const getPartyHalls = async () => {
+            try {
+                const res = await PartyHallService.getPartyHalls();
+                setPartyHallList(res.data.data);
+            } catch (err) {
+                console.log("Error getPartyHalls: ", err);
+            }
+        }
+        getPartyHalls();
+        const getPartyHallTime = async () => {
+            try {
+                const res = await PartyHallTimeService.getPartyHallTime();
+                setPartyHallTimeList(res.data.data);
+            } catch (err) {
+                console.log("Error getPartyHallTime: ", err);
+            }
+        }
+        getPartyHallTime();
+        const getPartyBookingTypes = async () => {
+            try {
+                const res = await PartyBookingTypeService.getPartyBookingTypes();
+                setPartyBookingTypeList(res.data.data);
+            } catch (err) {
+                console.log("Error getPartyBookingTypes: ", err);
+            }
+        }
+        getPartyBookingTypes();
+        const getPartyHallTypes = async () => {
+            try {
+                const res = await PartyHallTypeService.getPartyHallType();
+                setPartyHallTypeList(res.data.data);
+            } catch (err) {
+                console.log("Error getPartyHallTypes: ", err);
+            }
+        }
+        getPartyHallTypes();
+
+        // Set menu
+        const getSetMenuWithFoodTypeAndFoods = async () => {
+            try {
+                const res = await SetMenuService.getSetMenuWithFoodTypeAndFoods();
+                setSetMenuList(res.data.data);
+            } catch (err) {
+                console.log("Error getSetMenuWithFoodTypeAndFoods: ", err);
+            }
+        }
+        getSetMenuWithFoodTypeAndFoods();
+    }, []);
     // HANDLE
-    const handleChangeCheckInDate = (newValue) => {
-        setCheckInDate(newValue);
+    const handleChangeDate = (newValue) => {
+        setDateBooking(newValue);
         console.log(moment(newValue).format("DD/MM/yyyy"));
     };
 
     const handleCheckAvailableTable = () => {
-        // Use Toast
-        const dataToast = { message: "Đã tìm được bàn trống!", type: "success" };
-        showToastFromOut(dataToast);
-        setIsAvailableTable(true);
-        setMinutes(4);
-        setSeconds(59);
+        const findPartyHall = async () => {
+            try {
+                const res = await PartyHallService.findPartyHall({
+                    dateBooking: moment(dateBooking).format('YYYY-MM-DD'),
+                    timeBooking: timeBooking,
+                    typeBooking: typeBooking,
+                    quantityBooking: quantityBooking,
+                    partyHallType: partyHallType
+                });
+                const partyHallListFiltered = res.data.data;
+                setPartyHallListFiltered(res.data.data);
+                if (partyHallListFiltered.length > 0) {
+                    dispatch(addCustomerBookingParty({ customer: customer }));
+                    dispatch(chooseDayAndQuantityBookingParty({
+                        dateBooking: moment(dateBooking).format('YYYY-MM-DD'),
+                        timeBooking: timeBooking,
+                        typeBooking: typeBooking,
+                        quantityBooking: quantityBooking,
+                        partyHallType: partyHallType
+                    }));
+
+
+                    setNoResultFound(false);
+                    // Use Toast
+                    const dataToast = { message: "Đã tìm được Sảnh phù hợp!", type: "success" };
+                    showToastFromOut(dataToast);
+                    setIsAvailableTable(true);
+                    setMinutes(4);
+                    setSeconds(59);
+                } else {
+                    setNoResultFound(true);
+                    // Toast
+                    const dataToast = { message: "Không tìm thấy Sảnh phù hợp!", type: "warning" };
+                    showToastFromOut(dataToast);
+                }
+                console.log(res);
+            } catch (err) {
+                console.log("err: ", err);
+                const errorMessage = err.response.data.message;
+                const dataToast = { message: errorMessage, type: "danger" };
+                showToastFromOut(dataToast);
+            }
+        }
+        findPartyHall();
+        handleLoading();
     }
 
     // --Handle time
     const [minutes, setMinutes] = useState();
     const [seconds, setSeconds] = useState();
-    useEffect(() => {
-        let myInterval = setInterval(() => {
-            if (seconds > 0) {
-                setSeconds(seconds - 1);
-            }
-            if (seconds === 0) {
-                if (minutes === 0) {
-                    clearInterval(myInterval)
-                } else {
-                    setMinutes(minutes - 1);
-                    setSeconds(59);
-                }
-            }
-        }, 1000)
-        return () => {
-            clearInterval(myInterval);
-        };
-    });
+    // useEffect(() => {
+    //     let myInterval = setInterval(() => {
+    //         if (seconds > 0) {
+    //             setSeconds(seconds - 1);
+    //         }
+    //         if (seconds === 0) {
+    //             if (minutes === 0) {
+    //                 clearInterval(myInterval)
+    //             } else {
+    //                 setMinutes(minutes - 1);
+    //                 setSeconds(59);
+    //             }
+    //         }
+    //     }, 1000)
+    //     return () => {
+    //         clearInterval(myInterval);
+    //     };
+    // });
 
 
     //State
-    const [imageMenu, setImageMenu] = useState();
-    const [imageView, setImageView] = useState();
+    const [setMenuModal, setSetMenuModal] = useState();
+    const [partyHallModal, setPartyHallModal] = useState();
 
     // Responsive Multi Carousel
     const responsive = {
@@ -1019,24 +1297,169 @@ const BookPartyMain = () => {
 
 
 
-    //Handle
-    const handleClickMenu = (image) => {
-        setImageMenu(image);
+    //Handle modal
+    const handleClickViewMenu = (item) => {
+        setSetMenuModal(item);
         openModal({ type: "showImageMenu" })
-    }
+    };
 
-    const handleClickView = (image) => {
-        setImageView(image);
+    const handleClickViewPartyHall = (item) => {
+        setPartyHallModal(item);
         openModal({ type: "showImageView" })
-    }
+    };
 
     // --Handle Increase/ Decrease quantity
-    const handleClickIncreaseQuantity = () => {
-        setQuantityBooking(prev => prev + 1);
-    }
-    const handleClickDecreaseQuantity = () => {
-        setQuantityBooking(prev => prev - 1);
-    }
+    const handleClickTableQuantity = (type) => {
+        if (type === "decrease") {
+            if (tableQuantity > 0) {
+                setTableQuantity(tableQuantity - 1);
+            } else {
+                return;
+            }
+        } else {
+            setTableQuantity(tableQuantity + 1);
+        }
+    };
+
+    const handleChangeTableQuantity = (e) => {
+        // Fix lỗi xóa giá trị thì tổng  = NaN
+        if (e.target.value === "") {
+            setTableQuantity(0);
+            return;
+        }
+        setTableQuantity(parseInt(e.target.value));
+    };
+
+    // Change booking party
+    const handleChangeBookingParty = () => {
+        dispatch(logoutPartyBooking());
+        navigate("/restaurant");
+    };
+
+    // ACCEPT/ DECLINE - Book party hall
+    const handleAcceptPartyHallAndService = () => {
+        if (!partyHallRedux) {
+            // Toast
+            const dataToast = { message: "Bạn chưa chọn Sảnh cử hành tiệc!", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        if (partyServiceRedux.length === 0) {
+            // Toast
+            const dataToast = { message: "Bạn chưa chọn Dịch vụ cho buổi tiệc!", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        // Toast
+        const dataToast = { message: " Chọn Sảnh & Dịch vụ thành công!", type: "success" };
+        showToastFromOut(dataToast);
+        // When success
+        handleLoading();
+        setIsBookMenu(true);
+    };
+    const handleDeclinePartyHallAndService = () => {
+        dispatch(logoutPartyBooking());
+        navigate("/restaurant");
+    };
+
+    // ACCEPT - Book menu & food
+    const handleAcceptMenuAndFood = () => {
+        if (!setMenuRedux) {
+            // Toast
+            const dataToast = { message: "Bạn chưa chọn Menu cho tiệc!", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        if (foodListRedux.length === 0) {
+            // Toast
+            const dataToast = { message: "Bạn chưa chọn Món ăn chi tiết!", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        // Toast
+        const dataToast = { message: " Chọn Menu & Món ăn thành công!", type: "success" };
+        showToastFromOut(dataToast);
+        // When success
+        handleLoading();
+        setIsPayment(true);
+    };
+
+    // Fake loading when fetch data
+    const [isLoading, setIsLoading] = useState(false);
+    const handleLoading = () => {
+        // Scroll lên kết quả mới
+        window.scrollTo({
+            top: 300,
+            behavior: "smooth"
+        });
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 1200);
+    };
+
+    // Get party hall
+    const [partyHallImages, setPartyHallImages] = useState([]);
+    useEffect(() => {
+        const getPartyHallAndImages = async () => {
+            try {
+                const res = await PartyHallService.getPartyHallAndImages({
+                    partyHallId: partyBooking.partyHall.party_hall_id
+                });
+                const result = res.data.data;
+                setPartyHallImages(result.partyHallImages);
+            } catch (err) {
+                console.log("Error getPartyHallAndImages: ", err);
+            }
+        };
+        getPartyHallAndImages();
+    }, [partyBooking,
+        partyBooking.partyHall
+    ]);
+
+    // Handle discount
+    const handleDiscount = () => {
+        if (discountPartyBooking) {
+            // Toast
+            const dataToast = { message: "Thanh toán của bạn đã được giảm giá " + discountPartyBooking.discount_percent + "% trước đó!", type: "success" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        if (!discount) {
+            // Toast
+            const dataToast = { message: "Bạn chưa nhập Mã giảm giá!", type: "warning" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        try {
+            const getDiscount = async () => {
+                const res = await DiscountService.getDiscountByDiscountCode(discount);
+                console.log("RES: ", res);
+                const discountData = res.data.data;
+                if (discountData) {
+                    dispatch(addDiscountBookingParty({ discount: discountData }));
+                    setDiscountId(discountData.discount_id);
+                    // Toast
+                    const dataToast = { message: res.data.message, type: "success" };
+                    showToastFromOut(dataToast);
+                    return;
+                } else {
+                    // Toast
+                    const dataToast = { message: res.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+            };
+            getDiscount();
+        } catch (err) {
+            // Toast
+            const dataToast = { message: err.response.data.message, type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+    };
+
+    console.log("SHOW: ", setMenuList, partyServiceTotal);
     return (
         <>
             {/*-- BOOK PARTY PROGRESS -- */}
@@ -1065,332 +1488,400 @@ const BookPartyMain = () => {
                                 // When paymemt
                                 isPayment ? (
                                     <div className="col-lg-8">
-                                        <Box2>
-                                            <div className="col-lg-12">
+                                        {
+                                            isLoading ? (
                                                 <div className="row">
-                                                    <InfomationTitle>
-                                                        <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi tiết Đặt Tiệc</p>
-                                                        <p style={{ fontSize: "1rem" }}>Hoàn tất Đặt tiệc bằng việc cung cấp những thông tin sau</p>
-                                                    </InfomationTitle>
-                                                </div>
-                                                <div className="row">
-                                                    <InfomationForm className="col-lg-12">
-                                                        <div className="row">
-                                                            <ModalChiTietItem className="col-lg-6">
-                                                                <FormSpan>Họ tên:</FormSpan>
-                                                                <FormInput type="text" placeholder="Họ tên của bạn là" />
-                                                            </ModalChiTietItem>
-                                                            <ModalChiTietItem className="col-lg-6">
-                                                                <FormSpan>Số điện thoại:</FormSpan>
-                                                                <FormInput type="text" placeholder="Số điện thoại của bạn là" />
-                                                            </ModalChiTietItem>
-                                                        </div>
-                                                        <div className="row">
-
-                                                            <ModalChiTietItem className="col-lg-12">
-                                                                <FormSpan>Địa chỉ email:</FormSpan>
-                                                                <FormInput type="email" placeholder="Email của bạn là" />
-                                                            </ModalChiTietItem>
-                                                        </div>
-                                                        <div className="row">
-                                                            <ModalChiTietItem className="col-lg-12">
-                                                                <FormSpan>Ghi chú:</FormSpan>
-                                                                <FormTextArea rows="3" placeholder="Ghi chú về buổi tiệc này này" />
-                                                            </ModalChiTietItem>
-                                                        </div>
-                                                    </InfomationForm>
-                                                </div>
-                                                <div className="row">
-                                                    <InfomationTitle>
-                                                        <Title>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi phí Sảnh</p>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0", fontSize: "1.3rem", color: "var(--color-primary)" }}>9.200.000 đ</p>
-                                                        </Title>
-                                                        <p style={{ fontSize: "1rem" }}>Bạn đã lựa chọn sảnh sau để cử hành buổi tiệc</p>
-                                                    </InfomationTitle>
-                                                </div>
-                                                <CartItem>
-                                                    <Circle />
-                                                    <Course>
-                                                        <Content>
-                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Sảnh Iris - Hồ bơi </span>
-                                                            <span style={{ fontWeight: "bold", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>9.200.000 VNĐ</span>
-                                                        </Content>
-                                                    </Course>
-                                                </CartItem>
-                                                <ImgContainer className="row">
-                                                    <MoreImage >
-                                                        <SliderImage image={[view4, 'https://picsum.photos/id/1018/1000/600/', 'https://picsum.photos/id/1018/1000/600/', 'https://picsum.photos/id/1018/1000/600/']} />
-                                                    </MoreImage>
-                                                </ImgContainer>
-
-                                                {/* List dịch vụ */}
-                                                <div className="row">
-                                                    <InfomationTitle>
-                                                        <Title>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi phí Dịch vụ</p>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0", fontSize: "1.3rem", color: "var(--color-primary)" }}>600.000 đ</p>
-                                                        </Title>
-                                                        <p style={{ fontSize: "1rem" }}>Tổng chi phí cho tất cả dịch vụ sau đây</p>
-                                                    </InfomationTitle>
-                                                </div>
-                                                <CartItem>
-                                                    <Circle />
-                                                    <Course>
-                                                        <Content>
-                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Hoa tươi </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                        </Content>
-                                                    </Course>
-                                                </CartItem>
-                                                <CartItem>
-                                                    <Circle />
-                                                    <Course>
-                                                        <Content>
-                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Bánh cưới + Rượu sampal </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                        </Content>
-                                                    </Course>
-                                                </CartItem>
-                                                <CartItem>
-                                                    <Circle />
-                                                    <Course>
-                                                        <Content>
-                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> MC ca hót </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                        </Content>
-                                                    </Course>
-                                                </CartItem>
-
-                                                {/* List Món ăn */}
-                                                <div className="row">
-                                                    <InfomationTitle>
-                                                        <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi tiết Menu</p>
-                                                        <p style={{ fontSize: "1rem" }}>Tất cả những món ăn mà bạn đã chọn như sau</p>
-                                                    </InfomationTitle>
-                                                </div>
-                                                <CartItem>
-                                                    <Circle />
-                                                    <Course>
-                                                        <Content>
-                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}>  Món Tráng miệng </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                        </Content>
-                                                        <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                    </Course>
-                                                </CartItem>
-                                                <CartItem>
-                                                    <Circle />
-                                                    <Course>
-                                                        <Content>
-                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Món Cơm-Mì-Lẩu </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                        </Content>
-                                                        <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                    </Course>
-                                                </CartItem>
-                                                <CartItem>
-                                                    <Circle />
-                                                    <Course>
-                                                        <Content>
-                                                            <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Món thịt </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                        </Content>
-                                                        <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                    </Course>
-                                                </CartItem>
-
-                                                {/* Tổng chi phí menu */}
-                                                <div className="row">
-                                                    <InfomationTitle>
-                                                        <Title>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi phí Món ăn</p>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0", fontSize: "1.3rem", color: "var(--color-primary)" }}>7.255.000 đ</p>
-                                                        </Title>
-                                                        <p style={{ fontSize: "1rem" }}>Tổng chi phí dựa vào số lượng bàn tiệc</p>
-                                                    </InfomationTitle>
-                                                </div>
-
-                                                <BookingInfoDetailRow className="row">
-                                                    <BookingInfoDetailRowMd5 className="col-md-5">
-                                                        <DayTitle style={{ fontSize: "1.1rem", color: "var(--color-dark)" }}>Chi phí một mâm</DayTitle>
-                                                        <DayDetail style={{ fontSize: "1.3rem", color: "var(--color-primary)" }}>2.400.000 đ</DayDetail>
-                                                    </BookingInfoDetailRowMd5>
-                                                    <BookingInfoDetailRowMd2 className="col-md-2">
-                                                        <CelebrationOutlined style={{ color: "var(--color-primary)" }} />
-                                                    </BookingInfoDetailRowMd2>
-                                                    <BookingInfoDetailRowMd5 className="col-md-5">
-                                                        <DayTitle style={{ fontSize: "1.1rem", color: "var(--color-dark)" }}>Số bàn tiệc</DayTitle>
-                                                        <DayDetail>
-                                                            <BookingNumberRow className="row">
-                                                                <BookingRestaurantQuantity className="quantity">
-                                                                    <BookingRestaurantQuantityButton className="video-button"
-                                                                        onClick={() => handleClickDecreaseQuantity()}
-                                                                        style={{ cursor: "pointer", marginRight: "10px" }}
-                                                                    >
-                                                                        <Remove />
-                                                                    </BookingRestaurantQuantityButton>
-                                                                    <BookingRestaurantQuantityInput
-                                                                        style={{ backgroundColor: "white", color: "var(--color-dark)" }}
-                                                                        type="number"
-                                                                        min="1"
-                                                                        max="200"
-                                                                        step="1"
-                                                                        value={quantityBooking}
-                                                                        onChange={(e) => setQuantityBooking(e.target.value)}
-                                                                    />
-                                                                    <BookingRestaurantQuantityButton className="video-button"
-                                                                        onClick={() => handleClickIncreaseQuantity()}
-                                                                        style={{ cursor: "pointer", marginLeft: "10px" }}
-                                                                    >
-                                                                        <Add />
-                                                                    </BookingRestaurantQuantityButton>
-                                                                </BookingRestaurantQuantity>
-                                                            </BookingNumberRow>
-                                                        </DayDetail>
-                                                    </BookingInfoDetailRowMd5>
-                                                </BookingInfoDetailRow>
-
-                                                {/* Giảm giá */}
-                                                <LeftRow className="row">
-                                                    <div className="col-md-12">
-                                                        <InfomationTitle>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Áp dụng mã giảm giá</p>
-                                                            <p style={{ fontSize: "1rem" }}>Mỗi mã giảm giá chỉ được dùng duy nhất cho một thanh toán.</p>
-                                                        </InfomationTitle>
+                                                    <div
+                                                        class="spinner-border"
+                                                        style={{ color: '#41F1B6', position: 'absolute', left: '50%', top: "25%", scale: "1.5" }}
+                                                        role="status"
+                                                    >
+                                                        <span class="visually-hidden"></span>
                                                     </div>
-                                                    <LeftDiscount className='col-md-12'>
-                                                        <Input className='col-md-5' type="text" />
-                                                        <ButtonClick className='col-md-4' style={{ margin: "0px 0px 0px 20px", height: "40px" }}>
-                                                            {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
-                                                            Áp dụng mã giảm giá
-                                                        </ButtonClick>
-                                                    </LeftDiscount>
-                                                </LeftRow>
-
-
-                                                {/* Total money */}
-                                                <TotalMoneyRow className="row">
-                                                    <TotalMoney>
-                                                        <TotalMoneySpan>Tổng cộng: </TotalMoneySpan>
-                                                        <TotalMoneyBeforeH3>4.578.000<b style={{ marginLeft: "5px" }}><u> đ</u></b></TotalMoneyBeforeH3>
-                                                        <TotalMoneyH5>
-                                                            Đã áp dụng mã giảm giá
-                                                        </TotalMoneyH5>
-                                                    </TotalMoney>
-                                                </TotalMoneyRow>
-
-                                                {/* Phương thức thanh toán */}
-                                                <LeftRow className="row" style={{ marginTop: "40px" }}>
-                                                    <div className="col-md-12">
-                                                        <InfomationTitle>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Phương thức thanh toán</p>
-                                                            <p style={{ fontSize: "1rem" }}>Quý khách có thể chọn một trong các phương thức sau để hoàn tất đặt phòng.</p>
-                                                        </InfomationTitle>
-                                                    </div>
-                                                    <LeftWayPayment className='col-md-12'>
-                                                        <PaymentUl className="list">
-                                                            <PaymentLi className="list__item">
-                                                                <PaymentLabel className="row label--checkbox">
-                                                                    <PaymentWay>
-                                                                        <PaymentCol9 className="col-md-5">
-                                                                            <InputRadio type="checkbox" className="checkbox" />
-                                                                            <PaymentName>
-                                                                                Momo
-                                                                            </PaymentName>
-                                                                        </PaymentCol9>
-                                                                        <PaymentImgContainer className="col-md-3">
-                                                                            <PaymentImg src={momoImage} alt="" />
-                                                                        </PaymentImgContainer>
-                                                                    </PaymentWay>
-                                                                    <PaymentDescription>
-                                                                        <PaymentDescriptionP>
-                                                                            Thanh toán qua ví điện tử Momo.
-                                                                        </PaymentDescriptionP>
-                                                                    </PaymentDescription>
-                                                                </PaymentLabel>
-                                                            </PaymentLi>
-                                                            <PaymentLi className="list__item">
-                                                                <PaymentLabel className="row label--checkbox">
-                                                                    <PaymentWay>
-                                                                        <PaymentCol9 className="col-md-5">
-                                                                            <InputRadio type="checkbox" className="checkbox" />
-                                                                            <PaymentName>
-                                                                                Paypal
-                                                                            </PaymentName>
-                                                                        </PaymentCol9>
-                                                                        <PaymentImgContainer className="col-md-3">
-                                                                            <PaymentImg src={paypalImage} alt="" />
-                                                                        </PaymentImgContainer>
-                                                                    </PaymentWay>
-                                                                    <PaymentDescription>
-                                                                        <PaymentDescriptionP>
-                                                                            Thanh toán qua Paypal. Chấp nhận tất cả các thẻ tín dụng và thẻ ghi nợ chính.
-                                                                        </PaymentDescriptionP>
-                                                                    </PaymentDescription>
-                                                                </PaymentLabel>
-                                                            </PaymentLi>
-                                                            <PaymentLi className="list__item">
-                                                                <PaymentLabel className="row label--checkbox">
-                                                                    <PaymentWay>
-                                                                        <PaymentCol9 className="col-md-5">
-                                                                            <InputRadio type="checkbox" className="checkbox" />
-                                                                            <PaymentName>
-                                                                                Chuyển khoản ngân hàng
-                                                                            </PaymentName>
-                                                                        </PaymentCol9>
-                                                                        <PaymentImgContainer className="col-md-3">
-                                                                            <PaymentImg src={cardImage} alt="" />
-                                                                        </PaymentImgContainer>
-                                                                    </PaymentWay>
-                                                                    <PaymentDescription>
-                                                                        <PaymentDescriptionP>
-                                                                            Thanh toán qua chuyển khoản ngân hàng trực tiếp.
-                                                                        </PaymentDescriptionP>
-                                                                    </PaymentDescription>
-                                                                </PaymentLabel>
-                                                            </PaymentLi>
-                                                            <PaymentLi className="list__item" >
-                                                                <PaymentLabel className="row label--checkbox">
-                                                                    <PaymentWay>
-                                                                        <PaymentCol9 className="col-md-5">
-                                                                            <InputRadio type="checkbox" className="checkbox" />
-                                                                            <PaymentName>
-                                                                                Thanh toán khi đến nơi
-                                                                            </PaymentName>
-                                                                        </PaymentCol9>
-                                                                        <PaymentImgContainer className="col-md-3">
-                                                                            <PaymentImg src={cash} alt="" style={{ backgroundColor: "white" }} />
-                                                                        </PaymentImgContainer>
-                                                                    </PaymentWay>
-                                                                    <PaymentDescription>
-                                                                        <PaymentDescriptionP>
-                                                                            Thanh toán khi đến nơi. Thanh toán bằng thẻ tín dụng hoặc tiền mặt khi bạn đến nơi.
-                                                                        </PaymentDescriptionP>
-                                                                    </PaymentDescription>
-                                                                </PaymentLabel>
-                                                            </PaymentLi>
-                                                        </PaymentUl>
-                                                    </LeftWayPayment>
-                                                </LeftRow>
-
-                                                {/* Button */}
-                                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
-                                                    <BookButtonContainer>
-                                                        <BookButton
-                                                            onClick={() => setIsBookSuccess(true)}
-                                                        >Đặt tiệc</BookButton>
-                                                    </BookButtonContainer>
-
-                                                    <Link to={"/restaurant"}>
-                                                        <BookButtonContainer>
-                                                            <BookButton
-                                                            >Hủy đặt tiệc</BookButton>
-                                                        </BookButtonContainer>
-                                                    </Link>
                                                 </div>
-                                            </div>
-                                        </Box2>
+                                            ) : (
+                                                <Box2>
+                                                    <div className="col-lg-12">
+                                                        <div className="row">
+                                                            <InfomationTitle>
+                                                                <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi tiết Đặt Tiệc</p>
+                                                                <p style={{ fontSize: "1rem" }}>Hoàn tất Đặt tiệc bằng việc cung cấp những thông tin sau</p>
+                                                            </InfomationTitle>
+                                                        </div>
+                                                        <div className="row">
+                                                            <InfomationForm className="col-lg-12">
+                                                                <div className="row">
+                                                                    <ModalChiTietItem className="col-lg-6">
+                                                                        <FormSpan>Họ tên:</FormSpan>
+                                                                        <FormInput type="text" value={firstName + " " + lastName} disabled />
+                                                                    </ModalChiTietItem>
+                                                                    <ModalChiTietItem className="col-lg-6">
+                                                                        <FormSpan>Số điện thoại:</FormSpan>
+                                                                        <FormInput type="text" value={phoneNumber} disabled />
+                                                                    </ModalChiTietItem>
+                                                                </div>
+                                                                <div className="row">
+
+                                                                    <ModalChiTietItem className="col-lg-12">
+                                                                        <FormSpan>Địa chỉ email:</FormSpan>
+                                                                        <FormInput type="email" value={email} disabled />
+                                                                    </ModalChiTietItem>
+                                                                </div>
+                                                                <div className="row">
+                                                                    <ModalChiTietItem className="col-lg-12">
+                                                                        <FormSpan>Ghi chú:</FormSpan>
+                                                                        <FormTextArea
+                                                                            rows="3"
+                                                                            placeholder="Ghi chú về buổi tiệc này này"
+                                                                            value={note} onChange={(e) => setNote(e.target.value)}
+                                                                        />
+                                                                    </ModalChiTietItem>
+                                                                </div>
+                                                            </InfomationForm>
+                                                        </div>
+                                                        <div className="row">
+                                                            <InfomationTitle>
+                                                                <Title>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi phí Sảnh</p>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0", fontSize: "1.3rem", color: "var(--color-primary)" }}>{format_money(partyHallTotal)} VNĐ</p>
+                                                                </Title>
+                                                                <p style={{ fontSize: "1rem" }}>Bạn đã lựa chọn sảnh sau để cử hành buổi tiệc</p>
+                                                            </InfomationTitle>
+                                                        </div>
+                                                        {
+                                                            partyHallRedux ? (
+                                                                <>
+                                                                    <CartItem>
+                                                                        <Circle />
+                                                                        <Course>
+                                                                            <Content>
+                                                                                <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> {partyHallRedux.party_hall_name} - {partyHallRedux.party_hall_view} </span>
+                                                                                <span style={{ fontWeight: "bold", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(partyHallRedux.party_hall_price)} VNĐ</span>
+                                                                            </Content>
+                                                                        </Course>
+                                                                    </CartItem>
+                                                                    <ImgContainer className="row" style={{ marginTop: "15px" }}>
+                                                                        <MoreImage >
+                                                                            <SliderImage image={partyHallImages} />
+                                                                        </MoreImage>
+                                                                    </ImgContainer>
+                                                                </>
+                                                            ) : null
+                                                        }
+
+
+                                                        {/* List dịch vụ */}
+                                                        <div className="row">
+                                                            <InfomationTitle>
+                                                                <Title>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi phí Dịch vụ</p>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0", fontSize: "1.3rem", color: "var(--color-primary)" }}>{format_money(partyServiceTotal)} VNĐ</p>
+                                                                </Title>
+                                                                <p style={{ fontSize: "1rem" }}>Tổng chi phí cho tất cả dịch vụ sau đây</p>
+                                                            </InfomationTitle>
+                                                        </div>
+                                                        {
+                                                            partyServiceRedux ? (
+                                                                partyServiceRedux.map((service, key) => {
+                                                                    return (
+                                                                        <CartItem>
+                                                                            <Circle />
+                                                                            <Course>
+                                                                                <Content>
+                                                                                    <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> {service.party_service_name} </span>
+                                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(service.party_service_price)} VNĐ</span>
+                                                                                </Content>
+                                                                            </Course>
+                                                                        </CartItem>
+                                                                    )
+                                                                })
+                                                            ) : null
+                                                        }
+                                                        {/* <CartItem>
+                                                            <Circle />
+                                                            <Course>
+                                                                <Content>
+                                                                    <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Hoa tươi </span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                </Content>
+                                                            </Course>
+                                                        </CartItem>
+                                                        <CartItem>
+                                                            <Circle />
+                                                            <Course>
+                                                                <Content>
+                                                                    <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Bánh cưới + Rượu sampal </span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                </Content>
+                                                            </Course>
+                                                        </CartItem>
+                                                        <CartItem>
+                                                            <Circle />
+                                                            <Course>
+                                                                <Content>
+                                                                    <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> MC ca hót </span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                </Content>
+                                                            </Course>
+                                                        </CartItem> */}
+
+                                                        {/* List Món ăn */}
+                                                        <div className="row">
+                                                            <InfomationTitle>
+                                                                <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi tiết Menu</p>
+                                                                <p style={{ fontSize: "1rem" }}>Tất cả những món ăn mà bạn đã chọn như sau</p>
+                                                            </InfomationTitle>
+                                                        </div>
+                                                        {
+                                                            foodListRedux.length > 0 ? (
+                                                                foodListRedux.map((food, key) => {
+                                                                    return (
+                                                                        <CartItem>
+                                                                            <CircleService />
+                                                                            <Course>
+                                                                                <Content>
+                                                                                    <span style={{ width: "360px", fontWeight: "bold", color: "var(--color-dark)" }}> {food.food_name} </span>
+                                                                                    <img src={food.food_image} style={{ width: "52px", height: "52px", objectFit: "cover" }} />
+                                                                                </Content>
+                                                                                <span style={{ fontWeight: "400" }}>{food.food_type_name}</span>
+                                                                            </Course>
+                                                                        </CartItem>
+                                                                    )
+                                                                })
+                                                            ) : null
+                                                        }
+                                                        {/* <CartItem>
+                                                            <Circle />
+                                                            <Course>
+                                                                <Content>
+                                                                    <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}>  Món Tráng miệng </span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                </Content>
+                                                                <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                            </Course>
+                                                        </CartItem>
+                                                        <CartItem>
+                                                            <Circle />
+                                                            <Course>
+                                                                <Content>
+                                                                    <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Món Cơm-Mì-Lẩu </span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                </Content>
+                                                                <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                            </Course>
+                                                        </CartItem>
+                                                        <CartItem>
+                                                            <Circle />
+                                                            <Course>
+                                                                <Content>
+                                                                    <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Món thịt </span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
+                                                                </Content>
+                                                                <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
+                                                            </Course>
+                                                        </CartItem> */}
+
+                                                        {/* Tổng chi phí menu */}
+                                                        <div className="row">
+                                                            <InfomationTitle>
+                                                                <Title>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi phí Món ăn</p>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0", fontSize: "1.3rem", color: "var(--color-primary)" }}>{format_money(setMenuTotal)} VNĐ</p>
+                                                                </Title>
+                                                                <p style={{ fontSize: "1rem" }}>Tổng chi phí dựa vào số lượng bàn tiệc</p>
+                                                            </InfomationTitle>
+                                                        </div>
+
+                                                        <BookingInfoDetailRow className="row">
+                                                            <BookingInfoDetailRowMd5 className="col-md-5">
+                                                                <DayTitle style={{ fontSize: "1.1rem", color: "var(--color-dark)" }}>Chi phí một mâm</DayTitle>
+                                                                <DayDetail style={{ fontSize: "1.3rem", color: "var(--color-primary)" }}>{format_money(setMenuTotal)} VNĐ</DayDetail>
+                                                            </BookingInfoDetailRowMd5>
+                                                            <BookingInfoDetailRowMd2 className="col-md-2">
+                                                                <CelebrationOutlined style={{ color: "var(--color-primary)" }} />
+                                                            </BookingInfoDetailRowMd2>
+                                                            <BookingInfoDetailRowMd5 className="col-md-5">
+                                                                <DayTitle style={{ fontSize: "1.1rem", color: "var(--color-dark)" }}>Số bàn tiệc</DayTitle>
+                                                                <DayDetail>
+                                                                    <BookingNumberRow className="row">
+                                                                        <BookingRestaurantQuantity className="quantity">
+                                                                            <BookingRestaurantQuantityButton className="video-button"
+                                                                                onClick={() => handleClickTableQuantity("decrease")}
+                                                                                style={{ cursor: "pointer", marginRight: "10px" }}
+                                                                            >
+                                                                                <Remove />
+                                                                            </BookingRestaurantQuantityButton>
+                                                                            <BookingRestaurantQuantityInput
+                                                                                style={{ backgroundColor: "white", color: "var(--color-dark)" }}
+                                                                                type="number"
+                                                                                min={1}
+                                                                                max={200}
+                                                                                step={1}
+                                                                                value={tableQuantity}
+                                                                                onChange={(e) => handleChangeTableQuantity(e)}
+                                                                                onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
+                                                                            />
+                                                                            <BookingRestaurantQuantityButton className="video-button"
+                                                                                onClick={() => handleClickTableQuantity("increase")}
+                                                                                style={{ cursor: "pointer", marginLeft: "10px" }}
+                                                                            >
+                                                                                <Add />
+                                                                            </BookingRestaurantQuantityButton>
+                                                                        </BookingRestaurantQuantity>
+                                                                    </BookingNumberRow>
+                                                                </DayDetail>
+                                                            </BookingInfoDetailRowMd5>
+                                                        </BookingInfoDetailRow>
+
+                                                        {/* Giảm giá */}
+                                                        <LeftRow className="row">
+                                                            <div className="col-md-12">
+                                                                <InfomationTitle>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Áp dụng mã giảm giá</p>
+                                                                    <p style={{ fontSize: "1rem" }}>Mỗi mã giảm giá chỉ được dùng duy nhất cho một thanh toán.</p>
+                                                                </InfomationTitle>
+                                                            </div>
+                                                            <LeftDiscount className='col-md-12'>
+                                                                <Input className='col-md-5' type="text" value={discount} onChange={(e) => setDiscount(e.target.value)} />
+                                                                <ButtonClick className='col-md-4' style={{ margin: "0px 0px 0px 20px", height: "40px" }}
+                                                                    onClick={() => handleDiscount()}
+                                                                >
+                                                                    {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
+                                                                    Áp dụng mã giảm giá
+                                                                </ButtonClick>
+                                                            </LeftDiscount>
+                                                        </LeftRow>
+
+
+                                                        {/* Total money */}
+                                                        <TotalMoneyRow className="row">
+                                                            <TotalMoney>
+                                                                <TotalMoneySpan>Tổng cộng: </TotalMoneySpan>
+                                                                <TotalMoneyBeforeH3>{format_money(partyBookingTotal)}<b style={{ marginLeft: "5px", marginBottom: "10px" }}><u> VNĐ</u></b></TotalMoneyBeforeH3>
+                                                                {
+                                                                    discountPartyBooking ? (
+                                                                        <TotalMoneyH5>
+                                                                            Đã áp dụng mã giảm giá
+                                                                        </TotalMoneyH5>
+                                                                    ) : (
+                                                                        null
+                                                                    )
+                                                                }
+                                                            </TotalMoney>
+                                                        </TotalMoneyRow>
+
+                                                        {/* Phương thức thanh toán */}
+                                                        <LeftRow className="row" style={{ marginTop: "40px" }}>
+                                                            <div className="col-md-12">
+                                                                <InfomationTitle>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Phương thức thanh toán</p>
+                                                                    <p style={{ fontSize: "1rem" }}>Quý khách có thể chọn một trong các phương thức sau để hoàn tất đặt phòng.</p>
+                                                                </InfomationTitle>
+                                                            </div>
+                                                            <LeftWayPayment className='col-md-12'>
+                                                                <PaymentUl className="list">
+                                                                    <PaymentLi className="list__item">
+                                                                        <PaymentLabel className="row label--checkbox">
+                                                                            <PaymentWay>
+                                                                                <PaymentCol9 className="col-md-5">
+                                                                                    <InputRadio type="checkbox" className="checkbox" />
+                                                                                    <PaymentName>
+                                                                                        Momo
+                                                                                    </PaymentName>
+                                                                                </PaymentCol9>
+                                                                                <PaymentImgContainer className="col-md-3">
+                                                                                    <PaymentImg src={momoImage} alt="" />
+                                                                                </PaymentImgContainer>
+                                                                            </PaymentWay>
+                                                                            <PaymentDescription>
+                                                                                <PaymentDescriptionP>
+                                                                                    Thanh toán qua ví điện tử Momo.
+                                                                                </PaymentDescriptionP>
+                                                                            </PaymentDescription>
+                                                                        </PaymentLabel>
+                                                                    </PaymentLi>
+                                                                    <PaymentLi className="list__item">
+                                                                        <PaymentLabel className="row label--checkbox">
+                                                                            <PaymentWay>
+                                                                                <PaymentCol9 className="col-md-5">
+                                                                                    <InputRadio type="checkbox" className="checkbox" />
+                                                                                    <PaymentName>
+                                                                                        Paypal
+                                                                                    </PaymentName>
+                                                                                </PaymentCol9>
+                                                                                <PaymentImgContainer className="col-md-3">
+                                                                                    <PaymentImg src={paypalImage} alt="" />
+                                                                                </PaymentImgContainer>
+                                                                            </PaymentWay>
+                                                                            <PaymentDescription>
+                                                                                <PaymentDescriptionP>
+                                                                                    Thanh toán qua Paypal. Chấp nhận tất cả các thẻ tín dụng và thẻ ghi nợ chính.
+                                                                                </PaymentDescriptionP>
+                                                                            </PaymentDescription>
+                                                                        </PaymentLabel>
+                                                                    </PaymentLi>
+                                                                    <PaymentLi className="list__item">
+                                                                        <PaymentLabel className="row label--checkbox">
+                                                                            <PaymentWay>
+                                                                                <PaymentCol9 className="col-md-5">
+                                                                                    <InputRadio type="checkbox" className="checkbox" />
+                                                                                    <PaymentName>
+                                                                                        Chuyển khoản ngân hàng
+                                                                                    </PaymentName>
+                                                                                </PaymentCol9>
+                                                                                <PaymentImgContainer className="col-md-3">
+                                                                                    <PaymentImg src={cardImage} alt="" />
+                                                                                </PaymentImgContainer>
+                                                                            </PaymentWay>
+                                                                            <PaymentDescription>
+                                                                                <PaymentDescriptionP>
+                                                                                    Thanh toán qua chuyển khoản ngân hàng trực tiếp.
+                                                                                </PaymentDescriptionP>
+                                                                            </PaymentDescription>
+                                                                        </PaymentLabel>
+                                                                    </PaymentLi>
+                                                                    <PaymentLi className="list__item" >
+                                                                        <PaymentLabel className="row label--checkbox">
+                                                                            <PaymentWay>
+                                                                                <PaymentCol9 className="col-md-5">
+                                                                                    <InputRadio type="checkbox" className="checkbox" />
+                                                                                    <PaymentName>
+                                                                                        Thanh toán khi đến nơi
+                                                                                    </PaymentName>
+                                                                                </PaymentCol9>
+                                                                                <PaymentImgContainer className="col-md-3">
+                                                                                    <PaymentImg src={cash} alt="" style={{ backgroundColor: "white" }} />
+                                                                                </PaymentImgContainer>
+                                                                            </PaymentWay>
+                                                                            <PaymentDescription>
+                                                                                <PaymentDescriptionP>
+                                                                                    Thanh toán khi đến nơi. Thanh toán bằng thẻ tín dụng hoặc tiền mặt khi bạn đến nơi.
+                                                                                </PaymentDescriptionP>
+                                                                            </PaymentDescription>
+                                                                        </PaymentLabel>
+                                                                    </PaymentLi>
+                                                                </PaymentUl>
+                                                            </LeftWayPayment>
+                                                        </LeftRow>
+
+                                                        {/* Button */}
+                                                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
+                                                            <BookButtonContainer>
+                                                                <BookButton
+                                                                    onClick={() => setIsBookSuccess(true)}
+                                                                >Đặt tiệc</BookButton>
+                                                            </BookButtonContainer>
+
+                                                            <Link to={"/restaurant"}>
+                                                                <BookButtonContainer>
+                                                                    <BookButton
+                                                                    >Hủy đặt tiệc</BookButton>
+                                                                </BookButtonContainer>
+                                                            </Link>
+                                                        </div>
+                                                    </div>
+                                                </Box2>
+                                            )}
                                     </div>
                                 )
                                     :
@@ -1398,311 +1889,425 @@ const BookPartyMain = () => {
                                     isBookMenu ? (
                                         // Left book menu
                                         < div className="col-lg-8">
-                                            <Box2>
-                                                <div className="col-lg-12">
+                                            {
+                                                isLoading ? (
                                                     <div className="row">
-                                                        <InfomationTitle>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Lựa chọn Menu &amp; Món ăn cụ thể</p>
-                                                            <p style={{ fontSize: "1rem" }}>Dưới đây là những Menu phù hợp</p>
-                                                        </InfomationTitle>
+                                                        <div
+                                                            class="spinner-border"
+                                                            style={{ color: '#41F1B6', position: 'absolute', left: '50%', top: "25%", scale: "1.5" }}
+                                                            role="status"
+                                                        >
+                                                            <span class="visually-hidden"></span>
+                                                        </div>
                                                     </div>
-                                                    <Carousel
-                                                        swipeable={false}
-                                                        draggable={false}
-                                                        showDots={false}
-                                                        responsive={responsive}
-                                                        ssr={true} // means to render carousel on server-side.
-                                                        infinite={true}
-                                                        autoPlay={false}
-                                                        autoPlaySpeed={1000}
-                                                        keyBoardControl={true}
-                                                        customTransition="transform 500ms ease 0s"
-                                                        transitionDuration={1500}
-                                                        containerClass="carousel-container"
-                                                        removeArrowOnDeviceType={["tablet", "mobile"]}
-                                                        deviceType="desktop"
-                                                        dotListClass="custom-dot-list-style"
-                                                        itemClass="carousel-item-padding-40-px"
-                                                        arrows={true}
-                                                        rewindWithAnimation={true}
-                                                    >
-                                                        <MenuItem onClick={() => handleClickMenu(menu1)}>
-                                                            <MenuImage src={menu1} />
-                                                            <MenuInfo>
-                                                                <MenuTitle>MENU 4.950.000</MenuTitle>
-                                                                <MenuDescription>
-                                                                    Bàn tiệc tiêu chuẩn với đầy đủ các món ngon, đảm bảo đầy đủ khẩu phần và sự sang trọng.
-                                                                </MenuDescription>
-                                                            </MenuInfo>
-                                                        </MenuItem>
-                                                        <MenuItem onClick={() => handleClickMenu(menu2)}>
-                                                            <MenuImage src={menu2} />
-                                                            <MenuInfo>
-                                                                <MenuTitle>MENU 5.950.000</MenuTitle>
-                                                                <MenuDescription>
-                                                                    Bàn tiệc nâng cấp cho bữa tiệc sang trọng với các món ngon đa dạng và thịnh soạn hơn.
-                                                                </MenuDescription>
-                                                            </MenuInfo>
-                                                        </MenuItem>
-                                                        <MenuItem onClick={() => handleClickMenu(menu3)}>
-                                                            <MenuImage src={menu3} />
-                                                            <MenuInfo>
-                                                                <MenuTitle>MENU 6.250.000</MenuTitle>
-                                                                <MenuDescription>
-                                                                    Bàn tiệc với những món ăn phong phú và sang trọng đem đến cho quý khách.
-                                                                </MenuDescription>
-                                                            </MenuInfo>
-                                                        </MenuItem>
-                                                        <MenuItem onClick={() => handleClickMenu(menu4)}>
-                                                            <MenuImage src={menu4} />
-                                                            <MenuInfo>
-                                                                <MenuTitle>Menu 6.950.000</MenuTitle>
-                                                                <MenuDescription>
-                                                                    Bàn tiệc thịnh soạn, đầy đủ món ngon, hợp khẩu vị người châu Á sẽ là chọn lựa hoàn hảo...
-                                                                </MenuDescription>
-                                                            </MenuInfo>
-                                                        </MenuItem>
-                                                        <MenuItem onClick={() => handleClickMenu(menu5)}>
-                                                            <MenuImage src={menu5} />
-                                                            <MenuInfo>
-                                                                <MenuTitle>Menu 7.550.000</MenuTitle>
-                                                                <MenuDescription>
-                                                                    Bàn tiệc sang trọng, giá trị nhất với những món ngon phong phú và giá trị dinh dưỡng cao nhất.
-                                                                </MenuDescription>
-                                                            </MenuInfo>
-                                                        </MenuItem>
-                                                        <MenuItem onClick={() => handleClickMenu(menu6)}>
-                                                            <MenuImage src={menu6} />
-                                                            <MenuInfo>
-                                                                <MenuTitle>Menu thức uống</MenuTitle>
-                                                                <MenuDescription>
-                                                                    Những thức uống đa dạng, mức giá hợp lý tạo thêm điểm nhấn quan trọng cho bữa tiệc.
-                                                                </MenuDescription>
-                                                            </MenuInfo>
-                                                        </MenuItem>
-                                                        <MenuItem onClick={() => handleClickMenu(menu7)}>
-                                                            <MenuImage src={menu7} />
-                                                            <MenuInfo>
-                                                                <MenuTitle>Bảng giá dịch vụ</MenuTitle>
-                                                                <MenuDescription>
-                                                                    Những dịch vụ trang trí, nghi thức lễ với phiên bản nâng cấp làm tăng giá trị của bữa tiệc.
-                                                                </MenuDescription>
-                                                            </MenuInfo>
-                                                        </MenuItem>
-                                                        <MenuItem onClick={() => handleClickMenu(menu8)}>
-                                                            <MenuImage src={menu8} />
-                                                            <MenuInfo>
-                                                                <MenuTitle>BẢNG GIÁ DỊCH VỤ</MenuTitle>
-                                                                <MenuDescription>
-                                                                    Những hạng mục chương trình giải trí và dịch vụ phụ trợ giúp bữa tiệc hoàn hảo hơn.
-                                                                </MenuDescription>
-                                                            </MenuInfo>
-                                                        </MenuItem>
-                                                    </Carousel>
+                                                ) : (
+                                                    <Box2>
+                                                        <div className="col-lg-12">
+                                                            <div className="row">
+                                                                <InfomationTitle>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Lựa chọn Menu &amp; Món ăn cụ thể</p>
+                                                                    <p style={{ fontSize: "1rem" }}>Dưới đây là những Menu phù hợp</p>
+                                                                </InfomationTitle>
+                                                            </div>
+                                                            <Carousel
+                                                                swipeable={false}
+                                                                draggable={false}
+                                                                showDots={false}
+                                                                responsive={responsive}
+                                                                ssr={true} // means to render carousel on server-side.
+                                                                infinite={true}
+                                                                autoPlay={false}
+                                                                autoPlaySpeed={1000}
+                                                                keyBoardControl={true}
+                                                                customTransition="transform 500ms ease 0s"
+                                                                transitionDuration={1500}
+                                                                containerClass="carousel-container"
+                                                                removeArrowOnDeviceType={["tablet", "mobile"]}
+                                                                deviceType="desktop"
+                                                                dotListClass="custom-dot-list-style"
+                                                                itemClass="carousel-item-padding-40-px"
+                                                                arrows={true}
+                                                                rewindWithAnimation={true}
+                                                            >
+                                                                {
+                                                                    setMenuList.length > 0 ? (
+                                                                        setMenuList.map((setMenu, key) => {
+                                                                            return (
+                                                                                <MenuItem onClick={() => handleClickViewMenu(setMenu)}>
+                                                                                    <MenuImage src={setMenu.setMenu.set_menu_image} />
+                                                                                    <MenuInfo>
+                                                                                        <MenuTitle>{setMenu.setMenu.set_menu_name}</MenuTitle>
+                                                                                        <MenuDescription>
+                                                                                            {setMenu.setMenu.set_menu_description}
+                                                                                        </MenuDescription>
+                                                                                    </MenuInfo>
+                                                                                </MenuItem>
+                                                                            )
+                                                                        })
+                                                                    ) : null
+                                                                }
+                                                                {/* <MenuItem onClick={() => handleClickMenu(menu1)}>
+                                                                    <MenuImage src={menu1} />
+                                                                    <MenuInfo>
+                                                                        <MenuTitle>MENU 4.950.000</MenuTitle>
+                                                                        <MenuDescription>
+                                                                            Bàn tiệc tiêu chuẩn với đầy đủ các món ngon, đảm bảo đầy đủ khẩu phần và sự sang trọng.
+                                                                        </MenuDescription>
+                                                                    </MenuInfo>
+                                                                </MenuItem>
+                                                                <MenuItem onClick={() => handleClickMenu(menu2)}>
+                                                                    <MenuImage src={menu2} />
+                                                                    <MenuInfo>
+                                                                        <MenuTitle>MENU 5.950.000</MenuTitle>
+                                                                        <MenuDescription>
+                                                                            Bàn tiệc nâng cấp cho bữa tiệc sang trọng với các món ngon đa dạng và thịnh soạn hơn.
+                                                                        </MenuDescription>
+                                                                    </MenuInfo>
+                                                                </MenuItem>
+                                                                <MenuItem onClick={() => handleClickMenu(menu3)}>
+                                                                    <MenuImage src={menu3} />
+                                                                    <MenuInfo>
+                                                                        <MenuTitle>MENU 6.250.000</MenuTitle>
+                                                                        <MenuDescription>
+                                                                            Bàn tiệc với những món ăn phong phú và sang trọng đem đến cho quý khách.
+                                                                        </MenuDescription>
+                                                                    </MenuInfo>
+                                                                </MenuItem>
+                                                                <MenuItem onClick={() => handleClickMenu(menu4)}>
+                                                                    <MenuImage src={menu4} />
+                                                                    <MenuInfo>
+                                                                        <MenuTitle>Menu 6.950.000</MenuTitle>
+                                                                        <MenuDescription>
+                                                                            Bàn tiệc thịnh soạn, đầy đủ món ngon, hợp khẩu vị người châu Á sẽ là chọn lựa hoàn hảo...
+                                                                        </MenuDescription>
+                                                                    </MenuInfo>
+                                                                </MenuItem>
+                                                                <MenuItem onClick={() => handleClickMenu(menu5)}>
+                                                                    <MenuImage src={menu5} />
+                                                                    <MenuInfo>
+                                                                        <MenuTitle>Menu 7.550.000</MenuTitle>
+                                                                        <MenuDescription>
+                                                                            Bàn tiệc sang trọng, giá trị nhất với những món ngon phong phú và giá trị dinh dưỡng cao nhất.
+                                                                        </MenuDescription>
+                                                                    </MenuInfo>
+                                                                </MenuItem>
+                                                                <MenuItem onClick={() => handleClickMenu(menu6)}>
+                                                                    <MenuImage src={menu6} />
+                                                                    <MenuInfo>
+                                                                        <MenuTitle>Menu thức uống</MenuTitle>
+                                                                        <MenuDescription>
+                                                                            Những thức uống đa dạng, mức giá hợp lý tạo thêm điểm nhấn quan trọng cho bữa tiệc.
+                                                                        </MenuDescription>
+                                                                    </MenuInfo>
+                                                                </MenuItem>
+                                                                <MenuItem onClick={() => handleClickMenu(menu7)}>
+                                                                    <MenuImage src={menu7} />
+                                                                    <MenuInfo>
+                                                                        <MenuTitle>Bảng giá dịch vụ</MenuTitle>
+                                                                        <MenuDescription>
+                                                                            Những dịch vụ trang trí, nghi thức lễ với phiên bản nâng cấp làm tăng giá trị của bữa tiệc.
+                                                                        </MenuDescription>
+                                                                    </MenuInfo>
+                                                                </MenuItem>
+                                                                <MenuItem onClick={() => handleClickMenu(menu8)}>
+                                                                    <MenuImage src={menu8} />
+                                                                    <MenuInfo>
+                                                                        <MenuTitle>BẢNG GIÁ DỊCH VỤ</MenuTitle>
+                                                                        <MenuDescription>
+                                                                            Những hạng mục chương trình giải trí và dịch vụ phụ trợ giúp bữa tiệc hoàn hảo hơn.
+                                                                        </MenuDescription>
+                                                                    </MenuInfo>
+                                                                </MenuItem> */}
+                                                            </Carousel>
 
-                                                    {/* Detail Service */}
-                                                    <div className="row">
-                                                        <InfomationTitle>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Những món ăn bạn đã chọn</p>
-                                                            <CartItem>
-                                                                <CircleService />
-                                                                <Course>
-                                                                    <Content>
-                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
-                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                                    </Content>
-                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                                </Course>
-                                                            </CartItem>
-                                                            <CartItem>
-                                                                <CircleService />
-                                                                <Course>
-                                                                    <Content>
-                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
-                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                                    </Content>
-                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                                </Course>
-                                                            </CartItem>
-                                                            <CartItem>
-                                                                <CircleService />
-                                                                <Course>
-                                                                    <Content>
-                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
-                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                                    </Content>
-                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                                </Course>
-                                                            </CartItem>
-                                                        </InfomationTitle>
-                                                    </div>
+                                                            {/* Detail Service */}
+                                                            <div className="row">
+                                                                <InfomationTitle>
+                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Những món ăn bạn đã chọn</p>
+                                                                    {
+                                                                        foodListRedux.length > 0 ? (
+                                                                            foodListRedux.map((food, key) => {
+                                                                                return (
+                                                                                    <CartItem>
+                                                                                        <CircleService />
+                                                                                        <Course>
+                                                                                            <Content>
+                                                                                                <span style={{ width: "360px", fontWeight: "bold", color: "var(--color-dark)" }}> {food.food_name} </span>
+                                                                                                <img src={food.food_image} style={{ width: "52px", height: "52px", objectFit: "cover" }} />
+                                                                                            </Content>
+                                                                                            <span style={{ fontWeight: "400" }}>{food.food_type_name}</span>
+                                                                                        </Course>
+                                                                                    </CartItem>
+                                                                                )
+                                                                            })
+                                                                        ) : (
+                                                                            <EmptyItem>
+                                                                                <EmptyItemSvg>
+                                                                                    <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
+                                                                                        <path d="M186 63V140H43V177H200V63H186Z" fill="#D6DADC"></path>
+                                                                                        <path d="M170.5 45H13.5V159H170.5V45Z" fill="white"></path>
+                                                                                        <path d="M29.5 26V45H170.5V140H186.5V26H29.5Z" fill="#1952B3"></path>
+                                                                                        <path d="M175 155V42H167H121.5V44H15H11V84H15V64H161V60H15V48H121.5V50H167V155H31V163H175V155Z" fill="#232729"></path>
+                                                                                        <path d="M28 52H24V56H28V52Z" fill="#232729"></path>
+                                                                                        <path d="M35 52H31V56H35V52Z" fill="#232729"></path>
+                                                                                        <path d="M42 52H38V56H42V52Z" fill="#232729"></path>
+                                                                                        <path d="M120 76H30V106H120V76Z" fill="#F3F4F6"></path>
+                                                                                        <path d="M153.5 76H126.5V142H153.5V76Z" fill="#F3F4F6"></path>
+                                                                                        <path d="M120 112H30V142H120V112Z" fill="#F3F4F6"></path>
+                                                                                        <path d="M44 120.77H26.23V103H17.77V120.77H0V129.23H17.77V147H26.23V129.23H44V120.77Z" fill="#FF5100"></path>
+                                                                                        <path d="M60.0711 146.314L62.1924 144.192L55.1213 137.121L53 139.243L60.0711 146.314Z" fill="#232729"></path>
+                                                                                        <path d="M53.0711 105.071L55.1924 107.192L62.2634 100.121L60.1421 98L53.0711 105.071Z" fill="#232729"></path>
+                                                                                        <path d="M70.1924 124.192V121.192H59.1924V124.192H70.1924Z" fill="#232729"></path>
+                                                                                    </svg>
+                                                                                </EmptyItemSvg>
+                                                                                <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Chưa có dịch vụ nào được chọn</EmptyContent>
+                                                                            </EmptyItem>
+                                                                        )
+                                                                    }
+                                                                </InfomationTitle>
+                                                            </div>
+                                                            {/* Remind service */}
+                                                            {
+                                                                setMenuRedux ? (
+                                                                    <div className="row">
+                                                                        <InfomationTitle>
+                                                                            <p style={{ fontWeight: "300", margin: "15px 0 0 0", fontSize: "1.1rem" }}>Bạn đồng ý lựa chọn <b style={{ color: "var(--color-primary)" }}>{setMenuRedux.set_menu_name}</b> với những món ăn trên ?</p>
+                                                                            {/* <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p> */}
+                                                                        </InfomationTitle>
+                                                                    </div>
+                                                                ) : null
+                                                            }
 
-                                                    {/* Remind service */}
-                                                    <div className="row">
-                                                        <InfomationTitle>
-                                                            <p style={{ fontWeight: "300", margin: "15px 0 0 0", fontSize: "1.1rem" }}>Bạn đồng ý lựa chọn <b style={{ color: "var(--color-primary)" }}>MENU 6.250.000</b> với những món ăn trên ?</p>
-                                                            {/* <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p> */}
-                                                        </InfomationTitle>
-                                                    </div>
+                                                            {/* Button service */}
+                                                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
+                                                                <BookButtonContainer>
+                                                                    <BookButton
+                                                                        onClick={() => handleAcceptMenuAndFood()}
+                                                                    >Đồng ý</BookButton>
+                                                                </BookButtonContainer>
 
-                                                    {/* Button service */}
-                                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
-                                                        <BookButtonContainer>
-                                                            <BookButton
-                                                                onClick={() => setIsBookSuccess(true)}
-                                                            >Đồng ý</BookButton>
-                                                        </BookButtonContainer>
-
-                                                        <Link to={"/restaurant"}>
-                                                            <BookButtonContainer>
-                                                                <BookButton
-                                                                >Hủy đặt tiệc</BookButton>
-                                                            </BookButtonContainer>
-                                                        </Link>
-                                                    </div>
-                                                </div>
-                                            </Box2>
+                                                                <BookButtonContainer>
+                                                                    <BookButton
+                                                                        onClick={() => handleDeclinePartyHallAndService()}
+                                                                    >Hủy đặt tiệc</BookButton>
+                                                                </BookButtonContainer>
+                                                            </div>
+                                                        </div>
+                                                    </Box2>
+                                                )
+                                            }
                                         </div>
                                     ) : (
                                         // Left book place
                                         <div className="col-lg-8">
-                                            <Box2>
-                                                <div className="col-lg-12">
+                                            {
+                                                isLoading ? (
                                                     <div className="row">
-                                                        <InfomationTitle>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Lựa chọn Sảnh cử hành tiệc &amp; Dịch vụ đi kèm</p>
-                                                            <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p>
-                                                        </InfomationTitle>
+                                                        <div
+                                                            class="spinner-border"
+                                                            style={{ color: '#41F1B6', position: 'absolute', left: '50%', top: "25%", scale: "1.5" }}
+                                                            role="status"
+                                                        >
+                                                            <span class="visually-hidden"></span>
+                                                        </div>
                                                     </div>
-                                                    <Carousel
-                                                        swipeable={false}
-                                                        draggable={false}
-                                                        showDots={false}
-                                                        responsive={responsive}
-                                                        ssr={true} // means to render carousel on server-side.
-                                                        infinite={true}
-                                                        autoPlay={false}
-                                                        autoPlaySpeed={1000}
-                                                        keyBoardControl={true}
-                                                        customTransition="transform 500ms ease 0s"
-                                                        transitionDuration={1500}
-                                                        containerClass="carousel-container"
-                                                        removeArrowOnDeviceType={["tablet", "mobile"]}
-                                                        deviceType="desktop"
-                                                        dotListClass="custom-dot-list-style"
-                                                        itemClass="carousel-item-padding-40-px"
-                                                        arrows={true}
-                                                        rewindWithAnimation={true}
-                                                    >
-                                                        <ViewItem onClick={() => handleClickView(view1)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                            <ViewImage src={view1} />
-                                                            <ViewInfo>
-                                                                <ViewTitle>SẢNH IRIS &#8211; SÂN VƯỜN</ViewTitle>
-                                                                <ViewDescription>
-                                                                    Không gian tiệc ngoài trời thoáng đãng, tươi mát, rộng rãi, sức chứa khoảng 130-280 khách.
-                                                                </ViewDescription>
-                                                            </ViewInfo>
-                                                        </ViewItem>
-                                                        <ViewItem onClick={() => handleClickView(view2)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                            <ViewImage src={view2} />
-                                                            <ViewInfo>
-                                                                <ViewTitle>SẢNH DAISY &#8211; LOBBY</ViewTitle>
-                                                                <ViewDescription>
-                                                                    Không gian tiệc trong nhà phong cách Rustic lãng mạn, duyên dáng, ấm cúng, sức chứa khoảng 120 khách.
-                                                                </ViewDescription>
-                                                            </ViewInfo>
-                                                        </ViewItem>
-                                                        <ViewItem onClick={() => handleClickView(view3)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                            <ViewImage src={view3} />
-                                                            <ViewInfo>
-                                                                <ViewTitle>SẢNH PEONY &#8211; HỒ BƠI</ViewTitle>
-                                                                <ViewDescription>
-                                                                    Không gian tiệc ngoài trời độc đáo, ấn tượng, xanh mát, sức chứa đẹp nhất khoảng 120 khách.
-                                                                </ViewDescription>
-                                                            </ViewInfo>
-                                                        </ViewItem>
-                                                        <ViewItem onClick={() => handleClickView(view4)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                            <ViewImage src={view4} />
-                                                            <ViewInfo>
-                                                                <ViewTitle>SẢNH PANSEE &#8211; SÂN THƯỢNG</ViewTitle>
-                                                                <ViewDescription>
-                                                                    Không gian tiệc ngoài trời trên tầng cao, thoáng mát, mới lạ, sức chứa tối đa khoảng 70 khách.
-                                                                </ViewDescription>
-                                                            </ViewInfo>
-                                                        </ViewItem>
-                                                        <ViewItem onClick={() => handleClickView(view5)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                                            <ViewImage src={view5} />
-                                                            <ViewInfo>
-                                                                <ViewTitle>SẢNH LAVENDER &#8211; ÁP MÁI</ViewTitle>
-                                                                <ViewDescription>
-                                                                    Không gian tiệc trong nhà nhỏ xinh, ấm áp, thanh lịch, sức chứa khoảng 50 khách.
-                                                                </ViewDescription>
-                                                            </ViewInfo>
-                                                        </ViewItem>
-                                                    </Carousel>
+                                                ) :
+                                                    noResultFound ? (
+                                                        <PictureNoResultFound id="No_Result_Found_Picture">
+                                                            <Img
+                                                                src="https://img.freepik.com/premium-vector/file-found-illustration-with-confused-people-holding-big-magnifier-search-no-result_258153-336.jpg?w=2000"
+                                                                alt="Not Found Result"
+                                                            />
+                                                            <H1NoResultFound>No result found</H1NoResultFound>
+                                                        </PictureNoResultFound>
+                                                    )
+                                                        : (
+                                                            partyHallListFiltered.length > 0 ?
+                                                                (
+                                                                    <Box2>
+                                                                        <div className="col-lg-12">
+                                                                            <div className="row">
+                                                                                <InfomationTitle>
+                                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Lựa chọn Sảnh cử hành tiệc &amp; Dịch vụ đi kèm</p>
+                                                                                    <p style={{ fontSize: "1rem" }}>Dưới đây là <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{partyHallListFiltered.length} Sảnh cử hành</span> phù hợp</p>
+                                                                                </InfomationTitle>
+                                                                            </div>
+                                                                            <Carousel
+                                                                                swipeable={false}
+                                                                                draggable={false}
+                                                                                showDots={false}
+                                                                                responsive={responsive}
+                                                                                ssr={true} // means to render carousel on server-side.
+                                                                                infinite={true}
+                                                                                autoPlay={false}
+                                                                                autoPlaySpeed={1000}
+                                                                                keyBoardControl={true}
+                                                                                customTransition="transform 500ms ease 0s"
+                                                                                transitionDuration={1500}
+                                                                                containerClass="carousel-container"
+                                                                                removeArrowOnDeviceType={["tablet", "mobile"]}
+                                                                                deviceType="desktop"
+                                                                                dotListClass="custom-dot-list-style"
+                                                                                itemClass="carousel-item-padding-40-px"
+                                                                                arrows={true}
+                                                                                rewindWithAnimation={true}
+                                                                            >{
+                                                                                    partyHallListFiltered ? (
+                                                                                        partyHallListFiltered.map((partyHall, key) => {
+                                                                                            return (
+                                                                                                <ViewItem onClick={() => handleClickViewPartyHall(partyHall)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                                                                                                    <InfoDark>
+                                                                                                        <IconDark>
+                                                                                                            <CheckOutlined style={{ color: "var(--color-primary)" }} />
+                                                                                                            <SpanDark>Chọn sảnh này</SpanDark>
+                                                                                                        </IconDark>
+                                                                                                    </InfoDark>
+                                                                                                    <ViewImage src={partyHall.party_hall_image_content} />
+                                                                                                    <ViewInfo>
+                                                                                                        <ViewTitle>{partyHall.party_hall_name} &#8211; {partyHall.party_hall_view}</ViewTitle>
+                                                                                                        <ViewDescription>
+                                                                                                            {partyHall.party_hall_description}
+                                                                                                        </ViewDescription>
+                                                                                                    </ViewInfo>
+                                                                                                </ViewItem>
+                                                                                            )
+                                                                                        })
+                                                                                    ) : null
+                                                                                }
+                                                                            </Carousel>
 
-                                                    {/* Detail Service */}
-                                                    <div className="row">
-                                                        <InfomationTitle>
-                                                            <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Những dịch vụ đã chọn</p>
-                                                            <CartItem>
-                                                                <CircleService />
-                                                                <Course>
-                                                                    <Content>
-                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
-                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                                    </Content>
-                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                                </Course>
-                                                            </CartItem>
-                                                            <CartItem>
-                                                                <CircleService />
-                                                                <Course>
-                                                                    <Content>
-                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
-                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                                    </Content>
-                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                                </Course>
-                                                            </CartItem>
-                                                            <CartItem>
-                                                                <CircleService />
-                                                                <Course>
-                                                                    <Content>
-                                                                        <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> Gè rén </span>
-                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                                    </Content>
-                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                                </Course>
-                                                            </CartItem>
-                                                        </InfomationTitle>
-                                                    </div>
+                                                                            {/* Detail Service */}
+                                                                            <div className="row">
+                                                                                <InfomationTitle>
+                                                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Những dịch vụ đã chọn</p>
+                                                                                    {
+                                                                                        partyServiceRedux.length > 0 ? (
+                                                                                            partyServiceRedux.map((service, key) => {
+                                                                                                return (
+                                                                                                    <CartItem>
+                                                                                                        <CircleService />
+                                                                                                        <Course>
+                                                                                                            <Content>
+                                                                                                                <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> {service.party_service_name} </span>
+                                                                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(service.party_service_price)} VNĐ</span>
+                                                                                                            </Content>
+                                                                                                            {/* <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span> */}
+                                                                                                        </Course>
+                                                                                                    </CartItem>
+                                                                                                )
+                                                                                            })
+                                                                                        ) : (
+                                                                                            <EmptyItem>
+                                                                                                <EmptyItemSvg>
+                                                                                                    <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
+                                                                                                        <path d="M186 63V140H43V177H200V63H186Z" fill="#D6DADC"></path>
+                                                                                                        <path d="M170.5 45H13.5V159H170.5V45Z" fill="white"></path>
+                                                                                                        <path d="M29.5 26V45H170.5V140H186.5V26H29.5Z" fill="#1952B3"></path>
+                                                                                                        <path d="M175 155V42H167H121.5V44H15H11V84H15V64H161V60H15V48H121.5V50H167V155H31V163H175V155Z" fill="#232729"></path>
+                                                                                                        <path d="M28 52H24V56H28V52Z" fill="#232729"></path>
+                                                                                                        <path d="M35 52H31V56H35V52Z" fill="#232729"></path>
+                                                                                                        <path d="M42 52H38V56H42V52Z" fill="#232729"></path>
+                                                                                                        <path d="M120 76H30V106H120V76Z" fill="#F3F4F6"></path>
+                                                                                                        <path d="M153.5 76H126.5V142H153.5V76Z" fill="#F3F4F6"></path>
+                                                                                                        <path d="M120 112H30V142H120V112Z" fill="#F3F4F6"></path>
+                                                                                                        <path d="M44 120.77H26.23V103H17.77V120.77H0V129.23H17.77V147H26.23V129.23H44V120.77Z" fill="#FF5100"></path>
+                                                                                                        <path d="M60.0711 146.314L62.1924 144.192L55.1213 137.121L53 139.243L60.0711 146.314Z" fill="#232729"></path>
+                                                                                                        <path d="M53.0711 105.071L55.1924 107.192L62.2634 100.121L60.1421 98L53.0711 105.071Z" fill="#232729"></path>
+                                                                                                        <path d="M70.1924 124.192V121.192H59.1924V124.192H70.1924Z" fill="#232729"></path>
+                                                                                                    </svg>
+                                                                                                </EmptyItemSvg>
+                                                                                                <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Chưa có dịch vụ nào được chọn</EmptyContent>
+                                                                                            </EmptyItem>
+                                                                                        )
+                                                                                    }
+                                                                                </InfomationTitle>
+                                                                            </div>
 
-                                                    {/* Remind service */}
-                                                    <div className="row">
-                                                        <InfomationTitle>
-                                                            <p style={{ fontWeight: "300", margin: "15px 0 0 0", fontSize: "1.1rem" }}>Bạn đồng ý lựa chọn <b style={{ color: "var(--color-primary)" }}>Sảnh LAVENDER - ÁP MÁI</b> và những dịch vụ trên ?</p>
-                                                            {/* <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p> */}
-                                                        </InfomationTitle>
-                                                    </div>
+                                                                            {/* Remind service */}
+                                                                            {
+                                                                                partyHallRedux ? (
+                                                                                    <div className="row">
+                                                                                        <InfomationTitle>
+                                                                                            <p style={{ fontWeight: "300", margin: "15px 0 0 0", fontSize: "1.1rem" }}>Bạn đồng ý lựa chọn <b style={{ color: "var(--color-primary)" }}>{partyHallRedux.party_hall_name} - {partyHallRedux.party_hall_view}</b> và những dịch vụ trên ?</p>
+                                                                                            {/* <p style={{ fontSize: "1rem" }}>Dưới đây là những sảnh cử hành phù hợp</p> */}
+                                                                                        </InfomationTitle>
+                                                                                    </div>
+                                                                                ) : null
+                                                                            }
 
-                                                    {/* Button service */}
-                                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
-                                                        <BookButtonContainer>
-                                                            <BookButton
-                                                                onClick={() => setIsBookSuccess(true)}
-                                                            >Đồng ý</BookButton>
-                                                        </BookButtonContainer>
 
-                                                        <Link to={"/restaurant"}>
-                                                            <BookButtonContainer>
-                                                                <BookButton
-                                                                >Hủy đặt tiệc</BookButton>
-                                                            </BookButtonContainer>
-                                                        </Link>
-                                                    </div>
-                                                </div>
-                                            </Box2>
+                                                                            {/* Button service */}
+                                                                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
+                                                                                <BookButtonContainer>
+                                                                                    <BookButton
+                                                                                        onClick={() => handleAcceptPartyHallAndService()}
+                                                                                    >Đồng ý</BookButton>
+                                                                                </BookButtonContainer>
+
+                                                                                <Link to={"/restaurant"}>
+                                                                                    <BookButtonContainer>
+                                                                                        <BookButton
+                                                                                            onClick={() => handleDeclinePartyHallAndService()}
+                                                                                        >Hủy đặt tiệc</BookButton>
+                                                                                    </BookButtonContainer>
+                                                                                </Link>
+                                                                            </div>
+                                                                        </div>
+                                                                    </Box2>
+                                                                )
+                                                                : (
+                                                                    partyHallList ? (
+                                                                        <Box2>
+                                                                            <div className="col-lg-12">
+                                                                                <div className="row">
+                                                                                    <InfomationTitle>
+                                                                                        <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Dưới đây là tất cả các Sảnh cưới tại Hoàng Long.</p>
+                                                                                        <p style={{ fontSize: "1rem" }}>Hãy <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>Check Available</span> để tìm cho mình Sảnh phù hợp nhé!</p>
+                                                                                    </InfomationTitle>
+                                                                                </div>
+                                                                                <Carousel
+                                                                                    swipeable={false}
+                                                                                    draggable={false}
+                                                                                    showDots={false}
+                                                                                    responsive={responsive}
+                                                                                    ssr={true} // means to render carousel on server-side.
+                                                                                    infinite={true}
+                                                                                    autoPlay={false}
+                                                                                    autoPlaySpeed={1000}
+                                                                                    keyBoardControl={true}
+                                                                                    customTransition="transform 500ms ease 0s"
+                                                                                    transitionDuration={1500}
+                                                                                    containerClass="carousel-container"
+                                                                                    removeArrowOnDeviceType={["tablet", "mobile"]}
+                                                                                    deviceType="desktop"
+                                                                                    dotListClass="custom-dot-list-style"
+                                                                                    itemClass="carousel-item-padding-40-px"
+                                                                                    arrows={true}
+                                                                                    rewindWithAnimation={true}
+                                                                                >{
+                                                                                        partyHallList ? (
+                                                                                            partyHallList.map((partyHall, key) => {
+                                                                                                return (
+                                                                                                    <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                                                                                                        <ViewImage src={partyHall.party_hall_image_content} />
+                                                                                                        <ViewInfo>
+                                                                                                            <ViewTitle>{partyHall.party_hall_name} &#8211; {partyHall.party_hall_view}</ViewTitle>
+                                                                                                            <ViewDescription>
+                                                                                                                {partyHall.party_hall_description}
+                                                                                                            </ViewDescription>
+                                                                                                        </ViewInfo>
+                                                                                                    </ViewItem>
+                                                                                                )
+                                                                                            })
+                                                                                        ) : null
+                                                                                    }
+                                                                                </Carousel>
+                                                                            </div>
+                                                                        </Box2>
+                                                                    ) : null
+                                                                )
+                                                        )
+                                            }
                                         </div>
                                     )
                         }
@@ -1730,21 +2335,30 @@ const BookPartyMain = () => {
                                                     <BookingInfoDetailRow className="row">
                                                         <BookingInfoDetailRowMd5 className="col-md-5">
                                                             <DayTitle>Ngày đặt sảnh</DayTitle>
-                                                            <DayDetail>11/09/2022</DayDetail>
+                                                            <DayDetail>{dateBookingRedux}</DayDetail>
                                                         </BookingInfoDetailRowMd5>
                                                         <BookingInfoDetailRowMd2 className="col-md-2">
                                                             <CelebrationOutlined style={{ color: "var(--color-primary)" }} />
                                                         </BookingInfoDetailRowMd2>
                                                         <BookingInfoDetailRowMd5 className="col-md-5">
                                                             <DayTitle>Thời gian cử hành</DayTitle>
-                                                            <DayDetail>06:00 AM</DayDetail>
+                                                            <DayDetail>
+                                                                {
+                                                                    partyHallTimeList ? (
+                                                                        partyHallTimeList.map((partyHallTime, key) => {
+                                                                            if (partyHallTime.party_hall_time_id === timeBookingRedux)
+                                                                                return partyHallTime.party_hall_time_name;
+                                                                        })
+                                                                    ) : null
+                                                                }
+                                                            </DayDetail>
                                                         </BookingInfoDetailRowMd5>
                                                     </BookingInfoDetailRow>
                                                 </BookingInfoDetail>
 
                                                 <BookingNumber className="col-md-12">
                                                     <BookingNumberRow className="row">
-                                                        <BookingNumberRowMd5 className="col-md-6">Số lượng khách: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> 200</b></BookingNumberRowMd5>
+                                                        <BookingNumberRowMd5 className="col-md-6">Số lượng khách: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> {quantityBookingRedux}</b></BookingNumberRowMd5>
                                                     </BookingNumberRow>
                                                 </BookingNumber>
                                             </BookingInfo>
@@ -1754,11 +2368,29 @@ const BookPartyMain = () => {
                                                 <PartyInformationDetail className="col-md-12">
                                                     <PartyInformationRow className="row">
                                                         <PartyDetailTitle className="col-md-6">Loại tiệc</PartyDetailTitle>
-                                                        <PartyDetailPrice className="col-md-6">Lễ cưới</PartyDetailPrice>
+                                                        <PartyDetailPrice className="col-md-6">
+                                                            {
+                                                                partyBookingTypeList ? (
+                                                                    partyBookingTypeList.map((partyBookingType, key) => {
+                                                                        if (partyBookingType.party_booking_type_id === typeBookingRedux)
+                                                                            return partyBookingType.party_booking_type_name;
+                                                                    })
+                                                                ) : null
+                                                            }
+                                                        </PartyDetailPrice>
                                                     </PartyInformationRow>
                                                     <PartyInformationRow className="row">
                                                         <PartyDetailTitle className="col-md-6">Vị trí</PartyDetailTitle>
-                                                        <PartyDetailPrice className="col-md-6">Ngoài trời</PartyDetailPrice>
+                                                        <PartyDetailPrice className="col-md-6">
+                                                            {
+                                                                partyHallTypeList ? (
+                                                                    partyHallTypeList.map((partyHallType, key) => {
+                                                                        if (partyHallType.party_hall_type_id === partyHallTypeRedux)
+                                                                            return partyHallType.party_hall_type_name;
+                                                                    })
+                                                                ) : null
+                                                            }
+                                                        </PartyDetailPrice>
                                                     </PartyInformationRow>
                                                 </PartyInformationDetail>
                                             </PartyInformation>
@@ -1766,7 +2398,7 @@ const BookPartyMain = () => {
                                             <Button className="row">
                                                 <ButtonContainer style={{ paddingTop: "40px" }}>
                                                     <ButtonClick
-                                                        onClick={() => navigate('/hotel')}
+                                                        onClick={() => handleChangeBookingParty()}
                                                     >
                                                         {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
                                                         Chỉnh sửa đặt tiệc
@@ -1785,10 +2417,11 @@ const BookPartyMain = () => {
                                                                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                                         <Stack spacing={3}>
                                                                             <DesktopDatePicker
-                                                                                label="Ngày đặt bàn"
+                                                                                label="Ngày đãi tiệc"
                                                                                 inputFormat="dd/MM/yyyy"
-                                                                                value={checkInDate}
-                                                                                onChange={(newValue) => handleChangeCheckInDate(newValue)}
+                                                                                minDate={new Date()}
+                                                                                value={dateBooking}
+                                                                                onChange={(newValue) => handleChangeDate(newValue)}
                                                                                 renderInput={(params) => <TextField {...params} />}
                                                                                 InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "white" } } }}
                                                                             />
@@ -1796,12 +2429,12 @@ const BookPartyMain = () => {
                                                                     </LocalizationProvider>
                                                                 </InputDateRangeFormItem>
                                                             </div>
-                                                            <div className="col-12 pt-4">
+                                                            {/* <div className="col-12 pt-4">
                                                                 <InputDateRangeFormItem>
                                                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                                         <Stack spacing={3}>
                                                                             <TimePicker
-                                                                                label="Thời gian đến"
+                                                                                label="Thời gian cử hành"
                                                                                 value={timeBooking}
                                                                                 onChange={(newValue) => {
                                                                                     setTimeBooking(newValue);
@@ -1812,6 +2445,41 @@ const BookPartyMain = () => {
                                                                         </Stack>
                                                                     </LocalizationProvider>
                                                                 </InputDateRangeFormItem>
+                                                            </div> */}
+                                                            <div className="col-12">
+                                                                <div className="row">
+                                                                    <div className="col-12 pt-4">
+                                                                        <BookingNumberNiceSelect name="time" className={isSelectTime ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectTime(prev => !prev)}>
+                                                                            <BookingNumberNiceSelectSpan className='current'>{
+                                                                                timeBooking ? (
+                                                                                    partyHallTimeList.map((partyHallTime, key) => {
+                                                                                        if (partyHallTime.party_hall_time_id === timeBooking)
+                                                                                            return (
+                                                                                                partyHallTime.party_hall_time_name
+                                                                                            )
+                                                                                    })
+                                                                                ) : "Thời gian cử hành"
+                                                                            }</BookingNumberNiceSelectSpan>
+                                                                            <BookingNumberNiceSelectUl className='list'>
+                                                                                <BookingNumberNiceSelectLi className='option focus selected'>Vui lòng chọn</BookingNumberNiceSelectLi>
+                                                                                {
+                                                                                    partyHallTimeList ? (
+                                                                                        partyHallTimeList.map((partyHallTime, key) => {
+                                                                                            return (
+                                                                                                <BookingNumberNiceSelectLi
+                                                                                                    onClick={() => setTimeBooking(partyHallTime.party_hall_time_id)}
+                                                                                                    className='option'
+                                                                                                >
+                                                                                                    {partyHallTime.party_hall_time_name}
+                                                                                                </BookingNumberNiceSelectLi>
+                                                                                            )
+                                                                                        })
+                                                                                    ) : null
+                                                                                }
+                                                                            </BookingNumberNiceSelectUl>
+                                                                        </BookingNumberNiceSelect>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1819,13 +2487,33 @@ const BookPartyMain = () => {
                                                 <div className="col-12">
                                                     <div className="row">
                                                         <div className="col-12 pt-4">
-                                                            <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
-                                                                <BookingNumberNiceSelectSpan className='current'>Loại tiệc</BookingNumberNiceSelectSpan>
+                                                            <BookingNumberNiceSelect name="type" className={isSelectType ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectType(prev => !prev)}>
+                                                                <BookingNumberNiceSelectSpan className='current'>{
+                                                                    typeBooking ? (
+                                                                        partyBookingTypeList.map((partyBookingType, key) => {
+                                                                            if (partyBookingType.party_booking_type_id === typeBooking)
+                                                                                return (
+                                                                                    partyBookingType.party_booking_type_name
+                                                                                )
+                                                                        })
+                                                                    ) : "Loại tiệc"
+                                                                }</BookingNumberNiceSelectSpan>
                                                                 <BookingNumberNiceSelectUl className='list'>
-                                                                    <BookingNumberNiceSelectLi data-value="adults" data-display="adults" className='option focus selected'>Loại tiệc</BookingNumberNiceSelectLi>
-                                                                    <BookingNumberNiceSelectLi data-value="1" className='option'>Lễ cưới</BookingNumberNiceSelectLi>
-                                                                    <BookingNumberNiceSelectLi data-value="2" className='option'>Tiệc cá nhân</BookingNumberNiceSelectLi>
-                                                                    <BookingNumberNiceSelectLi data-value="3" className='option'>Hội nghị &amp; Tiệc công ty</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi className='option focus selected'>Vui lòng chọn</BookingNumberNiceSelectLi>
+                                                                    {
+                                                                        partyBookingTypeList ? (
+                                                                            partyBookingTypeList.map((partyBookingType, key) => {
+                                                                                return (
+                                                                                    <BookingNumberNiceSelectLi
+                                                                                        onClick={() => setTypeBooking(partyBookingType.party_booking_type_id)}
+                                                                                        className='option'
+                                                                                    >
+                                                                                        {partyBookingType.party_booking_type_name}
+                                                                                    </BookingNumberNiceSelectLi>
+                                                                                )
+                                                                            })
+                                                                        ) : null
+                                                                    }
                                                                 </BookingNumberNiceSelectUl>
                                                             </BookingNumberNiceSelect>
                                                         </div>
@@ -1834,15 +2522,20 @@ const BookPartyMain = () => {
                                                 <div className="col-12">
                                                     <div className="row">
                                                         <div className="col-12 pt-4">
-                                                            <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
-                                                                <BookingNumberNiceSelectSpan className='current'>Số lượng khách</BookingNumberNiceSelectSpan>
+                                                            <BookingNumberNiceSelect name="quantity" className={isSelectQuantity ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectQuantity(prev => !prev)}>
+                                                                <BookingNumberNiceSelectSpan className='current'>{quantityBooking ? quantityBooking + " khách" : "Số lượng khách"}</BookingNumberNiceSelectSpan>
                                                                 <BookingNumberNiceSelectUl className='list'>
-                                                                    <BookingNumberNiceSelectLi data-value="adults" data-display="adults" className='option focus selected'>Số lượng khách</BookingNumberNiceSelectLi>
-                                                                    <BookingNumberNiceSelectLi data-value="1" className='option'>1</BookingNumberNiceSelectLi>
-                                                                    <BookingNumberNiceSelectLi data-value="2" className='option'>2</BookingNumberNiceSelectLi>
-                                                                    <BookingNumberNiceSelectLi data-value="3" className='option'>3</BookingNumberNiceSelectLi>
-                                                                    <BookingNumberNiceSelectLi data-value="4" className='option'>4</BookingNumberNiceSelectLi>
-                                                                    <BookingNumberNiceSelectLi data-value="4+" className='option'>4+</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi className='option focus selected'>Vui lòng chọn</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 100)} className='option'>100 khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 200)} className='option'>200 khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 300)} className='option'>300 khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 400)} className='option'>400 khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 500)} className='option'>500 khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 600)} className='option'>600 khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 700)} className='option'>700 khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 800)} className='option'>800 khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 900)} className='option'>900 khách</BookingNumberNiceSelectLi>
+                                                                    <BookingNumberNiceSelectLi onClick={() => setQuantityBooking(prev => 1000)} className='option'>Trên 1000 khách</BookingNumberNiceSelectLi>
                                                                 </BookingNumberNiceSelectUl>
                                                             </BookingNumberNiceSelect>
                                                         </div>
@@ -1851,18 +2544,22 @@ const BookPartyMain = () => {
                                                 <div className="col-12 col-md-6 col-lg-12 pt-5">
                                                     <h6 className="color-white mb-3">Bộ lọc:</h6>
                                                     <ul className="list">
-                                                        <li className="list__item">
-                                                            <label className="label--checkbox">
-                                                                <input type="checkbox" className="checkbox" />
-                                                                Trong nhà
-                                                            </label>
-                                                        </li>
-                                                        <li className="list__item">
-                                                            <label className="label--checkbox">
-                                                                <input type="checkbox" className="checkbox" />
-                                                                Ngoài trời
-                                                            </label>
-                                                        </li>
+                                                        {
+                                                            partyHallTypeList ? (
+                                                                partyHallTypeList.map((partyHallType, key) => {
+                                                                    return (
+                                                                        <li className="list__item"
+                                                                            onClick={() => setPartyHallType(partyHallType.party_hall_type_id)}
+                                                                        >
+                                                                            <label className="label--checkbox">
+                                                                                <input type="radio" className="checkbox" name="partyHallType" />
+                                                                                {partyHallType.party_hall_type_name}
+                                                                            </label>
+                                                                        </li>
+                                                                    )
+                                                                })
+                                                            ) : null
+                                                        }
                                                     </ul>
                                                 </div>
                                                 <div className="col-12 col-md-6 col-lg-12 pt-5" style={{ padding: "0", margin: "0" }}>
@@ -1911,8 +2608,9 @@ const BookPartyMain = () => {
                 showModal={showModal}   //state Đóng mở modal
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
-                imageMenu={imageMenu}   //Hình ảnh menu trong Modal
-                imageView={imageView}   //Hình ảnh view trong Modal
+                setMenuModal={setMenuModal}   //Đối tượng menu trong Modal
+                partyHallModal={partyHallModal}   //Đối tượng party hall trong Modal
+                showToastFromOut={showToastFromOut}
             />
             {/* TOAST */}
             <Toast

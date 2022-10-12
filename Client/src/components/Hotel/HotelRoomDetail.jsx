@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import styled from 'styled-components';
-import SliderImage from "../SliderImage";
+import SliderImage from "./SliderImage";
 // Date picker
 import { Star } from '@mui/icons-material';
 import Stack from '@mui/material/Stack';

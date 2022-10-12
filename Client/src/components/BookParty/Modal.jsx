@@ -1,7 +1,15 @@
 import { ArrowDropDownOutlined, CloseOutlined, SearchOutlined } from "@mui/icons-material";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import SliderImage from "../SliderImage";
+import SliderImage from "./SliderImage";
+
+import { format_money } from '../../utils/utils';
+
+//SERVICES
+import * as PartyServiceTypeService from "../../service/PartyServiceTypeService";
+import * as PartyHallService from "../../service/PartyHallService";
+import { useDispatch } from "react-redux";
+import { addFoodListBookingParty, addPartyHallBookingParty, addPartyServiceBookingParty, addSetMenuBookingParty } from "../../redux/partyBookingRedux";
 
 const Background = styled.div`
     width: 100%;
@@ -110,6 +118,10 @@ const Box = styled.div`
 const BoxSpan = styled.span`
     font-size: 1.1rem;
     color: var(--color-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    width: 235px;
 `
 
 const Table = styled.table`
@@ -164,9 +176,9 @@ const ThSortIcon = styled.div``;
 
 const Wrapper = styled.div`
     display: none;
-    position: absolute;
-    /* top: -250px; */
-    right: -90px;
+    position: fixed;
+    top: 15%;
+    right: 5%;
     width: 650px;
     height: auto;
     background-color: #F5F5F5;
@@ -288,6 +300,7 @@ const InputRadio = styled.input`
 const MealImage = styled.img`
     width: 60px;
     height: 60px;
+    object-fit: cover;
 `
 
 // More Image
@@ -429,7 +442,9 @@ align-items: center;
 justify-content: space-between;
 `
 
-const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
+const Modal = ({ showModal, setShowModal, type, setMenuModal, partyHallModal, showToastFromOut }) => {
+    const dispatch = useDispatch();
+
     // Modal
     const modalRef = useRef();
     const closeModal = (e) => {
@@ -455,83 +470,217 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
         [keyPress]
     );
 
-    // Box 1
-    const openSelectBox1 = () => {
+    // // Box 1
+    // const openSelectBox1 = () => {
+    //     var checkList = document.getElementById('Box1');
+    //     checkList.classList.add('active');
+    // }
+    // const closeSelectBox1 = (e) => {
+    //     e.preventDefault();
+    //     var checkList = document.getElementById('Box1');
+    //     checkList.classList.remove('active');
+    // }
+    // // Box 2
+    // const openSelectBox2 = () => {
 
-        var checkList = document.getElementById('Box1');
+    //     var checkList = document.getElementById('Box2');
+    //     checkList.classList.add('active');
+    // }
+    // const closeSelectBox2 = (e) => {
+    //     e.preventDefault();
+    //     var checkList = document.getElementById('Box2');
+    //     checkList.classList.remove('active');
+    // }
+    // // Box 3
+    // const openSelectBox3 = () => {
+
+    //     var checkList = document.getElementById('Box3');
+    //     checkList.classList.add('active');
+    // }
+    // const closeSelectBox3 = (e) => {
+    //     e.preventDefault();
+    //     var checkList = document.getElementById('Box3');
+    //     checkList.classList.remove('active');
+    // }
+    // // Box 4
+    // const openSelectBox4 = () => {
+
+    //     var checkList = document.getElementById('Box4');
+    //     checkList.classList.add('active');
+    // }
+    // const closeSelectBox4 = (e) => {
+    //     e.preventDefault();
+    //     var checkList = document.getElementById('Box4');
+    //     checkList.classList.remove('active');
+    // }
+    // // Box 5
+    // const openSelectBox5 = () => {
+
+    //     var checkList = document.getElementById('Box5');
+    //     checkList.classList.add('active');
+    // }
+    // const closeSelectBox5 = (e) => {
+    //     e.preventDefault();
+    //     var checkList = document.getElementById('Box5');
+    //     checkList.classList.remove('active');
+    // }
+    // // Box 6
+    // const openSelectBox6 = () => {
+
+    //     var checkList = document.getElementById('Box6');
+    //     checkList.classList.add('active');
+    // }
+    // const closeSelectBox6 = (e) => {
+    //     e.preventDefault();
+    //     var checkList = document.getElementById('Box6');
+    //     checkList.classList.remove('active');
+    // }
+
+    // Box
+    const openSelectBox = (boxId) => {
+        var checkList = document.getElementById(boxId);
         checkList.classList.add('active');
     }
-    const closeSelectBox1 = (e) => {
-        e.preventDefault();
-        var checkList = document.getElementById('Box1');
+    const closeSelectBox = (boxId) => {
+        // e.preventDefault();
+        var checkList = document.getElementById(boxId);
         checkList.classList.remove('active');
+        setSearch("");
     }
-    // Box 2
-    const openSelectBox2 = () => {
+    // ================================================================
+    // HANDLE
+    const [partyServiceTypesAndPartyServices, setPartyServiceTypesAndPartyServices] = useState([]);
+    const [serviceChooseList, setServiceChooseList] = useState([]);
+    useEffect(() => {
+        const getPartyServiceTypesAndPartyServices = async () => {
+            try {
+                const res = await PartyServiceTypeService.getPartyServiceTypesAndPartyServices();
+                setPartyServiceTypesAndPartyServices(res.data.data);
+            } catch (err) {
+                console.log("Error: ", err);
+            }
+        };
+        getPartyServiceTypesAndPartyServices();
+    }, []);
 
-        var checkList = document.getElementById('Box2');
-        checkList.classList.add('active');
-    }
-    const closeSelectBox2 = (e) => {
-        e.preventDefault();
-        var checkList = document.getElementById('Box2');
-        checkList.classList.remove('active');
-    }
-    // Box 3
-    const openSelectBox3 = () => {
+    const [partyHall, setPartyHall] = useState();
+    const [partyHallName, setPartyHallName] = useState();
+    const [partyHallView, setPartyHallView] = useState();
+    const [partyHallDescription, setPartyHallDescription] = useState();
+    const [partyHallOccupancy, setPartyHallOccupancy] = useState();
+    const [partyHallPrice, setPartyHallPrice] = useState();
+    const [partyHallImages, setPartyHallImages] = useState([]);
+    useEffect(() => {
+        const getPartyHallAndImages = async () => {
+            try {
+                const res = await PartyHallService.getPartyHallAndImages({
+                    partyHallId: partyHallModal.party_hall_id
+                });
+                const result = res.data.data;
+                setPartyHall(result);
+                setPartyHallName(result.party_hall_name);
+                setPartyHallView(result.party_hall_view);
+                setPartyHallDescription(result.party_hall_description);
+                setPartyHallOccupancy(result.party_hall_occupancy);
+                setPartyHallPrice(format_money(result.party_hall_price));
+                setPartyHallImages(result.partyHallImages);
+            } catch (err) {
+                console.log("Error: ", err);
+            }
+        };
+        if (partyHallModal) {
+            getPartyHallAndImages();
+        }
+    }, [partyHallModal]);
+    console.log("Party hall: ", partyHall);
 
-        var checkList = document.getElementById('Box3');
-        checkList.classList.add('active');
-    }
-    const closeSelectBox3 = (e) => {
-        e.preventDefault();
-        var checkList = document.getElementById('Box3');
-        checkList.classList.remove('active');
-    }
-    // Box 4
-    const openSelectBox4 = () => {
+    // Set Menu
+    const [setMenu, setSetMenu] = useState();
+    const [foodTypeAndFoods, setFoodTypeAndFoods] = useState([]);
+    useEffect(() => {
+        if (setMenuModal) {
+            setSetMenu(setMenuModal.setMenu);
+            setFoodTypeAndFoods(setMenuModal.foodTypeAndFoods);
+        }
+    }, [setMenuModal])
+    console.log("Set menu: ", setMenu, foodTypeAndFoods);
 
-        var checkList = document.getElementById('Box4');
-        checkList.classList.add('active');
-    }
-    const closeSelectBox4 = (e) => {
-        e.preventDefault();
-        var checkList = document.getElementById('Box4');
-        checkList.classList.remove('active');
-    }
-    // Box 5
-    const openSelectBox5 = () => {
+    const handleServices = (service) => {
+        const serviceId = service.party_service_id;
+        let isFind = false;
+        for (var i = 0; i < serviceChooseList.length; i++) {
+            if (serviceChooseList[i].party_service_id === serviceId) {
+                isFind = true;
+                let listAfter = serviceChooseList.filter(prev => prev.party_service_id !== serviceId);
+                setServiceChooseList(listAfter);
+                break;
+            }
+        }
+        if (!isFind) {
+            setServiceChooseList([...serviceChooseList, service]);
+        }
+    };
 
-        var checkList = document.getElementById('Box5');
-        checkList.classList.add('active');
-    }
-    const closeSelectBox5 = (e) => {
-        e.preventDefault();
-        var checkList = document.getElementById('Box5');
-        checkList.classList.remove('active');
-    }
-    // Box 6
-    const openSelectBox6 = () => {
+    const handleChoosePartyHallAndService = () => {
+        dispatch(addPartyHallBookingParty({
+            partyHall: partyHallModal
+        }));
+        dispatch(addPartyServiceBookingParty({
+            partyService: serviceChooseList
+        }));
+        setShowModal(false);
+        // Use toast
+        const dataShow = { message: "Chọn Sảnh & Dịch vụ thành công!", type: "success" };
+        showToastFromOut(dataShow);
+        setServiceChooseList([]);
+    };
 
-        var checkList = document.getElementById('Box6');
-        checkList.classList.add('active');
-    }
-    const closeSelectBox6 = (e) => {
-        e.preventDefault();
-        var checkList = document.getElementById('Box6');
-        checkList.classList.remove('active');
-    }
-    // Box 7
-    const openSelectBox7 = () => {
+    // Search food
+    const [search, setSearch] = useState("");
+    const handleSearch = (e) => {
+        setSearch(e.target.value);
+    };
 
-        var checkList = document.getElementById('Box7');
-        checkList.classList.add('active');
-    }
-    const closeSelectBox7 = (e) => {
-        e.preventDefault();
-        var checkList = document.getElementById('Box7');
-        checkList.classList.remove('active');
-    }
+    // Choose food
+    const [foodChooseList, setFoodChooseList] = useState([]);
+    const handleChooseFood = (food) => {
+        const foodTypeId = food.food_type_id;
+        let isFind = false;
+        for (var i = 0; i < foodChooseList.length; i++) {
+            if (foodChooseList[i].food_type_id === foodTypeId) {
+                isFind = true;
+                let listAfter = foodChooseList.filter(prev => prev.food_type_id !== foodTypeId);
+                listAfter.push(food);
+                setFoodChooseList(listAfter);
+                break;
+            }
+        }
+        if (!isFind) {
+            setFoodChooseList([...foodChooseList, food]);
+        }
+    };
+
+    // Mai làm
+    const handleChooseMenuAndFood = () => {
+        if (foodTypeAndFoods.length !== foodChooseList.length) {
+            // Use toast
+            const dataShow = { message: "Bạn chưa chọn đủ loại trong menu!", type: "danger" };
+            showToastFromOut(dataShow);
+            return;
+        }
+        dispatch(addSetMenuBookingParty({
+            setMenu: setMenu
+        }));
+        dispatch(addFoodListBookingParty({
+            foodList: foodChooseList
+        }));
+        setShowModal(false);
+        // Use toast
+        const dataShow = { message: "Chọn Menu & Món ăn thành công!", type: "success" };
+        showToastFromOut(dataShow);
+        setFoodChooseList([]);
+    };
+    console.log("serviceChooseList: ", serviceChooseList, foodChooseList);
     // ================================================================
     // =============== Show Image Menu ===============
     if (type === "showImageMenu") {
@@ -541,7 +690,7 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} className="row" style={{ paddingTop: "15px", paddingBottom: "15px", height: "98%", width: "93%", backgroundColor: "#181818" }}>
 
-                            <MenuImage src={imageMenu} className="col-md-6" />
+                            <MenuImage src={setMenu ? setMenu.set_menu_image : null} className="col-md-6" />
                             <MenuRight className="col-md-6">
                                 <div className="col-md-12">
                                     <div className="row">
@@ -550,1394 +699,182 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
                                             <p style={{ fontSize: "1rem" }}>Dưới đây là những món ăn tương ứng với Menu của Quý khách.</p>
                                         </InfomationTitle>
                                     </div>
-                                    <CartItem>
-                                        <CircleService />
-                                        <Course>
-                                            <Content>
-                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Đầu giờ </span>
-                                                <MenuOptionCol8 className="col-md-8">
-                                                    <Box id="Box1">
+                                    {
+                                        foodTypeAndFoods.length > 0 ? (
+                                            foodTypeAndFoods.map((foodTypeAndFood, key) => {
+                                                let foodArray = foodTypeAndFood.food;
+                                                let foodArrayKey = key;
+                                                let foodChooseName;
+                                                foodChooseList.map((foodChoose, key) => {
+                                                    if (foodChoose.food_type_id === foodTypeAndFood.foodType.food_type_id) {
+                                                        foodChooseName = foodChoose.food_name;
+                                                        return;
+                                                    }
+                                                })
+                                                return (
+                                                    <CartItem>
+                                                        <CircleService />
+                                                        <Course>
+                                                            <Content>
+                                                                <span style={{ width: "320px", fontWeight: "bold" }}> {foodTypeAndFood.foodType.food_type_name} </span>
+                                                                <MenuOptionCol8 className="col-md-8">
+                                                                    <Box id={"Box" + key}>
 
-                                                        <BoxSpan>Hãy chọn món Bánh Đầu Giờ</BoxSpan>
-                                                        <SearchOutlined
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() => openSelectBox1()}
-                                                        />
-                                                        <Wrapper style={{ top: "-60px" }}>
-                                                            <BoxTitle>
-                                                                <BoxH2>Chọn món Bánh Đầu Giờ</BoxH2>
-                                                                <SearchContainer>
-                                                                    <Input
-                                                                        type="text"
-                                                                    />
-                                                                    <SearchIcon>
-                                                                        <SearchOutlined />
-                                                                    </SearchIcon>
-                                                                </SearchContainer>
-                                                            </BoxTitle>
-                                                            <Option>
-                                                                <Table style={{ position: "relative" }}>
-                                                                    <Thead>
-                                                                        <Tr>
-                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                        </Tr>
-                                                                    </Thead>
+                                                                        <BoxSpan>{foodChooseName ? foodChooseName : "Hãy chọn " + foodTypeAndFood.foodType.food_type_name}</BoxSpan>
+                                                                        <SearchOutlined
+                                                                            style={{ cursor: "pointer" }}
+                                                                            onClick={() => openSelectBox("Box" + key)}
+                                                                        />
+                                                                        <Wrapper>
+                                                                            <BoxTitle>
+                                                                                <BoxH2>Chọn {foodTypeAndFood.foodType.food_type_name}</BoxH2>
+                                                                                <SearchContainer>
+                                                                                    <Input
+                                                                                        type="text" onChange={(e) => handleSearch(e)}
+                                                                                    />
+                                                                                    <SearchIcon>
+                                                                                        <SearchOutlined />
+                                                                                    </SearchIcon>
+                                                                                </SearchContainer>
+                                                                            </BoxTitle>
+                                                                            <Option>
+                                                                                <Table style={{ position: "relative" }}>
+                                                                                    <Thead>
+                                                                                        <Tr>
+                                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
+                                                                                            <Th>
+                                                                                                <ThContainer>
+                                                                                                    <ThSpan>Hình ảnh</ThSpan>
+                                                                                                    <ThSortIcon>
+                                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />} */}
+                                                                                                        <ArrowDropDownOutlined />
+                                                                                                    </ThSortIcon>
+                                                                                                </ThContainer>
+                                                                                            </Th>
+                                                                                            <Th>
+                                                                                                <ThContainer>
+                                                                                                    <ThSpan>Món ăn</ThSpan>
+                                                                                                    <ThSortIcon>
+                                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />} */}
+                                                                                                        <ArrowDropDownOutlined />
+                                                                                                    </ThSortIcon>
+                                                                                                </ThContainer>
+                                                                                            </Th>
+                                                                                            <Th>
+                                                                                                <ThContainer>
+                                                                                                    <ThSpan>Thành phần</ThSpan>
+                                                                                                    <ThSortIcon>
+                                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
+                                                                                        <ArrowDropDownOutlined />} */}
+                                                                                                        <ArrowDropDownOutlined />
+                                                                                                    </ThSortIcon>
+                                                                                                </ThContainer>
+                                                                                            </Th>
+                                                                                        </Tr>
+                                                                                    </Thead>
 
-                                                                    <Tbody>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    </Tbody>
-                                                                </Table>
-                                                            </Option>
-                                                            <Button>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick>
-                                                                        Đồng ý
-                                                                    </ButtonClick>
-                                                                </ButtonContainer>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick
-                                                                        onClick={(e) => {
-                                                                            closeSelectBox1(e)
-                                                                        }}
-                                                                    >Cancel</ButtonClick>
-                                                                </ButtonContainer>
-                                                            </Button>
-                                                        </Wrapper>
-                                                    </Box>
-                                                </MenuOptionCol8>
-                                            </Content>
-                                        </Course>
-                                    </CartItem>
-                                    <CartItem>
-                                        <CircleService />
-                                        <Course>
-                                            <Content>
-                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Súp </span>
-                                                <MenuOptionCol8 className="col-md-8">
-                                                    <Box id="Box3">
-                                                        <BoxSpan>Hãy chọn món Súp</BoxSpan>
-                                                        <SearchOutlined
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() => openSelectBox3()}
-                                                        />
-                                                        <Wrapper style={{ top: "-132px" }}>
-                                                            <BoxTitle>
-                                                                <BoxH2>Chọn món Súp</BoxH2>
-                                                                <SearchContainer>
-                                                                    <Input
-                                                                        type="text"
-                                                                    />
-                                                                    <SearchIcon>
-                                                                        <SearchOutlined />
-                                                                    </SearchIcon>
-                                                                </SearchContainer>
-                                                            </BoxTitle>
-                                                            <Option>
-                                                                <Table style={{ position: "relative" }}>
-                                                                    <Thead>
-                                                                        <Tr>
-                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                        </Tr>
-                                                                    </Thead>
-
-                                                                    <Tbody>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    </Tbody>
-                                                                </Table>
-                                                            </Option>
-                                                            <Button>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick>
-                                                                        Đồng ý
-                                                                    </ButtonClick>
-                                                                </ButtonContainer>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick
-                                                                        onClick={(e) => {
-                                                                            closeSelectBox3(e)
-                                                                        }}
-                                                                    >Cancel</ButtonClick>
-                                                                </ButtonContainer>
-                                                            </Button>
-                                                        </Wrapper>
-                                                    </Box>
-                                                </MenuOptionCol8>
-                                            </Content>
-                                        </Course>
-                                    </CartItem>
-                                    <CartItem>
-                                        <CircleService />
-                                        <Course>
-                                            <Content>
-                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Hải sản </span>
-                                                <MenuOptionCol8 className="col-md-8">
-                                                    <Box id="Box4">
-                                                        <BoxSpan>Hãy chọn món Hải Sản</BoxSpan>
-                                                        <SearchOutlined
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() => openSelectBox4()}
-                                                        />
-                                                        <Wrapper style={{ top: "-204px" }}>
-                                                            <BoxTitle>
-                                                                <BoxH2>Chọn món Hải Sản</BoxH2>
-                                                                <SearchContainer>
-                                                                    <Input
-                                                                        type="text"
-                                                                    />
-                                                                    <SearchIcon>
-                                                                        <SearchOutlined />
-                                                                    </SearchIcon>
-                                                                </SearchContainer>
-                                                            </BoxTitle>
-                                                            <Option>
-                                                                <Table style={{ position: "relative" }}>
-                                                                    <Thead>
-                                                                        <Tr>
-                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                        </Tr>
-                                                                    </Thead>
-
-                                                                    <Tbody>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    </Tbody>
-                                                                </Table>
-                                                            </Option>
-                                                            <Button>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick>
-                                                                        Đồng ý
-                                                                    </ButtonClick>
-                                                                </ButtonContainer>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick
-                                                                        onClick={(e) => {
-                                                                            closeSelectBox4(e)
-                                                                        }}
-                                                                    >Cancel</ButtonClick>
-                                                                </ButtonContainer>
-                                                            </Button>
-                                                        </Wrapper>
-                                                    </Box>
-                                                </MenuOptionCol8>
-                                            </Content>
-                                        </Course>
-                                    </CartItem>
-                                    <CartItem>
-                                        <CircleService />
-                                        <Course>
-                                            <Content>
-                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Khai vị </span>
-                                                <MenuOptionCol8 className="col-md-8">
-                                                    <Box id="Box2">
-                                                        <BoxSpan>Hãy chọn món Khai Vị</BoxSpan>
-                                                        <SearchOutlined
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() => openSelectBox2()}
-                                                        />
-                                                        <Wrapper style={{ top: "-276px" }}>
-                                                            <BoxTitle>
-                                                                <BoxH2>Chọn món Khai Vị</BoxH2>
-                                                                <SearchContainer>
-                                                                    <Input
-                                                                        type="text"
-                                                                    />
-                                                                    <SearchIcon>
-                                                                        <SearchOutlined />
-                                                                    </SearchIcon>
-                                                                </SearchContainer>
-                                                            </BoxTitle>
-                                                            <Option>
-                                                                <Table style={{ position: "relative" }}>
-                                                                    <Thead>
-                                                                        <Tr>
-                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                        </Tr>
-                                                                    </Thead>
-
-                                                                    <Tbody>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    </Tbody>
-                                                                </Table>
-                                                            </Option>
-                                                            <Button>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick>
-                                                                        Đồng ý
-                                                                    </ButtonClick>
-                                                                </ButtonContainer>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick
-                                                                        onClick={(e) => {
-                                                                            closeSelectBox2(e)
-                                                                        }}
-                                                                    >Cancel</ButtonClick>
-                                                                </ButtonContainer>
-                                                            </Button>
-                                                        </Wrapper>
-                                                    </Box>
-                                                </MenuOptionCol8>
-                                            </Content>
-                                        </Course>
-                                    </CartItem>
-                                    <CartItem>
-                                        <CircleService />
-                                        <Course>
-                                            <Content>
-                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Cơm-Mì-Lẩu </span>
-                                                <MenuOptionCol8 className="col-md-8">
-                                                    <Box id="Box6">
-                                                        <BoxSpan>Hãy chọn món Cơm-Mì-Lẩu</BoxSpan>
-                                                        <SearchOutlined
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() => openSelectBox6()}
-                                                        />
-                                                        <Wrapper style={{ top: "-348px" }}>
-                                                            <BoxTitle>
-                                                                <BoxH2>Chọn món Cơm-Mì-Lẩu</BoxH2>
-                                                                <SearchContainer>
-                                                                    <Input
-                                                                        type="text"
-                                                                    />
-                                                                    <SearchIcon>
-                                                                        <SearchOutlined />
-                                                                    </SearchIcon>
-                                                                </SearchContainer>
-                                                            </BoxTitle>
-                                                            <Option>
-                                                                <Table style={{ position: "relative" }}>
-                                                                    <Thead>
-                                                                        <Tr>
-                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                        </Tr>
-                                                                    </Thead>
-
-                                                                    <Tbody>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    </Tbody>
-                                                                </Table>
-                                                            </Option>
-                                                            <Button>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick>
-                                                                        Đồng ý
-                                                                    </ButtonClick>
-                                                                </ButtonContainer>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick
-                                                                        onClick={(e) => {
-                                                                            closeSelectBox6(e)
-                                                                        }}
-                                                                    >Cancel</ButtonClick>
-                                                                </ButtonContainer>
-                                                            </Button>
-                                                        </Wrapper>
-                                                    </Box>
-                                                </MenuOptionCol8>
-                                            </Content>
-                                        </Course>
-                                    </CartItem>
-                                    <CartItem>
-                                        <CircleService />
-                                        <Course>
-                                            <Content>
-                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Tráng miệng </span>
-                                                <MenuOptionCol8 className="col-md-8">
-                                                    <Box id="Box7">
-                                                        <BoxSpan>Hãy chọn món Tráng Miệng</BoxSpan>
-                                                        <SearchOutlined
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() => openSelectBox7()}
-                                                        />
-                                                        <Wrapper style={{ top: "-420px" }}>
-                                                            <BoxTitle>
-                                                                <BoxH2>Chọn món Tráng Miệng</BoxH2>
-                                                                <SearchContainer>
-                                                                    <Input
-                                                                        type="text"
-                                                                    />
-                                                                    <SearchIcon>
-                                                                        <SearchOutlined />
-                                                                    </SearchIcon>
-                                                                </SearchContainer>
-                                                            </BoxTitle>
-                                                            <Option>
-                                                                <Table style={{ position: "relative" }}>
-                                                                    <Thead>
-                                                                        <Tr>
-                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                        </Tr>
-                                                                    </Thead>
-
-                                                                    <Tbody>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    </Tbody>
-                                                                </Table>
-                                                            </Option>
-                                                            <Button>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick>
-                                                                        Đồng ý
-                                                                    </ButtonClick>
-                                                                </ButtonContainer>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick
-                                                                        onClick={(e) => {
-                                                                            closeSelectBox7(e)
-                                                                        }}
-                                                                    >Cancel</ButtonClick>
-                                                                </ButtonContainer>
-                                                            </Button>
-                                                        </Wrapper>
-                                                    </Box>
-                                                </MenuOptionCol8>
-                                            </Content>
-                                        </Course>
-                                    </CartItem>
-                                    <CartItem>
-                                        <CircleService />
-                                        <Course>
-                                            <Content>
-                                                <span style={{ width: "320px", fontWeight: "bold" }}> Món Thịt </span>
-                                                <MenuOptionCol8 className="col-md-8">
-                                                    <Box id="Box5">
-                                                        <BoxSpan>Hãy chọn món Thịt</BoxSpan>
-                                                        <SearchOutlined
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() => openSelectBox5()}
-                                                        />
-                                                        <Wrapper style={{ top: "-492px" }}>
-                                                            <BoxTitle>
-                                                                <BoxH2>Chọn món Thịt</BoxH2>
-                                                                <SearchContainer>
-                                                                    <Input
-                                                                        type="text"
-                                                                    />
-                                                                    <SearchIcon>
-                                                                        <SearchOutlined />
-                                                                    </SearchIcon>
-                                                                </SearchContainer>
-                                                            </BoxTitle>
-                                                            <Option>
-                                                                <Table style={{ position: "relative" }}>
-                                                                    <Thead>
-                                                                        <Tr>
-                                                                            <Th style={{ border: "none", minWidth: "30px" }}></Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Hình ảnh</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortStaffCode ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Món ăn</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortFullName ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                            <Th>
-                                                                                <ThContainer>
-                                                                                    <ThSpan>Thành phần</ThSpan>
-                                                                                    <ThSortIcon>
-                                                                                        {/* {isSortType ? <ArrowDropUpOutlined /> :
-                                                                            <ArrowDropDownOutlined />} */}
-                                                                                        <ArrowDropDownOutlined />
-                                                                                    </ThSortIcon>
-                                                                                </ThContainer>
-                                                                            </Th>
-                                                                        </Tr>
-                                                                    </Thead>
-
-                                                                    <Tbody>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                        <Tr>
-                                                                            <Td style={{
-                                                                                border: 'none',
-                                                                                textAlign: "center",
-                                                                                fontSize: "1.5rem"
-                                                                            }}>
-                                                                                <InputRadio
-                                                                                    type="radio"
-                                                                                    name="Radio_User"
-                                                                                    value=""
-                                                                                    className="checkbox"
-                                                                                />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                <MealImage src={imageMenu} />
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt Sốt Trứng
-                                                                            </Td>
-                                                                            <Td>
-                                                                                Thịt/ Cá/ Trứng
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    </Tbody>
-                                                                </Table>
-                                                            </Option>
-                                                            <Button>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick>
-                                                                        Đồng ý
-                                                                    </ButtonClick>
-                                                                </ButtonContainer>
-                                                                <ButtonContainer>
-                                                                    <ButtonClick
-                                                                        onClick={(e) => {
-                                                                            closeSelectBox5(e)
-                                                                        }}
-                                                                    >Cancel</ButtonClick>
-                                                                </ButtonContainer>
-                                                            </Button>
-                                                        </Wrapper>
-                                                    </Box>
-                                                </MenuOptionCol8>
-                                            </Content>
-                                        </Course>
-                                    </CartItem>
+                                                                                    <Tbody>
+                                                                                        {
+                                                                                            foodArray.length > 0 ? (
+                                                                                                foodArray.map((food, key) => {
+                                                                                                    if (search !== "") {
+                                                                                                        if (food.food_name.toLowerCase().includes(search.toLowerCase())) {
+                                                                                                            return (
+                                                                                                                <Tr>
+                                                                                                                    <Td style={{
+                                                                                                                        border: 'none',
+                                                                                                                        textAlign: "center",
+                                                                                                                        fontSize: "1.5rem"
+                                                                                                                    }}>
+                                                                                                                        <InputRadio
+                                                                                                                            type="radio"
+                                                                                                                            name={"foodArray_" + foodArrayKey}
+                                                                                                                            className="checkbox"
+                                                                                                                            onChange={() => handleChooseFood(food)}
+                                                                                                                        />
+                                                                                                                    </Td>
+                                                                                                                    <Td>
+                                                                                                                        <MealImage src={food.food_image} />
+                                                                                                                    </Td>
+                                                                                                                    <Td>
+                                                                                                                        {food.food_name}
+                                                                                                                    </Td>
+                                                                                                                    <Td>
+                                                                                                                        {food.food_ingredient}
+                                                                                                                    </Td>
+                                                                                                                </Tr>
+                                                                                                            )
+                                                                                                        }
+                                                                                                        return null;
+                                                                                                    } else {
+                                                                                                        return (
+                                                                                                            <Tr>
+                                                                                                                <Td style={{
+                                                                                                                    border: 'none',
+                                                                                                                    textAlign: "center",
+                                                                                                                    fontSize: "1.5rem"
+                                                                                                                }}>
+                                                                                                                    <InputRadio
+                                                                                                                        type="radio"
+                                                                                                                        name={"foodArray_" + foodArrayKey}
+                                                                                                                        className="checkbox"
+                                                                                                                        onChange={() => handleChooseFood(food)}
+                                                                                                                    />
+                                                                                                                </Td>
+                                                                                                                <Td>
+                                                                                                                    <MealImage src={food.food_image} />
+                                                                                                                </Td>
+                                                                                                                <Td>
+                                                                                                                    {food.food_name}
+                                                                                                                </Td>
+                                                                                                                <Td>
+                                                                                                                    {food.food_ingredient}
+                                                                                                                </Td>
+                                                                                                            </Tr>
+                                                                                                        )
+                                                                                                    }
+                                                                                                })
+                                                                                            ) : null
+                                                                                        }
+                                                                                    </Tbody>
+                                                                                </Table>
+                                                                            </Option>
+                                                                            <Button>
+                                                                                <ButtonContainer>
+                                                                                    <ButtonClick
+                                                                                        onClick={() => {
+                                                                                            closeSelectBox("Box" + key)
+                                                                                        }}
+                                                                                    >
+                                                                                        Đồng ý
+                                                                                    </ButtonClick>
+                                                                                </ButtonContainer>
+                                                                                {/* <ButtonContainer>
+                                                                                    <ButtonClick
+                                                                                        onClick={() => {
+                                                                                            closeSelectBox("Box" + key)
+                                                                                        }}
+                                                                                    >Cancel</ButtonClick>
+                                                                                </ButtonContainer> */}
+                                                                            </Button>
+                                                                        </Wrapper>
+                                                                    </Box>
+                                                                </MenuOptionCol8>
+                                                            </Content>
+                                                        </Course>
+                                                    </CartItem>
+                                                )
+                                            })
+                                        ) : null
+                                    }
                                     <Button className="row">
                                         <ButtonContainer>
-                                            <ButtonClick style={{ marginLeft: "70%" }} className="">
+                                            <ButtonClick
+                                                style={{ marginLeft: "70%" }}
+                                                onClick={() => handleChooseMenuAndFood()}
+                                            >
                                                 {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
                                                 Tiếp tục
                                             </ButtonClick>
@@ -1972,19 +909,19 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
                                 <ViewLeftRow className="row">
                                     <ImgContainer className="row">
                                         <MoreImage >
-                                            <SliderImage image={[imageView, 'https://picsum.photos/id/1018/1000/600/', 'https://picsum.photos/id/1018/1000/600/', 'https://picsum.photos/id/1018/1000/600/']} />
+                                            <SliderImage image={partyHallImages} />
                                         </MoreImage>
                                     </ImgContainer>
                                     <ViewLeftDetailRow className="row">
                                         <TitleRow className="row">
-                                            <TitleRowH6>Sảnh Iris - Sân vườn</TitleRowH6>
+                                            <TitleRowH6>{partyHallName} - {partyHallView}</TitleRowH6>
                                         </TitleRow>
                                         <DescriptionRow className="row">
                                             <DescriptionDetailRow className="col-md-2">
                                                 Mô tả:
                                             </DescriptionDetailRow>
                                             <div className="col-md-10">
-                                                Không gian tiệc ngoài trời trên tầng cao, thoáng mát, mới lạ, sức chứa tối đa khoảng 70 khách.
+                                                {partyHallDescription}
                                             </div>
                                         </DescriptionRow>
                                         <QuantityRow className="row">
@@ -1992,7 +929,7 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
                                                 Sức chứa:
                                             </QuantityDetailRow>
                                             <div className="col-md-10">
-                                                120 người
+                                                {partyHallOccupancy} người
                                             </div>
                                         </QuantityRow>
                                         <PriceRow className="row">
@@ -2000,7 +937,7 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
                                                 Giá:
                                             </PriceDetailRow>
                                             <div className="col-md-10">
-                                                5.520.000 <b><u>đ</u></b>
+                                                {partyHallPrice} <b><u>đ</u></b>
                                             </div>
                                         </PriceRow>
                                     </ViewLeftDetailRow>
@@ -2008,754 +945,49 @@ const Modal = ({ showModal, setShowModal, type, imageMenu, imageView }) => {
                             </ViewLeft>
                             <ViewRight className="col-md-6">
                                 <ViewRightContainer className="row">
-                                    {/* ITEM Dịch vụ */}
-                                    <ViewRightItem className="col-12 col-md-6 col-lg-12 pt-5">
-                                        <ViewRightH6 className="color-white mb-3">Dịch vụ trang trí:</ViewRightH6>
-                                        <ViewRightUl className="list">
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Cổng hoa đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Welcome tên CDCR
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        1.200.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Gallery đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>6 trụ hoa hướng lên sân khấu</ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">5.000.000 <b><u>đ</u></b></ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bánh cưới + Champagne (2 rượu + 1 bánh)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bàn tiệc
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi sân khấu
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bóng bay hồ bơi
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                        </ViewRightUl>
-                                    </ViewRightItem>
-                                    {/* ITEM Dịch vụ */}
-                                    <ViewRightItem className="col-12 col-md-6 col-lg-12 pt-5">
-                                        <ViewRightH6 className="color-white mb-3">Dịch vụ trang trí:</ViewRightH6>
-                                        <ViewRightUl className="list">
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Cổng hoa đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Welcome tên CDCR
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        1.200.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Gallery đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>6 trụ hoa hướng lên sân khấu</ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">5.000.000 <b><u>đ</u></b></ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bánh cưới + Champagne (2 rượu + 1 bánh)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bàn tiệc
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi sân khấu
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bóng bay hồ bơi
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                        </ViewRightUl>
-                                    </ViewRightItem>
-                                    {/* ITEM Dịch vụ */}
-                                    <ViewRightItem className="col-12 col-md-6 col-lg-12 pt-5">
-                                        <ViewRightH6 className="color-white mb-3">Dịch vụ trang trí:</ViewRightH6>
-                                        <ViewRightUl className="list">
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Cổng hoa đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Welcome tên CDCR
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        1.200.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Gallery đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>6 trụ hoa hướng lên sân khấu</ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">5.000.000 <b><u>đ</u></b></ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bánh cưới + Champagne (2 rượu + 1 bánh)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bàn tiệc
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi sân khấu
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bóng bay hồ bơi
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                        </ViewRightUl>
-                                    </ViewRightItem>
-                                    {/* ITEM Dịch vụ */}
-                                    <ViewRightItem className="col-12 col-md-6 col-lg-12 pt-5">
-                                        <ViewRightH6 className="color-white mb-3">Dịch vụ trang trí:</ViewRightH6>
-                                        <ViewRightUl className="list">
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Cổng hoa đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Welcome tên CDCR
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        1.200.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Gallery đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>6 trụ hoa hướng lên sân khấu</ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">5.000.000 <b><u>đ</u></b></ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bánh cưới + Champagne (2 rượu + 1 bánh)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bàn tiệc
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi sân khấu
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bóng bay hồ bơi
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                        </ViewRightUl>
-                                    </ViewRightItem>
-                                    {/* ITEM Dịch vụ */}
-                                    <ViewRightItem className="col-12 col-md-6 col-lg-12 pt-5">
-                                        <ViewRightH6 className="color-white mb-3">Dịch vụ trang trí:</ViewRightH6>
-                                        <ViewRightUl className="list">
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Cổng hoa đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Welcome tên CDCR
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        1.200.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Gallery đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>6 trụ hoa hướng lên sân khấu</ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">5.000.000 <b><u>đ</u></b></ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bánh cưới + Champagne (2 rượu + 1 bánh)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bàn tiệc
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi sân khấu
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bóng bay hồ bơi
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                        </ViewRightUl>
-                                    </ViewRightItem>
-                                    {/* ITEM Dịch vụ */}
-                                    <ViewRightItem className="col-12 col-md-6 col-lg-12 pt-5">
-                                        <ViewRightH6 className="color-white mb-3">Dịch vụ trang trí:</ViewRightH6>
-                                        <ViewRightUl className="list">
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Cổng hoa đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Welcome tên CDCR
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        1.200.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Gallery đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>6 trụ hoa hướng lên sân khấu</ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">5.000.000 <b><u>đ</u></b></ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bánh cưới + Champagne (2 rượu + 1 bánh)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bàn tiệc
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi sân khấu
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bóng bay hồ bơi
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                        </ViewRightUl>
-                                    </ViewRightItem>
-                                    {/* ITEM Dịch vụ */}
-                                    <ViewRightItem className="col-12 col-md-6 col-lg-12 pt-5">
-                                        <ViewRightH6 className="color-white mb-3">Dịch vụ trang trí:</ViewRightH6>
-                                        <ViewRightUl className="list">
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Cổng hoa đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Welcome tên CDCR
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        1.200.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bảng Gallery đón khách (Tùy mẫu)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>6 trụ hoa hướng lên sân khấu</ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">5.000.000 <b><u>đ</u></b></ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bánh cưới + Champagne (2 rượu + 1 bánh)
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi bàn tiệc
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        500.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Hoa tươi sân khấu
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        2.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                            <ViewRightLi className="list__item">
-                                                <ViewRightLabel className="row label--checkbox">
-                                                    <ViewRightCol9 className="col-md-9">
-                                                        <InputRadioService type="checkbox" className="checkbox" />
-                                                        <ViewRightItemName>
-                                                            Bóng bay hồ bơi
-                                                        </ViewRightItemName>
-                                                    </ViewRightCol9>
-                                                    <ViewRightCol3 className="col-md-3">
-                                                        3.000.000 <b><u>đ</u></b>
-                                                    </ViewRightCol3>
-                                                </ViewRightLabel>
-                                            </ViewRightLi>
-                                        </ViewRightUl>
-                                    </ViewRightItem>
+                                    {
+                                        partyServiceTypesAndPartyServices.length > 0 ? (
+                                            partyServiceTypesAndPartyServices.map((partyServiceTypesAndPartyServicesItem, key) => {
+                                                const serviceList = partyServiceTypesAndPartyServicesItem.partyServices;
+                                                return (
+                                                    <ViewRightItem className="col-12 col-md-6 col-lg-12 pt-5">
+                                                        <ViewRightH6 className="color-white mb-3">
+                                                            {partyServiceTypesAndPartyServicesItem.partyServiceType}:
+                                                        </ViewRightH6>
+                                                        <ViewRightUl className="list">
+                                                            {
+                                                                serviceList.map((service, key) => {
+                                                                    return (
+                                                                        <ViewRightLi className="list__item">
+                                                                            <ViewRightLabel className="row label--checkbox">
+                                                                                <ViewRightCol9 className="col-md-9">
+                                                                                    <InputRadioService type="checkbox" className="checkbox" onChange={() => handleServices(service)} />
+                                                                                    <ViewRightItemName>
+                                                                                        {service.party_service_name}
+                                                                                    </ViewRightItemName>
+                                                                                </ViewRightCol9>
+                                                                                <ViewRightCol3 className="col-md-3">
+                                                                                    {format_money(service.party_service_price)} <b><u>đ</u></b>
+                                                                                </ViewRightCol3>
+                                                                            </ViewRightLabel>
+                                                                        </ViewRightLi>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </ViewRightUl>
+                                                    </ViewRightItem>
+                                                )
+                                            })
+                                        ) : null
+                                    }
                                 </ViewRightContainer>
                                 <Button className="row" style={{ margin: "20px" }}>
                                     <ButtonContainer>
-                                        <ButtonClick style={{ marginLeft: "70%" }} className="">
+                                        <ButtonClick style={{ marginLeft: "70%" }}
+                                            onClick={() => handleChoosePartyHallAndService()}
+                                        >
                                             {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
-                                            Tiếp tục
+                                            Đồng ý
                                         </ButtonClick>
                                     </ButtonContainer>
                                 </Button>

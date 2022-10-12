@@ -187,10 +187,7 @@ module.exports = {
                 });
                 // Đợi tất cả promise hoàn thành thì trả result về
                 Promise.all(finalResultArray).then((result) => {
-                    console.log("Resule before:", result);
-
                     result = result.filter(prev => prev !== null)
-                    console.log("Resule after:", result);
                     // ---Filter
                     result.map((room, key) => {
                         if (
@@ -269,7 +266,7 @@ module.exports = {
         const roomState = req.body.roomState;
         try {
             const result = await updateRoomState(roomId, roomState);
-            if(result) {
+            if (result) {
                 return res.status(200).json({
                     status: "success",
                     message: "Update room state successfully!",

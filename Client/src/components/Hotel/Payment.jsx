@@ -457,7 +457,6 @@ const TotalMoneyH5 = styled.h5`
   }
 `
 
-
 // Modal
 const ModalBackground = styled.div`
     width: 100%;
@@ -1156,7 +1155,6 @@ const Payment = (props) => {
                             null
                           )
                         }
-
                       </TotalMoney>
                     </TotalMoneyRow>
 

@@ -26,7 +26,7 @@ module.exports = {
         const checkoutDate = req.body.checkoutDate;
         const roomId = req.body.roomId;
         const roomBookingOrderNote = req.body.roomBookingOrderNote;
-        console.log("roomBookingOrderSurcharge: ", roomBookingOrderSurcharge)
+
         // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
         var today = new Date();
         var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
