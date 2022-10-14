@@ -35,7 +35,7 @@ module.exports = {
                     if (error) {
                         return reject(error);
                     }
-                    return resolve(results);
+                    return resolve(results[0]);
                 }
             );
         });

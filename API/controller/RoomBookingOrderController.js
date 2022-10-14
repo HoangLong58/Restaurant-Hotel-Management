@@ -98,7 +98,6 @@ module.exports = {
                 roomBookingOrderNote
             );
             if (createRoomBookingOrderRes) {
-
                 try {
                     const roomBookingOrderRes = await findRoomBookingOrder(
                         roomBookingOrderBookDate,
@@ -147,7 +146,7 @@ module.exports = {
 
                                             // MAILER
                                             var noidung = '';
-                                            noidung += '<div><p>Cảm ơn bạn đã tin tưởng và đặt mua thú cưng tại <font color="#41f1b6"><b>Hoàng Long Hotel &amp; Restaurant</b></font> với mã đặt phòng: ' + roomBookingOrderId + '</p></div>';
+                                            noidung += '<div><p>Cảm ơn bạn đã tin tưởng và đặt phòng tại <font color="#41f1b6"><b>Hoàng Long Hotel &amp; Restaurant</b></font> với mã đặt phòng: ' + roomBookingOrderId + '</p></div>';
                                             noidung += '<p><b>Khách hàng:</b> ' + customerName + '<br /><b>Email:</b> ' + customerEmail + '<br /><b>Điện thoại:</b> ' + customerPhoneNumber + '<br />';
 
                                             // Danh sách Sản phẩm đã mua

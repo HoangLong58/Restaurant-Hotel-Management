@@ -1,3 +1,4 @@
+const { getPartyHallDetailByPartyHallIdAndDateAndTimeId } = require("../service/PartyHallDetailService");
 const { getPartyHallImagesByPartyHallId } = require("../service/PartyHallImageService");
 const { getPartyHallsWithImageTypeFloor, getPartyHallWithTypeFloorByPartyHallId } = require("../service/PartyHallService");
 
@@ -77,8 +78,31 @@ module.exports = {
                     result[i].party_hall_type_id === partyHallType
                     && result[i].party_hall_occupancy >= quantityBooking
                 ) {
-                    // Check date and time in detail here!
-                    filteredResult.push({ ...result[i] });
+                    try {
+                        const partyHallDetailRes = await getPartyHallDetailByPartyHallIdAndDateAndTimeId(result[i].party_hall_id, dateBooking, timeBooking);
+                        console.log(partyHallDetailRes)
+                        if (!partyHallDetailRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Party hall detail not found"
+                            });
+                        }
+                        // Không tìm dc detail nào state = 0 đang còn hoạt động
+                        // có ngày book và time id như trên => Có thể cho chọn sảnh này
+                        if (partyHallDetailRes.length === 0) {
+                            // Check date and time in detail here!
+                            filteredResult.push({ ...result[i] });
+                        } else {
+                            continue;
+                        }
+                    } catch (err) {
+                        console.log(err);
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Có lỗi khi lấy getPartyHallDetailByPartyHallIdAndDateAndTimeId",
+                            error: err
+                        });
+                    }
                 }
             }
             // Sort lại để hiện Sảnh có sức chứa vừa đủ nhất (Những phòng đủ yêu cầu, sort từ bé -> lớn).

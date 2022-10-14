@@ -38,23 +38,28 @@ import view1 from '../../img/sanvuon1.jpg';
 
 import cash from '../../img/cash-icon.jpg';
 import momoImage from '../../img/momo.jpg';
-import paypalImage from '../../img/paypal.png';
+import stripeImage from '../../img/stripe.png';
 import cardImage from '../../img/thenganhang.png';
 
 import Modal from './Modal';
 import SliderImage from './SliderImage';
 
 // SERVICES
+import { REACT_APP_STRIPE } from "../../constants/Var";
 import * as PartyHallTimeService from "../../service/PartyHallTimeService";
 import * as PartyBookingTypeService from "../../service/PartyBookingTypeService";
 import * as PartyHallTypeService from "../../service/PartyHallTypeService";
 import * as PartyHallService from "../../service/PartyHallService";
 import * as SetMenuService from "../../service/SetMenuService";
 import * as DiscountService from "../../service/DiscountService";
+import * as PaymentService from "../../service/PaymentService";
+import * as PartyBookingOrderService from "../../service/PartyBookingOrderService";
+
+import StripeCheckout from 'react-stripe-checkout';
 
 import { addCustomerBookingParty, addDiscountBookingParty, addPartyBookingTotal, chooseDayAndQuantityBookingParty, logoutPartyBooking } from '../../redux/partyBookingRedux';
 import { useDispatch, useSelector } from 'react-redux';
-import { format_money } from '../../utils/utils';
+import { format_money, traceCurrency } from '../../utils/utils';
 import { add } from 'date-fns/esm';
 
 const Box2 = styled.div`
@@ -1028,6 +1033,8 @@ const BookPartyMain = () => {
     const [dateBooking, setDateBooking] = useState();
     const [timeBooking, setTimeBooking] = useState();
     const [typeBooking, setTypeBooking] = useState();
+    const [typeBookingName, setTypeBookingName] = useState();
+    const [timeBookingName, setTimeBookingName] = useState();
     const [quantityBooking, setQuantityBooking] = useState();
     const [partyHallType, setPartyHallType] = useState();
     const [partyHallTimeList, setPartyHallTimeList] = useState([]);
@@ -1101,15 +1108,9 @@ const BookPartyMain = () => {
             let partyBookingTotal = partyHallTotal + partyServiceTotal + setMenuTotal * tableQuantity;
             partyBookingTotal = partyBookingTotal - (partyBookingTotal * discountPercent / 100)
             setPartyBookingTotal(partyBookingTotal);
-            dispatch(addPartyBookingTotal({
-                partyBookingTotal: partyBookingTotal
-            }));
         } else {
             let partyBookingTotal = partyHallTotal + partyServiceTotal + setMenuTotal * tableQuantity;
             setPartyBookingTotal(partyBookingTotal);
-            dispatch(addPartyBookingTotal({
-                partyBookingTotal: partyBookingTotal
-            }));
         }
     }, [tableQuantity,
         partyHallTotal,
@@ -1459,6 +1460,168 @@ const BookPartyMain = () => {
         }
     };
 
+    // STRIPE
+    const [stripeToken, setStripeToken] = useState(null);
+    // STRIPE --- Thanh toán
+    const partyTotalDescription = "Your total is " + format_money(partyBookingTotal) + "VNĐ ~ " + traceCurrency(partyBookingTotal) + "$";
+
+    const onToken = (token) => {
+        setStripeToken(token);
+    };
+
+    useEffect(() => {
+        const makeRequest = async () => {
+            try {
+                const res = await PaymentService.postPaymentStripe({
+                    tokenId: stripeToken.id,
+                    amount: traceCurrency(partyBookingTotal) * 100,
+                });
+                console.log(res.data);
+                try {
+                    const createPartyBookingOrder = async () => {
+                        const bookingRes = await PartyBookingOrderService.createPartyBookingOrder({
+                            partyBookingOrderPrice: partyBookingTotal,
+                            partyBookingOrderSurcharge: 0,
+                            partyBookingOrderTotal: partyBookingTotal,
+                            partyBookingOrderNote: note,
+                            discountId: discountPartyBooking ? discountPartyBooking.discount_id : 9,
+                            customerId: customerId,
+                            setMenuId: setMenuRedux.set_menu_id,
+                            partyBookingTypeId: typeBookingRedux,
+
+                            partyHallDetailName: firstName + " " + lastName + ": " + typeBookingName + ", " + timeBookingName + ", vào ngày " + dateBookingRedux,
+                            partyHallDetailDate: moment(dateBookingRedux, 'DD/MM/YYYY').format("YYYY-MM-DD"),
+                            partyHallId: partyHallRedux.party_hall_id,
+                            partyHallTimeId: timeBookingRedux,
+
+                            serviceList: partyServiceRedux,
+                            foodList: foodListRedux,
+                            tableQuantity: tableQuantity
+                            // roomBookingOrderPrice: roomPrice,
+                            // roomBookingOrderSurcharge: 0,
+                            // roomBookingOrderTotal: roomTotalRoomBooking,
+                            // customerId: customerId,
+                            // discountId: discountId ? discountId : 9,
+                            // checkinDate: moment(checkInDate).format('YYYY-MM-DD'),
+                            // checkoutDate: moment(checkOutDate).format('YYYY-MM-DD'),
+                            // roomId: roomId,
+                            // roomBookingOrderNote: note
+                        });
+                        if (bookingRes) {
+                            dispatch(logoutPartyBooking());
+                            setIsFinish(true);
+                            handleLoading();
+                            // Toast
+                            const dataToast = { message: bookingRes.data.message, type: "success" };
+                            showToastFromOut(dataToast);
+                            return;
+                        } else {
+                            // Toast
+                            const dataToast = { message: bookingRes.data.message, type: "warning" };
+                            showToastFromOut(dataToast);
+                            return;
+                        }
+                    };
+                    createPartyBookingOrder();
+                } catch (err) {
+                    // Toast
+                    const dataToast = { message: err.response.data.message, type: "danger" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        stripeToken && makeRequest();
+    }, [stripeToken, navigate]);
+
+    // Payment way
+    const [paymentWay, setPaymentWay] = useState();
+    const handlePaymentWay = (e) => {
+        setPaymentWay(e.target.value);
+    };
+
+    const showPaymentWay = (way) => {
+        switch (true) {
+            // TODO: Update later
+            // case way === "momo": return null;
+            // case way === "card": return null;
+            // case way === "onStage": return null;
+
+            case way === "stripe":
+                return (
+                    <div>
+                        {stripeToken ? (<span>Đang xử lý...</span>) : (
+                            <StripeCheckout
+                                name="Hoàng Long Hotel."
+                                image="https://i.ibb.co/DkbxyCK/favicon-logo.png"
+                                description={partyTotalDescription}
+                                amount={traceCurrency(partyBookingTotal) * 100}
+                                token={onToken}
+                                stripeKey={REACT_APP_STRIPE}
+                            >
+                                <ButtonClick
+                                    onClick={() => {
+                                        handlePartyBookingOrder()
+                                    }}
+                                >
+                                    {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
+                                    Tiến hành thanh toán
+                                </ButtonClick>
+                            </StripeCheckout>
+                        )}
+                    </div>
+                );
+            default:
+                return (
+                    <ButtonClick
+                        onClick={() => {
+                            handlePartyBookingOrder()
+                        }}
+                    >
+                        {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
+                        Tiến hành thanh toán
+                    </ButtonClick>
+                );
+        }
+    };
+    // Xử lý đặt tiệc
+    const handlePartyBookingOrder = () => {
+        if (!firstName) {
+            // Toast
+            const dataToast = { message: "Bạn chưa nhập first name!", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        if (!lastName) {
+            // Toast
+            const dataToast = { message: "Bạn chưa nhập last name!", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        if (!email) {
+            // Toast
+            const dataToast = { message: "Bạn chưa nhập email!", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        if (!phoneNumber) {
+            // Toast
+            const dataToast = { message: "Bạn chưa nhập số điện thoại!", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        if (!paymentWay) {
+            // Toast
+            const dataToast = { message: "Bạn chưa chọn phương thức thanh toán!", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        dispatch(addPartyBookingTotal({
+            partyBookingTotal: partyBookingTotal
+        }));
+    };
     console.log("SHOW: ", setMenuList, partyServiceTotal);
     return (
         <>
@@ -1784,7 +1947,15 @@ const BookPartyMain = () => {
                                                                         <PaymentLabel className="row label--checkbox">
                                                                             <PaymentWay>
                                                                                 <PaymentCol9 className="col-md-5">
-                                                                                    <InputRadio type="checkbox" className="checkbox" />
+                                                                                    <InputRadio
+                                                                                        type="radio"
+                                                                                        name="payment"
+                                                                                        value="momo"
+                                                                                        className="checkbox"
+                                                                                        onClick={(e) => {
+                                                                                            handlePaymentWay(e)
+                                                                                        }}
+                                                                                    />
                                                                                     <PaymentName>
                                                                                         Momo
                                                                                     </PaymentName>
@@ -1804,18 +1975,26 @@ const BookPartyMain = () => {
                                                                         <PaymentLabel className="row label--checkbox">
                                                                             <PaymentWay>
                                                                                 <PaymentCol9 className="col-md-5">
-                                                                                    <InputRadio type="checkbox" className="checkbox" />
+                                                                                    <InputRadio
+                                                                                        type="radio"
+                                                                                        name="payment"
+                                                                                        value="stripe"
+                                                                                        className="checkbox"
+                                                                                        onClick={(e) => {
+                                                                                            handlePaymentWay(e)
+                                                                                        }}
+                                                                                    />
                                                                                     <PaymentName>
-                                                                                        Paypal
+                                                                                        Stripe
                                                                                     </PaymentName>
                                                                                 </PaymentCol9>
                                                                                 <PaymentImgContainer className="col-md-3">
-                                                                                    <PaymentImg src={paypalImage} alt="" />
+                                                                                    <PaymentImg src={stripeImage} alt="" />
                                                                                 </PaymentImgContainer>
                                                                             </PaymentWay>
                                                                             <PaymentDescription>
                                                                                 <PaymentDescriptionP>
-                                                                                    Thanh toán qua Paypal. Chấp nhận tất cả các thẻ tín dụng và thẻ ghi nợ chính.
+                                                                                    Thanh toán qua Stripe. Chấp nhận tất cả các thẻ tín dụng và thẻ ghi nợ chính.
                                                                                 </PaymentDescriptionP>
                                                                             </PaymentDescription>
                                                                         </PaymentLabel>
@@ -1824,7 +2003,15 @@ const BookPartyMain = () => {
                                                                         <PaymentLabel className="row label--checkbox">
                                                                             <PaymentWay>
                                                                                 <PaymentCol9 className="col-md-5">
-                                                                                    <InputRadio type="checkbox" className="checkbox" />
+                                                                                    <InputRadio
+                                                                                        type="radio"
+                                                                                        name="payment"
+                                                                                        value="card"
+                                                                                        className="checkbox"
+                                                                                        onClick={(e) => {
+                                                                                            handlePaymentWay(e)
+                                                                                        }}
+                                                                                    />
                                                                                     <PaymentName>
                                                                                         Chuyển khoản ngân hàng
                                                                                     </PaymentName>
@@ -1844,7 +2031,15 @@ const BookPartyMain = () => {
                                                                         <PaymentLabel className="row label--checkbox">
                                                                             <PaymentWay>
                                                                                 <PaymentCol9 className="col-md-5">
-                                                                                    <InputRadio type="checkbox" className="checkbox" />
+                                                                                    <InputRadio
+                                                                                        type="radio"
+                                                                                        name="payment"
+                                                                                        value="onStage"
+                                                                                        className="checkbox"
+                                                                                        onClick={(e) => {
+                                                                                            handlePaymentWay(e)
+                                                                                        }}
+                                                                                    />
                                                                                     <PaymentName>
                                                                                         Thanh toán khi đến nơi
                                                                                     </PaymentName>
@@ -1865,20 +2060,11 @@ const BookPartyMain = () => {
                                                         </LeftRow>
 
                                                         {/* Button */}
-                                                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "20px" }}>
-                                                            <BookButtonContainer>
-                                                                <BookButton
-                                                                    onClick={() => setIsBookSuccess(true)}
-                                                                >Đặt tiệc</BookButton>
-                                                            </BookButtonContainer>
-
-                                                            <Link to={"/restaurant"}>
-                                                                <BookButtonContainer>
-                                                                    <BookButton
-                                                                    >Hủy đặt tiệc</BookButton>
-                                                                </BookButtonContainer>
-                                                            </Link>
-                                                        </div>
+                                                        <Button className="row" style={{ marginTop: "30px" }}>
+                                                            <ButtonContainer>
+                                                                {showPaymentWay(paymentWay)}
+                                                            </ButtonContainer>
+                                                        </Button>
                                                     </div>
                                                 </Box2>
                                             )}
@@ -2467,7 +2653,10 @@ const BookPartyMain = () => {
                                                                                         partyHallTimeList.map((partyHallTime, key) => {
                                                                                             return (
                                                                                                 <BookingNumberNiceSelectLi
-                                                                                                    onClick={() => setTimeBooking(partyHallTime.party_hall_time_id)}
+                                                                                                    onClick={() => {
+                                                                                                        setTimeBooking(partyHallTime.party_hall_time_id);
+                                                                                                        setTimeBookingName(partyHallTime.party_hall_time_name);
+                                                                                                    }}
                                                                                                     className='option'
                                                                                                 >
                                                                                                     {partyHallTime.party_hall_time_name}
@@ -2505,7 +2694,10 @@ const BookPartyMain = () => {
                                                                             partyBookingTypeList.map((partyBookingType, key) => {
                                                                                 return (
                                                                                     <BookingNumberNiceSelectLi
-                                                                                        onClick={() => setTypeBooking(partyBookingType.party_booking_type_id)}
+                                                                                        onClick={() => {
+                                                                                            setTypeBooking(partyBookingType.party_booking_type_id);
+                                                                                            setTypeBookingName(partyBookingType.party_booking_type_name);
+                                                                                        }}
                                                                                         className='option'
                                                                                     >
                                                                                         {partyBookingType.party_booking_type_name}

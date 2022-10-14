@@ -22,6 +22,7 @@ const foodTypeRouter = require("./router/FoodTypeRouter");
 const foodRouter = require("./router/FoodRouter");
 const setMenuRouter = require("./router/SetMenuRouter");
 const menuDetailFoodRouter = require("./router/MenuDetailFoodRouter");
+const partyBookingOrderRouter = require("./router/PartyBookingOrderController");
 
 const stripeRouter = require("./router/StripeRouter");
 
@@ -51,6 +52,7 @@ app.use("/api/user/food-types", foodTypeRouter);
 app.use("/api/user/foods", foodRouter);
 app.use("/api/user/set-menus", setMenuRouter);
 app.use("/api/user/menu-detail-foods", menuDetailFoodRouter);
+app.use("/api/user/party-booking-orders", partyBookingOrderRouter);
 
 app.use("/api/user/payment", stripeRouter);
 
