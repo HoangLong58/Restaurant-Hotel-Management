@@ -15,6 +15,12 @@ import { AccessAlarmsOutlined, ArrowRightAltOutlined, CheckCircleRounded, Replay
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../img/logos/logo.png';
 import Toast from '../Toast';
+import { useSelector } from 'react-redux';
+
+// SERVICES
+import * as TableTypeService from "../../service/TableTypeService";
+import * as TableBookingService from "../../service/TableBookingService";
+import * as TableBookingOrderService from "../../service/TableBookingOrderService";
 
 const Box2 = styled.div`
 width: 100%;
@@ -449,29 +455,121 @@ justify-content: flex-end;
 align-items: center;
 `
 
+const PictureNoResultFound = styled.div`
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10%;
+`;
+
+const Img = styled.img`
+    width: 500px;
+    max-height: 600px;
+    object-fit: cover;
+`;
+
+const H1NoResultFound = styled.h1`
+    letter-spacing: 2px;
+    font-size: 1.4rem;
+    color: var(--color-primary);
+    font-weight: bold;
+`;
+
+// Empty item
+const EmptyItem = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+`
+const EmptyItemSvg = styled.div``
+const EmptyContent = styled.div`
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    font-weight: bold;
+`
+
 const BookTableMain = () => {
     const navigate = useNavigate();
+    const customer = useSelector((state) => state.customer.currentCustomer);
     // STATE
-    const [isSelectAdults, setIsSelectAdults] = useState(false);
+    const [isSelectQuantity, setIsSelectQuantity] = useState(false);
     const [isAvailableTable, setIsAvailableTable] = useState(false);
     const [isBookSuccess, setIsBookSuccess] = useState(false);
+    const [noResultFound, setNoResultFound] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const [checkInDate, setCheckInDate] = useState();
+    const [dateBooking, setDateBooking] = useState();
     const [timeBooking, setTimeBooking] = useState();
+    const [tableTypeId, setTableTypeId] = useState();
+    const [quantityBooking, setQuantityBooking] = useState();
+
+    const [customerId, setCustomerId] = useState(customer.customer_id);
+    const [firstName, setFirstName] = useState(customer.customer_first_name);
+    const [lastName, setLastName] = useState(customer.customer_last_name);
+    const [email, setEmail] = useState(customer.customer_email);
+    const [phoneNumber, setPhoneNumber] = useState(customer.customer_phone_number);
+    const [note, setNote] = useState("");
+
+    const [tableTypeList, setTableTypeList] = useState([]);
+    const [tableBooking, setTableBooking] = useState();
+
+    useEffect(() => {
+        const getTableTypes = async () => {
+            try {
+                const tableTypeRes = await TableTypeService.getTableTypes();
+                setTableTypeList(tableTypeRes.data.data);
+            } catch (err) {
+                console.log("Lỗi getTableTypes: ", err);
+            }
+        };
+        getTableTypes();
+    }, []);
 
     // HANDLE
-    const handleChangeCheckInDate = (newValue) => {
-        setCheckInDate(newValue);
+    const handleChangeDateBooking = (newValue) => {
+        setDateBooking(newValue);
         console.log(moment(newValue).format("DD/MM/yyyy"));
     };
 
+    // TO DO:
     const handleCheckAvailableTable = () => {
-        // Toast
-        const dataToast = { message: "Đã tìm được bàn trống!", type: "success" };
-        showToastFromOut(dataToast);
-        setIsAvailableTable(true);
-        setMinutes(4);
-        setSeconds(59);
+        const findTableBooking = async () => {
+            try {
+                const tableBookingRes = await TableBookingService.findTableBookings(
+                    {
+                        dateBooking: dateBooking,
+                        timeBooking: timeBooking,
+                        quantityBooking: quantityBooking,
+                        tableTypeId: tableTypeId
+                    }
+                );
+                if (tableBookingRes.data.data.length > 0) {
+                    setNoResultFound(false);
+                    setTableBooking(tableBookingRes.data.data[0]);
+                    // Toast
+                    const dataToast = { message: "Đã tìm được bàn trống!", type: "success" };
+                    showToastFromOut(dataToast);
+                    setIsAvailableTable(true);
+                    setMinutes(4);
+                    setSeconds(59);
+                } else {
+                    setNoResultFound(true);
+                    // Toast
+                    const dataToast = { message: "Không tìm thấy bàn trống phù hợp!", type: "danger" };
+                    showToastFromOut(dataToast);
+                }
+            } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "danger" };
+                showToastFromOut(dataToast);
+            }
+        }
+        handleLoading();
+        findTableBooking();
     }
 
     // --Handle time
@@ -502,7 +600,54 @@ const BookTableMain = () => {
     const showToastFromOut = (dataShow) => {
         setDataToast(dataShow);
         toastRef.current.show();
-    }
+    };
+
+    // Handle book table
+    const handleBookTable = () => {
+        const createTableBookingOrder = async () => {
+            try {
+                const createTableBookingOrderRes = await TableBookingOrderService.createTableBookingOrder({
+                    tableBookingOrderQuantity: quantityBooking,
+                    tableBookingOrderTotal: 0,
+                    tableBookingOrderNote: note,
+                    customerId: customerId,
+                    tableBookingId: tableBooking ? tableBooking.table_booking_id : null,
+
+                    dateBooking: moment(dateBooking).format("YYYY-MM-DD"),
+                    timeBooking: timeBooking ? timeBooking.$H + ":" + timeBooking.$m : null
+                });
+                if (createTableBookingOrderRes) {
+                    // Success
+                    setIsBookSuccess(true);
+                    handleLoading();
+                    // Toast
+                    const dataToast = { message: createTableBookingOrderRes.data.message, type: "success" };
+                    showToastFromOut(dataToast);
+                    return;
+                } else {
+                    // Toast
+                    const dataToast = { message: createTableBookingOrderRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+            } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "warning" };
+                showToastFromOut(dataToast);
+                return;
+            }
+        };
+        createTableBookingOrder()
+    };
+
+    // Fake loading when fetch data
+    const handleLoading = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 1200);
+    };
+
     return (
         <>
             <div class="section padding-top-bottom z-bigger" style={{ paddingTop: "15px" }}>
@@ -515,7 +660,7 @@ const BookTableMain = () => {
                                         <CheckCircleRounded style={{ fontSize: "6rem", color: "var(--color-success)", margin: "auto" }} />
                                         <span style={{ color: "var(--color-success)", fontSize: "1.5rem", fontWeight: "700", letterSpacing: "2px" }}>ĐẶT BÀN THÀNH CÔNG!</span>
                                         <H2>Cảm ơn bạn đã tin tưởng và lựa chọn <span style={{ color: "var(--color-primary)" }}>Hoàng Long Hotel &amp; Restaurant</span></H2>
-                                        <Small className="text-muted">Món ăn sẽ nhanh chóng mang đến cho quý khách!</Small>
+                                        <Small className="text-muted">Bàn sẽ được chuẩn bị chỉnh chu để phục vụ quý khách!</Small>
                                         <Link to="/restaurant" style={{ textDecoration: "none" }}>
                                             <SuccessButtonContainer>
                                                 <SuccessButton><ArrowRightAltOutlined />   Quay về trang chủ sau 4 giây ...</SuccessButton>
@@ -527,58 +672,120 @@ const BookTableMain = () => {
                         ) : (
                             <div className="row">
                                 <div className="col-lg-8">
-                                    <Box2>
-                                        <div className="col-lg-12">
+                                    {
+                                        isLoading ? (
                                             <div className="row">
-                                                <InfomationTitle>
-                                                    <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi tiết Đặt bàn</p>
-                                                    <p style={{ fontSize: "1rem" }}>Hoàn tất Đặt bàn bằng việc cung cấp những thông tin sau</p>
-                                                </InfomationTitle>
+                                                <div
+                                                    class="spinner-border"
+                                                    style={{ color: '#41F1B6', position: 'absolute', left: '50%', top: "25%", scale: "1.5" }}
+                                                    role="status"
+                                                >
+                                                    <span class="visually-hidden"></span>
+                                                </div>
                                             </div>
-                                            <div className="row">
-                                                <InfomationForm className="col-lg-12">
-                                                    <div className="row">
-                                                        <ModalChiTietItem className="col-lg-6">
-                                                            <FormSpan>Họ tên:</FormSpan>
-                                                            <FormInput type="text" placeholder="Họ tên của bạn là" />
-                                                        </ModalChiTietItem>
-                                                        <ModalChiTietItem className="col-lg-6">
-                                                            <FormSpan>Số điện thoại:</FormSpan>
-                                                            <FormInput type="text" placeholder="Số điện thoại của bạn là" />
-                                                        </ModalChiTietItem>
-                                                    </div>
-                                                    <div className="row">
+                                        ) : (
+                                            <Box2>
+                                                <div className="col-lg-12">
+                                                    {
+                                                        noResultFound ? (
+                                                            <PictureNoResultFound id="No_Result_Found_Picture">
+                                                                <Img
+                                                                    src="https://img.freepik.com/premium-vector/file-found-illustration-with-confused-people-holding-big-magnifier-search-no-result_258153-336.jpg?w=2000"
+                                                                    alt="Not Found Result"
+                                                                />
+                                                                <H1NoResultFound>No result found</H1NoResultFound>
+                                                            </PictureNoResultFound>
+                                                        )
+                                                            : (
+                                                                isAvailableTable ? (
+                                                                    <>
+                                                                        <div className="row">
+                                                                            <InfomationTitle>
+                                                                                <p style={{ fontWeight: "bold", margin: "10px 0 0 0" }}>Chi tiết Đặt bàn</p>
+                                                                                <p style={{ fontSize: "1rem" }}>Hoàn tất Đặt bàn bằng việc cung cấp những thông tin sau</p>
+                                                                            </InfomationTitle>
+                                                                        </div>
+                                                                        <div className="row">
+                                                                            <InfomationForm className="col-lg-12">
+                                                                                <div className="row">
+                                                                                    <ModalChiTietItem className="col-lg-6">
+                                                                                        <FormSpan>Họ tên:</FormSpan>
+                                                                                        <FormInput type="text" value={firstName + " " + lastName} disabled />
+                                                                                    </ModalChiTietItem>
+                                                                                    <ModalChiTietItem className="col-lg-6">
+                                                                                        <FormSpan>Số điện thoại:</FormSpan>
+                                                                                        <FormInput type="text" value={phoneNumber} disabled />
+                                                                                    </ModalChiTietItem>
+                                                                                </div>
+                                                                                <div className="row">
 
-                                                        <ModalChiTietItem className="col-lg-12">
-                                                            <FormSpan>Địa chỉ email:</FormSpan>
-                                                            <FormInput type="email" placeholder="Email của bạn là" />
-                                                        </ModalChiTietItem>
-                                                    </div>
-                                                    <div className="row">
-                                                        <ModalChiTietItem className="col-lg-12">
-                                                            <FormSpan>Ghi chú:</FormSpan>
-                                                            <FormTextArea rows="3" placeholder="Ghi chú về vị trí bàn này" />
-                                                        </ModalChiTietItem>
-                                                    </div>
-                                                </InfomationForm>
+                                                                                    <ModalChiTietItem className="col-lg-12">
+                                                                                        <FormSpan>Địa chỉ email:</FormSpan>
+                                                                                        <FormInput type="email" value={email} disabled />
+                                                                                    </ModalChiTietItem>
+                                                                                </div>
+                                                                                <div className="row">
+                                                                                    <ModalChiTietItem className="col-lg-12">
+                                                                                        <FormSpan>Ghi chú:</FormSpan>
+                                                                                        <FormTextArea
+                                                                                            rows="3"
+                                                                                            placeholder="Ghi chú về vị trí bàn này"
+                                                                                            value={note}
+                                                                                            onChange={(e) => setNote(e.target.value)} />
+                                                                                    </ModalChiTietItem>
+                                                                                </div>
+                                                                            </InfomationForm>
 
-                                            </div>
-                                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                                                <BookButtonContainer>
-                                                    <BookButton
-                                                        onClick={() => setIsBookSuccess(true)}
-                                                    >Đặt bàn</BookButton>
-                                                </BookButtonContainer>
+                                                                        </div>
+                                                                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                                                                            <BookButtonContainer>
+                                                                                <BookButton
+                                                                                    onClick={() => handleBookTable()}
+                                                                                >Đặt bàn</BookButton>
+                                                                            </BookButtonContainer>
 
-                                                <Link to={"/restaurant"}>
-                                                    <BookButtonContainer>
-                                                        <BookButton
-                                                        >Hủy đặt bàn</BookButton>
-                                                    </BookButtonContainer>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </Box2>
+                                                                            <Link to={"/restaurant"}>
+                                                                                <BookButtonContainer>
+                                                                                    <BookButton
+                                                                                    >Hủy đặt bàn</BookButton>
+                                                                                </BookButtonContainer>
+                                                                            </Link>
+                                                                        </div>
+                                                                    </>
+                                                                ) : (
+                                                                    <EmptyItem>
+                                                                        <EmptyItemSvg>
+                                                                            <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
+                                                                                <path d="M72.94 132.45H25.97V54.5H0V143.5H79.13C76.58 140.15 74.49 136.43 72.94 132.45Z" fill="#D6DADC"></path>
+                                                                                <path d="M141 30.5V41H25.86V119.5H13V30.5H141Z" fill="#1952B3"></path>
+                                                                                <path d="M150 133H26V41H150V73.85V88.6V133Z" fill="white"></path>
+                                                                                <path d="M117.5 152C142.629 152 163 131.629 163 106.5C163 81.3711 142.629 61 117.5 61C92.371 61 72 81.3711 72 106.5C72 131.629 92.371 152 117.5 152Z" fill="white"></path>
+                                                                                <path d="M97.75 65.5H36.5V90.5H74.9C79.03 79.52 87.27 70.56 97.75 65.5Z" fill="#F3F4F6"></path>
+                                                                                <path d="M72 106.5C72 103.06 72.39 99.72 73.12 96.5H36.5V121.5H74.54C72.9 116.8 72 111.76 72 106.5Z" fill="#F3F4F6"></path>
+                                                                                <path d="M39.96 47.93H36.85V51.04H39.96V47.93Z" fill="#232729"></path>
+                                                                                <path d="M45.4 47.93H42.29V51.04H45.4V47.93Z" fill="#232729"></path>
+                                                                                <path d="M50.85 47.93H47.74V51.04H50.85V47.93Z" fill="#232729"></path>
+                                                                                <path d="M157.59 138.1L155.4 140.29L151.7 136.59C158.77 128.56 163.07 118.05 163.07 106.54C163.07 96.64 159.89 87.48 154.5 80V39H153.5H146.5H106.5V41H25.5V133H80.5C88.77 144.54 102.28 152.08 117.53 152.08C128.76 152.08 139.05 147.98 147 141.22L150.74 144.96L148.55 147.15L183.74 182.34L192.79 173.29L157.59 138.1ZM148.74 73.43C148.72 73.41 148.69 73.38 148.67 73.36C148.7 73.38 148.72 73.41 148.74 73.43ZM29.5 129V58H139.5V54H29.5V45H106.5V47H146.5V71.43C138.62 64.92 128.52 61 117.53 61C92.42 61 71.99 81.43 71.99 106.54C71.99 114.7 74.16 122.37 77.94 129H29.5ZM117.53 145.41C96.1 145.41 78.66 127.97 78.66 106.54C78.66 85.11 96.1 67.67 117.53 67.67C138.96 67.67 156.4 85.1 156.4 106.54C156.4 127.98 138.96 145.41 117.53 145.41Z" fill="#232729"></path>
+                                                                                <path d="M183.73 182.33L148.54 147.14L150.73 144.95L146.99 141.21C139.04 147.98 128.75 152.07 117.52 152.07C92.41 152.07 71.98 131.64 71.98 106.53C71.98 104.73 72.1 102.96 72.3 101.22C70.71 105.85 69.83 110.81 69.83 115.97C69.83 141.08 90.26 161.51 115.37 161.51C126.6 161.51 136.89 157.41 144.84 150.65L148.58 154.39L146.39 156.58L181.58 191.77L190.63 182.72L186.98 179.07L183.73 182.33Z" fill="#D6DADC"></path>
+                                                                                <path d="M127.4 88.15C125.04 86.17 121.71 85.18 117.42 85.18C113.11 85.18 109.76 86.25 107.37 88.4C104.98 90.55 103.77 93.55 103.73 97.4H113.49C113.53 95.96 113.9 94.81 114.62 93.96C115.33 93.11 116.27 92.69 117.42 92.69C119.92 92.69 121.18 94.14 121.18 97.05C121.18 98.24 120.81 99.34 120.07 100.33C119.33 101.32 118.25 102.41 116.82 103.61C115.4 104.8 114.37 106.21 113.73 107.84C113.1 109.47 112.78 111.69 112.78 114.5H121.04C121.08 113.04 121.28 111.83 121.65 110.88C122.01 109.93 122.67 109 123.61 108.09L126.93 105C128.34 103.63 129.36 102.29 129.99 100.98C130.63 99.67 130.94 98.22 130.94 96.62C130.93 92.96 129.76 90.14 127.4 88.15Z" fill="#FF5200"></path>
+                                                                                <path d="M117 120.12C115.46 120.12 114.17 120.58 113.14 121.49C112.11 122.4 111.59 123.57 111.59 125C111.59 126.43 112.11 127.6 113.14 128.51C114.17 129.43 115.46 129.88 117 129.88C118.54 129.88 119.83 129.42 120.86 128.51C121.89 127.6 122.41 126.42 122.41 125C122.41 123.57 121.89 122.4 120.86 121.49C119.83 120.57 118.54 120.12 117 120.12Z" fill="#FF5200"></path>
+                                                                                <path d="M141.314 19.1213L139.192 17L132.121 24.0711L134.243 26.1924L141.314 19.1213Z" fill="#232729"></path>
+                                                                                <path d="M100.071 26.1213L102.192 24L95.1213 16.9289L93 19.0503L100.071 26.1213Z" fill="#232729"></path>
+                                                                                <path d="M119.192 9H116.192V20H119.192V9Z" fill="#232729"></path>
+                                                                                <path d="M93 180.071L95.1213 182.192L102.192 175.121L100.071 173L93 180.071Z" fill="#232729"></path>
+                                                                                <path d="M134.243 173.071L132.121 175.192L139.192 182.263L141.314 180.142L134.243 173.071Z" fill="#232729"></path>
+                                                                                <path d="M115.121 190.192L118.121 190.192L118.121 179.192L115.121 179.192L115.121 190.192Z" fill="#232729"></path>
+                                                                            </svg>
+                                                                        </EmptyItemSvg>
+                                                                        <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Hãy Check Available để kiểm tra bàn trống phù hợp!</EmptyContent>
+                                                                    </EmptyItem>
+                                                                )
+                                                            )
+                                                    }
+                                                </div>
+                                            </Box2>
+                                        )
+                                    }
                                 </div>
                                 <div className="col-lg-4 order-first order-lg-last mt-4">
                                     {
@@ -602,21 +809,21 @@ const BookTableMain = () => {
                                                         <BookingInfoDetailRow className="row">
                                                             <BookingInfoDetailRowMd5 className="col-md-5">
                                                                 <DayTitle>Ngày đặt bàn</DayTitle>
-                                                                <DayDetail>11/09/2022</DayDetail>
+                                                                <DayDetail>{moment(dateBooking).format("DD/MM/YYYY")}</DayDetail>
                                                             </BookingInfoDetailRowMd5>
                                                             <BookingInfoDetailRowMd2 className="col-md-2">
                                                                 <RestaurantMenuOutlined style={{ color: "var(--color-primary)" }} />
                                                             </BookingInfoDetailRowMd2>
                                                             <BookingInfoDetailRowMd5 className="col-md-5">
                                                                 <DayTitle>Thời gian đến</DayTitle>
-                                                                <DayDetail>18:30 PM</DayDetail>
+                                                                <DayDetail>{moment(timeBooking.$H + ":" + timeBooking.$m, "HH:mm").format("hh:mm A")}</DayDetail>
                                                             </BookingInfoDetailRowMd5>
                                                         </BookingInfoDetailRow>
                                                     </BookingInfoDetail>
 
                                                     <BookingNumber className="col-md-12">
                                                         <BookingNumberRow className="row">
-                                                            <BookingNumberRowMd5 className="col-md-6">Số lượng khách: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> 4+</b></BookingNumberRowMd5>
+                                                            <BookingNumberRowMd5 className="col-md-6">Số lượng khách: <b style={{ color: "var(--color-primary)", marginLeft: "5px" }}> {quantityBooking === 5 ? "4+" : quantityBooking}</b></BookingNumberRowMd5>
                                                         </BookingNumberRow>
                                                     </BookingNumber>
                                                 </BookingInfo>
@@ -626,11 +833,11 @@ const BookTableMain = () => {
                                                     <TableInformationDetail className="col-md-12">
                                                         <TableInformationRow className="row">
                                                             <TableDetailTitle className="col-md-6">Số bàn:</TableDetailTitle>
-                                                            <TableDetailPrice className="col-md-6">12</TableDetailPrice>
+                                                            <TableDetailPrice className="col-md-6">{tableBooking.table_booking_name}</TableDetailPrice>
                                                         </TableInformationRow>
                                                         <TableInformationRow className="row">
                                                             <TableDetailTitle className="col-md-6">Vị trí:</TableDetailTitle>
-                                                            <TableDetailPrice className="col-md-6">Sân thượng</TableDetailPrice>
+                                                            <TableDetailPrice className="col-md-6">{tableBooking.table_type_name}</TableDetailPrice>
                                                         </TableInformationRow>
                                                     </TableInformationDetail>
                                                 </TableInformation>
@@ -659,8 +866,8 @@ const BookTableMain = () => {
                                                                                 <DesktopDatePicker
                                                                                     label="Ngày đặt bàn"
                                                                                     inputFormat="dd/MM/yyyy"
-                                                                                    value={checkInDate}
-                                                                                    onChange={(newValue) => handleChangeCheckInDate(newValue)}
+                                                                                    value={dateBooking}
+                                                                                    onChange={(newValue) => handleChangeDateBooking(newValue)}
                                                                                     renderInput={(params) => <TextField {...params} />}
                                                                                     InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "white" } } }}
                                                                                 />
@@ -675,6 +882,7 @@ const BookTableMain = () => {
                                                                                 <TimePicker
                                                                                     label="Thời gian đến"
                                                                                     value={timeBooking}
+                                                                                    format="HH:mm"
                                                                                     onChange={(newValue) => {
                                                                                         setTimeBooking(newValue);
                                                                                     }}
@@ -691,47 +899,39 @@ const BookTableMain = () => {
                                                     <div className="col-12">
                                                         <div className="row">
                                                             <div className="col-12 pt-4">
-                                                                <BookingNumberNiceSelect name="adults" className={isSelectAdults ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectAdults(prev => !prev)}>
-                                                                    <BookingNumberNiceSelectSpan className='current'>Số lượng khách</BookingNumberNiceSelectSpan>
+                                                                <BookingNumberNiceSelect name="adults" className={isSelectQuantity ? "nice-select wide open" : "nice-select wide"} onClick={() => setIsSelectQuantity(prev => !prev)}>
+                                                                    <BookingNumberNiceSelectSpan className='current'>{quantityBooking ? quantityBooking === 5 ? "4+ Khách" : quantityBooking + " Khách" : "Số lượng khách"}</BookingNumberNiceSelectSpan>
                                                                     <BookingNumberNiceSelectUl className='list'>
-                                                                        <BookingNumberNiceSelectLi data-value="adults" data-display="adults" className='option focus selected'>Số lượng khách</BookingNumberNiceSelectLi>
-                                                                        <BookingNumberNiceSelectLi data-value="1" className='option'>1</BookingNumberNiceSelectLi>
-                                                                        <BookingNumberNiceSelectLi data-value="2" className='option'>2</BookingNumberNiceSelectLi>
-                                                                        <BookingNumberNiceSelectLi data-value="3" className='option'>3</BookingNumberNiceSelectLi>
-                                                                        <BookingNumberNiceSelectLi data-value="4" className='option'>4</BookingNumberNiceSelectLi>
-                                                                        <BookingNumberNiceSelectLi data-value="4+" className='option'>4+</BookingNumberNiceSelectLi>
+                                                                        <BookingNumberNiceSelectLi className='option focus selected'>Số lượng khách</BookingNumberNiceSelectLi>
+                                                                        <BookingNumberNiceSelectLi className='option' onClick={() => setQuantityBooking(1)} >1 Khách</BookingNumberNiceSelectLi>
+                                                                        <BookingNumberNiceSelectLi className='option' onClick={() => setQuantityBooking(2)} >2 Khách</BookingNumberNiceSelectLi>
+                                                                        <BookingNumberNiceSelectLi className='option' onClick={() => setQuantityBooking(3)} >3 Khách</BookingNumberNiceSelectLi>
+                                                                        <BookingNumberNiceSelectLi className='option' onClick={() => setQuantityBooking(4)} >4 Khách</BookingNumberNiceSelectLi>
+                                                                        <BookingNumberNiceSelectLi className='option' onClick={() => setQuantityBooking(5)} >4+ Khách</BookingNumberNiceSelectLi>
                                                                     </BookingNumberNiceSelectUl>
                                                                 </BookingNumberNiceSelect>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div className="col-12 col-md-6 col-lg-12 pt-5">
-                                                        <h6 className="color-white mb-3">Bộ lọc:</h6>
+                                                        <h6 className="color-white mb-3">View:</h6>
                                                         <ul className="list">
-                                                            <li className="list__item">
-                                                                <label className="label--checkbox">
-                                                                    <input type="checkbox" className="checkbox" />
-                                                                    View sân thượng
-                                                                </label>
-                                                            </li>
-                                                            <li className="list__item">
-                                                                <label className="label--checkbox">
-                                                                    <input type="checkbox" className="checkbox" />
-                                                                    View hồ bơi
-                                                                </label>
-                                                            </li>
-                                                            <li className="list__item">
-                                                                <label className="label--checkbox">
-                                                                    <input type="checkbox" className="checkbox" />
-                                                                    View sang trọng
-                                                                </label>
-                                                            </li>
-                                                            <li className="list__item">
-                                                                <label className="label--checkbox">
-                                                                    <input type="checkbox" className="checkbox" />
-                                                                    View lãng mạn
-                                                                </label>
-                                                            </li>
+                                                            {
+                                                                tableTypeList.length > 0 ? (
+                                                                    tableTypeList.map((tableType, key) => {
+                                                                        return (
+                                                                            <li className="list__item"
+                                                                                onClick={() => setTableTypeId(tableType.table_type_id)}
+                                                                            >
+                                                                                <label className="label--checkbox">
+                                                                                    <input type="radio" name='RadioTableType' className="checkbox" />
+                                                                                    {tableType.table_type_name}
+                                                                                </label>
+                                                                            </li>
+                                                                        )
+                                                                    })
+                                                                ) : null
+                                                            }
                                                         </ul>
                                                     </div>
                                                     <div className="col-12 col-md-6 col-lg-12 pt-5" style={{ padding: "0", margin: "0" }}>

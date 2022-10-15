@@ -787,8 +787,8 @@ const Payment = (props) => {
               roomBookingOrderTotal: roomTotalRoomBooking,
               customerId: customerId,
               discountId: discountId ? discountId : 9,
-              checkinDate: moment(checkInDate).format('YYYY-MM-DD'),
-              checkoutDate: moment(checkOutDate).format('YYYY-MM-DD'),
+              checkinDate: moment(checkInDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+              checkoutDate: moment(checkOutDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
               roomId: roomId,
               roomBookingOrderNote: note
             });

@@ -7,7 +7,7 @@ module.exports = {
                 `insert 
                 into party_booking_order
                 (
-                    party_booking_order_book_date, 
+                    party_booking_order_book_date,
                     party_booking_order_price,
                     party_booking_order_surcharge,
                     party_booking_order_total,
@@ -35,11 +35,13 @@ module.exports = {
         });
     },
     findPartyBookingOrder: (date, price, surcharge, total, note, discountId, customerId, setMenuId, partyBookingTypeId) => {
+        console.log("date, price, surcharge, total, note, discountId, customerId, setMenuId, partyBookingTypeId: ", date, price, surcharge, total, note, discountId, customerId, setMenuId, partyBookingTypeId)
         return new Promise((resolve, reject) => {
             con.query(
                 `select
                 party_booking_order_id,
                 party_booking_order_book_date, 
+                party_booking_order_finish_date, 
                 party_booking_order_price,
                 party_booking_order_surcharge,
                 party_booking_order_total,
@@ -51,6 +53,7 @@ module.exports = {
                 party_booking_type_id
                 from party_booking_order
                 where party_booking_order_book_date = ?
+                and party_booking_order_finish_date is null
                 and party_booking_order_price = ?
                 and party_booking_order_surcharge = ?
                 and party_booking_order_total = ?

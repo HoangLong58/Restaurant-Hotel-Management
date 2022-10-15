@@ -23,6 +23,9 @@ const foodRouter = require("./router/FoodRouter");
 const setMenuRouter = require("./router/SetMenuRouter");
 const menuDetailFoodRouter = require("./router/MenuDetailFoodRouter");
 const partyBookingOrderRouter = require("./router/PartyBookingOrderController");
+const tableTypeRouter = require("./router/TableTypeRouter");
+const tableBookingRouter = require("./router/TableBookingRouter");
+const tableBookingOrderRouter = require("./router/TableBookingOrderRouter");
 
 const stripeRouter = require("./router/StripeRouter");
 
@@ -34,13 +37,16 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+// Login/ register
 app.use("/api/user/customers", customerRouter);
+// Hotel
 app.use("/api/user/rooms", roomRouter);
 app.use("/api/user/services", serviceRouter);
 app.use("/api/user/devices", deviceRouter);
 app.use("/api/user/room-images", roomImageRouter);
 app.use("/api/user/discounts", discountRouter);
 app.use("/api/user/room-booking-orders", roomBookingOrderRouter);
+// Restaurant - book party
 app.use("/api/user/party-halls", partyHallRouter);
 app.use("/api/user/party-hall-images", partyHallImageRouter);
 app.use("/api/user/party-hall-times", partyHallTimeRouter);
@@ -53,7 +59,11 @@ app.use("/api/user/foods", foodRouter);
 app.use("/api/user/set-menus", setMenuRouter);
 app.use("/api/user/menu-detail-foods", menuDetailFoodRouter);
 app.use("/api/user/party-booking-orders", partyBookingOrderRouter);
-
+// Restaurant - book table
+app.use("/api/user/table-types", tableTypeRouter);
+app.use("/api/user/table-bookings", tableBookingRouter);
+app.use("/api/user/table-booking-orders", tableBookingOrderRouter);
+// Payment - STRIPE
 app.use("/api/user/payment", stripeRouter);
 
 app.listen(process.env.PORT || 5000, () => {

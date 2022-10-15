@@ -38,6 +38,7 @@ module.exports = {
                 `select
                 room_booking_order_id,
                 room_booking_order_book_date, 
+                room_booking_order_finish_date, 
                 room_booking_order_price,
                 room_booking_order_surcharge,
                 room_booking_order_total,
@@ -47,6 +48,7 @@ module.exports = {
                 room_booking_order_note
                 from room_booking_order
                 where room_booking_order_book_date = ?
+                and room_booking_order_finish_date is null
                 and room_booking_order_price = ?
                 and room_booking_order_surcharge = ?
                 and room_booking_order_total = ?
