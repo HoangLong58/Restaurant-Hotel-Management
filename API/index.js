@@ -26,6 +26,7 @@ const partyBookingOrderRouter = require("./router/PartyBookingOrderController");
 const tableTypeRouter = require("./router/TableTypeRouter");
 const tableBookingRouter = require("./router/TableBookingRouter");
 const tableBookingOrderRouter = require("./router/TableBookingOrderRouter");
+const roomBookingFoodOrderRouter = require("./router/RoomBookingFoodOrderRouter");
 
 const stripeRouter = require("./router/StripeRouter");
 
@@ -63,6 +64,8 @@ app.use("/api/user/party-booking-orders", partyBookingOrderRouter);
 app.use("/api/user/table-types", tableTypeRouter);
 app.use("/api/user/table-bookings", tableBookingRouter);
 app.use("/api/user/table-booking-orders", tableBookingOrderRouter);
+// Restaurant - book food
+app.use("/api/user/room-booking-food-orders", roomBookingFoodOrderRouter);
 // Payment - STRIPE
 app.use("/api/user/payment", stripeRouter);
 

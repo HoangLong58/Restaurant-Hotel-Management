@@ -7,65 +7,55 @@ const foodCartSlice = createSlice({
         foodCartQuantity: 0,
         foodCartTotal: 0,
     },
+    // food object {
+    //  food info,
+    //  foodQuantity: số lượng mua của food trên
+    // }
     reducers: {
-        addFood: (state, action)=> {
+        addFood: (state, action) => {
             let i;
             let isFind = false;
-            for(i = 0; i < state.foods.length; i++) {
-                if(state.foods[i].data[0].foodId === parseInt(action.payload.data[0].foodId)) {
-                    const quantityInCart = state.foods[i].quantityBuy;
-                    const quantityCanBuy = state.foods[i].data[0].quantity - quantityInCart;
-                    const quantityWantBuy = action.payload.quantityBuy;
+            for (i = 0; i < state.foods.length; i++) {
+                if (state.foods[i].food_id === parseInt(action.payload.food_id)) {
+                    const quantityWantBuy = action.payload.foodQuantity;
+                    state.foods[i].foodQuantity += quantityWantBuy;
 
-                    if(quantityCanBuy == 0) {
-                        console.log("Số lượng mua đã đạt giới hạn");
-                        return;
-                    }
-                    if(quantityWantBuy <= quantityCanBuy) {
-                        state.foods[i].quantityBuy += quantityWantBuy;
-                        state.foddCartTotal += action.payload.data[0].price * quantityWantBuy;
-                        console.log("So luong trong gio hang:"+quantityInCart+" So luong co the mua: "+quantityCanBuy+" So luong muon mua: "+quantityWantBuy)
-                        console.log("Tìm thấy & cập nhật lại số lượng giỏ hàng thành công");
-                        isFind = true;
-                        break;
-                    }else {
-                        console.log("Số lượng không hợp lệ");
-                        isFind = true;
-                    }
+                    state.foodCartTotal += action.payload.food_price * quantityWantBuy;
+                    isFind = true;
+                    break;
                 }
             }
-            // Chưa có mã thú cưng này trong giỏ hàng
-            if(!isFind) {
+            // Chưa có mã món ăn này trong giỏ hàng
+            if (!isFind) {
                 state.foods.push(action.payload);
                 state.foodCartQuantity += 1;
-                state.foodCartTotal += action.payload.data[0].price * action.payload.quantityBuy;
+                state.foodCartTotal += action.payload.food_price * action.payload.foodQuantity;
                 console.log("Thêm vào giỏ hàng thành công");
                 console.log("Them san pham: ", action.payload)
             }
         },
-        updateFood: (state, action)=> {
+        updateFood: (state, action) => {
             console.log("Cap nhat san pham: ", action.payload)
-            let i;
-            for(i = 0; i < state.foods.length; i++) {
-                if(state.foods[i].data[0].foodId === parseInt(action.payload.data[0].foodId)) {
-                    if(action.payload.quantityUpdate === 0) {
-                        state.foods[i].quantityBuy = action.payload.quantityUpdate;
+            for (var i = 0; i < state.foods.length; i++) {
+                if (state.foods[i].food_id === parseInt(action.payload.food_id)) {
+                    if (action.payload.foodQuantityUpdate === 0) {
+                        state.foods[i].foodQuantity = action.payload.foodQuantityUpdate;
                         state.foods.splice(i, 1);
-                        state.foodCartQuantity -= 1 ;
-                        state.foodCartTotal -= action.payload.data[0].price * action.payload.quantityBuy;
+                        state.foodCartQuantity -= 1;
+                        state.foodCartTotal -= action.payload.food_price * action.payload.foodQuantity;
                     }
-                    if(action.payload.quantityUpdate === 1) {
-                        state.foods[i].quantityBuy += 1;
-                        state.foodCartTotal += action.payload.data[0].price * 1;
+                    if (action.payload.foodQuantityUpdate === 1) {
+                        state.foods[i].foodQuantity += 1;
+                        state.foodCartTotal += action.payload.food_price * 1;
                     }
-                    if(action.payload.quantityUpdate === -1) {
-                        state.foods[i].quantityBuy -= 1;
-                        if(state.foods[i].quantityBuy <= 0){
+                    if (action.payload.foodQuantityUpdate === -1) {
+                        state.foods[i].foodQuantity -= 1;
+                        if (state.foods[i].foodQuantity <= 0) {
                             state.foods.splice(i, 1);
-                            state.foodCartQuantity -= 1 ;
-                            state.foodCartTotal -= action.payload.data[0].price * action.payload.quantityBuy;
-                        }else {
-                            state.foodCartTotal -= action.payload.data[0].price * 1;
+                            state.foodCartQuantity -= 1;
+                            state.foodCartTotal -= action.payload.food_price * action.payload.foodQuantity;
+                        } else {
+                            state.foodCartTotal -= action.payload.food_price * 1;
                         }
                     }
                 }

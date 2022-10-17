@@ -642,6 +642,11 @@ const BookTableMain = () => {
 
     // Fake loading when fetch data
     const handleLoading = () => {
+        // Scroll lên kết quả mới
+        window.scrollTo({
+            top: 300,
+            behavior: "smooth"
+        });
         setIsLoading(true);
         setTimeout(() => {
             setIsLoading(false);

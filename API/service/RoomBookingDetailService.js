@@ -1,7 +1,7 @@
 const con = require("../config/database.config");
 
 module.exports = {
-    createRoomBookingDetail: (checkinDate, checkoutDate, roomId, roomBookingOrderId) => {
+    createRoomBookingDetail: (checkinDate, checkoutDate, key, roomId, roomBookingOrderId) => {
         return new Promise((resolve, reject) => {
             con.query(
                 `insert 
@@ -9,13 +9,14 @@ module.exports = {
                 (
                     room_booking_detail_checkin_date, 
                     room_booking_detail_checkout_date,
+                    room_booking_detail_key,
                     room_id,
                     room_booking_order_id
                 )
                 values
-                (?, ?, ?, ?)
+                (?, ?, ?, ?, ?)
                 `,
-                [checkinDate, checkoutDate, roomId, roomBookingOrderId],
+                [checkinDate, checkoutDate, key, roomId, roomBookingOrderId],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);
@@ -35,6 +36,7 @@ module.exports = {
                 rbd.room_booking_detail_id,
                 rbd.room_booking_detail_checkin_date, 
                 rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
                 rbd.room_id,
                 rbd.room_booking_order_id,
                 rbo.room_booking_order_state

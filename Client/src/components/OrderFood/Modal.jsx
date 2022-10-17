@@ -1,11 +1,17 @@
 import { Add, ArrowRightAltOutlined, CheckCircleRounded, Close, CloseOutlined, Remove } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Carousel } from 'react-bootstrap';
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { logoutCart, updateFood } from "../../redux/foodCartRedux";
+import { format_money } from "../../utils/utils";
 import Toast from "../Toast";
 import MiniImage from "./MiniImage";
 import MiniImagePayment from "./MiniImagePayment";
+
+// SERVICES
+import * as RoomBookingFoodOrderService from "../../service/RoomBookingFoodOrderService";
 
 const Background = styled.div`
     width: 100%;
@@ -441,10 +447,41 @@ const SuccessButton = styled.button`
     }
 `
 
+// Empty item
+const EmptyItem = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+`
+const EmptyItemSvg = styled.div``
+const EmptyContent = styled.div`
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    font-weight: bold;
+`
+
+const CartItemDiv = styled.div`
+    height: 41vh;
+    overflow-y: scroll;
+`
 const Modal = ({ showModal, setShowModal, type }) => {
+    const dispatch = useDispatch();
+    const customer = useSelector((state) => state.customer.currentCustomer);
+    const foodCart = useSelector(state => state.foodCart);
     // STATE
     const [isPayment, setIsPayment] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+
+    const [customerId, setCustomerId] = useState(customer.customer_id);
+    const [firstName, setFirstName] = useState(customer.customer_first_name);
+    const [lastName, setLastName] = useState(customer.customer_last_name);
+    const [email, setEmail] = useState(customer.customer_email);
+    const [phoneNumber, setPhoneNumber] = useState(customer.customer_phone_number);
+    const [note, setNote] = useState("");
+    const [roomId, setRoomId] = useState();
+    const [key, setKey] = useState();
 
     // Modal
     const modalRef = useRef();
@@ -479,14 +516,70 @@ const Modal = ({ showModal, setShowModal, type }) => {
         toastRef.current.show();
     }
 
-    // Handle
-    const handleRemoveCartItem = () => {
-        console.log("cccc");
-        // Toast
-        const dataToast = { message: "Add new category success", type: "success" };
-        showToastFromOut(dataToast);
-    }
+    // Fake loading when fetch data
+    const [isLoading, setIsLoading] = useState(false);
+    const handleLoading = () => {
+        // Scroll lên kết quả mới
+        window.scrollTo({
+            top: 300,
+            behavior: "smooth"
+        });
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 1200);
+    };
 
+    const handleOrderFood = () => {
+        if (foodCart.foods.length > 0) {
+            // Success
+            setIsPayment(true);
+            handleLoading();
+            return;
+        }
+        // Toast
+        const dataToast = { message: "Giỏ hàng hiện đang rỗng!", type: "danger" };
+        showToastFromOut(dataToast);
+    };
+
+    // Handle booking food order
+    const handleBookingFoodOrder = () => {
+        const createRoomBookingFoodOrder = async () => {
+            try {
+                console.log("REQ: ", customer.customer_id, roomId, key, note, foodCart.foodCartTotal, foodCart.foods);
+                const createRoomBookingFoodOrderRes = await RoomBookingFoodOrderService.createRoomBookingFoodOrder({
+                    customerId: customer.customer_id,
+                    roomId: parseInt(roomId),
+                    key: key,
+
+                    roomBookingFoodOrderNote: note,
+                    roomBookingFoodOrderTotal: foodCart.foodCartTotal,
+
+                    foodList: foodCart.foods
+                });
+                if (createRoomBookingFoodOrderRes) {
+                    // Success
+                    setIsSuccess(true);
+                    handleLoading();
+                    dispatch(logoutCart());
+                    // Toast
+                    const dataToast = { message: createRoomBookingFoodOrderRes.data.message, type: "success" };
+                    showToastFromOut(dataToast);
+                    return;
+                } else {
+                    // Toast
+                    const dataToast = { message: createRoomBookingFoodOrderRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+            } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "danger" };
+                showToastFromOut(dataToast);
+            }
+        }
+        createRoomBookingFoodOrder();
+    };
     // ================================================================
     // =============== Show video ===============
     if (type === "showCartItems") {
@@ -495,7 +588,17 @@ const Modal = ({ showModal, setShowModal, type }) => {
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal}>
-                            {
+                            {isLoading ? (
+                                <div className="row">
+                                    <div
+                                        class="spinner-border"
+                                        style={{ color: '#41F1B6', position: 'absolute', left: '50%', top: "45%", scale: "1.5" }}
+                                        role="status"
+                                    >
+                                        <span class="visually-hidden"></span>
+                                    </div>
+                                </div>
+                            ) :
                                 isSuccess ? (
                                     <ModalContent>
                                         <CheckCircleRounded style={{ fontSize: "6rem", color: "var(--color-success)", margin: "auto" }} />
@@ -509,7 +612,6 @@ const Modal = ({ showModal, setShowModal, type }) => {
                                         </Link>
                                     </ModalContent>
                                 ) : (
-
                                     // Payment
                                     isPayment ?
                                         (
@@ -520,23 +622,39 @@ const Modal = ({ showModal, setShowModal, type }) => {
                                                             <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Những món ăn bạn muốn đặt</p>
                                                         </Title1>
                                                         <Carousel style={{ maxHeight: "300px", overflow: "hidden" }}>
-                                                            <Carousel.Item>
-                                                                <MiniImagePayment ></MiniImagePayment>
-                                                            </Carousel.Item>
+                                                            {
+                                                                foodCart.foods.length > 0 ? (
+                                                                    foodCart.foods.map((food, key) => {
+                                                                        return (
+                                                                            <Carousel.Item>
+                                                                                <MiniImagePayment image={food.food_image} />
+                                                                            </Carousel.Item>
+                                                                        )
+                                                                    })
+                                                                ) : null
+                                                            }
                                                         </Carousel>
                                                         <p style={{ fontWeight: "500", marginTop: "10px" }}>Chi tiết giỏ hàng</p>
-
-                                                        <CartItem>
-                                                            <Circle />
-                                                            <Course>
-                                                                <Content>
-                                                                    <span style={{ width: "320px", fontWeight: "bold" }}> Gè rén </span>
-                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>200.000 VNĐ</span>
-                                                                </Content>
-                                                                <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>12</span> x Gè rén</span>
-                                                            </Course>
-                                                        </CartItem>
-
+                                                        <CartItemDiv>
+                                                            {
+                                                                foodCart.foods.length > 0 ? (
+                                                                    foodCart.foods.map((food, key) => {
+                                                                        return (
+                                                                            <CartItem>
+                                                                                <Circle />
+                                                                                <Course>
+                                                                                    <Content>
+                                                                                        <span style={{ width: "320px", fontWeight: "bold" }}> {food.food_type_name} </span>
+                                                                                        <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(food.food_price * food.foodQuantity)} VNĐ</span>
+                                                                                    </Content>
+                                                                                    <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{food.foodQuantity}</span> x {food.food_name}</span>
+                                                                                </Course>
+                                                                            </CartItem>
+                                                                        )
+                                                                    })
+                                                                ) : null
+                                                            }
+                                                        </CartItemDiv>
                                                     </Box1>
                                                     <Box2>
                                                         <div className="col-lg-12">
@@ -551,34 +669,41 @@ const Modal = ({ showModal, setShowModal, type }) => {
                                                                     <div className="row">
                                                                         <ModalChiTietItem className="col-lg-6">
                                                                             <FormSpan>Họ tên:</FormSpan>
-                                                                            <FormInput type="text" placeholder="Họ tên của bạn là" />
+                                                                            <FormInput type="text" value={firstName + " " + lastName} disabled />
                                                                         </ModalChiTietItem>
                                                                         <ModalChiTietItem className="col-lg-6">
                                                                             <FormSpan>Số điện thoại:</FormSpan>
-                                                                            <FormInput type="text" placeholder="Số điện thoại của bạn là" />
+                                                                            <FormInput type="text" value={phoneNumber} disabled />
                                                                         </ModalChiTietItem>
                                                                     </div>
                                                                     <div className="row">
 
                                                                         <ModalChiTietItem className="col-lg-12">
                                                                             <FormSpan>Địa chỉ email:</FormSpan>
-                                                                            <FormInput type="email" placeholder="Email của bạn là" />
+                                                                            <FormInput type="email" value={email} disabled />
                                                                         </ModalChiTietItem>
                                                                     </div>
                                                                     <div className="row">
                                                                         <ModalChiTietItem className="col-lg-6">
-                                                                            <FormSpan>Phòng số:</FormSpan>
-                                                                            <FormInput type="text" placeholder="Số phòng của bạn là" />
+                                                                            <FormSpan>Mã phòng:</FormSpan>
+                                                                            <FormInput type="text" placeholder="Mã phòng của bạn là"
+                                                                                value={roomId} onChange={(e) => setRoomId(e.target.value)}
+                                                                            />
                                                                         </ModalChiTietItem>
                                                                         <ModalChiTietItem className="col-lg-6">
                                                                             <FormSpan>Mã KEY:</FormSpan>
-                                                                            <FormInput type="text" placeholder="Số phòng của bạn là" />
+                                                                            <FormInput type="text" placeholder="Mã khóa KEY phòng của bạn là"
+                                                                                value={key} onChange={(e) => setKey(e.target.value)}
+                                                                            />
                                                                         </ModalChiTietItem>
                                                                     </div>
                                                                     <div className="row">
                                                                         <ModalChiTietItem className="col-lg-12">
                                                                             <FormSpan>Ghi chú:</FormSpan>
-                                                                            <FormTextArea rows="3" placeholder="Ghi chú về những món ăn này" />
+                                                                            <FormTextArea rows="3"
+                                                                                placeholder="Ghi chú về những món ăn này"
+                                                                                value={note} onChange={(e) => setNote(e.target.value)}
+                                                                            />
                                                                         </ModalChiTietItem>
                                                                     </div>
                                                                 </InfomationForm>
@@ -586,20 +711,20 @@ const Modal = ({ showModal, setShowModal, type }) => {
                                                             <Total>
                                                                 <TotalItem>
                                                                     <p>Tổng tiền món ăn</p>
-                                                                    <p>200.000 VNĐ</p>
+                                                                    <p>{format_money(foodCart.foodCartTotal)} VNĐ</p>
                                                                 </TotalItem>
                                                                 <TotalItem>
-                                                                    <p>Phí dịch vụ 10%</p>
-                                                                    <p>20.000 VNĐ</p>
+                                                                    <p>Free phí dịch vụ</p>
+                                                                    <p>0.00 VNĐ</p>
                                                                 </TotalItem>
                                                                 <TotalItem>
                                                                     <p style={{ color: "var(--color-primary)", fontWeight: "bold" }}>Tổng cộng</p>
-                                                                    <p style={{ color: "var(--color-primary)", fontWeight: "bold" }}>200.000 VNĐ</p>
+                                                                    <p style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{format_money(foodCart.foodCartTotal)} VNĐ</p>
                                                                 </TotalItem>
                                                                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                                                                     <ButtonContainer>
                                                                         <PaymentButton
-                                                                            onClick={() => setIsSuccess(true)}
+                                                                            onClick={() => handleBookingFoodOrder()}
                                                                         >Đặt mua</PaymentButton>
                                                                     </ButtonContainer>
 
@@ -613,7 +738,6 @@ const Modal = ({ showModal, setShowModal, type }) => {
 
                                                         </div>
                                                     </Box2>
-
                                                 </PaymentWrapper>
                                             </ModalContent>
                                         ) : (
@@ -631,142 +755,96 @@ const Modal = ({ showModal, setShowModal, type }) => {
                                                             </TopTexts>
 
                                                             <TopButton className="col-lg-3" type="filled"
-                                                                onClick={() => setIsPayment(true)}
+                                                                onClick={() => handleOrderFood()}
                                                             >ĐẶT MÓN</TopButton>
                                                         </Top>
                                                         <Bottom className="row">
                                                             <Info className="col-lg-8">
-                                                                {/* {cart.products.map(product => {
-                                                    const handleRemove = (soluongcapnhat) => {
-                                                        dispatch(capNhatSanPham({ ...product, soluongcapnhat }));
-                                                    }
-                                                    return (
-                                                        <>
-                                                            <Product>
-                                                                <ProductDetail>
-                                                                    <MiniImage item={product.data[0].mathucung}></MiniImage>
-                                                                    <Details>
-                                                                        <ProductName><b style={{ marginRight: "10px" }}>Tiêu đề:</b>{product.data[0].tieude}</ProductName>
-                                                                        <ProductId><b style={{ marginRight: "5px" }}>Phân loại:</b> {product.data[0].tendanhmuc}</ProductId>
-                                                                        <ProductId><b style={{ marginRight: "5px" }}>Tên thú cưng:</b> {product.data[0].tenthucung}</ProductId>
-                                                                        <ProductId><b style={{ marginRight: "5px" }}>ID:</b> {product.data[0].mathucung}</ProductId>
-                                                                    </Details>
-                                                                </ProductDetail>
-                                                                <PriceDetail>
-                                                                    <ProductAmountContainer>
-                                                                        <div onClick={() => product.soluongmua < product.data[0].soluong && handleRemove(1)}>
-                                                                            <Add />
-                                                                        </div>
-                                                                        <ProductAmount>{product.soluongmua}</ProductAmount>
-                                                                        <div onClick={() => handleRemove(-1)}>
-                                                                            <Remove />
-                                                                        </div>
-                                                                    </ProductAmountContainer>
-                                                                    <ProductPrice>{format_money((product.soluongmua * product.data[0].giamgia).toString())} <b><u>đ</u></b></ProductPrice>
-                                                                </PriceDetail>
-                                                                <RemoveProduct onClick={() => handleRemove(0)}><Close className="remove-product" /></RemoveProduct>
-                                                            </Product>
-                                                            <Hr />
-                                                        </>
-                                                    )
-                                                })
-                                                } */}
-                                                                <Product>
-                                                                    <ProductDetail>
-                                                                        <MiniImage />
-                                                                        <Details>
-                                                                            <ProductName><b style={{ marginRight: "10px" }}>Tiêu đề:</b>Gè Rán</ProductName>
-                                                                            <ProductId><b style={{ marginRight: "5px" }}>Phân loại:</b> Gà gà</ProductId>
-                                                                            <ProductId><b style={{ marginRight: "5px" }}>Tên thú cưng:</b> Gà</ProductId>
-                                                                            <ProductId><b style={{ marginRight: "5px" }}>ID:</b> 1234</ProductId>
-                                                                        </Details>
-                                                                    </ProductDetail>
-                                                                    <PriceDetail>
-                                                                        <ProductAmountContainer>
-                                                                            <div>
-                                                                                <Add />
-                                                                            </div>
-                                                                            <ProductAmount>12</ProductAmount>
-                                                                            <div>
-                                                                                <Remove />
-                                                                            </div>
-                                                                        </ProductAmountContainer>
-                                                                        <ProductPrice>200.000 <b><u>đ</u></b></ProductPrice>
-                                                                    </PriceDetail>
-                                                                    <RemoveProduct
-                                                                        onClick={() => handleRemoveCartItem()}
-                                                                    ><Close className="remove-product" /></RemoveProduct>
-                                                                </Product>
-                                                                <Hr />
-                                                                <Product>
-                                                                    <ProductDetail>
-                                                                        <MiniImage />
-                                                                        <Details>
-                                                                            <ProductName><b style={{ marginRight: "10px" }}>Tiêu đề:</b>Gè Rán</ProductName>
-                                                                            <ProductId><b style={{ marginRight: "5px" }}>Phân loại:</b> Gà gà</ProductId>
-                                                                            <ProductId><b style={{ marginRight: "5px" }}>Tên thú cưng:</b> Gà</ProductId>
-                                                                            <ProductId><b style={{ marginRight: "5px" }}>ID:</b> 1234</ProductId>
-                                                                        </Details>
-                                                                    </ProductDetail>
-                                                                    <PriceDetail>
-                                                                        <ProductAmountContainer>
-                                                                            <div>
-                                                                                <Add />
-                                                                            </div>
-                                                                            <ProductAmount>12</ProductAmount>
-                                                                            <div>
-                                                                                <Remove />
-                                                                            </div>
-                                                                        </ProductAmountContainer>
-                                                                        <ProductPrice>200.000 <b><u>đ</u></b></ProductPrice>
-                                                                    </PriceDetail>
-                                                                    <RemoveProduct><Close className="remove-product" /></RemoveProduct>
-                                                                </Product>
-                                                                <Hr />
-                                                                <Product>
-                                                                    <ProductDetail>
-                                                                        <MiniImage />
-                                                                        <Details>
-                                                                            <ProductName><b style={{ marginRight: "10px" }}>Tiêu đề:</b>Gè Rán</ProductName>
-                                                                            <ProductId><b style={{ marginRight: "5px" }}>Phân loại:</b> Gà gà</ProductId>
-                                                                            <ProductId><b style={{ marginRight: "5px" }}>Tên thú cưng:</b> Gà</ProductId>
-                                                                            <ProductId><b style={{ marginRight: "5px" }}>ID:</b> 1234</ProductId>
-                                                                        </Details>
-                                                                    </ProductDetail>
-                                                                    <PriceDetail>
-                                                                        <ProductAmountContainer>
-                                                                            <div>
-                                                                                <Add />
-                                                                            </div>
-                                                                            <ProductAmount>12</ProductAmount>
-                                                                            <div>
-                                                                                <Remove />
-                                                                            </div>
-                                                                        </ProductAmountContainer>
-                                                                        <ProductPrice>200.000 <b><u>đ</u></b></ProductPrice>
-                                                                    </PriceDetail>
-                                                                    <RemoveProduct><Close className="remove-product" /></RemoveProduct>
-                                                                </Product>
-                                                                <Hr />
+                                                                {
+                                                                    foodCart.foods.length > 0 ? (
+                                                                        foodCart.foods.map(food => {
+                                                                            const handleRemove = (foodQuantityUpdate) => {
+                                                                                dispatch(updateFood({ ...food, foodQuantityUpdate }));
+                                                                                if (foodQuantityUpdate === 0) {
+                                                                                    // Toast
+                                                                                    const dataToast = { message: "Đã xóa món ăn khỏi giỏ hàng!", type: "success" };
+                                                                                    showToastFromOut(dataToast);
+                                                                                }
+                                                                            }
+                                                                            return (
+                                                                                <>
+                                                                                    <Product>
+                                                                                        <ProductDetail>
+                                                                                            <MiniImage image={food.food_image}></MiniImage>
+                                                                                            <Details>
+                                                                                                <ProductName><b style={{ marginRight: "10px" }}>Món ăn:</b>{food.food_name}</ProductName>
+                                                                                                <ProductId><b style={{ marginRight: "5px" }}>Loại món ăn:</b> {food.food_type_name}</ProductId>
+                                                                                                <ProductId><b style={{ marginRight: "5px" }}>Thành phần:</b> {food.food_ingredient}</ProductId>
+                                                                                                {/* <ProductId><b style={{ marginRight: "5px" }}>ID:</b> {food.food_ingredient}</ProductId> */}
+                                                                                            </Details>
+                                                                                        </ProductDetail>
+                                                                                        <PriceDetail>
+                                                                                            <ProductAmountContainer>
+                                                                                                {/* <div onClick={() => product.soluongmua < product.data[0].soluong && handleRemove(1)}> */}
+                                                                                                <div onClick={() => handleRemove(1)}>
+                                                                                                    <Add />
+                                                                                                </div>
+                                                                                                <ProductAmount>{food.foodQuantity}</ProductAmount>
+                                                                                                <div onClick={() => handleRemove(-1)}>
+                                                                                                    <Remove />
+                                                                                                </div>
+                                                                                            </ProductAmountContainer>
+                                                                                            <ProductPrice>{format_money(food.foodQuantity * food.food_price)} <b><u>đ</u></b></ProductPrice>
+                                                                                        </PriceDetail>
+                                                                                        <RemoveProduct onClick={() => handleRemove(0)}><Close className="remove-product" /></RemoveProduct>
+                                                                                    </Product>
+                                                                                    <Hr />
+                                                                                </>
+                                                                            )
+                                                                        })
+                                                                    ) : (
+                                                                        <EmptyItem style={{ marginTop: "25px" }}>
+                                                                            <EmptyItemSvg>
+                                                                                <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
+                                                                                    <path d="M186 63V140H43V177H200V63H186Z" fill="#D6DADC"></path>
+                                                                                    <path d="M170.5 45H13.5V159H170.5V45Z" fill="white"></path>
+                                                                                    <path d="M29.5 26V45H170.5V140H186.5V26H29.5Z" fill="#1952B3"></path>
+                                                                                    <path d="M175 155V42H167H121.5V44H15H11V84H15V64H161V60H15V48H121.5V50H167V155H31V163H175V155Z" fill="#232729"></path>
+                                                                                    <path d="M28 52H24V56H28V52Z" fill="#232729"></path>
+                                                                                    <path d="M35 52H31V56H35V52Z" fill="#232729"></path>
+                                                                                    <path d="M42 52H38V56H42V52Z" fill="#232729"></path>
+                                                                                    <path d="M120 76H30V106H120V76Z" fill="#F3F4F6"></path>
+                                                                                    <path d="M153.5 76H126.5V142H153.5V76Z" fill="#F3F4F6"></path>
+                                                                                    <path d="M120 112H30V142H120V112Z" fill="#F3F4F6"></path>
+                                                                                    <path d="M44 120.77H26.23V103H17.77V120.77H0V129.23H17.77V147H26.23V129.23H44V120.77Z" fill="#FF5100"></path>
+                                                                                    <path d="M60.0711 146.314L62.1924 144.192L55.1213 137.121L53 139.243L60.0711 146.314Z" fill="#232729"></path>
+                                                                                    <path d="M53.0711 105.071L55.1924 107.192L62.2634 100.121L60.1421 98L53.0711 105.071Z" fill="#232729"></path>
+                                                                                    <path d="M70.1924 124.192V121.192H59.1924V124.192H70.1924Z" fill="#232729"></path>
+                                                                                </svg>
+                                                                            </EmptyItemSvg>
+                                                                            <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Chưa có món ăn nào được chọn!</EmptyContent>
+                                                                        </EmptyItem>
+                                                                    )
+                                                                }
                                                             </Info>
 
                                                             <Summary className="col-lg-4">
                                                                 <SummaryTitle >CHI PHÍ ĐẶT MÓN</SummaryTitle>
                                                                 <SummaryItem>
                                                                     <SummaryItemText>Thành tiền</SummaryItemText>
-                                                                    <SummaryItemPrice>200.000 <b><u>đ</u></b></SummaryItemPrice>
+                                                                    <SummaryItemPrice>{format_money(foodCart.foodCartTotal)} <b><u>đ</u></b></SummaryItemPrice>
                                                                 </SummaryItem>
                                                                 <SummaryItem>
-                                                                    <SummaryItemText>Phí dịch vụ 10%</SummaryItemText>
-                                                                    <SummaryItemPrice>20.000 <b><u>đ</u></b></SummaryItemPrice>
+                                                                    <SummaryItemText>Free phí dịch vụ</SummaryItemText>
+                                                                    <SummaryItemPrice>0.00 <b><u>đ</u></b></SummaryItemPrice>
                                                                 </SummaryItem>
                                                                 <SummaryItem type="total">
                                                                     <SummaryItemText>Tổng cộng</SummaryItemText>
-                                                                    <SummaryItemPrice>220.000 <b><u>đ</u></b></SummaryItemPrice>
+                                                                    <SummaryItemPrice>{format_money(foodCart.foodCartTotal)} <b><u>đ</u></b></SummaryItemPrice>
                                                                 </SummaryItem>
 
                                                                 <Button
-                                                                    onClick={() => setIsPayment(true)}
+                                                                    onClick={() => handleOrderFood()}
                                                                 >ĐẶT MÓN</Button>
 
                                                             </Summary>

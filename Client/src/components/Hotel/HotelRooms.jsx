@@ -133,7 +133,7 @@ const HotelRooms = () => {
     const showToastFromOut = (dataShow) => {
         setDataToast(dataShow);
         toastRef.current.show();
-    }
+    };
 
     // Children & adults quantity
     const [isSelectAdults, setIsSelectAdults] = useState(false);
@@ -242,6 +242,11 @@ const HotelRooms = () => {
 
     // Fake loading when fetch data
     const handleLoading = () => {
+        // Scroll lên kết quả mới
+        window.scrollTo({
+            top: 300,
+            behavior: "smooth"
+        });
         setIsLoading(true);
         setTimeout(() => {
             setIsLoading(false);

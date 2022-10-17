@@ -3,6 +3,7 @@ const { updateDiscountState } = require("../service/DiscountService");
 const { createRoomBookingDetail } = require("../service/RoomBookingDetailService");
 const { createRoomBookingOrder, findRoomBookingOrder } = require("../service/RoomBookingOrderService");
 const { findRoomByRoomId } = require("../service/RoomService");
+const { format_money } = require("../utils/utils");
 
 // NODE Mailer
 var nodemailer = require('nodemailer');
@@ -111,9 +112,13 @@ module.exports = {
                     if (roomBookingOrderRes) {
                         var roomBookingOrderId = roomBookingOrderRes.room_booking_order_id;
                         try {
+                            // Create KEY to book foods
+                            let random = (Math.random() + 1).toString(36).substring(7).toUpperCase();;
+                            let key = "HL" + random;
                             const createRoomBookingDetailRes = await createRoomBookingDetail(
                                 checkinDate,
                                 checkoutDate,
+                                key,
                                 roomId,
                                 roomBookingOrderId
                             );
@@ -149,12 +154,17 @@ module.exports = {
                                             noidung += '<div><p>Cảm ơn bạn đã tin tưởng và đặt phòng tại <font color="#41f1b6"><b>Hoàng Long Hotel &amp; Restaurant</b></font> với mã đặt phòng: ' + roomBookingOrderId + '</p></div>';
                                             noidung += '<p><b>Khách hàng:</b> ' + customerName + '<br /><b>Email:</b> ' + customerEmail + '<br /><b>Điện thoại:</b> ' + customerPhoneNumber + '<br />';
 
+                                            // Mã KEY của phòng
+                                            noidung += '<p align="justify"><b>Quý khách có thể dùng Mã phòng & Mã KEY sau để tiến hành Đặt món ăn online</b></p>';
+                                            noidung += ' <table border="1px" cellpadding="10px" cellspacing="1px"width="100%"><tr><td align="center" bgcolor="#41f1b6"><fontcolor="white"><b>MÃ PHÒNG CỦA BẠN</b></fontcolor=></td><td align="center" bgcolor="#41f1b6"><fontcolor="white"><b>MÃ KEY CỦA BẠN</b></fontcolor=></td></tr>';
+                                            noidung += '<tr><td class="prd-total"><b><font color="#41f1b6">' + roomId + '</font></b></td><td class="prd-total"><b><font color="#41f1b6">' + key + '</font></b></td></tr></table><br />';
+
                                             // Danh sách Sản phẩm đã mua
                                             noidung += ' <table border="1px" cellpadding="10px" cellspacing="1px"width="100%"><tr><td align="center" bgcolor="#41f1b6" colspan="4"><fontcolor="white"><b>ĐƠN ĐẶT PHÒNG CỦA BẠN</b></fontcolor=></td></tr><tr id="invoice-bar"><td width="45%"><b>Loại phòng</b></td><td width="20%"><b>Số phòng</b></td><td width="15%"><b>Số lượng</b></td><td width="20%"><b>Giá tiền</b></td></tr>';
 
-                                            noidung += '<tr><td class="prd-name">' + roomTypeName + '</td><td class="prd-price"><font color="#41f1b6">' + roomName + '</font></td><td class="prd-number">' + "1 Phòng" + '</td><td class="prd-total"><font color="#41f1b6">' + roomPrice + '</font></td></tr>';
+                                            noidung += '<tr><td class="prd-name">' + roomTypeName + '</td><td class="prd-price"><font color="#41f1b6">' + roomName + '</font></td><td class="prd-number">' + "1 Phòng" + '</td><td class="prd-total"><font color="#41f1b6">' + format_money(roomPrice) + ' VNĐ</font></td></tr>';
 
-                                            noidung += '<tr><td class="prd-name">Tổng tiền:</td><td colspan="2"></td><td class="prd-total"><b><font color="#41f1b6">' + roomBookingOrderTotal + 'VNĐ</font></b></td></tr></table>';
+                                            noidung += '<tr><td class="prd-name">Tổng tiền:</td><td colspan="2"></td><td class="prd-total"><b><font color="#41f1b6">' + format_money(roomBookingOrderTotal) + ' VNĐ</font></b></td></tr></table>';
                                             noidung += '<p align="justify"><b>Quý khách đã đặt phòng thành công!</b><br />• Thời gian check-in nhận phòng là 14:00 AM, thời gian trả phòng là 12:00 AM.<br/>• Quý khách vui lòng lưu ý thời gian trên để quá trình nhận phòng/ trả phòng được thuận tiện.<br /><b><br />Cám ơn Quý khách đã lựa chọn dịch vụ của chúng tôi!</b></p>';
                                             // ----- Mailer Option -----
                                             var mailOptions = {
