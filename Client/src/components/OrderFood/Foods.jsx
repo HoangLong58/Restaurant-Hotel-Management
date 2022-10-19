@@ -530,7 +530,9 @@ const Foods = () => {
                         >
                             <ShoppingCartOutlined />
                         </Icon>
-                        <Icon>
+                        <Icon
+                            onClick={() => openModal({ type: "showVote" })}
+                        >
                             <SearchOutlined />
                         </Icon>
                     </Info>

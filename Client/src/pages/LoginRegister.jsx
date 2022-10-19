@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login, register } from "../redux/callsAPI";
 import pool from "../img/pool.jpeg";
+import Modal from '../components/LoginRegister/Modal';
 
 const SignIn = styled.div`
     width: 95%;
@@ -44,7 +45,6 @@ const MainPage = styled.div`
         border-radius: 0% 0% 50% 50%/0% 0% 20% 20%;
         animation: main 0.3s linear;
         }
-    
 `
 
 const TopBar = styled.div`
@@ -266,6 +266,15 @@ const Label = styled.label`
 `
 
 const LoginRegister = () => {
+    // Modal
+    const [showModal, setShowModal] = useState(false);
+    const [typeModal, setTypeModal] = useState("");
+    const [danhMucModal, setDanhMucModal] = useState(null);
+
+    const openModal = (modal) => {
+        setShowModal(prev => !prev);
+        setTypeModal(modal.type);
+    };
     // --Giao diện--
     const [isSignIn, setIsSignIn] = useState(false);
     const [isSignUp, setIsSignUp] = useState(false);
@@ -394,132 +403,140 @@ const LoginRegister = () => {
     }
 
     return (
-        <SignIn className={isSignIn ? "active-sign-in" : isSignUp ? "active-sign-up" : null}>
-            <MainPage>
-                <TopBar />
-                <Title>
-                    <H1>Hoàng Long Hotel &amp; Restaurant</H1>
-                    <P>Chào mừng bạn đến với Thương hiệu nhà hàng khách sạn hàng đầu Việt Nam</P>
-                </Title>
-                <FormChucNang>
-                    <SignInBtn onClick={handleDangNhap}>Đăng nhập</SignInBtn>
-                    <SignUpBtn onClick={handleDangKy}>Đăng ký</SignUpBtn>
-                </FormChucNang>
-                <Cancel onClick={handleClose}>
-                    <Icon><CloseOutlined /></Icon>
-                </Cancel>
-            </MainPage>
+        <>
+            <SignIn className={isSignIn ? "active-sign-in" : isSignUp ? "active-sign-up" : null}>
+                <MainPage>
+                    <TopBar />
+                    <Title>
+                        <H1>Hoàng Long Hotel &amp; Restaurant</H1>
+                        <P>Chào mừng bạn đến với Thương hiệu nhà hàng khách sạn hàng đầu Việt Nam</P>
+                    </Title>
+                    <FormChucNang>
+                        <SignInBtn onClick={handleDangNhap}>Đăng nhập</SignInBtn>
+                        <SignUpBtn onClick={handleDangKy}>Đăng ký</SignUpBtn>
+                    </FormChucNang>
+                    <Cancel onClick={handleClose}>
+                        <Icon><CloseOutlined /></Icon>
+                    </Cancel>
+                </MainPage>
 
-            {/* Trang đăng nhập */}
-            <SignInPage>
-                <Form>
-                    <Input type="email" placeholder="Email/ Số điện thoại của bạn"
-                        maxLength={128}
-                        value={emailLogin}
-                        onChange={(e) => handleChangeEmailLogin(e)}
-                    />
-                    <Label>
-                        <Input type={passwordLoginType} placeholder="Mật khẩu của bạn"
-                            onChange={(e) => handleChangePasswordLogin(e)}
+                {/* Trang đăng nhập */}
+                <SignInPage>
+                    <Form>
+                        <Input type="email" placeholder="Email/ Số điện thoại của bạn"
+                            maxLength={128}
+                            value={emailLogin}
+                            onChange={(e) => handleChangeEmailLogin(e)}
                         />
-                        {
-                            passwordLoginType === "password" ?
-                                <Eye onClick={() => togglePasswordLogin()}>
-                                    <VisibilityOutlined />
-                                </Eye>
-                                :
-                                <Eye onClick={() => togglePasswordLogin()}>
-                                    <VisibilityOffOutlined />
-                                </Eye>
-                        }
-                    </Label>
-                    {/* <Button onClick={handleClickLogin} disabled={isFetching} >Đăng nhập</Button>
+                        <Label>
+                            <Input type={passwordLoginType} placeholder="Mật khẩu của bạn"
+                                onChange={(e) => handleChangePasswordLogin(e)}
+                            />
+                            {
+                                passwordLoginType === "password" ?
+                                    <Eye onClick={() => togglePasswordLogin()}>
+                                        <VisibilityOutlined />
+                                    </Eye>
+                                    :
+                                    <Eye onClick={() => togglePasswordLogin()}>
+                                        <VisibilityOffOutlined />
+                                    </Eye>
+                            }
+                        </Label>
+                        {/* <Button onClick={handleClickLogin} disabled={isFetching} >Đăng nhập</Button>
                     {error && <Error>Something went wrong...</Error>} */}
-                    <Button onClick={handleClickLogin} disabled={isFetching} >Đăng nhập</Button>
-                    {error && <Error>{errorLogin}</Error>}
-                    <Link>DO NOT YOU REMEMBER THE PASSWORD?</Link>
-                </Form>
-            </SignInPage>
+                        <Button onClick={handleClickLogin} disabled={isFetching} >Đăng nhập</Button>
+                        {error && <Error>{errorLogin}</Error>}
+                        <Link onClick={() => openModal({ type: "forgetPassword" })}>DO NOT YOU REMEMBER THE PASSWORD?</Link>
+                    </Form>
+                </SignInPage>
 
-            {/* Trang đăng ký */}
-            <SignUpPage>
-                <Form>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <Input type="text" placeholder="Họ của bạn"
-                                maxLength={128}
-                                value={firstName}
-                                onChange={(e) => handleChangeFirstName(e)}
-                            />
-                        </div>
-                        <div className="col-md-6">
-                            <Input type="text" placeholder="Tên của bạn"
-                                maxLength={128}
-                                value={lastName}
-                                onChange={(e) => handleChangeLastName(e)}
-                            />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <Input type="email" placeholder="Email của bạn"
-                                onChange={(e) => handleChangeEmail(e)}
-                            />
-                        </div>
-                        <div className="col-md-6">
-                            <Input type="text" placeholder="Số điện thoại của bạn"
-                                maxLength={11}
-                                value={phoneNumber}
-                                onChange={(e) => handleChangePhoneNumber(e)}
-                            />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <Label>
-                                <Input type={passwordType} placeholder="Mật khẩu của bạn"
-                                    onChange={(e) => handleChangePassword(e)}
+                {/* Trang đăng ký */}
+                <SignUpPage>
+                    <Form>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <Input type="text" placeholder="Họ của bạn"
+                                    maxLength={128}
+                                    value={firstName}
+                                    onChange={(e) => handleChangeFirstName(e)}
                                 />
-                                {
-                                    passwordType === "password" ?
-                                        <Eye onClick={() => togglePassword()}>
-                                            <VisibilityOutlined />
-                                        </Eye>
-                                        :
-                                        <Eye onClick={() => togglePassword()}>
-                                            <VisibilityOffOutlined />
-                                        </Eye>
-                                }
-                            </Label>
+                            </div>
+                            <div className="col-md-6">
+                                <Input type="text" placeholder="Tên của bạn"
+                                    maxLength={128}
+                                    value={lastName}
+                                    onChange={(e) => handleChangeLastName(e)}
+                                />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <Input type="email" placeholder="Email của bạn"
+                                    onChange={(e) => handleChangeEmail(e)}
+                                />
+                            </div>
+                            <div className="col-md-6">
+                                <Input type="text" placeholder="Số điện thoại của bạn"
+                                    maxLength={11}
+                                    value={phoneNumber}
+                                    onChange={(e) => handleChangePhoneNumber(e)}
+                                />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <Label>
+                                    <Input type={passwordType} placeholder="Mật khẩu của bạn"
+                                        onChange={(e) => handleChangePassword(e)}
+                                    />
+                                    {
+                                        passwordType === "password" ?
+                                            <Eye onClick={() => togglePassword()}>
+                                                <VisibilityOutlined />
+                                            </Eye>
+                                            :
+                                            <Eye onClick={() => togglePassword()}>
+                                                <VisibilityOffOutlined />
+                                            </Eye>
+                                    }
+                                </Label>
 
+                            </div>
+                            <div className="col-md-6">
+                                <Label>
+                                    <Input type={rePasswordType} placeholder="Nhập lại mật khẩu"
+                                        onChange={(e) => handleChangeRePassword(e)}
+                                    />
+                                    {
+                                        rePasswordType === "password" ?
+                                            <Eye onClick={() => toggleRePassword()}>
+                                                <VisibilityOutlined />
+                                            </Eye>
+                                            :
+                                            <Eye onClick={() => toggleRePassword()}>
+                                                <VisibilityOffOutlined />
+                                            </Eye>
+                                    }
+                                </Label>
+                            </div>
                         </div>
-                        <div className="col-md-6">
-                            <Label>
-                                <Input type={rePasswordType} placeholder="Nhập lại mật khẩu"
-                                    onChange={(e) => handleChangeRePassword(e)}
-                                />
-                                {
-                                    rePasswordType === "password" ?
-                                        <Eye onClick={() => toggleRePassword()}>
-                                            <VisibilityOutlined />
-                                        </Eye>
-                                        :
-                                        <Eye onClick={() => toggleRePassword()}>
-                                            <VisibilityOffOutlined />
-                                        </Eye>
-                                }
-                            </Label>
-                        </div>
-                    </div>
-                    <Agreement>
-                        By creating an account, I consent to the processing of my personal data in accordance with the <b>PRIVACY POLICY</b>
-                    </Agreement>
-                    {isRePasswordCorrect && <Error>Mật khẩu không khớp...</Error>}
-                    <Error>{wrong}</Error>
-                    <Button onClick={(e) => handleRegister(e)} >Đăng ký</Button>
-                </Form>
-            </SignUpPage>
-        </SignIn>
+                        <Agreement>
+                            By creating an account, I consent to the processing of my personal data in accordance with the <b>PRIVACY POLICY</b>
+                        </Agreement>
+                        {isRePasswordCorrect && <Error>Mật khẩu không khớp...</Error>}
+                        <Error>{wrong}</Error>
+                        <Button onClick={(e) => handleRegister(e)} >Đăng ký</Button>
+                    </Form>
+                </SignUpPage>
+            </SignIn>
+            {/* Modal */}
+            <Modal
+                showModal={showModal}   //state Đóng mở modal
+                setShowModal={setShowModal} //Hàm Đóng mở modal
+                type={typeModal}    //Loại modal
+            />
+        </>
     );
 };
 

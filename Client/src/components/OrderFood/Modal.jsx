@@ -873,6 +873,35 @@ const Modal = ({ showModal, setShowModal, type }) => {
                 />
             </>
         );
+    }
+    if (type === "showVote") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <ModalWrapper showModal={showModal}>
+
+                            <ModalContent>
+                                vote
+                            </ModalContent>
+
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </ModalWrapper>
+                    </Background>
+                ) : null}
+
+                {/* TOAST */}
+                <Toast
+                    ref={toastRef}
+                    dataToast={dataToast}
+                />
+            </>
+        );
     } else {
         return (
             <></>

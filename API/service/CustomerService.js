@@ -9,8 +9,8 @@ module.exports = {
                     data.email
                 ],
                 (error, results, fields) => {
-                    if(error) reject(error);
-                    if(!results[0]) {
+                    if (error) reject(error);
+                    if (!results[0]) {
                         return resolve(true);
                     }
                     return resolve(false);
@@ -26,8 +26,8 @@ module.exports = {
                     data.phoneNumber
                 ],
                 (error, results, fields) => {
-                    if(error) reject(error);
-                    if(!results[0]) {
+                    if (error) reject(error);
+                    if (!results[0]) {
                         return resolve(true);
                     }
                     return resolve(false);
@@ -37,8 +37,8 @@ module.exports = {
     },
     createCustomer: (data, callBack) => {
         con.query(
-            `insert into customer( customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_state)
-                values(?, ?, ?, ?, ?, ?, ?, ?)`,
+            `insert into customer( customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_state, customer_otp)
+                values(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 data.firstName,
                 data.lastName,
@@ -47,11 +47,12 @@ module.exports = {
                 data.phoneNumber,
                 data.email,
                 data.password,
-                "INIT"
+                "INIT",
+                null
             ],
             (error, results, fields) => {
-                if(error) {
-                   return callBack(error);
+                if (error) {
+                    return callBack(error);
                 }
                 return callBack(null, results);
             }
@@ -59,10 +60,10 @@ module.exports = {
     },
     getCustomers: callBack => {
         con.query(
-            `select customer_id, customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_state from customer`,
+            `select customer_id, customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_state, customer_otp from customer`,
             [],
             (error, results, fields) => {
-                if(error) {
+                if (error) {
                     return callBack(error);
                 }
                 return callBack(null, results);
@@ -72,7 +73,7 @@ module.exports = {
     getCustomerByCustomerId: (customerId) => {
         return new Promise((resolve, reject) => {
             con.query(
-                `select customer_id, customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_state from customer where customer_id = ?`,
+                `select customer_id, customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_state, customer_otp from customer where customer_id = ?`,
                 [customerId],
                 (error, results, fields) => {
                     if (error) {
@@ -98,7 +99,7 @@ module.exports = {
                 data.customerId
             ],
             (error, results, fields) => {
-                if(error) {
+                if (error) {
                     callBack(error);
                 }
                 return callBack(null, results);
@@ -110,7 +111,7 @@ module.exports = {
             `delete from customer where customer_id = ?`,
             [data.customerId],
             (error, results, fields) => {
-                if(error) {
+                if (error) {
                     return callBack(error);
                 }
                 return callBack(null, results[0]);
@@ -122,7 +123,7 @@ module.exports = {
             `select * from customer where customer_email = ?`,
             [email],
             (error, results, fields) => {
-                if(error) {
+                if (error) {
                     return callBack(error);
                 }
                 return callBack(null, results[0]);
@@ -134,11 +135,127 @@ module.exports = {
             `select * from customer where customer_email = ? or customer_phone_number = ?`,
             [email, email],
             (error, results, fields) => {
-                if(error) {
+                if (error) {
                     return callBack(error);
                 }
                 return callBack(null, results[0]);
             }
         );
-    }
+    },
+    // Func: Quên mật khẩu - EMAIL
+    findCustomerByEmail: (customerEmail) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                customer_id, 
+                customer_first_name,
+                customer_last_name, 
+                customer_birthday,
+                customer_gender, 
+                customer_phone_number, 
+                customer_email, 
+                customer_password, 
+                customer_state, 
+                customer_otp 
+                from customer
+                where customer_email = ?
+                `,
+                [customerEmail],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        })
+    },
+    updateCustomerOtpByEmail: (customerOtp, customerEmail) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                customer
+                set customer_otp = ?
+                where customer_email = ?`,
+                [customerOtp, customerEmail],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        })
+    },
+    // Func: Quên mật khẩu - SMS
+    findCustomerByPhoneNumber: (customerPhoneNumber) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                customer_id, 
+                customer_first_name,
+                customer_last_name, 
+                customer_birthday,
+                customer_gender, 
+                customer_phone_number, 
+                customer_email, 
+                customer_password, 
+                customer_state, 
+                customer_otp 
+                from customer
+                where customer_phone_number = ?
+                `,
+                [customerPhoneNumber],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        })
+    },
+    updateCustomerOtpByPhoneNumber: (customerOtp, customerPhoneNumber) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                customer
+                set customer_otp = ?
+                where customer_phone_number = ?`,
+                [customerOtp, customerPhoneNumber],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        })
+    },
+    updateCustomerPasswordByCustomerId: (customerPassword, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                customer
+                set customer_password = ?
+                where customer_id = ?`,
+                [customerPassword, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        })
+    },
 };
