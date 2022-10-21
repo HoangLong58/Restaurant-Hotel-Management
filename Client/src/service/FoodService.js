@@ -10,6 +10,12 @@ export const getFood = async () => {
     return res;
 };
 
+export const getFoodByFoodId = async (id) => {
+    authToken(localStorage.getItem("customer_token"));
+    const res = await axios.get(`${url_Food}/${id}`);
+    return res;
+};
+
 export const getFoodByFoodTypeId = async (data) => {
     authToken(localStorage.getItem("customer_token"));
     const res = await axios.post(`${url_Food}/get-food-and-type-by-food-type-id`, data);

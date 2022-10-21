@@ -401,11 +401,12 @@ const Foods = () => {
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("");
-    const [danhMucModal, setDanhMucModal] = useState(null);
+    const [foodModal, setFoodModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
+        setFoodModal(modal.food);
     };
     // Toast
     const [dataToast, setDataToast] = useState({ message: "alo alo", type: "success" });
@@ -531,7 +532,7 @@ const Foods = () => {
                             <ShoppingCartOutlined />
                         </Icon>
                         <Icon
-                            onClick={() => openModal({ type: "showVote" })}
+                            onClick={() => openModal({ type: "showVote", food: food })}
                         >
                             <SearchOutlined />
                         </Icon>
@@ -827,6 +828,7 @@ const Foods = () => {
                 showModal={showModal}   //state Đóng mở modal
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
+                food={foodModal}
             />
 
             {/* TOAST */}

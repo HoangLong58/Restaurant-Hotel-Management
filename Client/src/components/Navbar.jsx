@@ -321,7 +321,7 @@ const Navbar = (props) => {
                                         <Right>
                                             <MenuItem >
                                                 <NavbarUser>
-                                                    <NavbarUserImage src={"https://avatars.githubusercontent.com/u/96277352?s=400&u=cad895ff2f6ae2bd57b90ad02c6077d89bc9d55d&v=4"}></NavbarUserImage>
+                                                    <NavbarUserImage src={customer.customer_image ? customer.customer_image : "https://avatars.githubusercontent.com/u/96277352?s=400&u=cad895ff2f6ae2bd57b90ad02c6077d89bc9d55d&v=4"}></NavbarUserImage>
                                                     <NavbarUserName>{customer.customer_first_name + " " + customer.customer_last_name}</NavbarUserName>
                                                     <NavbarUserMenu>
                                                         <NavbarUserItem>

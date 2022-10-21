@@ -37,7 +37,7 @@ module.exports = {
     },
     createCustomer: (data, callBack) => {
         con.query(
-            `insert into customer( customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_state, customer_otp)
+            `insert into customer( customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_image, customer_state, customer_otp)
                 values(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 data.firstName,
@@ -47,6 +47,7 @@ module.exports = {
                 data.phoneNumber,
                 data.email,
                 data.password,
+                null,
                 "INIT",
                 null
             ],
@@ -60,7 +61,7 @@ module.exports = {
     },
     getCustomers: callBack => {
         con.query(
-            `select customer_id, customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_state, customer_otp from customer`,
+            `select customer_id, customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_image, customer_state, customer_otp from customer`,
             [],
             (error, results, fields) => {
                 if (error) {
@@ -73,7 +74,7 @@ module.exports = {
     getCustomerByCustomerId: (customerId) => {
         return new Promise((resolve, reject) => {
             con.query(
-                `select customer_id, customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_state, customer_otp from customer where customer_id = ?`,
+                `select customer_id, customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_image, customer_state, customer_otp from customer where customer_id = ?`,
                 [customerId],
                 (error, results, fields) => {
                     if (error) {
@@ -155,6 +156,7 @@ module.exports = {
                 customer_phone_number, 
                 customer_email, 
                 customer_password, 
+                customer_image, 
                 customer_state, 
                 customer_otp 
                 from customer
@@ -203,6 +205,7 @@ module.exports = {
                 customer_phone_number, 
                 customer_email, 
                 customer_password, 
+                customer_image, 
                 customer_state, 
                 customer_otp 
                 from customer
