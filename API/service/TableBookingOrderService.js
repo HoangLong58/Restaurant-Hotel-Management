@@ -146,4 +146,124 @@ module.exports = {
             );
         });
     },
+    // Func: Thống kê doanh thu của đặt bàn
+    getTotalFinishTableBookingOrder: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                sum(table_booking_order_total) as sum_table_booking_order_total
+                from table_booking_order
+                where table_booking_order_state = 1`,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // Func: Thống kê doanh thu của đặt bàn theo ngày kết thúc
+    getTotalFinishTableBookingOrderByFinishDate: (date, month, year) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                sum(table_booking_order_total) as sum_table_booking_order_total
+                from table_booking_order
+                where table_booking_order_state = 1
+                and DAY(table_booking_order_finish_date) = ?
+                and MONTH(table_booking_order_finish_date) = ?
+                and YEAR(table_booking_order_finish_date) = ?
+                `,
+                [date, month, year],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // Func: Thống kê doanh thu của đặt bàn theo từng tháng dựa vào ngày kết thúc theo năm
+    getTotalFinishTableBookingOrderForEachMonthByYear: (year) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                sum(
+                    case month(table_booking_order_finish_date) when 1 
+                    then table_booking_order_total 
+                    else 0 END
+                ) as thang1, 
+                sum(
+                    case month(table_booking_order_finish_date) when 2 
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang2, 
+                sum(
+                    case month(table_booking_order_finish_date) when 3 
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang3, 
+                sum(
+                    case month(table_booking_order_finish_date) when 4 
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang4, 
+                sum(
+                    case month(table_booking_order_finish_date) when 5 
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang5, 
+                sum(
+                    case month(table_booking_order_finish_date) when 6
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang6, 
+                sum(
+                    case month(table_booking_order_finish_date) when 7 
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang7, 
+                sum(
+                    case month(table_booking_order_finish_date) when 8 
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang8, 
+                sum(
+                    case month(table_booking_order_finish_date) when 9
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang9, 
+                sum(
+                    case month(table_booking_order_finish_date) when 10 
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang10, 
+                sum(
+                    case month(table_booking_order_finish_date) when 11 
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang11, 
+                sum(
+                    case month(table_booking_order_finish_date) when 12
+                    then table_booking_order_total
+                    else 0 END
+                ) as thang12, 
+                sum(table_booking_order_total) as canam 
+                from table_booking_order
+                WHERE year(table_booking_order_finish_date) = ? 
+                and table_booking_order_state = 1
+                `,
+                [year],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
 };

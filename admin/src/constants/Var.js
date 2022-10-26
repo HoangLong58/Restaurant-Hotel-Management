@@ -1,0 +1,1 @@
+export const TRACE_VND_USA = 23760;
