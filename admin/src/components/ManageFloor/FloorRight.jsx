@@ -6,7 +6,7 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as DeviceService from "../../service/DeviceService";
+import * as FloorService from "../../service/FloorService";
 
 const Container = styled.div`
 margin-top: 1.4rem;
@@ -82,7 +82,7 @@ const ItemRight = styled.div`
     width: 100%;
 `
 
-const DeviceRight = ({ reRenderData, setReRenderData }) => {
+const FloorRight = ({ reRenderData, setReRenderData }) => {
     // Thứ ngày tháng
     let today = new Date();
     let todayday = today.getDay();
@@ -99,20 +99,20 @@ const DeviceRight = ({ reRenderData, setReRenderData }) => {
     }
     let ngaythangnam = "Thứ " + thu + ", " + today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
 
-    // Số lượng thiết bị
-    const [quantityDevice, setQuantityDevice] = useState();
+    // Số lượng tầng
+    const [quantityFloor, setQuantityFloor] = useState();
     useEffect(() => {
-        const getQuantityDevice = async () => {
+        const getQuantityFloor = async () => {
             try {
-                const quantityDeviceRes = await DeviceService.getQuantityDevice();
-                setQuantityDevice(quantityDeviceRes.data.data.quantityDevice);
+                const quantityFloorRes = await FloorService.getQuantityFloor();
+                setQuantityFloor(quantityFloorRes.data.data.quantityFloor);
             } catch (err) {
                 console.log("Lỗi: ", err);
             }
         }
-        getQuantityDevice();
+        getQuantityFloor();
     }, [reRenderData]);
-    console.log("Số lượng thiết bị: ", quantityDevice);
+    console.log("Số lượng thiết bị: ", quantityFloor);
 
     // ===== Modal =====
     const [showModal, setShowModal] = useState(false);
@@ -138,24 +138,24 @@ const DeviceRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Devices Analytics</H2>
+                <H2>Floors Analytics</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>SỐ LƯỢNG THIẾT BỊ</h3>
+                            <h3>SỐ LƯỢNG TẦNG</h3>
                             <small class="text-muted">{ngaythangnam}</small>
                         </Info>
-                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityDevice}</h3>
+                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityFloor}</h3>
                     </ItemRight>
                 </Item>
                 <Item className="add-product"
-                    onClick={() => openModal({ type: "createDevice" })}
+                    onClick={() => openModal({ type: "createFloor" })}
                 >
                     <Add />
-                    <h3>Thêm Thiết bị</h3>
+                    <h3>Thêm Tầng</h3>
                 </Item>
             </SalesAnalytics>
 
@@ -177,4 +177,4 @@ const DeviceRight = ({ reRenderData, setReRenderData }) => {
     );
 };
 
-export default DeviceRight;
+export default FloorRight;

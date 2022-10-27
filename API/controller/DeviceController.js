@@ -1,6 +1,7 @@
 const { getDevicesName, getDevicesAndTypeAndDetailAndRoomAndFloor, getQuantityDevices, findDeviceByIdOrName, findDeviceById, createDevice, updateDeviceById, deleteDeviceById } = require("../service/DeviceService");
 const { findDeviceTypeById } = require("../service/DeviceTypeService");
 const { deleteDeviceDetailById } = require("../service/DeviceDetailService");
+const { createLogAdmin } = require("../utils/utils");
 
 module.exports = {
     getDevicesName: (req, res) => {
@@ -165,11 +166,15 @@ module.exports = {
                         message: "Cann't create device!"
                     });
                 }
-                // Success
-                return res.status(200).json({
-                    status: "success",
-                    message: "Thêm thiết bị mới thành công!"
+
+                createLogAdmin(req, res, " vừa thêm Thiết bị mới tên: " + deviceName, "CREATE").then(() => {
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Thêm thiết bị mới thành công!"
+                    });
                 });
+
             } catch (err) {
                 console.log("ERR: ", err);
                 return res.status(400).json({
@@ -255,7 +260,7 @@ module.exports = {
                 }
                 // Kiểm tra nếu state = 1 đang sử dụng -> 0 về kho thì xóa device khỏi detail.
                 if (deviceRes.device_state === 1 && deviceState === 0) {
-                    try{
+                    try {
                         const deleteDetailRes = await deleteDeviceDetailById(deviceRes.device_detail_id);
                         if (!deleteDetailRes) {
                             return res.status(400).json({
@@ -263,14 +268,14 @@ module.exports = {
                                 message: "Cann't delete device detail!"
                             });
                         }
-                    }catch(err) {
+                    } catch (err) {
                         return res.status(400).json({
                             status: "fail",
                             message: "Error when delete device detail!",
                             error: err
                         });
                     }
-                }else if(deviceRes.device_state === 0 && deviceState === 1) {
+                } else if (deviceRes.device_state === 0 && deviceState === 1) {
                     return res.status(400).json({
                         status: "fail",
                         message: "Không thể chuyển sang 'Đang sử dụng' khi chưa thêm thiết bị vào Phòng cụ thể!"
@@ -293,11 +298,15 @@ module.exports = {
                             message: "Cann't update device!"
                         });
                     }
-                    // Success
-                    return res.status(200).json({
-                        status: "success",
-                        message: "Cập nhật thiết bị mới thành công!"
+
+                    createLogAdmin(req, res, " vừa cập nhật Thiết bị mã: " + deviceId, "UPDATE").then(() => {
+                        // Success
+                        return res.status(200).json({
+                            status: "success",
+                            message: "Cập nhật thiết bị mới thành công!"
+                        });
                     });
+
                 } catch (err) {
                     return res.status(400).json({
                         status: "fail",
@@ -344,11 +353,15 @@ module.exports = {
                         message: "Cann't delete device!"
                     });
                 }
-                // Success
-                return res.status(200).json({
-                    status: "success",
-                    message: "Xóa thiết bị mới thành công!"
+
+                createLogAdmin(req, res, " vừa xóa Thiết bị mã: " + deviceId, "DELETE").then(() => {
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Xóa thiết bị mới thành công!"
+                    });
                 });
+
             } catch (err) {
                 return res.status(400).json({
                     status: "fail",

@@ -1,5 +1,5 @@
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import { PersonOutlineOutlined, PetsOutlined, GridViewOutlined, InventoryOutlined, AssignmentIndOutlined, LogoutOutlined, CategoryOutlined, ConnectedTvOutlined, DiscountOutlined, DomainAddOutlined } from "@mui/icons-material";
+import { PersonOutlineOutlined, PetsOutlined, GridViewOutlined, InventoryOutlined, AssignmentIndOutlined, LogoutOutlined, CategoryOutlined, ConnectedTvOutlined, DiscountOutlined, DomainAddOutlined, ClassOutlined, MeetingRoomOutlined } from "@mui/icons-material";
 import styled from "styled-components";
 import { useState } from 'react';
 import { Link } from "react-router-dom";
@@ -99,13 +99,14 @@ const Aside = (props) => {
     const handleClickDashBoard = () => {
         setDashBoardIsActive(true);
         setDeviceTypeIsActive(false);
-        setThuCungIsActive(false);
+        setRoomIsActive(false);
         setKhachHangIsActive(false);
         setNhanVienIsActive(false);
         setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
+        setRoomTypeIsActive(false);
     }
 
     // Quản lý Thiết bị
@@ -114,12 +115,13 @@ const Aside = (props) => {
         setDeviceIsActive(true);
         setDashBoardIsActive(false);
         setDeviceTypeIsActive(false);
-        setThuCungIsActive(false);
+        setRoomIsActive(false);
         setKhachHangIsActive(false);
         setNhanVienIsActive(false);
         setDonHangIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
+        setRoomTypeIsActive(false);
     }
 
     // Quản lý Loại thiết bị
@@ -127,13 +129,14 @@ const Aside = (props) => {
     const handleClickDeviceType = () => {
         setDashBoardIsActive(false);
         setDeviceTypeIsActive(true);
-        setThuCungIsActive(false);
+        setRoomIsActive(false);
         setKhachHangIsActive(false);
         setNhanVienIsActive(false);
         setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
+        setRoomTypeIsActive(false);
     }
     // Quản lý Mã giảm giá
     const [isDiscountActive, setDiscountIsActive] = useState(props.active === "manageDiscount" ? true : false);
@@ -141,12 +144,13 @@ const Aside = (props) => {
         setDiscountIsActive(true);
         setDeviceTypeIsActive(false);
         setDashBoardIsActive(false);
-        setThuCungIsActive(false);
+        setRoomIsActive(false);
         setKhachHangIsActive(false);
         setNhanVienIsActive(false);
         setDonHangIsActive(false);
         setDeviceIsActive(false);
         setFloorIsActive(false);
+        setRoomTypeIsActive(false);
     }
     // Quản lý Tầng
     const [isFloorActive, setFloorIsActive] = useState(props.active === "manageFloor" ? true : false);
@@ -155,41 +159,58 @@ const Aside = (props) => {
         setDiscountIsActive(false);
         setDeviceTypeIsActive(false);
         setDashBoardIsActive(false);
-        setThuCungIsActive(false);
+        setRoomIsActive(false);
+        setKhachHangIsActive(false);
+        setNhanVienIsActive(false);
+        setDonHangIsActive(false);
+        setDeviceIsActive(false);
+        setRoomTypeIsActive(false);
+    }
+    // Quản lý Loại phòng - Khách sạn
+    const [isRoomTypeActive, setRoomTypeIsActive] = useState(props.active === "manageRoomType" ? true : false);
+    const handleClickRoomType = () => {
+        setRoomTypeIsActive(true);
+        setFloorIsActive(false);
+        setDiscountIsActive(false);
+        setDeviceTypeIsActive(false);
+        setDashBoardIsActive(false);
+        setRoomIsActive(false);
         setKhachHangIsActive(false);
         setNhanVienIsActive(false);
         setDonHangIsActive(false);
         setDeviceIsActive(false);
     }
-
-
-
     // Quản lý Thú cưng
-    const [isThuCungActive, setThuCungIsActive] = useState(props.active === "quanlythucung" ? true : false);
-    const handleClickThuCung = () => {
+    const [isRoomActive, setRoomIsActive] = useState(props.active === "manageRoom" ? true : false);
+    const handleClickRoom = () => {
         setDashBoardIsActive(false);
         setDeviceTypeIsActive(false);
-        setThuCungIsActive(true);
+        setRoomIsActive(true);
         setKhachHangIsActive(false);
         setNhanVienIsActive(false);
         setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
+        setRoomTypeIsActive(false);
     }
+
+
+
 
     // Quản lý Khách hàng
     const [isKhachHangActive, setKhachHangIsActive] = useState(props.active === "quanlykhachhang" ? true : false);
     const handleClickKhachHang = () => {
         setDashBoardIsActive(false);
         setDeviceTypeIsActive(false);
-        setThuCungIsActive(false);
+        setRoomIsActive(false);
         setKhachHangIsActive(true);
         setNhanVienIsActive(false);
         setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
+        setRoomTypeIsActive(false);
     }
 
     // Quản lý Nhân viên
@@ -197,13 +218,14 @@ const Aside = (props) => {
     const handleClickNhanVien = () => {
         setDashBoardIsActive(false);
         setDeviceTypeIsActive(false);
-        setThuCungIsActive(false);
+        setRoomIsActive(false);
         setKhachHangIsActive(false);
         setNhanVienIsActive(true);
         setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
+        setRoomTypeIsActive(false);
     }
 
     // Quản lý Đơn hàng
@@ -211,13 +233,14 @@ const Aside = (props) => {
     const handleClickDonHang = () => {
         setDashBoardIsActive(false);
         setDeviceTypeIsActive(false);
-        setThuCungIsActive(false);
+        setRoomIsActive(false);
         setKhachHangIsActive(false);
         setNhanVienIsActive(false);
         setDonHangIsActive(true);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
+        setRoomTypeIsActive(false);
     }
 
     // Đăng xuất
@@ -268,15 +291,21 @@ const Aside = (props) => {
                     </IconSpan>
                     <H3>Quản lý Tầng</H3>
                 </LinkStyled>
-
-
-
-                <LinkStyled to={"/quanlythucung"} className={isThuCungActive ? "active" : null} onClick={handleClickThuCung}>
+                <LinkStyled to={"/manageRoomType"} className={isRoomTypeActive ? "active" : null} onClick={handleClickRoomType}>
                     <IconSpan>
-                        <PetsOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        <ClassOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
                     </IconSpan>
-                    <H3>Quản lý Thú cưng</H3>
+                    <H3>Quản lý Loại phòng - Khách sạn</H3>
                 </LinkStyled>
+                <LinkStyled to={"/manageRoom"} className={isRoomActive ? "active" : null} onClick={handleClickRoom}>
+                    <IconSpan>
+                        <MeetingRoomOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                    </IconSpan>
+                    <H3>Quản lý Phòng - Khách sạn</H3>
+                </LinkStyled>
+
+
+
                 <LinkStyled to={"/quanlykhachhang"} className={isKhachHangActive ? "active" : null} onClick={handleClickKhachHang}>
                     <IconSpan>
                         <PersonOutlineOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />

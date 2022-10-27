@@ -1,11 +1,9 @@
 import { CloseOutlined } from "@mui/icons-material";
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import app from "../../firebase";
 
 // SERVICES
-import * as DeviceTypeService from "../../service/DeviceTypeService";
+import * as FloorService from "../../service/FloorService";
 
 const Background = styled.div`
     width: 100%;
@@ -168,7 +166,25 @@ const FormImg = styled.img`
     height: 200px;
 `
 
-const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, handleClose, showToastFromOut }) => {
+const ChiTietWrapper = styled.div`
+    width: 70%;
+    height: auto;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
+    background: var(--color-white);
+    color: var(--color-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: relative;
+    z-index: 10;
+    border-radius: 10px;
+    --growth-from: 0.7;
+    --growth-to: 1;
+    animation: growth linear 0.1s;
+`
+
+const Modal = ({ showModal, setShowModal, type, floor, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal
     const modalRef = useRef();
     const closeModal = (e) => {
@@ -194,22 +210,20 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
         [keyPress]
     );
 
-    // =============== Xử lý cập nhật danh mục ===============
+    // =============== Xử lý cập nhật Tầng ===============
     useEffect(() => {
-        setDeviceTypeImageModalNew(null);
-        setDeviceTypeNameModalNew();
+        setFloorNameModalNew();
     }, [showModal]);
 
-    const handleUpdateDeviceType = async (newDeviceTypeName, newDeviceTypeImage, deviceTypeId) => {
+    const handleUpdateFloor = async (newFloorName, floorId) => {
         try {
-            const updateDeviceTypeRes = await DeviceTypeService.updateDeviceType({
-                deviceTypeId: deviceTypeId,
-                deviceTypeName: newDeviceTypeName,
-                deviceTypeImage: newDeviceTypeImage
+            const updateFloorRes = await FloorService.updateFloor({
+                floorId: floorId,
+                floorName: newFloorName
             });
-            if (!updateDeviceTypeRes) {
+            if (!updateFloorRes) {
                 // Toast
-                const dataToast = { message: updateDeviceTypeRes.data.message, type: "warning" };
+                const dataToast = { message: updateFloorRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -218,7 +232,7 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: updateDeviceTypeRes.data.message, type: "success" };
+            const dataToast = { message: updateFloorRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -231,173 +245,56 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
         }
     }
     //  test
-    const [deviceTypeModal, setDeviceTypeModal] = useState();
-    const [deviceTypeIdModal, setDeviceTypeIdModal] = useState();
-    const [deviceTypeNameModal, setDeviceTypeNameModal] = useState();
-    const [deviceTypeImageModal, setDeviceTypeImageModal] = useState();
+    const [floorModal, setFloorModal] = useState();
+    const [floorIdModal, setFloorIdModal] = useState();
+    const [floorNameModal, setFloorNameModal] = useState();
 
-    const [deviceTypeModalOld, setDeviceTypeModalOld] = useState();
-    const [deviceTypeIdModalOld, setDeviceTypeIdModalOld] = useState();
-    const [deviceTypeNameModalOld, setDeviceTypeNameModalOld] = useState();
-    const [deviceTypeImageModalOld, setDeviceTypeImageModalOld] = useState();
+    const [floorModalOld, setFloorModalOld] = useState();
+    const [floorIdModalOld, setFloorIdModalOld] = useState();
+    const [floorNameModalOld, setFloorNameModalOld] = useState();
     useEffect(() => {
-        const getDeviceType = async () => {
+        const getFloor = async () => {
             try {
-                const deviceTypeRes = await DeviceTypeService.findDeviceTypeById({
-                    deviceTypeId: deviceType.device_type_id
+                const floorRes = await FloorService.findFloorById({
+                    floorId: floor.floor_id
                 });
-                console.log("RES: ", deviceTypeRes);
-                setDeviceTypeModal(deviceTypeRes.data.data);
-                setDeviceTypeIdModal(deviceTypeRes.data.data.device_type_id);
-                setDeviceTypeNameModal(deviceTypeRes.data.data.device_type_name);
-                setDeviceTypeImageModal(deviceTypeRes.data.data.device_type_image);
+                console.log("RES: ", floorRes);
+                setFloorModal(floorRes.data.data);
+                setFloorIdModal(floorRes.data.data.floor_id);
+                setFloorNameModal(floorRes.data.data.floor_name);
 
-                setDeviceTypeModalOld(deviceTypeRes.data.data);
-                setDeviceTypeIdModalOld(deviceTypeRes.data.data.device_type_id);
-                setDeviceTypeNameModalOld(deviceTypeRes.data.data.device_type_name);
-                setDeviceTypeImageModalOld(deviceTypeRes.data.data.device_type_image);
+                setFloorModalOld(floorRes.data.data);
+                setFloorIdModalOld(floorRes.data.data.floor_id);
+                setFloorNameModalOld(floorRes.data.data.floor_name);
             } catch (err) {
                 console.log("Lỗi lấy danh mục: ", err);
             }
         }
-        if (deviceType) {
-            getDeviceType();
+        if (floor) {
+            getFloor();
         }
-    }, [deviceType]);
-    console.log("Danh mục modal: ", deviceTypeModal);
-
-    // Thay đổi hình ảnh
-    const handleChangeImg = (hinhmoi) => {
-        const hinhanhunique = new Date().getTime() + hinhmoi.name;
-        const storage = getStorage(app);
-        const storageRef = ref(storage, hinhanhunique);
-        const uploadTask = uploadBytesResumable(storageRef, hinhmoi);
-
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
-                    default:
-                }
-            },
-            (error) => {
-                // A full list of error codes is available at
-                // https://firebase.google.com/docs/storage/web/handle-errors
-                switch (error.code) {
-                    case 'storage/unauthorized':
-                        // User doesn't have permission to access the object
-                        break;
-                    case 'storage/canceled':
-                        // User canceled the upload
-                        break;
-
-                    // ...
-
-                    case 'storage/unknown':
-                        // Unknown error occurred, inspect error.serverResponse
-                        break;
-                }
-            },
-            () => {
-                // Upload completed successfully, now we can get the download URL
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    try {
-                        setDeviceTypeImageModal(downloadURL);
-                    } catch (err) {
-                        console.log("Lỗi cập nhật hình ảnh:", err);
-                    }
-                });
-            }
-        );
-    }
+    }, [floor]);
+    console.log("Floor modal: ", floorModal);
 
     const handleCloseUpdate = () => {
         // Set lại giá trị cũ sau khi đóng Modal
-        setDeviceTypeNameModal(deviceTypeNameModalOld);
-        setDeviceTypeImageModal(deviceTypeImageModalOld);
+        setFloorNameModal(floorNameModalOld);
 
         setShowModal(prev => !prev);
     }
 
-    // =============== Xử lý thêm danh mục ===============
-    const [deviceTypeNameModalNew, setDeviceTypeNameModalNew] = useState();
-    const [deviceTypeImageModalNew, setDeviceTypeImageModalNew] = useState(null);
+    // =============== Xử lý thêm Tầng ===============
+    const [floorNameModalNew, setFloorNameModalNew] = useState();
 
-    // Thay đổi hình ảnh
-    const handleShowImg = (hinhmoi) => {
-        const hinhanhunique = new Date().getTime() + hinhmoi.name;
-        const storage = getStorage(app);
-        const storageRef = ref(storage, hinhanhunique);
-        const uploadTask = uploadBytesResumable(storageRef, hinhmoi);
-
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
-                    default:
-                }
-            },
-            (error) => {
-                // A full list of error codes is available at
-                // https://firebase.google.com/docs/storage/web/handle-errors
-                switch (error.code) {
-                    case 'storage/unauthorized':
-                        // User doesn't have permission to access the object
-                        break;
-                    case 'storage/canceled':
-                        // User canceled the upload
-                        break;
-
-                    // ...
-
-                    case 'storage/unknown':
-                        // Unknown error occurred, inspect error.serverResponse
-                        break;
-                }
-            },
-            () => {
-                // Upload completed successfully, now we can get the download URL
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    try {
-                        setDeviceTypeImageModalNew(downloadURL);
-                    } catch (err) {
-                        console.log("Lỗi cập nhật hình ảnh:", err);
-                    }
-                });
-            }
-        );
-    }
-
-    // Create new divice type
-    const handleCreateDeviceType = async (newName, newImage) => {
+    // Create new floor
+    const handleCreateFloor = async (newName) => {
         try {
-            const createDeviceTypeRes = await DeviceTypeService.createDeviceType({
-                deviceTypeName: newName,
-                deviceTypeImage: newImage
+            const createFloorRes = await FloorService.createFloor({
+                floorName: newName
             });
-            if (!createDeviceTypeRes) {
+            if (!createFloorRes) {
                 // Toast
-                const dataToast = { message: createDeviceTypeRes.data.message, type: "warning" };
+                const dataToast = { message: createFloorRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -405,9 +302,8 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             // Success
             setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DanhMucMain & DanhMucRight.jsx
             setShowModal(prev => !prev);
-            setDeviceTypeImageModalNew(null);
             // Toast
-            const dataToast = { message: createDeviceTypeRes.data.message, type: "success" };
+            const dataToast = { message: createFloorRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
 
@@ -422,12 +318,12 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
     }
 
     // =============== Xử lý xóa danh mục ===============
-    const handleDeleteDeviceType = async (deviceTypeId) => {
+    const handleDeleteFloor = async (floorId) => {
         try {
-            const deleteDeviceTypeRes = await DeviceTypeService.deleteDeviceType(deviceTypeId);
-            if (!deleteDeviceTypeRes) {
+            const deleteFloorRes = await FloorService.deleteFloor(floorId);
+            if (!deleteFloorRes) {
                 // Toast
-                const dataToast = { message: deleteDeviceTypeRes.data.message, type: "warning" };
+                const dataToast = { message: deleteFloorRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -435,7 +331,7 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: deleteDeviceTypeRes.data.message, type: "success" };
+            const dataToast = { message: deleteFloorRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -447,30 +343,66 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
     }
 
     // ================================================================
+    if (type === "detailFloor") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <ChiTietWrapper showModal={showModal} style={{ flexDirection: `column` }}>
+                            <H1>Chi tiết Tầng</H1>
+                            <ModalForm>
+                                <div className="row">
+                                    <div className="col-lg-4">
+                                        <ModalFormItem style={{ margin: "0 10px" }}>
+                                            <FormSpan>Mã tầng:</FormSpan>
+                                            <FormInput type="text" value={floorModal ? floorModal.floor_id : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-8">
+                                        <ModalFormItem style={{ margin: "0 10px" }}>
+                                            <FormSpan>Tên Tầng:</FormSpan>
+                                            <FormInput type="text" value={floorModal ? floorModal.floor_name : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                </div>
+                            </ModalForm>
+                            <ButtonUpdate>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => setShowModal(prev => !prev)}
+                                    >Đóng</ButtonClick>
+                                </ButtonContainer>
+                            </ButtonUpdate>
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </ChiTietWrapper>
+                    </Background>
+                ) : null}
+            </>
+        );
+    }
     //  =============== Thêm danh mục ===============
-    if (type === "createDeviceType") {
+    if (type === "createFloor") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Thêm Loại thiết bị mới</H1>
+                            <H1>Thêm Tầng mới</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" onChange={(e) => setDeviceTypeNameModalNew(e.target.value)} placeholder="Nhập vào tên Loại thiết bị" />
+                                    <FormSpan>Tên Tầng:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setFloorNameModalNew(e.target.value)} placeholder="Nhập vào tên Loại thiết bị" />
                                 </ModalFormItem>
-                                <ModalFormItem>
-                                    <FormSpan>Hình ảnh:</FormSpan>
-                                    <FormInput type="file" onChange={(e) => handleShowImg(e.target.files[0])} />
-                                    <FormImg src={deviceTypeImageModalNew !== null ? deviceTypeImageModalNew : "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1650880603321No-Image-Placeholder.svg.png?alt=media&token=2a1b17ab-f114-41c0-a00d-dd81aea80d3e"} key={deviceTypeImageModalNew}></FormImg>
-                                </ModalFormItem>
-
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleCreateDeviceType(deviceTypeNameModalNew, deviceTypeImageModalNew)}
+                                        onClick={() => handleCreateFloor(floorNameModalNew)}
                                     >Thêm vào</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -491,29 +423,24 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             </>
         );
     }
-    // =============== Chỉnh sửa danh mục ===============
-    if (type === "updateDeviceType") {
+    // =============== Chỉnh sửa Tầng ===============
+    if (type === "updateFloor") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Cập nhật Loại thiết bị</H1>
+                            <H1>Cập nhật Tầng</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" onChange={(e) => setDeviceTypeNameModal(e.target.value)} value={deviceTypeNameModal} />
-                                </ModalFormItem>
-                                <ModalFormItem>
-                                    <FormSpan>Hình ảnh:</FormSpan>
-                                    <FormInput type="file" onChange={(e) => handleChangeImg(e.target.files[0])} />
-                                    <FormImg src={deviceTypeImageModal !== deviceTypeImageModalOld ? deviceTypeImageModal : deviceTypeImageModalOld} key={deviceTypeImageModal}></FormImg>
+                                    <FormSpan>Tên Tầng:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setFloorNameModal(e.target.value)} value={floorNameModal} />
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleUpdateDeviceType(deviceTypeNameModal, deviceTypeImageModal, deviceTypeIdModal)}
+                                        onClick={() => handleUpdateFloor(floorNameModal, floorIdModal)}
                                     >Cập nhật</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -535,19 +462,19 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
         );
     }
     // =============== Xóa danh mục ===============
-    if (type === "deleteDeviceType") {
+    if (type === "deleteFloor") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ backgroundImage: `url("https://img.freepik.com/free-vector/alert-safety-background_97886-3460.jpg?w=1060")`, backgroundPosition: `center center`, backgroundRepeat: `no-repeat`, backgroundSize: `cover`, width: `600px`, height: `400px` }} >
                             <ModalContent>
-                                <h1>Bạn muốn xóa Loại thiết bị <span style={{ color: `var(--color-primary)` }}>{deviceTypeNameModal}</span> này?</h1>
-                                <p>Những thiết bị của loại này cũng sẽ bị xóa</p>
+                                <h1>Bạn muốn xóa Tầng <span style={{ color: `var(--color-primary)` }}>{floorNameModal}</span> này?</h1>
+                                <p>Những Phòng &amp; Sảnh tiệc của Tầng này cũng sẽ bị xóa</p>
                                 <Button>
                                     <ButtonContainer>
                                         <ButtonClick
-                                            onClick={() => { handleDeleteDeviceType(deviceTypeIdModal) }}
+                                            onClick={() => { handleDeleteFloor(floorIdModal) }}
                                         >Đồng ý</ButtonClick>
                                     </ButtonContainer>
                                     <ButtonContainer>

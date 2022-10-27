@@ -23,7 +23,7 @@ const foodTypeRouter = require("./router/FoodTypeRouter");
 const foodRouter = require("./router/FoodRouter");
 const setMenuRouter = require("./router/SetMenuRouter");
 const menuDetailFoodRouter = require("./router/MenuDetailFoodRouter");
-const partyBookingOrderRouter = require("./router/PartyBookingOrderController");
+const partyBookingOrderRouter = require("./router/PartyBookingOrderRouter");
 const tableTypeRouter = require("./router/TableTypeRouter");
 const tableBookingRouter = require("./router/TableBookingRouter");
 const tableBookingOrderRouter = require("./router/TableBookingOrderRouter");
@@ -36,6 +36,9 @@ const stripeRouter = require("./router/StripeRouter");
 const employeeRouter = require("./router/EmployeeRouter");
 const statisticRouter = require("./router/StatisticRouter");
 const deviceTypeRouter = require("./router/DeviceTypeRouter");
+const floorRouter = require("./router/FloorRouter");
+const roomTypeRouter = require("./router/RoomTypeRouter");
+const adminLogRouter = require("./router/AdminLogRouter");
 
 dotenv.config();
 app.use(cors({
@@ -92,6 +95,9 @@ app.use("/api/admin/statistics", statisticRouter);
 
 // Hotel
 app.use("/api/admin/device-types", deviceTypeRouter);
+app.use("/api/admin/floors", floorRouter);
+app.use("/api/admin/room-types", roomTypeRouter);
+app.use("/api/admin/admin-logs", adminLogRouter);
 
 app.listen(process.env.PORT || 5000, () => {
     console.log("BACKEND server is running at:", process.env.PORT);

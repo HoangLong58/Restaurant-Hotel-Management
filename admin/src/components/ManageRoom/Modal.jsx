@@ -2,7 +2,6 @@ import {format_money} from "../../utils/utils";
 import styled from "styled-components";
 import { CloseOutlined } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import "../../css/main.css";
 import axios from "axios";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import app from "../../firebase";

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 // SERVICES
-import * as DiscountService from "../../service/DiscountService";
+import * as RoomTypeService from "../../service/RoomTypeService";
 
 const Background = styled.div`
     width: 100%;
@@ -166,31 +166,6 @@ const FormImg = styled.img`
     height: 200px;
 `
 
-const FormSelect = styled.select`
-    background-color: var(--color-white);
-    color: var(--color-dark);
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    &:focus {
-        border: 1px solid var(--color-success);
-        box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-    }
-`
-
-const FormOption = styled.option`
-    margin: auto;
-`
-
-const H1Delete = styled.h1` 
-    width: "90%";
-    text-align: center;
-`
-
 const ChiTietWrapper = styled.div`
     width: 70%;
     height: auto;
@@ -209,7 +184,7 @@ const ChiTietWrapper = styled.div`
     animation: growth linear 0.1s;
 `
 
-const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handleClose, showToastFromOut }) => {
+const Modal = ({ showModal, setShowModal, type, roomType, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal
     const modalRef = useRef();
     const closeModal = (e) => {
@@ -235,23 +210,20 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
         [keyPress]
     );
 
-    // =============== Xử lý cập nhật danh mục ===============
+    // =============== Xử lý cập nhật Loại phòng ===============
     useEffect(() => {
-        setDiscountNameModalNew();
-        setDiscountQuantityModalNew();
-        setDiscountPercentModalNew();
+        setRoomTypeNameModalNew();
     }, [showModal]);
 
-    const handleUpdateDiscount = async (newDiscountCode, newDiscountPercent, newDiscountId) => {
+    const handleUpdateRoomType = async (newRoomTypeName, roomTypeId) => {
         try {
-            const updateDiscountRes = await DiscountService.updateDiscount({
-                discountCode: newDiscountCode,
-                discountPercent: newDiscountPercent,
-                discountId: newDiscountId
+            const updateRoomTypeRes = await RoomTypeService.updateRoomType({
+                roomTypeId: roomTypeId,
+                roomTypeName: newRoomTypeName
             });
-            if (!updateDiscountRes) {
+            if (!updateRoomTypeRes) {
                 // Toast
-                const dataToast = { message: updateDiscountRes.data.message, type: "warning" };
+                const dataToast = { message: updateRoomTypeRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -260,10 +232,11 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: updateDiscountRes.data.message, type: "success" };
+            const dataToast = { message: updateRoomTypeRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
+            console.log("ERR: ", err.response)
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
@@ -273,67 +246,60 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
         }
     }
     //  test
-    const [discountModal, setDiscountModal] = useState();
-    const [discountIdModal, setDiscountIdModal] = useState();
-    const [discountCodeModal, setDiscountCodeModal] = useState();
-    const [discountPercentModal, setDiscountPercentModal] = useState();
+    const [roomTypeModal, setRoomTypeModal] = useState();
+    const [roomTypeIdModal, setRoomTypeIdModal] = useState();
+    const [roomTypeNameModal, setRoomTypeNameModal] = useState();
+    const [roomTypeVoteTotalModal, setRoomTypeVoteTotalModal] = useState();
 
-    const [discountModalOld, setDiscountModalOld] = useState();
-    const [discountIdModalOld, setDiscountIdModalOld] = useState();
-    const [discountCodeModalOld, setDiscountCodeModalOld] = useState();
-    const [discountPercentModalOld, setDiscountPercentModalOld] = useState();
+    const [roomTypeModalOld, setRoomTypeModalOld] = useState();
+    const [roomTypeIdModalOld, setRoomTypeIdModalOld] = useState();
+    const [roomTypeNameModalOld, setRoomTypeNameModalOld] = useState();
+    const [roomTypeVoteTotalModalOld, setRoomTypeVoteTotalModalOld] = useState();
     useEffect(() => {
-        const getDiscount = async () => {
+        const getRoomType = async () => {
             try {
-                const discountRes = await DiscountService.findDiscountById({
-                    discountId: discount.discount_id
+                const roomTypeRes = await RoomTypeService.findRoomTypeById({
+                    roomTypeId: roomType.room_type_id
                 });
-                console.log("RES: ", discountRes);
-                setDiscountModal(discountRes.data.data);
-                setDiscountIdModal(discountRes.data.data.discount_id);
-                setDiscountCodeModal(discountRes.data.data.discount_code);
-                setDiscountPercentModal(discountRes.data.data.discount_percent);
+                console.log("RES: ", roomTypeRes);
+                setRoomTypeModal(roomTypeRes.data.data);
+                setRoomTypeIdModal(roomTypeRes.data.data.room_type_id);
+                setRoomTypeNameModal(roomTypeRes.data.data.room_type_name);
+                setRoomTypeVoteTotalModal(roomTypeRes.data.data.room_type_vote_total);
 
-                setDiscountModalOld(discountRes.data.data);
-                setDiscountIdModalOld(discountRes.data.data.discount_id);
-                setDiscountCodeModalOld(discountRes.data.data.discount_code);
-                setDiscountPercentModalOld(discountRes.data.data.discount_percent);
+                setRoomTypeModalOld(roomTypeRes.data.data);
+                setRoomTypeIdModalOld(roomTypeRes.data.data.room_type_id);
+                setRoomTypeNameModalOld(roomTypeRes.data.data.room_type_name);
+                setRoomTypeVoteTotalModalOld(roomTypeRes.data.data.room_type_vote_total);
             } catch (err) {
-                console.log("Lỗi lấy discount: ", err);
+                console.log("Lỗi lấy danh mục: ", err.response);
             }
         }
-        if (discount) {
-            getDiscount();
+        if (roomType) {
+            getRoomType();
         }
-    }, [discount]);
-    console.log("Discount modal: ", discountModal);
+    }, [roomType]);
+    console.log("Room type modal: ", roomTypeModal);
 
     const handleCloseUpdate = () => {
         // Set lại giá trị cũ sau khi đóng Modal
-        setDiscountCodeModal(discountCodeModalOld);
-        setDiscountPercentModal(discountPercentModalOld);
+        setRoomTypeNameModal(roomTypeNameModalOld);
 
         setShowModal(prev => !prev);
     }
 
-    // =============== Xử lý thêm mã giảm giá ===============
-    const [discountCodeModalNew, setDiscountCodeModalNew] = useState();
-    const [discountPercentModalNew, setDiscountPercentModalNew] = useState();
-    const [discountQuantityModalNew, setDiscountQuantityModalNew] = useState();
-    const [discountNameModalNew, setDiscountNameModalNew] = useState();
+    // =============== Xử lý thêm Loại phòng ===============
+    const [roomTypeNameModalNew, setRoomTypeNameModalNew] = useState();
 
-    // Create new divice type
-    const handleCreateDiscount = async (newPercent, newName, newQuantity) => {
-        console.log("newPercent, newName, newQuantity: ", newPercent, newName, newQuantity);
+    // Create new room type
+    const handleCreateRoomType = async (newName) => {
         try {
-            const createDiscountRes = await DiscountService.createDiscount({
-                discountPercent: newPercent,
-                discountName: newName,
-                discountQuantity: newQuantity
+            const createRoomTypeRes = await RoomTypeService.createRoomType({
+                roomTypeName: newName
             });
-            if (!createDiscountRes) {
+            if (!createRoomTypeRes) {
                 // Toast
-                const dataToast = { message: createDiscountRes.data.message, type: "warning" };
+                const dataToast = { message: createRoomTypeRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -341,10 +307,8 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
             // Success
             setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DanhMucMain & DanhMucRight.jsx
             setShowModal(prev => !prev);
-            setDiscountPercentModalNew();
-            setDiscountCodeModalNew();
             // Toast
-            const dataToast = { message: createDiscountRes.data.message, type: "success" };
+            const dataToast = { message: createRoomTypeRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
 
@@ -358,13 +322,13 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
         }
     }
 
-    // =============== Xử lý xóa danh mục ===============
-    const handleDeleteDiscount = async (discountId) => {
+    // =============== Xử lý xóa Loại phòng ===============
+    const handleDeleteRoomType = async (roomTypeId) => {
         try {
-            const deleteDiscountRes = await DiscountService.deleteDiscount(discountId);
-            if (!deleteDiscountRes) {
+            const deleteRoomTypeRes = await RoomTypeService.deleteRoomType(roomTypeId);
+            if (!deleteRoomTypeRes) {
                 // Toast
-                const dataToast = { message: deleteDiscountRes.data.message, type: "warning" };
+                const dataToast = { message: deleteRoomTypeRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -372,7 +336,7 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: deleteDiscountRes.data.message, type: "success" };
+            const dataToast = { message: deleteRoomTypeRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -384,40 +348,31 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
     }
 
     // ================================================================
-    //  =============== Chi tiết ===============
-    if (type === "detailDiscount") {
+    if (type === "detailRoomType") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ChiTietWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Chi tiết Mã giảm giá</H1>
+                            <H1>Chi tiết Loại phòng</H1>
                             <ModalForm>
                                 <div className="row">
                                     <div className="col-lg-4">
                                         <ModalFormItem style={{ margin: "0 10px" }}>
-                                            <FormSpan>Mã số Mã giảm gia:</FormSpan>
-                                            <FormInput type="text" value={discountModal ? discountModal.discount_id : null} readOnly />
+                                            <FormSpan>Mã Loại phòng:</FormSpan>
+                                            <FormInput type="text" value={roomTypeModal ? roomTypeModal.room_type_id : null} readOnly />
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
                                         <ModalFormItem style={{ margin: "0 10px" }}>
-                                            <FormSpan>Tỉ lệ giảm giá:</FormSpan>
-                                            <FormInput type="text" value={discountModal ? discountModal.discount_percent : null} readOnly />
+                                            <FormSpan>Tên Loại phòng:</FormSpan>
+                                            <FormInput type="text" value={roomTypeModal ? roomTypeModal.room_type_name : null} readOnly />
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
                                         <ModalFormItem style={{ margin: "0 10px" }}>
-                                            <FormSpan>Trạng thái:</FormSpan>
-                                            <FormInput type="text" value={discountModal ? discountModal.discount_state === 0 ? "Chưa sử dụng" : discountModal.discount_state === 1 ? "Đã sử dụng" : null : null} readOnly />
-                                        </ModalFormItem>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-lg-12">
-                                        <ModalFormItem style={{ margin: "0 10px" }}>
-                                            <FormSpan>Mã giảm giá:</FormSpan>
-                                            <FormInput type="text" value={discountModal ? discountModal.discount_code : null} readOnly />
+                                            <FormSpan>Sao đánh giá:</FormSpan>
+                                            <FormInput type="text" value={roomTypeModal ? roomTypeModal.room_type_vote_total : null} readOnly />
                                         </ModalFormItem>
                                     </div>
                                 </div>
@@ -441,39 +396,24 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
             </>
         );
     }
-    //  =============== Thêm Mã giảm giá ===============
-    if (type === "createDiscount") {
+    //  =============== Thêm Loại phòng ===============
+    if (type === "createRoomType") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Thêm Mã giảm giá mới</H1>
+                            <H1>Thêm Loại phòng mới</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tỉ lệ giảm giá:</FormSpan>
-                                    <FormSelect onChange={(e) => { setDiscountPercentModalNew(parseInt(e.target.value)) }}>
-                                        <FormOption value={5}> Giảm giá 5% </FormOption>
-                                        <FormOption value={10}> Giảm giá 10% </FormOption>
-                                        <FormOption value={15}> Giảm giá 15% </FormOption>
-                                        <FormOption value={20}> Giảm giá 20% </FormOption>
-                                        <FormOption value={25}> Giảm giá 25% </FormOption>
-                                        <FormOption value={30}> Giảm giá 30% </FormOption>
-                                    </FormSelect>
-                                </ModalFormItem>
-                                <ModalFormItem>
-                                    <FormSpan>Tên Mã giảm giá:</FormSpan>
-                                    <FormInput type="text" value={discountNameModalNew} onChange={(e) => setDiscountNameModalNew(e.target.value.toUpperCase())} />
-                                </ModalFormItem>
-                                <ModalFormItem>
-                                    <FormSpan>Số lượng mã giảm giá:</FormSpan>
-                                    <FormInput type="number" onChange={(e) => setDiscountQuantityModalNew(parseInt(e.target.value))} />
+                                    <FormSpan>Tên Loại phòng:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setRoomTypeNameModalNew(e.target.value)} placeholder="Nhập vào tên Loại phòng" />
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleCreateDiscount(discountPercentModalNew, discountNameModalNew, discountQuantityModalNew)}
+                                        onClick={() => handleCreateRoomType(roomTypeNameModalNew)}
                                     >Thêm vào</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -494,28 +434,24 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
             </>
         );
     }
-    // =============== Chỉnh sửa Mã giảm giá ===============
-    if (type === "updateDiscount") {
+    // =============== Chỉnh sửa Loại phòng ===============
+    if (type === "updateRoomType") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Cập nhật Mã giảm giá</H1>
+                            <H1>Cập nhật Loại phòng</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tỉ lệ giảm giá:</FormSpan>
-                                    <FormInput type="number" value={discountPercentModal} onChange={(e) => setDiscountPercentModal(parseInt(e.target.value))} />
-                                </ModalFormItem>
-                                <ModalFormItem>
-                                    <FormSpan>Mã giảm giá:</FormSpan>
-                                    <FormInput type="text" value={discountCodeModal} onChange={(e) => setDiscountCodeModal(e.target.value.toUpperCase())} />
+                                    <FormSpan>Tên Loại phòng:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setRoomTypeNameModal(e.target.value)} value={roomTypeNameModal} />
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleUpdateDiscount(discountCodeModal, discountPercentModal, discountIdModal)}
+                                        onClick={() => handleUpdateRoomType(roomTypeNameModal, roomTypeIdModal)}
                                     >Cập nhật</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -536,20 +472,20 @@ const Modal = ({ showModal, setShowModal, type, discount, setReRenderData, handl
             </>
         );
     }
-    // // =============== Xóa giảm giá ===============
-    if (type === "deleteDiscount") {
+    // =============== Xóa Loại phòng ===============
+    if (type === "deleteRoomType") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ backgroundImage: `url("https://img.freepik.com/free-vector/alert-safety-background_97886-3460.jpg?w=1060")`, backgroundPosition: `center center`, backgroundRepeat: `no-repeat`, backgroundSize: `cover`, width: `600px`, height: `400px` }} >
                             <ModalContent>
-                                <H1Delete>Bạn muốn xóa Mã giảm giá <span style={{ color: `var(--color-primary)` }}>{discountCodeModal}</span> này?</H1Delete>
-                                <p>Click Đồng ý nếu bạn muốn thực hiện hành động này!</p>
+                                <h1>Bạn muốn xóa Loại phòng <span style={{ color: `var(--color-primary)` }}>{roomTypeNameModal}</span> này?</h1>
+                                <p>Những Phòng của Loại phòng này cũng sẽ bị xóa</p>
                                 <Button>
                                     <ButtonContainer>
                                         <ButtonClick
-                                            onClick={() => { handleDeleteDiscount(discountIdModal) }}
+                                            onClick={() => { handleDeleteRoomType(roomTypeIdModal) }}
                                         >Đồng ý</ButtonClick>
                                     </ButtonContainer>
                                     <ButtonContainer>

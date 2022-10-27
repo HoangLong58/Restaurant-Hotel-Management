@@ -1,5 +1,5 @@
 const { getDiscounts, getDiscountByDiscountCode, getDiscountById, updateDiscountState, getAllDiscounts, getQuantityDiscounts, findAllDiscountByIdOrName, findAllDiscountById, createDiscount, getAllDiscountByDiscountCode, updateDiscountById, deleteDiscount } = require("../service/DiscountService");
-const { randomIntFromInterval } = require("../utils/utils");
+const { randomIntFromInterval, createLogAdmin } = require("../utils/utils");
 
 module.exports = {
     getDiscounts: (req, res) => {
@@ -229,11 +229,15 @@ module.exports = {
                 });
             }
         }
-        // Success
-        return res.status(200).json({
-            status: "success",
-            message: "Thêm Mã giảm giá mới thành công!"
+
+        createLogAdmin(req, res, " vừa thêm " + discountQuantity + " Mã giảm giá loại: " + discountPercent + "%", "CREATE").then(() => {
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thêm Mã giảm giá mới thành công!"
+            });
         });
+
     },
     updateDiscountById: async (req, res) => {
         const discountCode = req.body.discountCode;
@@ -273,11 +277,15 @@ module.exports = {
                         message: "Cann't update discount!"
                     });
                 }
-                // Success
-                return res.status(200).json({
-                    status: "success",
-                    message: "Cập nhật Mã giảm giá thành công!"
+
+                createLogAdmin(req, res, " vừa cập nhật Mã giảm giá mã: " + discountId, "UPDATE").then(() => {
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Cập nhật Mã giảm giá thành công!"
+                    });
                 });
+
             } catch (err) {
                 return res.status(400).json({
                     status: "fail",
@@ -317,11 +325,15 @@ module.exports = {
                         message: "Cann't delete discount!"
                     });
                 }
-                // Success
-                return res.status(200).json({
-                    status: "success",
-                    message: "Xóa Mã giảm giá thành công!"
+
+                createLogAdmin(req, res, " vừa xóa Mã giảm giá mã: " + discountId, "DELETE").then(() => {
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Xóa Mã giảm giá thành công!"
+                    });
                 });
+
             } catch (err) {
                 return res.status(400).json({
                     status: "fail",

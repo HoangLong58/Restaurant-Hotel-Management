@@ -4,7 +4,7 @@ import RightTop from "../Dashboard/RightTop";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Modal from "./Modal";
-import Toast from "./Toast";
+import Toast from "../Toast";
 import { useSelector } from "react-redux";
 
 const Container = styled.div`

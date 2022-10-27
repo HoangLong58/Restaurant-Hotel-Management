@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, RemoveRedEyeOutlined } from "@mui/icons-material";
 import axios from "axios";
 import Modal from "./Modal";
-import Toast from "./Toast";
+import Toast from "../Toast";
 import ReactPaginate from "react-paginate";
 import { useSelector } from "react-redux";
 

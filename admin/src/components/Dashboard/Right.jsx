@@ -5,6 +5,8 @@ import RightTop from "./RightTop";
 import axios from "axios";
 import {format_money} from "../../utils/utils";
 
+// SERVICES
+import * as AdminLogService from "../../service/AdminLogService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -125,55 +127,54 @@ const ItemRight = styled.div`
 
 const Right = () => {
     // Các state cần thiết
-    const [adminLog, setAdminLog] = useState();
+    const [adminLogList, setAdminLogList] = useState([]);
     const [soDonHang, setSoDonHang] = useState("");
     const [doanhThuHomNay, setDoanhThuHomNay] = useState("");
     const [donCanDuyetHomNay, setDonCanDuyetHomNay] = useState("");
    
     useEffect(() => {
-        const getlog = async () => {
+        const getAdminLogs = async () => {
             try {
-                const logres = await axios.post("http://localhost:3001/api/user/getAdminLog", {});
-                console.log("logres: ", logres);
-                setAdminLog(logres.data);
+                const adminLogRes = await AdminLogService.getTop5AdminLogs();
+                setAdminLogList(adminLogRes.data.data);
             } catch (err) {
-                console.log("Lỗi khi lấy adminlog");
+                console.log("Lỗi khi lấy Adminlog: ", err.response);
             }
         }
-        // SỐ ĐƠN HÀNG HÔM NAY
-        const getSoDonHangHomNay = async () => {
-            try {
-                const sodonhanghomnayres = await axios.post("http://localhost:3001/api/products/getSoDonHangHomNay", {});
-                console.log("sodonhanghomnayres: ", sodonhanghomnayres);
-                setSoDonHang(sodonhanghomnayres.data[0].soluongdathang);
-            } catch (err) {
-                console.log("Lỗi khi lấy sodonhanghomnayres");
-            }
-        }
-        // SỐ ĐƠN HÀNG HÔM NAY
-        const getDoanhThuHomNay = async () => {
-            try {
-                const doanhthuhomnayres = await axios.post("http://localhost:3001/api/products/getDoanhThuHomNay", {});
-                console.log("doanhthuhomnayres: ", doanhthuhomnayres);
-                setDoanhThuHomNay(format_money((doanhthuhomnayres.data[0].tongtien).toString()));
-            } catch (err) {
-                console.log("Lỗi khi lấy doanhthuhomnayres");
-            }
-        }
-        // SỐ ĐƠN HÀNG HÔM NAY
-        const getDonCanDuyetuHomNay = async () => {
-            try {
-                const doncanduyetres = await axios.post("http://localhost:3001/api/products/getDonCanDuyetuHomNay", {});
-                console.log("doncanduyetres: ", doncanduyetres);
-                setDonCanDuyetHomNay(doncanduyetres.data[0].sodonchoduyet);
-            } catch (err) {
-                console.log("Lỗi khi lấy doncanduyetres");
-            }
-        }
-        getlog();
-        getSoDonHangHomNay();
-        getDoanhThuHomNay();
-        getDonCanDuyetuHomNay();
+        // // SỐ ĐƠN HÀNG HÔM NAY
+        // const getSoDonHangHomNay = async () => {
+        //     try {
+        //         const sodonhanghomnayres = await axios.post("http://localhost:3001/api/products/getSoDonHangHomNay", {});
+        //         console.log("sodonhanghomnayres: ", sodonhanghomnayres);
+        //         setSoDonHang(sodonhanghomnayres.data[0].soluongdathang);
+        //     } catch (err) {
+        //         console.log("Lỗi khi lấy sodonhanghomnayres");
+        //     }
+        // }
+        // // SỐ ĐƠN HÀNG HÔM NAY
+        // const getDoanhThuHomNay = async () => {
+        //     try {
+        //         const doanhthuhomnayres = await axios.post("http://localhost:3001/api/products/getDoanhThuHomNay", {});
+        //         console.log("doanhthuhomnayres: ", doanhthuhomnayres);
+        //         setDoanhThuHomNay(format_money((doanhthuhomnayres.data[0].tongtien).toString()));
+        //     } catch (err) {
+        //         console.log("Lỗi khi lấy doanhthuhomnayres");
+        //     }
+        // }
+        // // SỐ ĐƠN HÀNG HÔM NAY
+        // const getDonCanDuyetuHomNay = async () => {
+        //     try {
+        //         const doncanduyetres = await axios.post("http://localhost:3001/api/products/getDonCanDuyetuHomNay", {});
+        //         console.log("doncanduyetres: ", doncanduyetres);
+        //         setDonCanDuyetHomNay(doncanduyetres.data[0].sodonchoduyet);
+        //     } catch (err) {
+        //         console.log("Lỗi khi lấy doncanduyetres");
+        //     }
+        // }
+        getAdminLogs();
+        // getSoDonHangHomNay();
+        // getDoanhThuHomNay();
+        // getDonCanDuyetuHomNay();
         return () => {
             setSoDonHang("");
 
@@ -188,18 +189,18 @@ const Right = () => {
                 <H2>Recent Updates</H2>
                 <Updates>
                     {   
-                        adminLog
+                        adminLogList
                         ?
-                        adminLog.map((log, key) => {
+                        adminLogList.map((adminLog, key) => {
                             return (
                                 <Update>
                                     <ProfilePhoto>
-                                        <Img src={log.hinhdaidien} />
+                                        <Img src={adminLog.employee_image} />
                                     </ProfilePhoto>
                                     <Message>
                                         {/* <p><b>Monkey D Luffy</b> received his order of Hoàng Long tech GPS drone</p> */}
-                                        <p>{log.noidunglog}</p>
-                                        <Small class="text-muted">2 Minutes Ago</Small>
+                                        <p>{adminLog.employee_first_name + " " + adminLog.employee_last_name + adminLog.admin_log_content}</p>
+                                        <Small class="text-muted">{adminLog.admin_log_date}</Small>
                                     </Message>
                                 </Update>
                             );

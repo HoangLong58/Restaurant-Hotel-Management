@@ -1,11 +1,11 @@
-const { getDeviceTypes, findDeviceTypeByIdOrName, getQuantityDeviceTypes, createDeviceType, findDeviceTypeById, updateDeviceTypeById, deleteDeviceType } = require("../service/DeviceTypeService");
+const { getFloors, getQuantityFloors, findFloorByIdOrName, findFloorById, createFloor, updateFloorById, deleteFloor } = require("../service/FloorService");
 const { createLogAdmin } = require("../utils/utils");
 
 module.exports = {
-    // ADMIN: Quản lý Loại thiết bị - Khách sạn
-    getDeviceTypes: async (req, res) => {
+    // ADMIN: Quản lý Tầng
+    getFloors: async (req, res) => {
         try {
-            const result = await getDeviceTypes();
+            const result = await getFloors();
             if (!result) {
                 return res.status(400).json({
                     status: "fail",
@@ -15,20 +15,20 @@ module.exports = {
             }
             return res.status(200).json({
                 status: "success",
-                message: "Lấy device types thành công",
+                message: "Lấy floors thành công",
                 data: result
             });
         } catch (err) {
             return res.status(400).json({
                 status: "fail",
-                message: "Lỗi getDeviceTypes",
+                message: "Lỗi getFloors",
                 error: err
             });
         }
     },
-    getQuantityDeviceType: async (req, res) => {
+    getQuantityFloor: async (req, res) => {
         try {
-            const result = await getQuantityDeviceTypes();
+            const result = await getQuantityFloors();
             if (!result) {
                 return res.status(400).json({
                     status: "fail",
@@ -38,21 +38,21 @@ module.exports = {
             }
             return res.status(200).json({
                 status: "success",
-                message: "Lấy quantity device types thành công",
+                message: "Lấy quantity floors thành công",
                 data: result
             });
         } catch (err) {
             return res.status(400).json({
                 status: "fail",
-                message: "Lỗi getQuantityDeviceTypes",
+                message: "Lỗi getQuantityFloors",
                 error: err
             });
         }
     },
-    findDeviceTypeByIdOrName: async (req, res) => {
+    findFloorByIdOrName: async (req, res) => {
         const search = req.params.search;
         try {
-            const result = await findDeviceTypeByIdOrName(search);
+            const result = await findFloorByIdOrName(search);
             if (!result) {
                 return res.status(400).json({
                     status: "fail",
@@ -62,21 +62,21 @@ module.exports = {
             }
             return res.status(200).json({
                 status: "success",
-                message: "Tìm device types thành công",
+                message: "Tìm floors thành công",
                 data: result
             });
         } catch (err) {
             return res.status(400).json({
                 status: "fail",
-                message: "Lỗi findDeviceTypeByIdOrName",
+                message: "Lỗi findFloorByIdOrName",
                 error: err
             });
         }
     },
-    findDeviceTypeById: async (req, res) => {
-        const deviceTypeId = req.body.deviceTypeId;
+    findFloorById: async (req, res) => {
+        const floorId = req.body.floorId;
         try {
-            const result = await findDeviceTypeById(deviceTypeId);
+            const result = await findFloorById(floorId);
             if (!result) {
                 return res.status(400).json({
                     status: "fail",
@@ -86,163 +86,149 @@ module.exports = {
             }
             return res.status(200).json({
                 status: "success",
-                message: "Tìm device types thành công",
+                message: "Tìm floors thành công",
                 data: result
             });
         } catch (err) {
             return res.status(400).json({
                 status: "fail",
-                message: "Lỗi findDeviceTypeById",
+                message: "Lỗi findFloorById",
                 error: err
             });
         }
     },
-    createDeviceType: async (req, res) => {
-        const deviceTypeName = req.body.deviceTypeName;
-        const deviceTypeImage = req.body.deviceTypeImage;
-        if (!deviceTypeName) {
+    createFloor: async (req, res) => {
+        const floorName = req.body.floorName;
+        if (!floorName) {
             return res.status(400).json({
                 status: "fail",
-                message: "Tên loại thiết bị không hợp lệ!"
-            });
-        }
-        if (!deviceTypeImage) {
-            return res.status(400).json({
-                status: "fail",
-                message: "Hình ảnh không hợp lệ!"
+                message: "Tên Tầng không hợp lệ!"
             });
         }
         try {
-            const createDeviceTypeRes = await createDeviceType(deviceTypeName, deviceTypeImage);
-            if (!createDeviceTypeRes) {
+            const createFloorRes = await createFloor(floorName);
+            if (!createFloorRes) {
                 return res.status(400).json({
                     status: "fail",
-                    message: "Cann't create device type!"
+                    message: "Cann't create floor!"
                 });
             }
 
-            createLogAdmin(req, res, " vừa thêm Loại thiết bị mới tên: " + deviceTypeName, "CREATE").then(() => {
+            createLogAdmin(req, res, " vừa tạo Floor mới tên: " + floorId, "CREATE").then(() => {
                 // Success
                 return res.status(200).json({
                     status: "success",
-                    message: "Thêm loại thiết bị mới thành công!"
+                    message: "Thêm Tầng mới thành công!"
                 });
             });
 
         } catch (err) {
             return res.status(400).json({
                 status: "fail",
-                message: "Error when create device type!",
+                message: "Error when create floor!",
                 error: err
             });
         }
     },
-    updateDeviceType: async (req, res) => {
-        const deviceTypeName = req.body.deviceTypeName;
-        const deviceTypeImage = req.body.deviceTypeImage;
-        const deviceTypeId = req.body.deviceTypeId;
-        if (!deviceTypeName) {
+    updateFloor: async (req, res) => {
+        const floorName = req.body.floorName;
+        const floorId = req.body.floorId;
+        if (!floorName) {
             return res.status(400).json({
                 status: "fail",
-                message: "Tên loại thiết bị không hợp lệ!"
+                message: "Tên Tầng không hợp lệ!"
             });
         }
-        if (!deviceTypeImage) {
+        if (!floorId || !Number.isInteger(floorId) || floorId < 0) {
             return res.status(400).json({
                 status: "fail",
-                message: "Hình ảnh không hợp lệ!"
-            });
-        }
-        if (!deviceTypeId || !Number.isInteger(deviceTypeId) || deviceTypeId < 0) {
-            return res.status(400).json({
-                status: "fail",
-                message: "Mã loại thiết bị không hợp lệ!"
+                message: "Mã tầng không hợp lệ!"
             });
         }
         try {
-            const deviceTypeRes = await findDeviceTypeById(deviceTypeId);
-            if (!deviceTypeRes) {
+            const floorRes = await findFloorById(floorId);
+            if (!floorRes) {
                 return res.status(400).json({
                     status: "fail",
-                    message: "Cann't find device type!"
+                    message: "Cann't find floor!"
                 });
             }
             try {
-                const updateDeviceTypeRes = await updateDeviceTypeById(deviceTypeName, deviceTypeImage, deviceTypeId);
-                if (!updateDeviceTypeRes) {
+                const updateFloorRes = await updateFloorById(floorName, floorId);
+                if (!updateFloorRes) {
                     return res.status(400).json({
                         status: "fail",
-                        message: "Cann't update device type!"
+                        message: "Cann't update floor!"
                     });
                 }
 
-                createLogAdmin(req, res, " vừa cập nhật Loại thiết bị mã: " + deviceTypeId, "UPDATE").then(() => {
+                createLogAdmin(req, res, " vừa cập nhật Floor mã: " + floorId, "UPDATE").then(() => {
                     // Success
                     return res.status(200).json({
                         status: "success",
-                        message: "Cập nhật loại thiết bị mới thành công!"
+                        message: "Cập nhật Tầng mới thành công!"
                     });
                 });
 
             } catch (err) {
                 return res.status(400).json({
                     status: "fail",
-                    message: "Error when update device type!",
+                    message: "Error when update floor!",
                     error: err
                 });
             }
         } catch (err) {
             return res.status(400).json({
                 status: "fail",
-                message: "Error when find device type!",
+                message: "Error when find floor!",
                 error: err
             });
         }
     },
-    deleteDeviceType: async (req, res) => {
-        const deviceTypeId = parseInt(req.params.deviceTypeId);
-        if (!deviceTypeId || !Number.isInteger(deviceTypeId) || deviceTypeId < 0) {
+    deleteFloor: async (req, res) => {
+        const floorId = parseInt(req.params.floorId);
+        if (!floorId || !Number.isInteger(floorId) || floorId < 0) {
             return res.status(400).json({
                 status: "fail",
-                message: "Mã loại thiết bị không hợp lệ!"
+                message: "Mã Tầng không hợp lệ!"
             });
         }
         try {
-            const deviceTypeRes = await findDeviceTypeById(deviceTypeId);
-            if (!deviceTypeRes) {
+            const FloorRes = await findFloorById(floorId);
+            if (!FloorRes) {
                 return res.status(400).json({
                     status: "fail",
-                    message: "Cann't find device type!"
+                    message: "Cann't find floor!"
                 });
             }
             try {
-                const deleteDeviceTypeRes = await deleteDeviceType(deviceTypeId);
-                if (!deleteDeviceTypeRes) {
+                const deleteFloorRes = await deleteFloor(floorId);
+                if (!deleteFloorRes) {
                     return res.status(400).json({
                         status: "fail",
-                        message: "Cann't delete device type!"
+                        message: "Cann't delete floor!"
                     });
                 }
 
-                createLogAdmin(req, res, " vừa xóa Loại thiết bị mã: " + deviceTypeId, "DELETE").then(() => {
+                createLogAdmin(req, res, " vừa xóa Floor mã: " + floorId, "DELETE").then(() => {
                     // Success
                     return res.status(200).json({
                         status: "success",
-                        message: "Xóa loại thiết bị mới thành công!"
+                        message: "Xóa Tầng thành công!"
                     });
                 });
 
             } catch (err) {
                 return res.status(400).json({
                     status: "fail",
-                    message: "Error when delete device type!",
+                    message: "Error when delete floor!",
                     error: err
                 });
             }
         } catch (err) {
             return res.status(400).json({
                 status: "fail",
-                message: "Error when find device type!",
+                message: "Error when find floor!",
                 error: err
             });
         }

@@ -8,11 +8,12 @@ import ManageDevice from "./pages/ManageDevice";
 import ManageDeviceType from "./pages/ManageDeviceType";
 import ManageDiscount from "./pages/ManageDiscount";
 import ManageFloor from "./pages/ManageFloor";
+import ManageRoomType from "./pages/ManageRoomType";
+import ManageRoom from "./pages/ManageRoom";
 
 import QuanLyDonHang from "./pages/QuanLyDonHang";
 import QuanLyKhachHang from "./pages/QuanLyKhachHang";
 import QuanLyNhanVien from "./pages/QuanLyNhanVien";
-import QuanLyThuCung from "./pages/QuanLyThuCung";
 
 
 const App = () => {
@@ -47,14 +48,19 @@ const App = () => {
                         <ManageFloor />
                     </PrivateRoute>
                 } />
-
-
-
-                <Route path='/quanlythucung' element={
+                <Route path='/manageRoomType' element={
                     <PrivateRoute>
-                        <QuanLyThuCung />
+                        <ManageRoomType />
                     </PrivateRoute>
                 } />
+                <Route path='/manageRoom' element={
+                    <PrivateRoute>
+                        <ManageRoom />
+                    </PrivateRoute>
+                } />
+
+
+
                 <Route path='/quanlykhachhang' element={
                     <PrivateRoute>
                         <QuanLyKhachHang />

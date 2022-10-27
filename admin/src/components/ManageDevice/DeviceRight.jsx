@@ -155,7 +155,7 @@ const DeviceRight = ({ reRenderData, setReRenderData }) => {
                     onClick={() => openModal({ type: "createDevice" })}
                 >
                     <Add />
-                    <h3>Thêm Loại thiết bị</h3>
+                    <h3>Thêm Thiết bị</h3>
                 </Item>
             </SalesAnalytics>
 
