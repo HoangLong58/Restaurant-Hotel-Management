@@ -3,13 +3,11 @@ import styled from 'styled-components';
 // Date picker
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { TimePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import moment from 'moment';
 // Time picker
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { AccessAlarmsOutlined, Add, ArrowRightAltOutlined, CelebrationOutlined, CheckCircleRounded, CheckOutlined, Remove, ReplayOutlined } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
@@ -21,20 +19,7 @@ import BookPartyProgress from './BookPartyProgress';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 
-import menu1 from '../../img/menu1.jpg';
-import menu2 from '../../img/menu2.jpg';
-import menu3 from '../../img/menu3.jpg';
-import menu4 from '../../img/menu4.jpg';
-import menu5 from '../../img/menu5.jpg';
-import menu6 from '../../img/menu6.jpg';
-import menu7 from '../../img/menu7.jpg';
-import menu8 from '../../img/menu8.jpg';
 
-import view3 from '../../img/hoboi1.jpg';
-import view5 from '../../img/lavender1.jpg';
-import view2 from '../../img/lobby1.jpg';
-import view4 from '../../img/santhuong1.jpg';
-import view1 from '../../img/sanvuon1.jpg';
 
 import cash from '../../img/cash-icon.jpg';
 import momoImage from '../../img/momo.jpg';
@@ -46,21 +31,20 @@ import SliderImage from './SliderImage';
 
 // SERVICES
 import { REACT_APP_STRIPE } from "../../constants/Var";
-import * as PartyHallTimeService from "../../service/PartyHallTimeService";
-import * as PartyBookingTypeService from "../../service/PartyBookingTypeService";
-import * as PartyHallTypeService from "../../service/PartyHallTypeService";
-import * as PartyHallService from "../../service/PartyHallService";
-import * as SetMenuService from "../../service/SetMenuService";
 import * as DiscountService from "../../service/DiscountService";
-import * as PaymentService from "../../service/PaymentService";
 import * as PartyBookingOrderService from "../../service/PartyBookingOrderService";
+import * as PartyBookingTypeService from "../../service/PartyBookingTypeService";
+import * as PartyHallService from "../../service/PartyHallService";
+import * as PartyHallTimeService from "../../service/PartyHallTimeService";
+import * as PartyHallTypeService from "../../service/PartyHallTypeService";
+import * as PaymentService from "../../service/PaymentService";
+import * as SetMenuService from "../../service/SetMenuService";
 
 import StripeCheckout from 'react-stripe-checkout';
 
-import { addCustomerBookingParty, addDiscountBookingParty, addPartyBookingTotal, chooseDayAndQuantityBookingParty, logoutPartyBooking } from '../../redux/partyBookingRedux';
 import { useDispatch, useSelector } from 'react-redux';
+import { addCustomerBookingParty, addDiscountBookingParty, addPartyBookingTotal, chooseDayAndQuantityBookingParty, logoutPartyBooking } from '../../redux/partyBookingRedux';
 import { format_money, traceCurrency } from '../../utils/utils';
-import { add } from 'date-fns/esm';
 
 const Box2 = styled.div`
 width: 100%;
@@ -1253,25 +1237,33 @@ const BookPartyMain = () => {
     // --Handle time
     const [minutes, setMinutes] = useState();
     const [seconds, setSeconds] = useState();
-    // useEffect(() => {
-    //     let myInterval = setInterval(() => {
-    //         if (seconds > 0) {
-    //             setSeconds(seconds - 1);
-    //         }
-    //         if (seconds === 0) {
-    //             if (minutes === 0) {
-    //                 clearInterval(myInterval)
-    //             } else {
-    //                 setMinutes(minutes - 1);
-    //                 setSeconds(59);
-    //             }
-    //         }
-    //     }, 1000)
-    //     return () => {
-    //         clearInterval(myInterval);
-    //     };
-    // });
+    useEffect(() => {
+        let myInterval = setInterval(() => {
+            if (seconds > 0) {
+                setSeconds(seconds - 1);
+            }
+            if (seconds === 0) {
+                if (minutes === 0) {
+                    clearInterval(myInterval)
+                } else {
+                    setMinutes(minutes - 1);
+                    setSeconds(59);
+                }
+            }
+        }, 1000)
+        return () => {
+            clearInterval(myInterval);
+        };
+    });
 
+    useEffect(() => {
+        if (minutes === 0 && seconds === 0) {
+            // Toast
+            const dataToast = { message: "Thời gian giữ Sảnh đã hết!", type: "success" };
+            showToastFromOut(dataToast);
+            return;
+        }
+    }, [minutes, seconds])
 
     //State
     const [setMenuModal, setSetMenuModal] = useState();
@@ -1562,6 +1554,7 @@ const BookPartyMain = () => {
                                 stripeKey={REACT_APP_STRIPE}
                             >
                                 <ButtonClick
+                                    disabled={minutes === 0 && seconds === 0 ? true : false}
                                     onClick={() => {
                                         handlePartyBookingOrder()
                                     }}
@@ -1576,6 +1569,7 @@ const BookPartyMain = () => {
             default:
                 return (
                     <ButtonClick
+                        disabled={minutes === 0 && seconds === 0 ? true : false}
                         onClick={() => {
                             handlePartyBookingOrder()
                         }}

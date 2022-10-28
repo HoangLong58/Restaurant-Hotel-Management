@@ -5,8 +5,7 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as DiscountService from "../../service/DiscountService";
-import ReactPaginate from "react-paginate";
+import * as ServiceService from "../../service/ServiceService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -280,7 +279,7 @@ const EmptyContent = styled.div`
     font-weight: bold;
 `
 
-const DiscountMain = ({ reRenderData, setReRenderData }) => {
+const ServiceMain = ({ reRenderData, setReRenderData }) => {
     const InputRef = useRef(null);
     const [isSearch, setIsSearch] = useState(false);
     const [search, setSearch] = useState("");
@@ -292,9 +291,9 @@ const DiscountMain = ({ reRenderData, setReRenderData }) => {
         } else {
             // Thực hiện tìm kiếm
             console.log(search);
-            const findDiscount = async () => {
+            const findService = async () => {
                 try {
-                    const searchRes = await DiscountService.findDiscountByIdOrName(search);
+                    const searchRes = await ServiceService.findServiceByIdOrName(search);
                     if (searchRes.data.data.length === 0) {
                         setNoResultFound(true);
                         // Toast
@@ -303,7 +302,7 @@ const DiscountMain = ({ reRenderData, setReRenderData }) => {
                         return;
                     }
                     setNoResultFound(false);
-                    setDiscountList(searchRes.data.data);
+                    setServiceList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };
                     showToastFromOut(dataToast);
@@ -314,42 +313,42 @@ const DiscountMain = ({ reRenderData, setReRenderData }) => {
                     showToastFromOut(dataToast);
                 }
             }
+            findService();
             handleLoading();
-            findDiscount();
         }
     }
     const handleClose = () => {
         setIsSearch(false);
         setNoResultFound(false);
         InputRef.current.value = "";
-        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DiscountMain & DanhMucRight.jsx
+        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - ServiceMain & DanhMucRight.jsx
     }
 
-    // Lấy danh mục
-    const [discountList, setDiscountList] = useState([]);
+    // Lấy Dịch vụ
+    const [serviceList, setServiceList] = useState([]);
     useEffect(() => {
-        const getDiscounts = async () => {
+        const getServices = async () => {
             try {
-                const discountRes = await DiscountService.getDiscounts();
-                setDiscountList(discountRes.data.data);
+                const serviceRes = await ServiceService.getServices();
+                setServiceList(serviceRes.data.data);
             } catch (err) {
-                console.log("Lỗi lấy discount: ", err);
+                console.log("Lỗi lấy device type: ", err);
             }
         }
-        getDiscounts();
         handleLoading();
+        getServices();
     }, [reRenderData]);
-    console.log("discountList: ", discountList);
+    console.log("serviceList: ", serviceList);
 
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
-    const [discountModal, setDiscountModal] = useState(null);
+    const [serviceModal, setServiceModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
-        setDiscountModal(modal.discount);
+        setServiceModal(modal.service);
     }
 
     // ===== TOAST =====
@@ -376,53 +375,9 @@ const DiscountMain = ({ reRenderData, setReRenderData }) => {
             setIsLoading(false);
         }, 1200);
     };
-
-    // PHÂN TRANG
-    const [pageNumber, setPageNumber] = useState(0);
-
-    const discountPerPage = 12;
-    const pageVisited = pageNumber * discountPerPage;
-
-    const discountFiltered = discountList
-        .slice(pageVisited, pageVisited + discountPerPage)
-        .map((discount, key) => {
-            return (
-                <Tr>
-                    <Td onClick={() => openModal({ type: "detailDiscount", discount: discount })}>{pageNumber * discountPerPage + (key + 1)}</Td>
-                    <Td onClick={() => openModal({ type: "detailDiscount", discount: discount })}>{discount.discount_id}</Td>
-                    <Td onClick={() => openModal({ type: "detailDiscount", discount: discount })}>{discount.discount_percent}</Td>
-                    <Td onClick={() => openModal({ type: "detailDiscount", discount: discount })}>{discount.discount_code}</Td>
-                    <Td
-                        onClick={() => openModal({ type: "detailDiscount", discount: discount })}
-                        style={{ backgroundColor: discount.discount_state === 0 ? "var(--color-info)" : discount.discount_state === 1 ? "var(--color-danger)" : null }}
-                    >{discount.discount_state === 0 ? "Chưa sử dụng" : discount.discount_state === 1 ? "Đã sử dụng" : null}</Td>
-                    <Td className="warning">
-                        <ButtonFix
-                            onClick={() => openModal({ type: "updateDiscount", discount: discount })}
-                        >
-                            <DriveFileRenameOutlineOutlined />
-                        </ButtonFix>
-                    </Td>
-                    <Td className="primary">
-                        <ButtonDelete
-                            onClick={() => openModal({ type: "deleteDiscount", discount: discount })}
-                        >
-                            <DeleteSweepOutlined />
-                        </ButtonDelete>
-                    </Td>
-                </Tr>
-            );
-        }
-        );
-
-
-    const pageCount = Math.ceil(discountList.length / discountPerPage);
-    const changePage = ({ selected }) => {
-        setPageNumber(selected);
-    }
     return (
         <Container>
-            <H2>Quản lý Mã giảm giá</H2>
+            <H2>Quản lý Dịch vụ - Khách sạn</H2>
 
             {/* Tìm kiếm */}
             <SearchWrapper className={isSearch ? "active" : null}>
@@ -434,15 +389,15 @@ const DiscountMain = ({ reRenderData, setReRenderData }) => {
             </SearchWrapper>
 
             <RecentOrders>
-                <H2>Mã giảm giá hiện tại</H2>
+                <H2>Dịch vụ - Khách sạn hiện tại</H2>
                 <Table>
                     <Thead>
                         <Tr>
                             <Th>STT</Th>
-                            <Th>Mã số Mã giảm giá</Th>
-                            <Th>Tỉ lệ giảm giá</Th>
-                            <Th>Mã giảm giá</Th>
-                            <Th>Trạng thái</Th>
+                            <Th>Mã Dịch vụ</Th>
+                            <Th>Tên Dịch vụ</Th>
+                            <Th>Thời gian</Th>
+                            <Th>Hình ảnh</Th>
                             <Th>Chỉnh sửa</Th>
                             <Th>Xóa</Th>
                         </Tr>
@@ -490,30 +445,30 @@ const DiscountMain = ({ reRenderData, setReRenderData }) => {
                                     </Td>
                                 </Tr>
                             ) :
-                                discountList.length > 0
+                                serviceList.length > 0
                                     ?
-                                    discountFiltered
-                                    :
-                                    (discountList.map((discount, key) => {
+                                    (serviceList.map((service, key) => {
                                         return (
                                             <Tr>
-                                                <Td>{key + 1}</Td>
-                                                <Td>{discount.discount_id}</Td>
-                                                <Td>{discount.discount_percent}</Td>
-                                                <Td>{discount.discount_code}</Td>
-                                                <Td
-                                                    style={{ backgroundColor: discount.discount_state === 0 ? "var(--color-info)" : discount.discount_state === 1 ? "var(--color-danger)" : null }}
-                                                >{discount.discount_state === 0 ? "Chưa sử dụng" : discount.discount_state === 1 ? "Đã sử dụng" : null}</Td>
+                                                <Td onClick={() => openModal({ type: "detailService", service: service })}>{key + 1}</Td>
+                                                <Td onClick={() => openModal({ type: "detailService", service: service })}>{service.service_id}</Td>
+                                                <Td onClick={() => openModal({ type: "detailService", service: service })}>{service.service_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailService", service: service })}>{service.service_time}</Td>
+                                                <Td 
+                                                 onClick={() => openModal({ type: "detailService", service: service })}
+                                                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <ImgDanhMuc src={service.service_image} />
+                                                </Td>
                                                 <Td className="warning">
                                                     <ButtonFix
-                                                        onClick={() => openModal({ type: "updateDiscount", discount: discount })}
+                                                        onClick={() => openModal({ type: "updateService", service: service })}
                                                     >
                                                         <DriveFileRenameOutlineOutlined />
                                                     </ButtonFix>
                                                 </Td>
                                                 <Td className="primary">
                                                     <ButtonDelete
-                                                        onClick={() => openModal({ type: "deleteDiscount", discount: discount })}
+                                                        onClick={() => openModal({ type: "deleteService", service: service })}
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
@@ -521,23 +476,11 @@ const DiscountMain = ({ reRenderData, setReRenderData }) => {
                                             </Tr>
                                         );
                                     }))
+                                    :
+                                    null
                         }
                     </Tbody>
                 </Table>
-                <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
-                    pageCount={pageCount}
-                    onPageChange={changePage}
-                    containerClassName={"paginationBttns"}
-                    previousLinkClassName={"previousBttn"}
-                    nextLinkClassName={"nextBttn"}
-                    disabledClassName={"paginationDisabled"}
-                    activeClassName={"paginationActive"}
-                    nextClassName={"nextClassName"}
-                    pageLinkClassName={"pageLinkClassName"}
-                    forcePage={pageNumber}
-                />
                 <A onClick={() => {
                     window.scrollTo({
                         top: 0,
@@ -551,7 +494,7 @@ const DiscountMain = ({ reRenderData, setReRenderData }) => {
                 showModal={showModal}   //state Đóng mở modal
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
-                discount={discountModal}  //Dữ liệu bên trong modal
+                service={serviceModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast
@@ -568,4 +511,4 @@ const DiscountMain = ({ reRenderData, setReRenderData }) => {
 
 
 
-export default DiscountMain;
+export default ServiceMain;

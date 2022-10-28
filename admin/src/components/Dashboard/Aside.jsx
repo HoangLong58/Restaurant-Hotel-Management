@@ -1,5 +1,5 @@
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import { PersonOutlineOutlined, PetsOutlined, GridViewOutlined, InventoryOutlined, AssignmentIndOutlined, LogoutOutlined, CategoryOutlined, ConnectedTvOutlined, DiscountOutlined, DomainAddOutlined, ClassOutlined, MeetingRoomOutlined } from "@mui/icons-material";
+import { PersonOutlineOutlined, PetsOutlined, GridViewOutlined, InventoryOutlined, AssignmentIndOutlined, LogoutOutlined, CategoryOutlined, ConnectedTvOutlined, DiscountOutlined, DomainAddOutlined, ClassOutlined, MeetingRoomOutlined, SpaOutlined } from "@mui/icons-material";
 import styled from "styled-components";
 import { useState } from 'react';
 import { Link } from "react-router-dom";
@@ -39,7 +39,7 @@ const Close = styled.div`
 const SideBar = styled.div`
     display: flex;
     flex-direction: column;
-    height: 86vh;
+    height: 76vh;
     position: relative;
     top: 3rem;
 `;
@@ -59,11 +59,11 @@ const LinkStyled = styled(Link)`
     position: relative;
     height: 3.7rem;
     transition: all 300ms ease;
-    &:last-child {
+    /* &:last-child {
         position: absolute;
         bottom: 2rem;
         width: 100%;
-    }
+    } */
     &.active {
         background: var(--color-light);
         color: var(--color-primary);
@@ -92,6 +92,20 @@ const H3 = styled.h3`
     font-size: 0.87rem;
 `;
 
+const SideBarTop = styled.div`
+    height: 70vh;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+    /* display: none; */
+    width: 2px;
+}
+`;
+const SideBarBottom = styled.div`
+    position: fixed;
+    bottom: 10px;
+    left: 30px;
+`;
+
 const Aside = (props) => {
 
     // Dashboard
@@ -107,6 +121,7 @@ const Aside = (props) => {
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
+        setServiceIsActive(false);
     }
 
     // Quản lý Thiết bị
@@ -122,6 +137,7 @@ const Aside = (props) => {
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
+        setServiceIsActive(false);
     }
 
     // Quản lý Loại thiết bị
@@ -137,6 +153,7 @@ const Aside = (props) => {
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
+        setServiceIsActive(false);
     }
     // Quản lý Mã giảm giá
     const [isDiscountActive, setDiscountIsActive] = useState(props.active === "manageDiscount" ? true : false);
@@ -151,6 +168,7 @@ const Aside = (props) => {
         setDeviceIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
+        setServiceIsActive(false);
     }
     // Quản lý Tầng
     const [isFloorActive, setFloorIsActive] = useState(props.active === "manageFloor" ? true : false);
@@ -164,6 +182,22 @@ const Aside = (props) => {
         setNhanVienIsActive(false);
         setDonHangIsActive(false);
         setDeviceIsActive(false);
+        setRoomTypeIsActive(false);
+        setServiceIsActive(false);
+    }
+    // Quản lý Dịch vụ
+    const [isServiceActive, setServiceIsActive] = useState(props.active === "manageService" ? true : false);
+    const handleClickService = () => {
+        setServiceIsActive(true);
+        setDashBoardIsActive(false);
+        setDeviceTypeIsActive(false);
+        setRoomIsActive(false);
+        setKhachHangIsActive(false);
+        setNhanVienIsActive(false);
+        setDonHangIsActive(false);
+        setDeviceIsActive(false);
+        setDiscountIsActive(false);
+        setFloorIsActive(false);
         setRoomTypeIsActive(false);
     }
     // Quản lý Loại phòng - Khách sạn
@@ -179,8 +213,9 @@ const Aside = (props) => {
         setNhanVienIsActive(false);
         setDonHangIsActive(false);
         setDeviceIsActive(false);
+        setServiceIsActive(false);
     }
-    // Quản lý Thú cưng
+    // Quản lý Phòng
     const [isRoomActive, setRoomIsActive] = useState(props.active === "manageRoom" ? true : false);
     const handleClickRoom = () => {
         setDashBoardIsActive(false);
@@ -193,6 +228,7 @@ const Aside = (props) => {
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
+        setServiceIsActive(false);
     }
 
 
@@ -211,6 +247,7 @@ const Aside = (props) => {
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
+        setServiceIsActive(false);
     }
 
     // Quản lý Nhân viên
@@ -226,6 +263,7 @@ const Aside = (props) => {
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
+        setServiceIsActive(false);
     }
 
     // Quản lý Đơn hàng
@@ -241,6 +279,7 @@ const Aside = (props) => {
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
+        setServiceIsActive(false);
     }
 
     // Đăng xuất
@@ -261,76 +300,87 @@ const Aside = (props) => {
                 </Close>
             </Top>
             <SideBar>
-                <LinkStyled to={"/"} className={isDashBoardActive ? "active" : null} onClick={handleClickDashBoard}>
-                    <IconSpan>
-                        <GridViewOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Dashboard</H3>
-                </LinkStyled>
-                <LinkStyled to={"/manageDevice"} className={isDeviceActive ? "active" : null} onClick={handleClickDevice}>
-                    <IconSpan>
-                        <ConnectedTvOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Quản lý Thiết bị - Khách sạn</H3>
-                </LinkStyled>
-                <LinkStyled to={"/manageDeviceType"} className={isDeviceTypeActive ? "active" : null} onClick={handleClickDeviceType}>
-                    <IconSpan>
-                        <CategoryOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Quản lý Loại thiết bị - Khách sạn</H3>
-                </LinkStyled>
-                <LinkStyled to={"/manageDiscount"} className={isDiscountActive ? "active" : null} onClick={handleClickDiscount}>
-                    <IconSpan>
-                        <DiscountOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Quản lý Mã giảm giá</H3>
-                </LinkStyled>
-                <LinkStyled to={"/manageFloor"} className={isFloorActive ? "active" : null} onClick={handleClickFloor}>
-                    <IconSpan>
-                        <DomainAddOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Quản lý Tầng</H3>
-                </LinkStyled>
-                <LinkStyled to={"/manageRoomType"} className={isRoomTypeActive ? "active" : null} onClick={handleClickRoomType}>
-                    <IconSpan>
-                        <ClassOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Quản lý Loại phòng - Khách sạn</H3>
-                </LinkStyled>
-                <LinkStyled to={"/manageRoom"} className={isRoomActive ? "active" : null} onClick={handleClickRoom}>
-                    <IconSpan>
-                        <MeetingRoomOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Quản lý Phòng - Khách sạn</H3>
-                </LinkStyled>
+                <SideBarTop>
+
+                    <LinkStyled to={"/"} className={isDashBoardActive ? "active" : null} onClick={handleClickDashBoard}>
+                        <IconSpan>
+                            <GridViewOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Dashboard</H3>
+                    </LinkStyled>
+                    <LinkStyled to={"/manageDevice"} className={isDeviceActive ? "active" : null} onClick={handleClickDevice}>
+                        <IconSpan>
+                            <ConnectedTvOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Thiết bị - Khách sạn</H3>
+                    </LinkStyled>
+                    <LinkStyled to={"/manageDeviceType"} className={isDeviceTypeActive ? "active" : null} onClick={handleClickDeviceType}>
+                        <IconSpan>
+                            <CategoryOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Loại thiết bị - Khách sạn</H3>
+                    </LinkStyled>
+                    <LinkStyled to={"/manageDiscount"} className={isDiscountActive ? "active" : null} onClick={handleClickDiscount}>
+                        <IconSpan>
+                            <DiscountOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Mã giảm giá</H3>
+                    </LinkStyled>
+                    <LinkStyled to={"/manageFloor"} className={isFloorActive ? "active" : null} onClick={handleClickFloor}>
+                        <IconSpan>
+                            <DomainAddOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Tầng</H3>
+                    </LinkStyled>
+                    <LinkStyled to={"/manageService"} className={isServiceActive ? "active" : null} onClick={handleClickService}>
+                        <IconSpan>
+                            <SpaOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Dịch vụ - Khách sạn</H3>
+                    </LinkStyled>
+                    <LinkStyled to={"/manageRoomType"} className={isRoomTypeActive ? "active" : null} onClick={handleClickRoomType}>
+                        <IconSpan>
+                            <ClassOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Loại phòng - Khách sạn</H3>
+                    </LinkStyled>
+                    <LinkStyled to={"/manageRoom"} className={isRoomActive ? "active" : null} onClick={handleClickRoom}>
+                        <IconSpan>
+                            <MeetingRoomOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Phòng - Khách sạn</H3>
+                    </LinkStyled>
 
 
 
-                <LinkStyled to={"/quanlykhachhang"} className={isKhachHangActive ? "active" : null} onClick={handleClickKhachHang}>
-                    <IconSpan>
-                        <PersonOutlineOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Quản lý Khách hàng</H3>
-                </LinkStyled>
-                <LinkStyled to={"/quanlynhanvien"} className={isNhanVienActive ? "active" : null} onClick={handleClickNhanVien}>
-                    <IconSpan>
-                        <AssignmentIndOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Quản lý Nhân viên</H3>
-                </LinkStyled>
-                <LinkStyled to={"/quanlydonhang"} className={isDonHangActive ? "active" : null} onClick={handleClickDonHang}>
-                    <IconSpan>
-                        <InventoryOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Quản lý Đơn hàng</H3>
-                </LinkStyled>
+                    <LinkStyled to={"/quanlykhachhang"} className={isKhachHangActive ? "active" : null} onClick={handleClickKhachHang}>
+                        <IconSpan>
+                            <PersonOutlineOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Khách hàng</H3>
+                    </LinkStyled>
+                    <LinkStyled to={"/quanlynhanvien"} className={isNhanVienActive ? "active" : null} onClick={handleClickNhanVien}>
+                        <IconSpan>
+                            <AssignmentIndOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Nhân viên</H3>
+                    </LinkStyled>
+                    <LinkStyled to={"/quanlydonhang"} className={isDonHangActive ? "active" : null} onClick={handleClickDonHang}>
+                        <IconSpan>
+                            <InventoryOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Đơn hàng</H3>
+                    </LinkStyled>
+                </SideBarTop>
 
-                <LinkStyled to={"/"} onClick={() => handleDangXuat()}>
-                    <IconSpan >
-                        <LogoutOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
-                    </IconSpan>
-                    <H3>Đăng xuất</H3>
-                </LinkStyled>
+                <SideBarBottom>
+                    <LinkStyled to={"/"} onClick={() => handleDangXuat()}>
+                        <IconSpan >
+                            <LogoutOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Đăng xuất</H3>
+                    </LinkStyled>
+                </SideBarBottom>
             </SideBar>
         </Container>
 

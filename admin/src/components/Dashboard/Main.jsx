@@ -570,7 +570,7 @@ const Main = () => {
                         },
                     }}
                 >
-                    <H2>Thống kê Doanh thu từng danh mục thú cưng theo tháng ({new window.Date().getFullYear()})</H2>
+                    <H2>Thống kê Doanh thu Nhà hàng - Khách sạn theo tháng ({new window.Date().getFullYear()})</H2>
                 </TooltipMui>
                 <Line
                     data={{

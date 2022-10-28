@@ -287,7 +287,6 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
     }, [showModal]);
 
     const handleUpdateDevice = async (newDeviceName, newDeviceDate, newDeviceDescription, newDeviceImage, newDeviceState, deviceTypeId, deviceId) => {
-        console.log("newDeviceName, newDeviceDate, newDeviceDescription, newDeviceImage, newDeviceState, deviceTypeId, deviceId: ", newDeviceName, newDeviceDate, newDeviceDescription, newDeviceImage, newDeviceState, deviceTypeId, deviceId);
         try {
             const updateDeviceRes = await DeviceService.updateDevice({
                 deviceId: deviceId,
@@ -514,7 +513,6 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
 
     // Create new divice
     const handleCreateDevice = async (newName, newDescription, newImage, deviceTypeId) => {
-        console.log("newName, newDescription, newImage, deviceTypeId: ", newName, newDescription, newImage, deviceTypeId);
         try {
             const createDeviceRes = await DeviceService.createDevice({
                 deviceName: newName,

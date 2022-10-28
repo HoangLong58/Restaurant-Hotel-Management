@@ -8,6 +8,7 @@ import ManageDevice from "./pages/ManageDevice";
 import ManageDeviceType from "./pages/ManageDeviceType";
 import ManageDiscount from "./pages/ManageDiscount";
 import ManageFloor from "./pages/ManageFloor";
+import ManageService from "./pages/ManageService";
 import ManageRoomType from "./pages/ManageRoomType";
 import ManageRoom from "./pages/ManageRoom";
 
@@ -46,6 +47,11 @@ const App = () => {
                 <Route path='/manageFloor' element={
                     <PrivateRoute>
                         <ManageFloor />
+                    </PrivateRoute>
+                } />
+                <Route path='/manageService' element={
+                    <PrivateRoute>
+                        <ManageService />
                     </PrivateRoute>
                 } />
                 <Route path='/manageRoomType' element={

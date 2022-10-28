@@ -35,5 +35,50 @@ module.exports = {
                 }
             );
         });
+    },
+
+    // Admin: Quản lý Phòng
+    createRoomImage: (content, roomId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `insert 
+                into room_image
+                (
+                    room_image_content,
+                    room_id
+                )
+                values
+                (?, ?)`,
+                [content, roomId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        });
+    },
+    DeleteRoomImagesByRoomId: (roomId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `delete 
+                from room_image 
+                where room_id = ?`,
+                [roomId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        });
     }
 };

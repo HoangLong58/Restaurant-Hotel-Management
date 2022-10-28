@@ -744,7 +744,7 @@ const BookTableMain = () => {
                                                                         </div>
                                                                         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                                                                             <BookButtonContainer>
-                                                                                <BookButton
+                                                                                <BookButton disabled={minutes === 0 && seconds === 0 ? true : false}
                                                                                     onClick={() => handleBookTable()}
                                                                                 >Đặt bàn</BookButton>
                                                                             </BookButtonContainer>

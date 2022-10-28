@@ -301,6 +301,7 @@ const RoomTypeMain = ({ reRenderData, setReRenderData }) => {
                         showToastFromOut(dataToast);
                         return;
                     }
+                    setNoResultFound(false);
                     setRoomTypeList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };

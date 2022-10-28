@@ -303,6 +303,7 @@ const DeviceMain = ({ reRenderData, setReRenderData }) => {
                         showToastFromOut(dataToast);
                         return;
                     }
+                    setNoResultFound(false);
                     setDeviceList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };
@@ -335,8 +336,8 @@ const DeviceMain = ({ reRenderData, setReRenderData }) => {
                 console.log("Lỗi lấy device type: ", err);
             }
         }
-        getDevices();
         handleLoading();
+        getDevices();
     }, [reRenderData]);
     console.log("deviceList: ", deviceList);
 

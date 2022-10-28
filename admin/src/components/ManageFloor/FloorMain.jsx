@@ -301,6 +301,7 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                         showToastFromOut(dataToast);
                         return;
                     }
+                    setNoResultFound(false);
                     setFloorList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };
@@ -312,8 +313,8 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                     showToastFromOut(dataToast);
                 }
             }
-            findFloors();
             handleLoading();
+            findFloors();
         }
     }
     const handleClose = () => {

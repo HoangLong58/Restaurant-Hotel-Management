@@ -5,7 +5,7 @@ import styled from "styled-components";
 import app from "../../firebase";
 
 // SERVICES
-import * as DeviceTypeService from "../../service/DeviceTypeService";
+import * as ServiceService from "../../service/ServiceService";
 
 const Background = styled.div`
     width: 100%;
@@ -168,7 +168,7 @@ const FormImg = styled.img`
     height: 200px;
 `
 
-const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, handleClose, showToastFromOut }) => {
+const Modal = ({ showModal, setShowModal, type, service, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal
     const modalRef = useRef();
     const closeModal = (e) => {
@@ -196,20 +196,22 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
 
     // =============== Xử lý cập nhật danh mục ===============
     useEffect(() => {
-        setDeviceTypeImageModalNew(null);
-        setDeviceTypeNameModalNew();
+        setServiceImageModalNew(null);
+        setServiceNameModalNew();
+        setServiceTimeModalNew();
     }, [showModal]);
 
-    const handleUpdateDeviceType = async (newDeviceTypeName, newDeviceTypeImage, deviceTypeId) => {
+    const handleUpdateService = async (newServiceName, newServiceImage, newServiceTime, serviceId) => {
         try {
-            const updateDeviceTypeRes = await DeviceTypeService.updateDeviceType({
-                deviceTypeId: deviceTypeId,
-                deviceTypeName: newDeviceTypeName,
-                deviceTypeImage: newDeviceTypeImage
+            const updateServiceRes = await ServiceService.updateService({
+                serviceId: serviceId,
+                serviceName: newServiceName,
+                serviceImage: newServiceImage,
+                serviceTime: newServiceTime
             });
-            if (!updateDeviceTypeRes) {
+            if (!updateServiceRes) {
                 // Toast
-                const dataToast = { message: updateDeviceTypeRes.data.message, type: "warning" };
+                const dataToast = { message: updateServiceRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -218,7 +220,7 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: updateDeviceTypeRes.data.message, type: "success" };
+            const dataToast = { message: updateServiceRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -231,40 +233,44 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
         }
     }
     //  test
-    const [deviceTypeModal, setDeviceTypeModal] = useState();
-    const [deviceTypeIdModal, setDeviceTypeIdModal] = useState();
-    const [deviceTypeNameModal, setDeviceTypeNameModal] = useState();
-    const [deviceTypeImageModal, setDeviceTypeImageModal] = useState();
+    const [serviceModal, setServiceModal] = useState();
+    const [serviceIdModal, setServiceIdModal] = useState();
+    const [serviceNameModal, setServiceNameModal] = useState();
+    const [serviceImageModal, setServiceImageModal] = useState();
+    const [serviceTimeModal, setServiceTimeModal] = useState();
 
-    const [deviceTypeModalOld, setDeviceTypeModalOld] = useState();
-    const [deviceTypeIdModalOld, setDeviceTypeIdModalOld] = useState();
-    const [deviceTypeNameModalOld, setDeviceTypeNameModalOld] = useState();
-    const [deviceTypeImageModalOld, setDeviceTypeImageModalOld] = useState();
+    const [serviceModalOld, setServiceModalOld] = useState();
+    const [serviceIdModalOld, setServiceIdModalOld] = useState();
+    const [serviceNameModalOld, setServiceNameModalOld] = useState();
+    const [serviceImageModalOld, setServiceImageModalOld] = useState();
+    const [serviceTimeModalOld, setServiceTimeModalOld] = useState();
     useEffect(() => {
-        const getDeviceType = async () => {
+        const getService = async () => {
             try {
-                const deviceTypeRes = await DeviceTypeService.findDeviceTypeById({
-                    deviceTypeId: deviceType.device_type_id
+                const serviceRes = await ServiceService.findServiceById({
+                    serviceId: service.service_id
                 });
-                console.log("RES: ", deviceTypeRes);
-                setDeviceTypeModal(deviceTypeRes.data.data);
-                setDeviceTypeIdModal(deviceTypeRes.data.data.device_type_id);
-                setDeviceTypeNameModal(deviceTypeRes.data.data.device_type_name);
-                setDeviceTypeImageModal(deviceTypeRes.data.data.device_type_image);
+                console.log("RES: ", serviceRes);
+                setServiceModal(serviceRes.data.data);
+                setServiceIdModal(serviceRes.data.data.service_id);
+                setServiceNameModal(serviceRes.data.data.service_name);
+                setServiceImageModal(serviceRes.data.data.service_image);
+                setServiceTimeModal(serviceRes.data.data.service_time);
 
-                setDeviceTypeModalOld(deviceTypeRes.data.data);
-                setDeviceTypeIdModalOld(deviceTypeRes.data.data.device_type_id);
-                setDeviceTypeNameModalOld(deviceTypeRes.data.data.device_type_name);
-                setDeviceTypeImageModalOld(deviceTypeRes.data.data.device_type_image);
+                setServiceModalOld(serviceRes.data.data);
+                setServiceIdModalOld(serviceRes.data.data.service_id);
+                setServiceNameModalOld(serviceRes.data.data.service_name);
+                setServiceImageModalOld(serviceRes.data.data.service_image);
+                setServiceTimeModalOld(serviceRes.data.data.service_time);
             } catch (err) {
-                console.log("Lỗi lấy danh mục: ", err);
+                console.log("Lỗi lấy danh mục: ", err.response);
             }
         }
-        if (deviceType) {
-            getDeviceType();
+        if (service) {
+            getService();
         }
-    }, [deviceType]);
-    console.log("Danh mục modal: ", deviceTypeModal);
+    }, [service]);
+    console.log("Service modal: ", serviceModal);
 
     // Thay đổi hình ảnh
     const handleChangeImg = (hinhmoi) => {
@@ -312,7 +318,7 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                     console.log('File available at', downloadURL);
                     try {
-                        setDeviceTypeImageModal(downloadURL);
+                        setServiceImageModal(downloadURL);
                     } catch (err) {
                         console.log("Lỗi cập nhật hình ảnh:", err);
                     }
@@ -323,15 +329,17 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
 
     const handleCloseUpdate = () => {
         // Set lại giá trị cũ sau khi đóng Modal
-        setDeviceTypeNameModal(deviceTypeNameModalOld);
-        setDeviceTypeImageModal(deviceTypeImageModalOld);
+        setServiceNameModal(serviceNameModalOld);
+        setServiceImageModal(serviceImageModalOld);
+        setServiceTimeModal(serviceTimeModalOld);
 
         setShowModal(prev => !prev);
     }
 
-    // =============== Xử lý thêm danh mục ===============
-    const [deviceTypeNameModalNew, setDeviceTypeNameModalNew] = useState();
-    const [deviceTypeImageModalNew, setDeviceTypeImageModalNew] = useState(null);
+    // =============== Xử lý thêm Dịch vụ ===============
+    const [serviceNameModalNew, setServiceNameModalNew] = useState();
+    const [serviceImageModalNew, setServiceImageModalNew] = useState(null);
+    const [serviceTimeModalNew, setServiceTimeModalNew] = useState();
 
     // Thay đổi hình ảnh
     const handleShowImg = (hinhmoi) => {
@@ -379,7 +387,7 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                     console.log('File available at', downloadURL);
                     try {
-                        setDeviceTypeImageModalNew(downloadURL);
+                        setServiceImageModalNew(downloadURL);
                     } catch (err) {
                         console.log("Lỗi cập nhật hình ảnh:", err);
                     }
@@ -388,16 +396,17 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
         );
     }
 
-    // Create new divice type
-    const handleCreateDeviceType = async (newName, newImage) => {
+    // Create new service
+    const handleCreateService = async (newName, newImage, newTime) => {
         try {
-            const createDeviceTypeRes = await DeviceTypeService.createDeviceType({
-                deviceTypeName: newName,
-                deviceTypeImage: newImage
+            const createServiceRes = await ServiceService.createService({
+                serviceName: newName,
+                serviceImage: newImage,
+                serviceTime: newTime
             });
-            if (!createDeviceTypeRes) {
+            if (!createServiceRes) {
                 // Toast
-                const dataToast = { message: createDeviceTypeRes.data.message, type: "warning" };
+                const dataToast = { message: createServiceRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -405,9 +414,9 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             // Success
             setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DanhMucMain & DanhMucRight.jsx
             setShowModal(prev => !prev);
-            setDeviceTypeImageModalNew(null);
+            setServiceImageModalNew(null);
             // Toast
-            const dataToast = { message: createDeviceTypeRes.data.message, type: "success" };
+            const dataToast = { message: createServiceRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
 
@@ -421,13 +430,13 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
         }
     }
 
-    // =============== Xử lý xóa danh mục ===============
-    const handleDeleteDeviceType = async (deviceTypeId) => {
+    // =============== Xử lý xóa Dịch vụ ===============
+    const handleDeleteService = async (serviceId) => {
         try {
-            const deleteDeviceTypeRes = await DeviceTypeService.deleteDeviceType(deviceTypeId);
-            if (!deleteDeviceTypeRes) {
+            const deleteServiceRes = await ServiceService.deleteService(serviceId);
+            if (!deleteServiceRes) {
                 // Toast
-                const dataToast = { message: deleteDeviceTypeRes.data.message, type: "warning" };
+                const dataToast = { message: deleteServiceRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -435,7 +444,7 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: deleteDeviceTypeRes.data.message, type: "success" };
+            const dataToast = { message: deleteServiceRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -447,26 +456,30 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
     }
 
     // ================================================================
-    //  =============== Chi tiết Loại thiết bị ===============
-    if (type === "detailDeviceType") {
+    //  =============== Chi tiết Dịch vụ ===============
+    if (type === "detailService") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Chi tiết Loại thiết bị</H1>
+                            <H1>Chi tiết Dịch vụ</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Mã số Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" value={deviceTypeModal ? deviceTypeModal.device_type_id : null} readOnly />
+                                    <FormSpan>Mã số Dịch vụ:</FormSpan>
+                                    <FormInput type="text" value={serviceModal ? serviceModal.service_id : null} readOnly />
                                 </ModalFormItem>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" value={deviceTypeModal ? deviceTypeModal.device_type_name : null} readOnly />
+                                    <FormSpan>Tên Dịch vụ:</FormSpan>
+                                    <FormInput type="text" value={serviceModal ? serviceModal.service_name : null} readOnly />
+                                </ModalFormItem>
+                                <ModalFormItem>
+                                    <FormSpan>Thời gian:</FormSpan>
+                                    <FormInput type="text" value={serviceModal ? serviceModal.service_time : null} readOnly />
                                 </ModalFormItem>
                                 <ModalFormItem>
                                     <FormSpan>Hình ảnh:</FormSpan>
-                                    <FormImg src={deviceTypeModal ? deviceTypeModal.device_type_image : null}></FormImg>
+                                    <FormImg src={serviceModal ? serviceModal.service_image : null}></FormImg>
                                 </ModalFormItem>
 
                             </ModalForm>
@@ -489,30 +502,34 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             </>
         );
     }
-    //  =============== Thêm danh mục ===============
-    if (type === "createDeviceType") {
+    //  =============== Thêm Dịch vụ ===============
+    if (type === "createService") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Thêm Loại thiết bị mới</H1>
+                            <H1>Thêm Dịch vụ mới</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" onChange={(e) => setDeviceTypeNameModalNew(e.target.value)} placeholder="Nhập vào tên Loại thiết bị" />
+                                    <FormSpan>Tên Dịch vụ:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setServiceNameModalNew(e.target.value)} placeholder="Nhập vào tên của Dịch vụ" />
+                                </ModalFormItem>
+                                <ModalFormItem>
+                                    <FormSpan>Thời gian:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setServiceTimeModalNew(e.target.value)} placeholder="Nhập vào Thời gian của Dịch vụ" />
                                 </ModalFormItem>
                                 <ModalFormItem>
                                     <FormSpan>Hình ảnh:</FormSpan>
                                     <FormInput type="file" onChange={(e) => handleShowImg(e.target.files[0])} />
-                                    <FormImg src={deviceTypeImageModalNew !== null ? deviceTypeImageModalNew : "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1650880603321No-Image-Placeholder.svg.png?alt=media&token=2a1b17ab-f114-41c0-a00d-dd81aea80d3e"} key={deviceTypeImageModalNew}></FormImg>
+                                    <FormImg src={serviceImageModalNew !== null ? serviceImageModalNew : "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1650880603321No-Image-Placeholder.svg.png?alt=media&token=2a1b17ab-f114-41c0-a00d-dd81aea80d3e"} key={serviceImageModalNew}></FormImg>
                                 </ModalFormItem>
 
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleCreateDeviceType(deviceTypeNameModalNew, deviceTypeImageModalNew)}
+                                        onClick={() => handleCreateService(serviceNameModalNew, serviceImageModalNew, serviceTimeModalNew)}
                                     >Thêm vào</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -533,29 +550,33 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             </>
         );
     }
-    // =============== Chỉnh sửa danh mục ===============
-    if (type === "updateDeviceType") {
+    // =============== Chỉnh sửa Dịch vụ ===============
+    if (type === "updateService") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Cập nhật Loại thiết bị</H1>
+                            <H1>Cập nhật Dịch vụ</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" onChange={(e) => setDeviceTypeNameModal(e.target.value)} value={deviceTypeNameModal} />
+                                    <FormSpan>Tên Dịch vụ:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setServiceNameModal(e.target.value)} value={serviceNameModal} />
+                                </ModalFormItem>
+                                <ModalFormItem>
+                                    <FormSpan>Thời gian:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setServiceTimeModal(e.target.value)} value={serviceTimeModal} />
                                 </ModalFormItem>
                                 <ModalFormItem>
                                     <FormSpan>Hình ảnh:</FormSpan>
                                     <FormInput type="file" onChange={(e) => handleChangeImg(e.target.files[0])} />
-                                    <FormImg src={deviceTypeImageModal !== deviceTypeImageModalOld ? deviceTypeImageModal : deviceTypeImageModalOld} key={deviceTypeImageModal}></FormImg>
+                                    <FormImg src={serviceImageModal !== serviceImageModalOld ? serviceImageModal : serviceImageModalOld} key={serviceImageModal}></FormImg>
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleUpdateDeviceType(deviceTypeNameModal, deviceTypeImageModal, deviceTypeIdModal)}
+                                        onClick={() => handleUpdateService(serviceNameModal, serviceImageModal, serviceTimeModal, serviceIdModal)}
                                     >Cập nhật</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -576,20 +597,20 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             </>
         );
     }
-    // =============== Xóa danh mục ===============
-    if (type === "deleteDeviceType") {
+    // =============== Xóa Dịch vụ ===============
+    if (type === "deleteService") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ backgroundImage: `url("https://img.freepik.com/free-vector/alert-safety-background_97886-3460.jpg?w=1060")`, backgroundPosition: `center center`, backgroundRepeat: `no-repeat`, backgroundSize: `cover`, width: `600px`, height: `400px` }} >
                             <ModalContent>
-                                <h1>Bạn muốn xóa Loại thiết bị <span style={{ color: `var(--color-primary)` }}>{deviceTypeNameModal}</span> này?</h1>
-                                <p>Những thiết bị của loại này cũng sẽ bị xóa</p>
+                                <h1>Bạn muốn xóa Dịch vụ <span style={{ color: `var(--color-primary)` }}>{serviceNameModal}</span> này?</h1>
+                                <p>Click Đồng ý nếu bạn muốn thực hiện hành động này!</p>
                                 <Button>
                                     <ButtonContainer>
                                         <ButtonClick
-                                            onClick={() => { handleDeleteDeviceType(deviceTypeIdModal) }}
+                                            onClick={() => { handleDeleteService(serviceIdModal) }}
                                         >Đồng ý</ButtonClick>
                                     </ButtonContainer>
                                     <ButtonContainer>

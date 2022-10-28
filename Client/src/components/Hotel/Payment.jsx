@@ -682,6 +682,7 @@ const Payment = (props) => {
                 stripeKey={REACT_APP_STRIPE}
               >
                 <ButtonClick
+                  disabled={minutes === 0 && seconds === 0 ? true : false}
                   onClick={() => {
                     handleRoomBookingOrder()
                   }}
@@ -696,6 +697,7 @@ const Payment = (props) => {
       default:
         return (
           <ButtonClick
+            disabled={minutes === 0 && seconds === 0 ? true : false}
             onClick={() => {
               handleRoomBookingOrder()
             }}

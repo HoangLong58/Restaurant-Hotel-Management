@@ -1,13 +1,12 @@
 import { Add, CategoryOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
 import styled from "styled-components";
 import RightTop from "../Dashboard/RightTop";
 import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as RoomService from "../../service/RoomService";
+import * as ServiceService from "../../service/ServiceService";
 
 const Container = styled.div`
 margin-top: 1.4rem;
@@ -83,7 +82,7 @@ const ItemRight = styled.div`
     width: 100%;
 `
 
-const ThuCungRight = ({ reRenderData, setReRenderData }) => {
+const ServiceRight = ({ reRenderData, setReRenderData }) => {
     // Thứ ngày tháng
     let today = new Date();
     let todayday = today.getDay();
@@ -100,20 +99,20 @@ const ThuCungRight = ({ reRenderData, setReRenderData }) => {
     }
     let ngaythangnam = "Thứ " + thu + ", " + today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
 
-    // Số lượng Phòng
-    const [roomQuantity, setRoomQuantity] = useState();
+    // Số lượng Dịch vụ
+    const [quantityService, setQuantityService] = useState();
     useEffect(() => {
-        const getRoomQuantity = async () => {
+        const getQuantityService = async () => {
             try {
-                const roomQuantityRes = await RoomService.getQuantityRooms();
-                setRoomQuantity(roomQuantityRes.data.data.quantityRoom);
+                const quantityServiceRes = await ServiceService.getQuantityService();
+                setQuantityService(quantityServiceRes.data.data.quantityService);
             } catch (err) {
-                console.log("Lỗi: ", err.response);
+                console.log("Lỗi: ", err);
             }
         }
-        getRoomQuantity();
+        getQuantityService();
     }, [reRenderData]);
-    console.log("Số lượng Phòng: ", roomQuantity);
+    console.log("Số lượng Dịch vụ: ", quantityService);
 
     // ===== Modal =====
     const [showModal, setShowModal] = useState(false);
@@ -139,24 +138,24 @@ const ThuCungRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Rooms Analytics</H2>
+                <H2>Services Analytics</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>SỐ LƯỢNG PHÒNG</h3>
+                            <h3>SỐ LƯỢNG DỊCH VỤ</h3>
                             <small class="text-muted">{ngaythangnam}</small>
                         </Info>
-                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{roomQuantity}</h3>
+                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityService}</h3>
                     </ItemRight>
                 </Item>
                 <Item className="add-product"
-                    onClick={() => openModal({ type: "createRoom" })}
+                    onClick={() => openModal({ type: "createService" })}
                 >
                     <Add />
-                    <h3>Thêm Phòng</h3>
+                    <h3>Thêm Dịch vụ mới</h3>
                 </Item>
             </SalesAnalytics>
 
@@ -178,4 +177,4 @@ const ThuCungRight = ({ reRenderData, setReRenderData }) => {
     );
 };
 
-export default ThuCungRight;
+export default ServiceRight;

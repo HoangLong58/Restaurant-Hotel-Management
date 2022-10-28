@@ -301,6 +301,7 @@ const DeviceTypeMain = ({ reRenderData, setReRenderData }) => {
                         showToastFromOut(dataToast);
                         return;
                     }
+                    setNoResultFound(false);
                     setDeviceTypeList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };
@@ -334,21 +335,9 @@ const DeviceTypeMain = ({ reRenderData, setReRenderData }) => {
                 console.log("Lỗi lấy device type: ", err);
             }
         }
-        getDeviceTypes();
         handleLoading();
+        getDeviceTypes();
     }, [reRenderData]);
-    // useEffect(() => {
-    //     const findDeviceType = async () => {
-    //         try {
-    //             const searchRes = await DeviceTypeService.findDeviceTypeByIdOrName(search);
-    //             setDeviceTypeList(searchRes.data.data);
-    //             console.log("Kết quả tìm trong effect: ", searchRes.data.data);
-    //         } catch (err) {
-    //             console.log("Lỗi tìm kiếm: ", err);
-    //         }
-    //     }
-    //     findDeviceType();
-    // }, [search]);
     console.log("deviceTypeList: ", deviceTypeList);
 
     // Modal
@@ -460,10 +449,12 @@ const DeviceTypeMain = ({ reRenderData, setReRenderData }) => {
                                     (deviceTypeList.map((deviceType, key) => {
                                         return (
                                             <Tr>
-                                                <Td>{key + 1}</Td>
-                                                <Td>{deviceType.device_type_id}</Td>
-                                                <Td>{deviceType.device_type_name}</Td>
-                                                <Td style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{key + 1}</Td>
+                                                <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{deviceType.device_type_id}</Td>
+                                                <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{deviceType.device_type_name}</Td>
+                                                <Td 
+                                                 onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}
+                                                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                     <ImgDanhMuc src={deviceType.device_type_image} />
                                                 </Td>
                                                 <Td className="warning">

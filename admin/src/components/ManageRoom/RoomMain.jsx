@@ -1,13 +1,12 @@
-import {format_money} from "../../utils/utils";
-import styled from "styled-components";
-import "../../css/main.css";
+import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, RemoveRedEyeOutlined } from "@mui/icons-material";
-import axios from "axios";
-import Modal from "./Modal";
-import Toast from "../Toast";
 import ReactPaginate from "react-paginate";
-import { useSelector } from "react-redux";
+import styled from "styled-components";
+import Toast from "../Toast";
+import Modal from "./Modal";
+
+// SERVICES
+import * as RoomService from "../../service/RoomService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -273,71 +272,97 @@ cursor: pointer;
 `
 
 const ImgDanhMuc = styled.img`
-    width: auto;
+    width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
 `
 
-const ThuCungMain = ({ reRenderData, setReRenderData }) => {
-    // Lấy admin từ Redux
-    const admin = useSelector((state) => state.admin.currentAdmin);
-    
+// Empty item
+const EmptyItem = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+`
+const EmptyItemSvg = styled.div``
+const EmptyContent = styled.div`
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    font-weight: bold;
+`
+
+const RoomMain = ({ reRenderData, setReRenderData }) => {
     const InputRef = useRef(null);
     const [isSearch, setIsSearch] = useState(false);
-    const [timkiem, setTimKiem] = useState("");
+    const [search, setSearch] = useState("");
+    const [noResultFound, setNoResultFound] = useState(false);
     const handleSeach = (e) => {
         if (isSearch === false) {
             setIsSearch(!isSearch);
             e.preventDefault();
         } else {
             // Thực hiện tìm kiếm
-            console.log(timkiem);
+            console.log(search);
+            const findRoom = async () => {
+                try {
+                    const searchRes = await RoomService.findRoomsByIdOrName(search);
+                    if (searchRes.data.data.length === 0) {
+                        setNoResultFound(true);
+                        // Toast
+                        const dataToast = { message: "Không tìm thấy kết quả phù hợp!", type: "warning" };
+                        showToastFromOut(dataToast);
+                        return;
+                    }
+                    setNoResultFound(false);
+                    setRoomList(searchRes.data.data);
+                    // Toast
+                    const dataToast = { message: searchRes.data.message, type: "success" };
+                    showToastFromOut(dataToast);
+                    console.log("Kết quả tìm trong effect: ", searchRes.data.data);
+                } catch (err) {
+                    // Toast
+                    const dataToast = { message: err.response.data.message, type: "danger" };
+                    showToastFromOut(dataToast);
+                }
+            }
+            findRoom();
+            handleLoading();
         }
-    }
-    const handleClose = () => {
-        setIsSearch(false);
-        InputRef.current.value = "";
-        console.log(InputRef.current.value);
-        setTimKiem("");
     }
 
-    // Lấy danh mục
-    const [thucung, setThuCung] = useState([]);
+    const handleClose = () => {
+        setIsSearch(false);
+        setNoResultFound(false);
+        InputRef.current.value = "";
+        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DeviceMain & DanhMucRight.jsx
+    }
+
+    // Lấy Room list
+    const [roomList, setRoomList] = useState([]);
     useEffect(() => {
-        const getThuCung = async () => {
+        const getRoomList = async () => {
             try {
-                const thucungres = await axios.post("http://localhost:3001/api/products/getThuCung", {});
-                setThuCung(thucungres.data);
+                const getRoomRes = await RoomService.getAllRooms();
+                setRoomList(getRoomRes.data.data);
             } catch (err) {
-                console.log("Lỗi lấy thú cưng: ", err);
+                console.log("Lỗi lấy thú cưng: ", err.response);
             }
         }
-        getThuCung();
+        handleLoading();
+        getRoomList();
     }, [reRenderData]);
-    useEffect(() => {
-        const timThuCung = async () => {
-            try {
-                const ketquares = await axios.post("http://localhost:3001/api/products/findThuCung", { tenthucung: timkiem });
-                setThuCung(ketquares.data);
-                console.log("Kết quả tìm trong effect: ", ketquares.data);
-            } catch (err) {
-                console.log("Lỗi tìm kiếm: ", err);
-            }
-        }
-        timThuCung();
-        setPageNumber(0);
-    }, [timkiem])
-    console.log("Thú cưng: ", thucung);
+    console.log("Room list: ", roomList);
 
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
-    const [thuCungModal, setThuCungModal] = useState(null);
+    const [roomModal, setRoomModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
-        setThuCungModal(modal.thucung);
+        setRoomModal(modal.room);
     }
 
     // ===== TOAST =====
@@ -351,193 +376,190 @@ const ThuCungMain = ({ reRenderData, setReRenderData }) => {
         toastRef.current.show();
     }
 
+    // Fake loading when fetch data
+    const [isLoading, setIsLoading] = useState(false);
+    const handleLoading = () => {
+        // Scroll lên kết quả mới
+        window.scrollTo({
+            top: 300,
+            behavior: "smooth"
+        });
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 1200);
+    };
+
     // PHÂN TRANG
 
     const [pageNumber, setPageNumber] = useState(0);
 
-    const thuCungPerPage = 12;
-    const pageVisited = pageNumber * thuCungPerPage;
+    const roomPerPage = 12;
+    const pageVisited = pageNumber * roomPerPage;
 
-    const thuCungChuyenTrang = thucung
-        .slice(pageVisited, pageVisited + thuCungPerPage)
-        .map(thucungitem => {
+    const roomListFiltered = roomList
+        .slice(pageVisited, pageVisited + roomPerPage)
+        .map((room, key) => {
             return (
                 <Tr>
-                    <Td>{thucungitem.mathucung}</Td>
-                    <Td>{thucungitem.tendanhmuc}</Td>
-                    <Td>{thucungitem.tenthucung}</Td>
-                    <Td style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <ImgDanhMuc src={thucungitem.hinhanh} />
+                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{pageNumber * roomPerPage + (key + 1)}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_id}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_type_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_name}</Td>
+                    <Td
+                        onClick={() => openModal({ type: "detailRoom", room: room })}
+                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <ImgDanhMuc src={room.room_image_content} />
                     </Td>
-                    <Td>{thucungitem.soluong}</Td>
-                    <Td>{thucungitem.giaban ? format_money((thucungitem.giaban).toString()) : null}</Td>
-                    <Td>{thucungitem.giamgia ? format_money((thucungitem.giamgia).toString()) : null}</Td>
-                    <Td className="info">
-                        <ButtonInfo
-                            onClick={() => openModal({ type: "chitietthucung", thucung: thucungitem })}
-                        >
-                            <RemoveRedEyeOutlined />
-                        </ButtonInfo>
+                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_view}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.floor_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_price}</Td>
+                    <Td
+                        onClick={() => openModal({ type: "detailRoom", room: room })}
+                        style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
+                        {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được đặt" : null}
                     </Td>
-                    {
-                        admin
-                            ?
-                            // Chỉ admin với nv bán hàng mới được chỉnh sửa và xóa thú cưng
-                            admin.machucvu === 5 || admin.machucvu === 1
-                                ?
-                                <>
-                                    <Td className="warning">
-                                        <ButtonFix
-                                            onClick={() => openModal({ type: "chinhsuathucung", thucung: thucungitem })}
-                                        >
-                                            <DriveFileRenameOutlineOutlined />
-                                        </ButtonFix>
-                                    </Td>
-                                    <Td className="primary">
-                                        <ButtonDelete
-                                            onClick={() => openModal({ type: "xoathucung", thucung: thucungitem })}
-                                        >
-                                            <DeleteSweepOutlined />
-                                        </ButtonDelete>
-                                    </Td>
-                                </>
-                                : null
-                            : null
-                    }
-                    {/* <Td className="warning">
+                    <Td className="warning">
                         <ButtonFix
-                            onClick={() => openModal({ type: "chinhsuathucung", thucung: thucungitem })}
+                            onClick={() => openModal({ type: "updateRoom", room: room })}
                         >
                             <DriveFileRenameOutlineOutlined />
                         </ButtonFix>
                     </Td>
                     <Td className="primary">
                         <ButtonDelete
-                            onClick={() => openModal({ type: "xoathucung", thucung: thucungitem })}
+                            onClick={() => openModal({ type: "deleteRoom", room: room })}
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
-                    </Td> */}
+                    </Td>
                 </Tr>
             );
         }
         );
 
 
-    const pageCount = Math.ceil(thucung.length / thuCungPerPage);
+    const pageCount = Math.ceil(roomList.length / roomPerPage);
     const changePage = ({ selected }) => {
         setPageNumber(selected);
     }
 
     return (
         <Container>
-            <H2>Quản lý thú cưng</H2>
+            <H2>Quản lý Phòng - Khách sạn</H2>
 
             {/* Tìm kiếm */}
             <SearchWrapper className={isSearch ? "active" : null}>
                 <InputHolder>
-                    <Input ref={InputRef} type="text" placeHolder="Nhập vào mã thú cưng" onChange={(e) => setTimKiem(e.target.value)} />
+                    <Input ref={InputRef} type="text" placeHolder="Nhập vào mã thú cưng" onChange={(e) => setSearch(e.target.value)} />
                     <Button onClick={(e) => { handleSeach(e) }}><Span></Span></Button>
                 </InputHolder>
                 <CloseSpan onClick={() => { handleClose() }}></CloseSpan>
             </SearchWrapper>
 
             <RecentOrders>
-                <H2>Danh sách thú cưng hiện tại</H2>
+                <H2>Phòng - Khách sạn hiện tại</H2>
                 <Table>
                     <Thead>
                         <Tr>
-                            <Th>Mã thú cưng</Th>
-                            <Th>Danh mục</Th>
-                            <Th>Tên thú cưng</Th>
+                            <Th>STT</Th>
+                            <Th>Mã của phòng</Th>
+                            <Th>Loại phòng</Th>
+                            <Th>Tên phòng</Th>
                             <Th>Hình ảnh</Th>
-                            <Th>Số lượng</Th>
-                            <Th>Giá bán</Th>
-                            <Th>Giảm giá</Th>
-                            <Th>Chi tiết</Th>
-                            {
-                                admin
-                                    ?
-                                    // Chỉ admin với nv bán hàng mới được chỉnh sửa và xóa thú cưng
-                                    admin.machucvu === 5 || admin.machucvu === 1
-                                        ?
-                                        <>
-                                            <Th>Chỉnh sửa</Th>
-                                            <Th>Xóa</Th>
-                                        </>
-                                        : null
-                                    : null
-                            }
-                            {/* <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th> */}
+                            <Th>View hướng</Th>
+                            <Th>Vị trí</Th>
+                            <Th>Giá phòng</Th>
+                            <Th>Trạng thái</Th>
+                            <Th>Chỉnh sửa</Th>
+                            <Th>Xóa</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {
-                            thucung !== null
-                                ?
-                                thuCungChuyenTrang
-                                :
-                                (thucung.slice(0, 12).map(thucungitem => (
-                                    <Tr>
-                                        <Td>{thucungitem.mathucung}</Td>
-                                        <Td>{thucungitem.tendanhmuc}</Td>
-                                        <Td>{thucungitem.tenthucung}</Td>
-                                        <Td style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                            <ImgDanhMuc src={thucungitem.hinhanh} />
-                                        </Td>
-                                        <Td>{thucungitem.soluong}</Td>
-                                        <Td>{thucungitem.giaban}</Td>
-                                        <Td>{thucungitem.giamgia}</Td>
-                                        <Td className="info">
-                                            <ButtonInfo
-                                                onClick={() => openModal({ type: "chitietthucung", thucung: thucungitem })}
+                        {noResultFound ? (
+                            <Tr>
+                                <Td colSpan={11}>
+                                    <EmptyItem>
+                                        <EmptyItemSvg>
+                                            <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
+                                                <path d="M186 63V140H43V177H200V63H186Z" fill="#D6DADC"></path>
+                                                <path d="M170.5 45H13.5V159H170.5V45Z" fill="white"></path>
+                                                <path d="M29.5 26V45H170.5V140H186.5V26H29.5Z" fill="#1952B3"></path>
+                                                <path d="M175 155V42H167H121.5V44H15H11V84H15V64H161V60H15V48H121.5V50H167V155H31V163H175V155Z" fill="#232729"></path>
+                                                <path d="M28 52H24V56H28V52Z" fill="#232729"></path>
+                                                <path d="M35 52H31V56H35V52Z" fill="#232729"></path>
+                                                <path d="M42 52H38V56H42V52Z" fill="#232729"></path>
+                                                <path d="M120 76H30V106H120V76Z" fill="#F3F4F6"></path>
+                                                <path d="M153.5 76H126.5V142H153.5V76Z" fill="#F3F4F6"></path>
+                                                <path d="M120 112H30V142H120V112Z" fill="#F3F4F6"></path>
+                                                <path d="M44 120.77H26.23V103H17.77V120.77H0V129.23H17.77V147H26.23V129.23H44V120.77Z" fill="#FF5100"></path>
+                                                <path d="M60.0711 146.314L62.1924 144.192L55.1213 137.121L53 139.243L60.0711 146.314Z" fill="#232729"></path>
+                                                <path d="M53.0711 105.071L55.1924 107.192L62.2634 100.121L60.1421 98L53.0711 105.071Z" fill="#232729"></path>
+                                                <path d="M70.1924 124.192V121.192H59.1924V124.192H70.1924Z" fill="#232729"></path>
+                                            </svg>
+                                        </EmptyItemSvg>
+                                        <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Không có kết quả tìm kiếm phù hợp</EmptyContent>
+                                    </EmptyItem>
+                                </Td>
+                            </Tr>
+                        )
+                            : isLoading ? (
+                                <Tr>
+                                    <Td colSpan={11} style={{ width: "100%", height: "100px" }}>
+                                        <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                            <div
+                                                class="spinner-border"
+                                                style={{ color: '#41F1B6', scale: "1.5" }}
+                                                role="status"
                                             >
-                                                <RemoveRedEyeOutlined />
-                                            </ButtonInfo>
-                                        </Td>
-                                        {
-                                            admin
-                                                ?
-                                                // Chỉ admin với nv bán hàng mới được chỉnh sửa và xóa thú cưng
-                                                admin.machucvu === 5 || admin.machucvu === 1
-                                                    ?
-                                                    <>
-                                                        <Td className="warning">
-                                                            <ButtonFix
-                                                                onClick={() => openModal({ type: "chinhsuathucung", thucung: thucungitem })}
-                                                            >
-                                                                <DriveFileRenameOutlineOutlined />
-                                                            </ButtonFix>
-                                                        </Td>
-                                                        <Td className="primary">
-                                                            <ButtonDelete
-                                                                onClick={() => openModal({ type: "xoathucung", thucung: thucungitem })}
-                                                            >
-                                                                <DeleteSweepOutlined />
-                                                            </ButtonDelete>
-                                                        </Td>
-                                                    </>
-                                                    : null
-                                                : null
-                                        }
-
-                                        {/* <Td className="warning">
-                                            <ButtonFix
-                                                onClick={() => openModal({ type: "chinhsuathucung", thucung: thucungitem })}
-                                            >
-                                                <DriveFileRenameOutlineOutlined />
-                                            </ButtonFix>
-                                        </Td>
-                                        <Td className="primary">
-                                            <ButtonDelete
-                                                onClick={() => openModal({ type: "xoathucung", thucung: thucungitem })}
-                                            >
-                                                <DeleteSweepOutlined />
-                                            </ButtonDelete>
-                                        </Td> */}
-                                    </Tr>
-                                )))
+                                                <span class="visually-hidden"></span>
+                                            </div>
+                                        </div>
+                                    </Td>
+                                </Tr>
+                            ) :
+                                roomList.length > 0
+                                    ?
+                                    roomListFiltered
+                                    :
+                                    (roomList.slice(0, 12).map((room, key) => {
+                                        return (
+                                            <Tr>
+                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{key + 1}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_id}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_type_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_name}</Td>
+                                                <Td
+                                                    onClick={() => openModal({ type: "detailRoom", room: room })}
+                                                    style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <ImgDanhMuc src={room.room_image_content} />
+                                                </Td>
+                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_view}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.floor_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_price}</Td>
+                                                <Td
+                                                    onClick={() => openModal({ type: "detailRoom", room: room })}
+                                                    style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
+                                                    {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được đặt" : null}
+                                                </Td>
+                                                <Td className="warning">
+                                                    <ButtonFix
+                                                        onClick={() => openModal({ type: "updateRoom", room: room })}
+                                                    >
+                                                        <DriveFileRenameOutlineOutlined />
+                                                    </ButtonFix>
+                                                </Td>
+                                                <Td className="primary">
+                                                    <ButtonDelete
+                                                        onClick={() => openModal({ type: "deleteRoom", room: room })}
+                                                    >
+                                                        <DeleteSweepOutlined />
+                                                    </ButtonDelete>
+                                                </Td>
+                                            </Tr>
+                                        )
+                                    }
+                                    ))
                         }
                     </Tbody>
                 </Table>
@@ -561,7 +583,7 @@ const ThuCungMain = ({ reRenderData, setReRenderData }) => {
                 showModal={showModal}   //state Đóng mở modal
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
-                thucung={thuCungModal}  //Dữ liệu bên trong modal
+                room={roomModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast
@@ -578,4 +600,4 @@ const ThuCungMain = ({ reRenderData, setReRenderData }) => {
 
 
 
-export default ThuCungMain;
+export default RoomMain;
