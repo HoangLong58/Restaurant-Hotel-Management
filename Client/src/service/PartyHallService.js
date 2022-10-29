@@ -21,3 +21,12 @@ export const getPartyHallAndImages = async (body) => {
     const res = await axios.post(`${url_PartyHall}/get-party-hall-and-images`, body);
     return res;
 };
+
+export const updatePartyHallState = async (partyHallList, state) => {
+    authToken(localStorage.getItem("customer_token"));
+    const res = await axios.put(`${url_PartyHall}/update-state`, {
+        partyHallList: partyHallList,
+        partyHallState: state
+    });
+    return res;
+};

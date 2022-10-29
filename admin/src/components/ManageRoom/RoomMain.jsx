@@ -417,7 +417,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                     <Td
                         onClick={() => openModal({ type: "detailRoom", room: room })}
                         style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
-                        {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được đặt" : null}
+                        {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được khóa" : null}
                     </Td>
                     <Td className="warning">
                         <ButtonFix

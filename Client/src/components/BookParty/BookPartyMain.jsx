@@ -10,7 +10,7 @@ import moment from 'moment';
 // Time picker
 
 import { AccessAlarmsOutlined, Add, ArrowRightAltOutlined, CelebrationOutlined, CheckCircleRounded, CheckOutlined, Remove, ReplayOutlined } from '@mui/icons-material';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, unstable_HistoryRouter, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../img/logos/logo.png';
 import Toast from '../Toast';
 import BookPartyProgress from './BookPartyProgress';
@@ -1208,6 +1208,29 @@ const BookPartyMain = () => {
                         partyHallType: partyHallType
                     }));
 
+                    // Update all party hall in list to state 1
+                    try {
+                        const updatePartyHallState = async () => {
+                            const updatePartyHallStateRes = await PartyHallService.updatePartyHallState(partyHallListFiltered, 1);
+                            if (updatePartyHallStateRes) {
+                                // Toast
+                                const dataToast = { message: "Sảnh đã được giữ trong 5 phút", type: "success" };
+                                showToastFromOut(dataToast);
+                                return;
+                            } else {
+                                // Toast
+                                const dataToast = { message: updatePartyHallStateRes.data.message, type: "warning" };
+                                showToastFromOut(dataToast);
+                                return;
+                            }
+                        }
+                        updatePartyHallState();
+                    } catch (err) {
+                        // Toast
+                        const dataToast = { message: err.response.data.message, type: "danger" };
+                        showToastFromOut(dataToast);
+                        return;
+                    }
 
                     setNoResultFound(false);
                     // Use Toast
@@ -1234,6 +1257,32 @@ const BookPartyMain = () => {
         handleLoading();
     }
 
+    // Update all party hall in list to state 0 when UNMOUT: BACK TO PREVIOUS PAGE
+    useEffect(() => {
+        return () => {
+            if (partyHallListFiltered.length > 0) {
+                // Update all party hall in list to state 0
+                try {
+                    const updatePartyHallState = async () => {
+                        const updatePartyHallStateRes = await PartyHallService.updatePartyHallState(partyHallListFiltered, 0);
+                        if (!updatePartyHallStateRes) {
+                            // Toast
+                            const dataToast = { message: updatePartyHallStateRes.data.message, type: "warning" };
+                            showToastFromOut(dataToast);
+                            return;
+                        }
+                    }
+                    updatePartyHallState();
+                } catch (err) {
+                    // Toast
+                    const dataToast = { message: err.response.data.message, type: "danger" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+            }
+        }
+    }, [partyHallListFiltered]);
+
     // --Handle time
     const [minutes, setMinutes] = useState();
     const [seconds, setSeconds] = useState();
@@ -1258,12 +1307,62 @@ const BookPartyMain = () => {
 
     useEffect(() => {
         if (minutes === 0 && seconds === 0) {
+            // Update all party hall in list to state 0
+            try {
+                const updatePartyHallState = async () => {
+                    const updatePartyHallStateRes = await PartyHallService.updatePartyHallState(partyHallListFiltered, 0);
+                    if (updatePartyHallStateRes) {
+                        // Toast
+                        const dataToast = { message: "Thời gian giữ Sảnh đã hết!", type: "success" };
+                        showToastFromOut(dataToast);
+                        return;
+                    } else {
+                        // Toast
+                        const dataToast = { message: updatePartyHallStateRes.data.message, type: "warning" };
+                        showToastFromOut(dataToast);
+                        return;
+                    }
+                }
+                updatePartyHallState();
+            } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "danger" };
+                showToastFromOut(dataToast);
+                return;
+            }
+        }
+    }, [minutes, seconds]);
+
+    const handleUpdatePartyHallStateTo0 = () => {
+        // Update all party hall in list to state 0
+        try {
+            const updatePartyHallState = async () => {
+                const updatePartyHallStateRes = await PartyHallService.updatePartyHallState(partyHallListFiltered, 0);
+                if (!updatePartyHallStateRes) {
+                    // Toast
+                    const dataToast = { message: updatePartyHallStateRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+            }
+            updatePartyHallState();
+        } catch (err) {
             // Toast
-            const dataToast = { message: "Thời gian giữ Sảnh đã hết!", type: "success" };
+            const dataToast = { message: err.response.data.message, type: "danger" };
             showToastFromOut(dataToast);
             return;
         }
-    }, [minutes, seconds])
+    };
+
+    // Update state to 0 when close tab booking
+    useEffect(() => {
+        window.addEventListener('beforeunload', handleUpdatePartyHallStateTo0);
+        window.addEventListener('unload', handleUpdatePartyHallStateTo0);
+        return () => {
+            window.removeEventListener('beforeunload', handleUpdatePartyHallStateTo0);
+            window.removeEventListener('unload', handleUpdatePartyHallStateTo0);
+        }
+    });
 
     //State
     const [setMenuModal, setSetMenuModal] = useState();
@@ -1326,6 +1425,7 @@ const BookPartyMain = () => {
     // Change booking party
     const handleChangeBookingParty = () => {
         dispatch(logoutPartyBooking());
+        handleUpdatePartyHallStateTo0();
         navigate("/restaurant");
     };
 
@@ -1352,6 +1452,7 @@ const BookPartyMain = () => {
     };
     const handleDeclinePartyHallAndService = () => {
         dispatch(logoutPartyBooking());
+        handleUpdatePartyHallStateTo0();
         navigate("/restaurant");
     };
 
@@ -1500,13 +1601,32 @@ const BookPartyMain = () => {
                             // roomBookingOrderNote: note
                         });
                         if (bookingRes) {
-                            dispatch(logoutPartyBooking());
-                            setIsFinish(true);
-                            handleLoading();
-                            // Toast
-                            const dataToast = { message: bookingRes.data.message, type: "success" };
-                            showToastFromOut(dataToast);
-                            return;
+                            // Update all party hall in list to state 0 when finish
+                            try {
+                                const updatePartyHallState = async () => {
+                                    const updatePartyHallStateRes = await PartyHallService.updatePartyHallState(partyHallListFiltered, 0);
+                                    if (!updatePartyHallStateRes) {
+                                        // Toast
+                                        const dataToast = { message: updatePartyHallStateRes.data.message, type: "warning" };
+                                        showToastFromOut(dataToast);
+                                        return;
+                                    }
+                                }
+                                updatePartyHallState();
+                                // Sucess
+                                dispatch(logoutPartyBooking());
+                                setIsFinish(true);
+                                handleLoading();
+                                // Toast
+                                const dataToast = { message: bookingRes.data.message, type: "success" };
+                                showToastFromOut(dataToast);
+                                return;
+                            } catch (err) {
+                                // Toast
+                                const dataToast = { message: err.response.data.message, type: "danger" };
+                                showToastFromOut(dataToast);
+                                return;
+                            }
                         } else {
                             // Toast
                             const dataToast = { message: bookingRes.data.message, type: "warning" };
@@ -1616,7 +1736,7 @@ const BookPartyMain = () => {
             partyBookingTotal: partyBookingTotal
         }));
     };
-    console.log("SHOW: ", setMenuList, partyServiceTotal);
+    console.log("SHOW: ", partyHallListFiltered);
     return (
         <>
             {/*-- BOOK PARTY PROGRESS -- */}

@@ -1,6 +1,6 @@
 const { getPartyHallDetailByPartyHallIdAndDateAndTimeId } = require("../service/PartyHallDetailService");
 const { getPartyHallImagesByPartyHallId } = require("../service/PartyHallImageService");
-const { getPartyHallsWithImageTypeFloor, getPartyHallWithTypeFloorByPartyHallId } = require("../service/PartyHallService");
+const { getPartyHallsWithImageTypeFloor, getPartyHallWithTypeFloorByPartyHallId, updatePartyHallState } = require("../service/PartyHallService");
 
 module.exports = {
     getPartyHallsWithImageTypeFloor: async (req, res) => {
@@ -165,5 +165,32 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+    updatePartyHallState: async (req, res) => {
+        const partyHallList = req.body.partyHallList;
+        const partyHallState = req.body.partyHallState;
+        for (var i = 0; i < partyHallList.length; i++) {
+            const partyHall = partyHallList[i];
+            try {
+                const result = await updatePartyHallState(partyHall.party_hall_id, partyHallState);
+                if (!result) {
+                    return res.status(200).json({
+                        status: "fail",
+                        message: "Update party hall state fail!",
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when update party hall state!",
+                    error: err
+                });
+            }
+        }
+        // Success
+        return res.status(200).json({
+            status: "success",
+            message: "Update party hall state successfully!",
+        });
+    },
 };

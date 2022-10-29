@@ -9,3 +9,12 @@ export const findTableBookings = async (data) => {
     const res = await axios.post(`${url_TableBooking}/find-table-booking`, data);
     return res;
 };
+
+export const updateTableBookingState = async (id, state) => {
+    authToken(localStorage.getItem("customer_token"));
+    const res = await axios.put(`${url_TableBooking}/update-state`, {
+        tableBookingId: id,
+        tableBookingState: state
+    });
+    return res;
+};

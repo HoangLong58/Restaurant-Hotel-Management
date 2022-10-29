@@ -607,6 +607,32 @@ const Payment = (props) => {
     toastRef.current.show();
   }
 
+  // Update room state 0 when UNMOUT: BACK TO PREVIOUS PAGE
+  useEffect(() => {
+    return () => {
+      if (roomId) {
+        // Update room to state 0
+        try {
+          const updateRoomState = async () => {
+            const updateRoomStateRes = await RoomService.updateRoomState(roomId, 0);
+            if (!updateRoomStateRes) {
+              // Toast
+              const dataToast = { message: updateRoomStateRes.data.message, type: "warning" };
+              showToastFromOut(dataToast);
+              return;
+            }
+          }
+          updateRoomState();
+        } catch (err) {
+          // Toast
+          const dataToast = { message: err.response.data.message, type: "danger" };
+          showToastFromOut(dataToast);
+          return;
+        }
+      }
+    }
+  }, [roomId]);
+
   // Handle time
   const [minutes, setMinutes] = useState(4);
   const [seconds, setSeconds] = useState(59);
@@ -636,7 +662,7 @@ const Payment = (props) => {
           const updateRoomStateRes = await RoomService.updateRoomState(roomId, 0);
           if (updateRoomStateRes) {
             // Toast
-            const dataToast = { message: "Thời gian giữ phòng đã hết!", type: "success" };
+            const dataToast = { message: "Thời gian giữ Phòng đã hết!", type: "success" };
             showToastFromOut(dataToast);
             return;
           } else {
@@ -654,7 +680,38 @@ const Payment = (props) => {
         return;
       }
     }
-  }, [minutes, seconds])
+  }, [minutes, seconds]);
+
+  const handleUpdateRoomStateTo0 = () => {
+    try {
+      const updateRoomState = async () => {
+        const updateRoomStateRes = await RoomService.updateRoomState(roomId, 0);
+        if (!updateRoomStateRes) {
+          // Toast
+          const dataToast = { message: updateRoomStateRes.data.message, type: "warning" };
+          showToastFromOut(dataToast);
+          return;
+        }
+      }
+      updateRoomState();
+      navigate("/hotel");
+    } catch (err) {
+      // Toast
+      const dataToast = { message: err.response.data.message, type: "danger" };
+      showToastFromOut(dataToast);
+      return;
+    }
+  };
+
+  // Update state to 0 when close tab booking
+  useEffect(() => {
+    window.addEventListener('beforeunload', handleUpdateRoomStateTo0);
+    window.addEventListener('unload', handleUpdateRoomStateTo0);
+    return () => {
+      window.removeEventListener('beforeunload', handleUpdateRoomStateTo0);
+      window.removeEventListener('unload', handleUpdateRoomStateTo0);
+    }
+  });
 
   // Handle payment way
   const [paymentWay, setPaymentWay] = useState();
@@ -795,6 +852,26 @@ const Payment = (props) => {
               roomBookingOrderNote: note
             });
             if (bookingRes) {
+              // Update room state to 0 when booking success
+              try {
+                const updateRoomState = async () => {
+                  const updateRoomStateRes = await RoomService.updateRoomState(roomId, 0);
+                  if (!updateRoomStateRes) {
+                    // Toast
+                    const dataToast = { message: updateRoomStateRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                  }
+                }
+                updateRoomState();
+              } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "danger" };
+                showToastFromOut(dataToast);
+                return;
+              }
+
+              // Success
               dispatch(logoutRoomBooking());
               navigate("/hotel-success", {
                 state: {
@@ -883,6 +960,11 @@ const Payment = (props) => {
   const handleReloadPage = () => {
     navigate("/hotel");
     dispatch(logoutRoomBooking());
+  };
+
+  // Change room
+  const handleCancelBookRoom = () => {
+    handleUpdateRoomStateTo0();
   };
 
   console.log("paymentWay: ", paymentWay);
@@ -1163,7 +1245,7 @@ const Payment = (props) => {
                     <Button className="row">
                       <ButtonContainer style={{ paddingTop: "0" }}>
                         <ButtonClick
-                          onClick={() => navigate('/hotel')}
+                          onClick={() => handleCancelBookRoom()}
                         >
                           {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
                           Chỉnh sửa đặt phòng

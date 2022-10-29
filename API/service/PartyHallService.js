@@ -53,8 +53,7 @@ module.exports = {
                 from party_hall ph 
                 join party_hall_type pht on ph.party_hall_type_id = pht.party_hall_type_id
                 join floor f on ph.floor_id = f.floor_id 
-                where ph.party_hall_state = 0
-                and ph.party_hall_id = ?`,
+                where ph.party_hall_id = ?`,
                 [partyHallId],
                 (error, results, fields) => {
                     if (error) {
@@ -64,5 +63,25 @@ module.exports = {
                 }
             );
         });
-    }
+    },
+    updatePartyHallState: (id, state) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                party_hall
+                set party_hall_state = ? 
+                where party_hall_id = ?`,
+                [state, id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        });
+    },
 };

@@ -37,8 +37,22 @@ module.exports = {
     },
     createCustomer: (data, callBack) => {
         con.query(
-            `insert into customer( customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_image, customer_state, customer_otp)
-                values(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `insert 
+            into customer
+            ( 
+                customer_first_name, 
+                customer_last_name, 
+                customer_birthday, 
+                customer_gender, 
+                customer_phone_number, 
+                customer_email, 
+                customer_password, 
+                customer_image, 
+                customer_state, 
+                customer_otp
+            )
+            values
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 data.firstName,
                 data.lastName,

@@ -81,8 +81,7 @@ module.exports = {
                 from table_booking tb 
                 join table_type tt on tb.table_type_id = tt.table_type_id
                 join floor f on tb.floor_id = f.floor_id
-                where tb.table_booking_id = ?
-                and tb.table_booking_state = 0`,
+                where tb.table_booking_id = ?`,
                 [tableBookingId],
                 (error, results, fields) => {
                     if (error) {
@@ -92,5 +91,25 @@ module.exports = {
                 }
             );
         });
-    }
+    },
+    updateTableBookingState: (tableBookingId, state) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                table_booking
+                set table_booking_state = ? 
+                where table_booking_id = ?`,
+                [state, tableBookingId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        });
+    },
 };

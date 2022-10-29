@@ -1,5 +1,5 @@
 const { getTableBookingOrderByTableBookingId } = require("../service/TableBookingOrderService");
-const { getTableBookings, getTableBookingWithTypeAndFloor } = require("../service/TableBookingService");
+const { getTableBookings, getTableBookingWithTypeAndFloor, updateTableBookingState } = require("../service/TableBookingService");
 
 module.exports = {
     getTableBookings: async (req, res) => {
@@ -136,6 +136,30 @@ module.exports = {
             return res.status(400).json({
                 status: "fail",
                 message: "Lỗi getTableBookingWithTypeAndFloor",
+                error: err
+            });
+        }
+    },
+    updateTableBookingState: async (req, res) => {
+        const tableBookingId = req.body.tableBookingId;
+        const tableBookingState = req.body.tableBookingState;
+        try {
+            const result = await updateTableBookingState(tableBookingId, tableBookingState);
+            if (result) {
+                return res.status(200).json({
+                    status: "success",
+                    message: "Update table booking state successfully!",
+                });
+            } else {
+                return res.status(200).json({
+                    status: "fail",
+                    message: "Update table booking state fail!",
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when update table booking state!",
                 error: err
             });
         }

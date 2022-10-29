@@ -554,7 +554,31 @@ const BookTableMain = () => {
                     const dataToast = { message: "Đã tìm được bàn trống!", type: "success" };
                     showToastFromOut(dataToast);
                     setIsAvailableTable(true);
-                    setMinutes(4);
+                    // Block the table
+                    try {
+                        const updateTableBookingState = async () => {
+                            console.log("tableBookingRes.data.data[0]: ", tableBookingRes.data.data[0].table_booking_id);
+                            const updateTableBookingStateRes = await TableBookingService.updateTableBookingState(tableBookingRes.data.data[0].table_booking_id, 1);
+                            if (updateTableBookingStateRes) {
+                                // Toast
+                                const dataToast = { message: "Bàn đã được giữ trong 5 phút", type: "success" };
+                                showToastFromOut(dataToast);
+                                return;
+                            } else {
+                                // Toast
+                                const dataToast = { message: updateTableBookingStateRes.data.message, type: "warning" };
+                                showToastFromOut(dataToast);
+                                return;
+                            }
+                        }
+                        updateTableBookingState();
+                    } catch (err) {
+                        // Toast
+                        const dataToast = { message: err.response.data.message, type: "danger" };
+                        showToastFromOut(dataToast);
+                        return;
+                    }
+                    setMinutes(1);
                     setSeconds(59);
                 } else {
                     setNoResultFound(true);
@@ -571,6 +595,32 @@ const BookTableMain = () => {
         handleLoading();
         findTableBooking();
     }
+
+    // Update table booking to state 0 when UNMOUT: BACK TO PREVIOUS PAGE
+    useEffect(() => {
+        return () => {
+            if (tableBooking) {
+                // Update table booking to state 0
+                try {
+                    const updateTableBookingState = async () => {
+                        const updateTableBookingStateRes = await TableBookingService.updateTableBookingState(tableBooking.table_booking_id, 0);
+                        if (!updateTableBookingStateRes) {
+                            // Toast
+                            const dataToast = { message: updateTableBookingStateRes.data.message, type: "warning" };
+                            showToastFromOut(dataToast);
+                            return;
+                        }
+                    }
+                    updateTableBookingState();
+                } catch (err) {
+                    // Toast
+                    const dataToast = { message: err.response.data.message, type: "danger" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+            }
+        }
+    }, [tableBooking]);
 
     // --Handle time
     const [minutes, setMinutes] = useState();
@@ -593,6 +643,64 @@ const BookTableMain = () => {
             clearInterval(myInterval);
         };
     });
+
+    useEffect(() => {
+        if (minutes === 0 && seconds === 0) {
+            try {
+                const updateTableBookingState = async () => {
+                    const updateTableBookingStateRes = await TableBookingService.updateTableBookingState(tableBooking.table_booking_id, 0);
+                    if (updateTableBookingStateRes) {
+                        // Toast
+                        const dataToast = { message: "Thời gian giữ Bàn đã hết!", type: "success" };
+                        showToastFromOut(dataToast);
+                        return;
+                    } else {
+                        // Toast
+                        const dataToast = { message: updateTableBookingStateRes.data.message, type: "warning" };
+                        showToastFromOut(dataToast);
+                        return;
+                    }
+                }
+                updateTableBookingState();
+            } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "danger" };
+                showToastFromOut(dataToast);
+                return;
+            }
+        }
+    }, [minutes, seconds]);
+
+    const handleUpdateTableBookingStateTo0 = () => {
+        try {
+            const updateTableBookingState = async () => {
+                const updateTableBookingStateRes = await TableBookingService.updateTableBookingState(tableBooking.table_booking_id, 0);
+                if (!updateTableBookingStateRes) {
+                    // Toast
+                    const dataToast = { message: updateTableBookingStateRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+            }
+            updateTableBookingState();
+        } catch (err) {
+            // Toast
+            const dataToast = { message: err.response.data.message, type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+    };
+
+    // Update state to 0 when close tab booking
+    useEffect(() => {
+        window.addEventListener('beforeunload', handleUpdateTableBookingStateTo0);
+        window.addEventListener('unload', handleUpdateTableBookingStateTo0);
+        return () => {
+            window.removeEventListener('beforeunload', handleUpdateTableBookingStateTo0);
+            window.removeEventListener('unload', handleUpdateTableBookingStateTo0);
+        }
+    });
+
     // Toast
     const [dataToast, setDataToast] = useState({ message: "alo alo", type: "success" });
     const toastRef = useRef(null);
@@ -617,6 +725,24 @@ const BookTableMain = () => {
                     timeBooking: timeBooking ? timeBooking.$H + ":" + timeBooking.$m : null
                 });
                 if (createTableBookingOrderRes) {
+                    // Update table state => 0 when create success!
+                    try {
+                        const updateTableBookingState = async () => {
+                            const updateTableBookingStateRes = await TableBookingService.updateTableBookingState(tableBooking.table_booking_id, 0);
+                            if (!updateTableBookingStateRes) {
+                                // Toast
+                                const dataToast = { message: updateTableBookingStateRes.data.message, type: "warning" };
+                                showToastFromOut(dataToast);
+                                return;
+                            }
+                        }
+                        updateTableBookingState();
+                    } catch (err) {
+                        // Toast
+                        const dataToast = { message: err.response.data.message, type: "danger" };
+                        showToastFromOut(dataToast);
+                        return;
+                    }
                     // Success
                     setIsBookSuccess(true);
                     handleLoading();
@@ -638,6 +764,12 @@ const BookTableMain = () => {
             }
         };
         createTableBookingOrder()
+    };
+
+    // Change table booking
+    const handleCancelBookTable = () => {
+        handleUpdateTableBookingStateTo0();
+        navigate("/restaurant");
     };
 
     // Fake loading when fetch data
@@ -749,12 +881,13 @@ const BookTableMain = () => {
                                                                                 >Đặt bàn</BookButton>
                                                                             </BookButtonContainer>
 
-                                                                            <Link to={"/restaurant"}>
-                                                                                <BookButtonContainer>
-                                                                                    <BookButton
-                                                                                    >Hủy đặt bàn</BookButton>
-                                                                                </BookButtonContainer>
-                                                                            </Link>
+
+                                                                            <BookButtonContainer>
+                                                                                <BookButton
+                                                                                    onClick={() => handleCancelBookTable()}
+                                                                                >Hủy đặt bàn</BookButton>
+                                                                            </BookButtonContainer>
+
                                                                         </div>
                                                                     </>
                                                                 ) : (
@@ -850,7 +983,7 @@ const BookTableMain = () => {
                                                 <Button className="row">
                                                     <ButtonContainer style={{ paddingTop: "40px" }}>
                                                         <ButtonClick
-                                                            onClick={() => navigate('/hotel')}
+                                                            onClick={() => handleCancelBookTable()}
                                                         >
                                                             {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
                                                             Chỉnh sửa đặt bàn
