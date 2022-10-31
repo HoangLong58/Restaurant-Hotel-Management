@@ -1,12 +1,13 @@
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined } from "@mui/icons-material";
+import { AccessibilityOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined, PersonOffOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Toast from "../Toast";
 import Modal from "./Modal";
+import ReactPaginate from "react-paginate";
 
 // SERVICES
-import * as FloorService from "../../service/FloorService";
-import ReactPaginate from "react-paginate";
+import * as EmployeeService from "../../service/EmployeeService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -280,7 +281,23 @@ const EmptyContent = styled.div`
     font-weight: bold;
 `
 
-const FloorMain = ({ reRenderData, setReRenderData }) => {
+const ButtonInfo = styled.button`
+    width: 40px;
+    height: 30px;
+    border: 2px solid var(--color-info);
+    border-radius: var(--border-radius-2);
+    color: var(--color-warnning);
+    background: var(--color-white);
+    padding:0px;
+    outline:none;
+    z-index: 2;
+    cursor: pointer;
+`
+
+const EmployeeMain = ({ reRenderData, setReRenderData }) => {
+    // Lấy admin từ redux
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    // Search
     const InputRef = useRef(null);
     const [isSearch, setIsSearch] = useState(false);
     const [search, setSearch] = useState("");
@@ -292,9 +309,9 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
         } else {
             // Thực hiện tìm kiếm
             console.log(search);
-            const findFloors = async () => {
+            const findEmployee = async () => {
                 try {
-                    const searchRes = await FloorService.findFloorByIdOrName(search);
+                    const searchRes = await EmployeeService.findEmployeeByIdOrName(search);
                     if (searchRes.data.data.length === 0) {
                         setNoResultFound(true);
                         // Toast
@@ -303,53 +320,53 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                         return;
                     }
                     setNoResultFound(false);
-                    setFloorList(searchRes.data.data);
+                    setEmployeeList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };
                     showToastFromOut(dataToast);
-                    console.log("Kết quả tìm trong effect: ", searchRes.data.data);
                 } catch (err) {
                     // Toast
                     const dataToast = { message: err.response.data.message, type: "danger" };
                     showToastFromOut(dataToast);
                 }
             }
+            findEmployee();
             handleLoading();
-            findFloors();
         }
     }
     const handleClose = () => {
         setIsSearch(false);
         setNoResultFound(false);
         InputRef.current.value = "";
-        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - FloorMain & DanhMucRight.jsx
+        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - EmployeeMain & DanhMucRight.jsx
     }
 
-    // Lấy Floor
-    const [floorList, setFloorList] = useState([]);
+    // Lấy Nhân viên
+    const [employeeList, setEmployeeList] = useState([]);
     useEffect(() => {
-        const getFloors = async () => {
+        const getEmployees = async () => {
             try {
-                const floorRes = await FloorService.getFloors();
-                setFloorList(floorRes.data.data);
+                const employeeRes = await EmployeeService.getAllEmployees();
+                // Không hiển thị Bản thân trong danh sách Nhân viên
+                setEmployeeList(employeeRes.data.data.filter(prev => prev.employee_id !== admin.employee_id));
             } catch (err) {
-                console.log("Lỗi lấy floor: ", err);
+                console.log("Lỗi lấy employee: ", err);
             }
         }
-        getFloors();
         handleLoading();
+        getEmployees();
     }, [reRenderData]);
-    console.log("floorList: ", floorList);
+    console.log("employeeList: ", employeeList);
 
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
-    const [floorModal, setFloorModal] = useState(null);
+    const [employeeModal, setEmployeeModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
-        setFloorModal(modal.floor);
+        setEmployeeModal(modal.employee);
     }
 
     // ===== TOAST =====
@@ -380,27 +397,52 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
-    const floorPerPage = 12;
-    const pageVisited = pageNumber * floorPerPage;
+    const employeePerPage = 12;
+    const pageVisited = pageNumber * employeePerPage;
 
-    const floorListFiltered = floorList
-        .slice(pageVisited, pageVisited + floorPerPage)
-        .map((floor, key) => {
+    const employeeFiltered = employeeList
+        .slice(pageVisited, pageVisited + employeePerPage)
+        .map((employee, key) => {
             return (
                 <Tr>
-                    <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{pageNumber * floorPerPage + (key + 1)}</Td>
-                    <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_id}</Td>
-                    <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{pageNumber * employeePerPage + (key + 1)}</Td>
+                    <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.employee_id}</Td>
+                    <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.employee_first_name + " " + employee.employee_last_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.position_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.employee_email}</Td>
+                    <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.employee_phone_number}</Td>
+                    <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <ImgDanhMuc src={employee.employee_image} />
+                    </Td>
+                    <Td
+                        onClick={() => openModal({ type: "detailEmployee", employee: employee })}
+                        style={{ backgroundColor: employee.employee_state === 'ACTIVE' ? "var(--color-info)" : employee.employee_state === 'INACTIVE' ? "var(--color-danger)" : null }}>
+                        {employee.employee_state}
+                    </Td>
+                    <Td className="primary">
+                        <ButtonDelete
+                            onClick={() => openModal({ type: "disableEmployee", employee: employee })}
+                        >
+                            <PersonOffOutlined />
+                        </ButtonDelete>
+                    </Td>
+                    <Td className="primary">
+                        <ButtonInfo
+                            onClick={() => openModal({ type: "ableEmployee", employee: employee })}
+                        >
+                            <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                        </ButtonInfo>
+                    </Td>
                     <Td className="warning">
                         <ButtonFix
-                            onClick={() => openModal({ type: "updateFloor", floor: floor })}
+                            onClick={() => openModal({ type: "updateEmployee", employee: employee })}
                         >
                             <DriveFileRenameOutlineOutlined />
                         </ButtonFix>
                     </Td>
                     <Td className="primary">
                         <ButtonDelete
-                            onClick={() => openModal({ type: "deleteFloor", floor: floor })}
+                            onClick={() => openModal({ type: "deleteEmployee", employee: employee })}
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
@@ -411,14 +453,13 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
         );
 
 
-    const pageCount = Math.ceil(floorList.length / floorPerPage);
+    const pageCount = Math.ceil(employeeList.length / employeePerPage);
     const changePage = ({ selected }) => {
         setPageNumber(selected);
     }
-
     return (
         <Container>
-            <H2>Quản lý Tầng</H2>
+            <H2>Quản lý Nhân viên</H2>
 
             {/* Tìm kiếm */}
             <SearchWrapper className={isSearch ? "active" : null}>
@@ -430,21 +471,28 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
             </SearchWrapper>
 
             <RecentOrders>
-                <H2>Tầng hiện tại</H2>
+                <H2>Danh sách Nhân viên hiện tại</H2>
                 <Table>
                     <Thead>
                         <Tr>
                             <Th>STT</Th>
-                            <Th>Mã Tầng</Th>
-                            <Th>Tên Tầng</Th>
-                            <Th>Chỉnh sửa</Th>
+                            <Th>Mã Nhân viên</Th>
+                            <Th>Họ tên</Th>
+                            <Th>Chức vụ</Th>
+                            <Th>Email</Th>
+                            <Th>Số điện thoại</Th>
+                            <Th>Hình ảnh</Th>
+                            <Th>Trạng thái</Th>
+                            <Th>Vô hiệu hóa</Th>
+                            <Th>Mờ khóa</Th>
+                            <Th>Cập nhật</Th>
                             <Th>Xóa</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
                         {noResultFound ? (
                             <Tr>
-                                <Td colSpan={5}>
+                                <Td colSpan={12}>
                                     <EmptyItem>
                                         <EmptyItemSvg>
                                             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
@@ -471,7 +519,7 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                         )
                             : isLoading ? (
                                 <Tr>
-                                    <Td colSpan={5} style={{ width: "100%", height: "100px" }}>
+                                    <Td colSpan={12} style={{ width: "100%", height: "100px" }}>
                                         <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             <div
                                                 class="spinner-border"
@@ -484,26 +532,51 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                                     </Td>
                                 </Tr>
                             ) :
-                                floorList.length > 0
+                                employeeList.length > 0
                                     ?
-                                    floorListFiltered
+                                    employeeFiltered
                                     :
-                                    (floorList.map((floor, key) => {
+                                    (employeeList.slice(0, 12).map((employee, key) => {
                                         return (
                                             <Tr>
-                                                <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{key + 1}</Td>
-                                                <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_id}</Td>
-                                                <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{key + 1}</Td>
+                                                <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.employee_id}</Td>
+                                                <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.employee_first_name + " " + employee.employee_last_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.position_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.employee_email}</Td>
+                                                <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })}>{employee.employee_phone_number}</Td>
+                                                <Td onClick={() => openModal({ type: "detailEmployee", employee: employee })} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <ImgDanhMuc src={employee.employee_image} />
+                                                </Td>
+                                                <Td
+                                                    onClick={() => openModal({ type: "detailEmployee", employee: employee })}
+                                                    style={{ backgroundColor: employee.employee_state === 'ACTIVE' ? "var(--color-info)" : employee.employee_state === 'INACTIVE' ? "var(--color-danger)" : null }}>
+                                                    {employee.employee_state}
+                                                </Td>
+                                                <Td className="primary">
+                                                    <ButtonDelete
+                                                        onClick={() => openModal({ type: "disableEmployee", employee: employee })}
+                                                    >
+                                                        <PersonOffOutlined />
+                                                    </ButtonDelete>
+                                                </Td>
+                                                <Td className="primary">
+                                                    <ButtonInfo
+                                                        onClick={() => openModal({ type: "ableEmployee", employee: employee })}
+                                                    >
+                                                        <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                                                    </ButtonInfo>
+                                                </Td>
                                                 <Td className="warning">
                                                     <ButtonFix
-                                                        onClick={() => openModal({ type: "updateFloor", floor: floor })}
+                                                        onClick={() => openModal({ type: "updateEmployee", employee: employee })}
                                                     >
                                                         <DriveFileRenameOutlineOutlined />
                                                     </ButtonFix>
                                                 </Td>
                                                 <Td className="primary">
                                                     <ButtonDelete
-                                                        onClick={() => openModal({ type: "deleteFloor", floor: floor })}
+                                                        onClick={() => openModal({ type: "deleteEmployee", employee: employee })}
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
@@ -534,14 +607,15 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                         behavior: "smooth"
                     });
                 }}>
-                    <KeyboardArrowUpOutlined /> Lên trên</A>
+                    <KeyboardArrowUpOutlined /> Lên trên
+                </A>
 
             </RecentOrders>
             <Modal
                 showModal={showModal}   //state Đóng mở modal
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
-                floor={floorModal}  //Dữ liệu bên trong modal
+                employee={employeeModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast
@@ -558,4 +632,4 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
 
 
 
-export default FloorMain;
+export default EmployeeMain;

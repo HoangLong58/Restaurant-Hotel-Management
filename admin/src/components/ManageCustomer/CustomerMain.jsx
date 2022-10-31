@@ -1,11 +1,11 @@
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined } from "@mui/icons-material";
+import { AccessibilityOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined, PersonOffOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as FloorService from "../../service/FloorService";
+import * as CustomerService from "../../service/CustomerService";
 import ReactPaginate from "react-paginate";
 
 const Container = styled.div`
@@ -280,7 +280,19 @@ const EmptyContent = styled.div`
     font-weight: bold;
 `
 
-const FloorMain = ({ reRenderData, setReRenderData }) => {
+const ButtonInfo = styled.button`
+    width: 40px;
+    height: 30px;
+    border: 2px solid var(--color-info);
+    border-radius: var(--border-radius-2);
+    color: var(--color-warnning);
+    background: var(--color-white);
+    padding:0px;
+    outline:none;
+    z-index: 2;
+    cursor: pointer;
+`
+const CustomerMain = ({ reRenderData, setReRenderData }) => {
     const InputRef = useRef(null);
     const [isSearch, setIsSearch] = useState(false);
     const [search, setSearch] = useState("");
@@ -292,9 +304,9 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
         } else {
             // Thực hiện tìm kiếm
             console.log(search);
-            const findFloors = async () => {
+            const findCustomer = async () => {
                 try {
-                    const searchRes = await FloorService.findFloorByIdOrName(search);
+                    const searchRes = await CustomerService.findCustomerByIdOrName(search);
                     if (searchRes.data.data.length === 0) {
                         setNoResultFound(true);
                         // Toast
@@ -303,7 +315,7 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                         return;
                     }
                     setNoResultFound(false);
-                    setFloorList(searchRes.data.data);
+                    setCustomerList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };
                     showToastFromOut(dataToast);
@@ -314,42 +326,43 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                     showToastFromOut(dataToast);
                 }
             }
+            findCustomer();
             handleLoading();
-            findFloors();
         }
     }
     const handleClose = () => {
         setIsSearch(false);
         setNoResultFound(false);
         InputRef.current.value = "";
-        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - FloorMain & DanhMucRight.jsx
+        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - CustomerMain & DanhMucRight.jsx
     }
 
-    // Lấy Floor
-    const [floorList, setFloorList] = useState([]);
+    // Lấy Khách hàng
+    const [customerList, setCustomerList] = useState([]);
     useEffect(() => {
-        const getFloors = async () => {
+        const getCustomers = async () => {
             try {
-                const floorRes = await FloorService.getFloors();
-                setFloorList(floorRes.data.data);
+                const customerRes = await CustomerService.getAllCustomers();
+                setCustomerList(customerRes.data.data);
+                console.log("EEEEEEEEEEE: ", customerRes.data)
             } catch (err) {
-                console.log("Lỗi lấy floor: ", err);
+                console.log("Lỗi lấy device type: ", err);
             }
         }
-        getFloors();
         handleLoading();
+        getCustomers();
     }, [reRenderData]);
-    console.log("floorList: ", floorList);
+    console.log("customerList: ", customerList);
 
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
-    const [floorModal, setFloorModal] = useState(null);
+    const [customerModal, setCustomerModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
-        setFloorModal(modal.floor);
+        setCustomerModal(modal.customer);
     }
 
     // ===== TOAST =====
@@ -380,30 +393,42 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
-    const floorPerPage = 12;
-    const pageVisited = pageNumber * floorPerPage;
+    const customerPerPage = 12;
+    const pageVisited = pageNumber * customerPerPage;
 
-    const floorListFiltered = floorList
-        .slice(pageVisited, pageVisited + floorPerPage)
-        .map((floor, key) => {
+    const customerListFiltered = customerList
+        .slice(pageVisited, pageVisited + customerPerPage)
+        .map((customer, key) => {
             return (
                 <Tr>
-                    <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{pageNumber * floorPerPage + (key + 1)}</Td>
-                    <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_id}</Td>
-                    <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_name}</Td>
-                    <Td className="warning">
-                        <ButtonFix
-                            onClick={() => openModal({ type: "updateFloor", floor: floor })}
-                        >
-                            <DriveFileRenameOutlineOutlined />
-                        </ButtonFix>
+                    <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{pageNumber * customerPerPage + (key + 1)}</Td>
+                    <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_id}</Td>
+                    <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_first_name + " " + customer.customer_last_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_gender}</Td>
+                    <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_email}</Td>
+                    <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_phone_number}</Td>
+                    <Td
+                        onClick={() => openModal({ type: "detailCustomer", customer: customer })}
+                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <ImgDanhMuc src={customer.customer_image} />
                     </Td>
+                    <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })} style={{ backgroundColor: customer.customer_state === 'INIT' ? "var(--color-info)" : customer.customer_state === 'ACTIVE' ? "var(--color-success)" : customer.customer_state === 'DISABLE' ? "var(--color-danger)" : null }}>
+                        {customer.customer_state}
+                    </Td>
+
                     <Td className="primary">
                         <ButtonDelete
-                            onClick={() => openModal({ type: "deleteFloor", floor: floor })}
+                            onClick={() => openModal({ type: "disableCustomer", customer: customer })}
                         >
-                            <DeleteSweepOutlined />
+                            <PersonOffOutlined />
                         </ButtonDelete>
+                    </Td>
+                    <Td className="primary">
+                        <ButtonInfo
+                            onClick={() => openModal({ type: "ableCustomer", customer: customer })}
+                        >
+                            <AccessibilityOutlined style={{color: "var(--color-info)"}} />
+                        </ButtonInfo>
                     </Td>
                 </Tr>
             );
@@ -411,14 +436,14 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
         );
 
 
-    const pageCount = Math.ceil(floorList.length / floorPerPage);
+    const pageCount = Math.ceil(customerList.length / customerPerPage);
     const changePage = ({ selected }) => {
         setPageNumber(selected);
     }
 
     return (
         <Container>
-            <H2>Quản lý Tầng</H2>
+            <H2>Quản lý Khách hàng</H2>
 
             {/* Tìm kiếm */}
             <SearchWrapper className={isSearch ? "active" : null}>
@@ -430,21 +455,26 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
             </SearchWrapper>
 
             <RecentOrders>
-                <H2>Tầng hiện tại</H2>
+                <H2>Danh sách Khách hàng hiện tại</H2>
                 <Table>
                     <Thead>
                         <Tr>
                             <Th>STT</Th>
-                            <Th>Mã Tầng</Th>
-                            <Th>Tên Tầng</Th>
-                            <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+                            <Th>Mã Khách hàng</Th>
+                            <Th>Họ tên khách hàng</Th>
+                            <Th>Giới tính</Th>
+                            <Th>Email</Th>
+                            <Th>Số diện thoại</Th>
+                            <Th>Hình đại diện</Th>
+                            <Th>Trạng thái</Th>
+                            <Th>Vô hiệu hóa</Th>
+                            <Th>Mở khóa</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
                         {noResultFound ? (
                             <Tr>
-                                <Td colSpan={5}>
+                                <Td colSpan={9}>
                                     <EmptyItem>
                                         <EmptyItemSvg>
                                             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
@@ -471,7 +501,7 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                         )
                             : isLoading ? (
                                 <Tr>
-                                    <Td colSpan={5} style={{ width: "100%", height: "100px" }}>
+                                    <Td colSpan={9} style={{ width: "100%", height: "100px" }}>
                                         <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             <div
                                                 class="spinner-border"
@@ -484,29 +514,41 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                                     </Td>
                                 </Tr>
                             ) :
-                                floorList.length > 0
+                                customerList.length > 0
                                     ?
-                                    floorListFiltered
+                                    customerListFiltered
                                     :
-                                    (floorList.map((floor, key) => {
+                                    (customerList.map((customer, key) => {
                                         return (
                                             <Tr>
-                                                <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{key + 1}</Td>
-                                                <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_id}</Td>
-                                                <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_name}</Td>
-                                                <Td className="warning">
-                                                    <ButtonFix
-                                                        onClick={() => openModal({ type: "updateFloor", floor: floor })}
-                                                    >
-                                                        <DriveFileRenameOutlineOutlined />
-                                                    </ButtonFix>
+                                                <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{key + 1}</Td>
+                                                <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_id}</Td>
+                                                <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_first_name + " " + customer.customer_last_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_gender}</Td>
+                                                <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_email}</Td>
+                                                <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })}>{customer.customer_phone_number}</Td>
+                                                <Td
+                                                    onClick={() => openModal({ type: "detailCustomer", customer: customer })}
+                                                    style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <ImgDanhMuc src={customer.customer_image} />
                                                 </Td>
+                                                <Td onClick={() => openModal({ type: "detailCustomer", customer: customer })} style={{ backgroundColor: customer.customer_state === 'INIT' ? "var(--color-info)" : customer.customer_state === 'ACTIVE' ? "var(--color-success)" : customer.customer_state === 'DISABLE' ? "var(--color-danger)" : null }}>
+                                                    {customer.customer_state}
+                                                </Td>
+
                                                 <Td className="primary">
                                                     <ButtonDelete
-                                                        onClick={() => openModal({ type: "deleteFloor", floor: floor })}
+                                                        onClick={() => openModal({ type: "disableCustomer", customer: customer })}
                                                     >
-                                                        <DeleteSweepOutlined />
+                                                        <PersonOffOutlined />
                                                     </ButtonDelete>
+                                                </Td>
+                                                <Td className="primary">
+                                                    <ButtonInfo
+                                                        onClick={() => openModal({ type: "ableCustomer", customer: customer })}
+                                                    >
+                                                        <AccessibilityOutlined />
+                                                    </ButtonInfo>
                                                 </Td>
                                             </Tr>
                                         );
@@ -541,7 +583,7 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                 showModal={showModal}   //state Đóng mở modal
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
-                floor={floorModal}  //Dữ liệu bên trong modal
+                customer={customerModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast
@@ -558,4 +600,4 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
 
 
 
-export default FloorMain;
+export default CustomerMain;

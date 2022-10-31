@@ -99,6 +99,20 @@ module.exports = {
             );
         });
     },
+    getCustomerByCustomerIdExceptDisableState: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select customer_id, customer_first_name, customer_last_name, customer_birthday, customer_gender, customer_phone_number, customer_email, customer_password, customer_image, customer_state, customer_otp from customer where customer_id = ? and customer_state != 'DISABLE'`,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
     updateCustomer: (data, callBack) => {
         con.query(
             `update customer set customer_first_name = ?, customer_last_name = ?, customer_birthday = ?, customer_gender = ?, customer_phone_number = ?, customer_email = ?, customer_password = ?, customer_state = ? where customer_id = ?`,
@@ -135,7 +149,7 @@ module.exports = {
     },
     getCustomerByEmail: (email, callBack) => {
         con.query(
-            `select * from customer where customer_email = ?`,
+            `select * from customer where customer_email = ? and customer_state != 'DISABLE'`,
             [email],
             (error, results, fields) => {
                 if (error) {
@@ -147,7 +161,7 @@ module.exports = {
     },
     getCustomerByEmailOrPhoneNumber: (email, callBack) => {
         con.query(
-            `select * from customer where customer_email = ? or customer_phone_number = ?`,
+            `select * from customer where customer_email = ? and customer_state != 'DISABLE' or customer_phone_number = ? and customer_state != 'DISABLE'`,
             [email, email],
             (error, results, fields) => {
                 if (error) {
@@ -175,6 +189,7 @@ module.exports = {
                 customer_otp 
                 from customer
                 where customer_email = ?
+                and customer_state != 'DISABLE'
                 `,
                 [customerEmail],
                 (error, results, fields) => {
@@ -224,6 +239,7 @@ module.exports = {
                 customer_otp 
                 from customer
                 where customer_phone_number = ?
+                and customer_state != 'DISABLE'
                 `,
                 [customerPhoneNumber],
                 (error, results, fields) => {
@@ -274,5 +290,101 @@ module.exports = {
                 }
             );
         })
+    },
+
+    // Admin: Quản lý khách hàng
+    findCustomerByIdOrName: (search) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                customer_id, 
+                customer_first_name,
+                customer_last_name, 
+                customer_birthday,
+                customer_gender, 
+                customer_phone_number, 
+                customer_email, 
+                customer_password, 
+                customer_image, 
+                customer_state, 
+                customer_otp 
+                from customer
+                where customer_first_name like concat('%', ?, '%')
+                or customer_last_name like concat('%', ?, '%')
+                or customer_email = ?
+                or customer_phone_number = ?
+                or customer_id = ?`,
+                [search, search, search, search, search],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    getAllCustomers: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                customer_id, 
+                customer_first_name,
+                customer_last_name, 
+                customer_birthday,
+                customer_gender, 
+                customer_phone_number, 
+                customer_email, 
+                customer_password, 
+                customer_image, 
+                customer_state, 
+                customer_otp 
+                from customer`,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    getQuantityCustomers: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                count(customer_id) as quantityCustomer
+                from customer`,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    updateCustomerStateById: (state, id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update 
+                customer 
+                set customer_state = ?
+                where customer_id = ?`,
+                [state, id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+
+                }
+            );
+        });
     },
 };

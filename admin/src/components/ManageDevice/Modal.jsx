@@ -772,11 +772,11 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
                                     </div>
                                     <div className="col-lg-6">
                                         <ModalFormItem style={{ marginTop: "10px" }}>
-                                            <FormSpan>Tên Thiết bị:</FormSpan>
+                                            <FormSpan>Ngày thêm Thiết bị:</FormSpan>
                                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                 <Stack spacing={1}>
                                                     <DesktopDatePicker
-                                                        label="Tên Thiết bị:"
+                                                        label="Ngày thêm Thiết bị:"
                                                         inputFormat="dd/MM/yyyy"
                                                         disableFuture
                                                         value={deviceDateModal}

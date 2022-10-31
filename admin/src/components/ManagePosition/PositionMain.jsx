@@ -5,8 +5,7 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as FloorService from "../../service/FloorService";
-import ReactPaginate from "react-paginate";
+import * as DeviceTypeService from "../../service/DeviceTypeService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -280,7 +279,7 @@ const EmptyContent = styled.div`
     font-weight: bold;
 `
 
-const FloorMain = ({ reRenderData, setReRenderData }) => {
+const DeviceTypeMain = ({ reRenderData, setReRenderData }) => {
     const InputRef = useRef(null);
     const [isSearch, setIsSearch] = useState(false);
     const [search, setSearch] = useState("");
@@ -292,9 +291,9 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
         } else {
             // Thực hiện tìm kiếm
             console.log(search);
-            const findFloors = async () => {
+            const findDeviceType = async () => {
                 try {
-                    const searchRes = await FloorService.findFloorByIdOrName(search);
+                    const searchRes = await DeviceTypeService.findDeviceTypeByIdOrName(search);
                     if (searchRes.data.data.length === 0) {
                         setNoResultFound(true);
                         // Toast
@@ -303,7 +302,7 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                         return;
                     }
                     setNoResultFound(false);
-                    setFloorList(searchRes.data.data);
+                    setDeviceTypeList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };
                     showToastFromOut(dataToast);
@@ -314,42 +313,42 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                     showToastFromOut(dataToast);
                 }
             }
+            findDeviceType();
             handleLoading();
-            findFloors();
         }
     }
     const handleClose = () => {
         setIsSearch(false);
         setNoResultFound(false);
         InputRef.current.value = "";
-        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - FloorMain & DanhMucRight.jsx
+        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DeviceTypeMain & DanhMucRight.jsx
     }
 
-    // Lấy Floor
-    const [floorList, setFloorList] = useState([]);
+    // Lấy danh mục
+    const [deviceTypeList, setDeviceTypeList] = useState([]);
     useEffect(() => {
-        const getFloors = async () => {
+        const getDeviceTypes = async () => {
             try {
-                const floorRes = await FloorService.getFloors();
-                setFloorList(floorRes.data.data);
+                const deviceTypeRes = await DeviceTypeService.getDeviceTypes();
+                setDeviceTypeList(deviceTypeRes.data.data);
             } catch (err) {
-                console.log("Lỗi lấy floor: ", err);
+                console.log("Lỗi lấy device type: ", err);
             }
         }
-        getFloors();
         handleLoading();
+        getDeviceTypes();
     }, [reRenderData]);
-    console.log("floorList: ", floorList);
+    console.log("deviceTypeList: ", deviceTypeList);
 
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
-    const [floorModal, setFloorModal] = useState(null);
+    const [deviceTypeModal, setDeviceTypeModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
-        setFloorModal(modal.floor);
+        setDeviceTypeModal(modal.deviceType);
     }
 
     // ===== TOAST =====
@@ -376,49 +375,9 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
             setIsLoading(false);
         }, 1200);
     };
-
-    // PHÂN TRANG
-    const [pageNumber, setPageNumber] = useState(0);
-
-    const floorPerPage = 12;
-    const pageVisited = pageNumber * floorPerPage;
-
-    const floorListFiltered = floorList
-        .slice(pageVisited, pageVisited + floorPerPage)
-        .map((floor, key) => {
-            return (
-                <Tr>
-                    <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{pageNumber * floorPerPage + (key + 1)}</Td>
-                    <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_id}</Td>
-                    <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_name}</Td>
-                    <Td className="warning">
-                        <ButtonFix
-                            onClick={() => openModal({ type: "updateFloor", floor: floor })}
-                        >
-                            <DriveFileRenameOutlineOutlined />
-                        </ButtonFix>
-                    </Td>
-                    <Td className="primary">
-                        <ButtonDelete
-                            onClick={() => openModal({ type: "deleteFloor", floor: floor })}
-                        >
-                            <DeleteSweepOutlined />
-                        </ButtonDelete>
-                    </Td>
-                </Tr>
-            );
-        }
-        );
-
-
-    const pageCount = Math.ceil(floorList.length / floorPerPage);
-    const changePage = ({ selected }) => {
-        setPageNumber(selected);
-    }
-
     return (
         <Container>
-            <H2>Quản lý Tầng</H2>
+            <H2>Quản lý Loại thiết bị - Khách sạn</H2>
 
             {/* Tìm kiếm */}
             <SearchWrapper className={isSearch ? "active" : null}>
@@ -430,13 +389,14 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
             </SearchWrapper>
 
             <RecentOrders>
-                <H2>Tầng hiện tại</H2>
+                <H2>Loại thiết bị - Khách sạn hiện tại</H2>
                 <Table>
                     <Thead>
                         <Tr>
                             <Th>STT</Th>
-                            <Th>Mã Tầng</Th>
-                            <Th>Tên Tầng</Th>
+                            <Th>Mã loại thiết bị</Th>
+                            <Th>Tên loại thiết bị</Th>
+                            <Th>Hình ảnh</Th>
                             <Th>Chỉnh sửa</Th>
                             <Th>Xóa</Th>
                         </Tr>
@@ -444,7 +404,7 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                     <Tbody>
                         {noResultFound ? (
                             <Tr>
-                                <Td colSpan={5}>
+                                <Td colSpan={6}>
                                     <EmptyItem>
                                         <EmptyItemSvg>
                                             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
@@ -471,7 +431,7 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                         )
                             : isLoading ? (
                                 <Tr>
-                                    <Td colSpan={5} style={{ width: "100%", height: "100px" }}>
+                                    <Td colSpan={6} style={{ width: "100%", height: "100px" }}>
                                         <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             <div
                                                 class="spinner-border"
@@ -484,26 +444,29 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                                     </Td>
                                 </Tr>
                             ) :
-                                floorList.length > 0
+                                deviceTypeList.length > 0
                                     ?
-                                    floorListFiltered
-                                    :
-                                    (floorList.map((floor, key) => {
+                                    (deviceTypeList.map((deviceType, key) => {
                                         return (
                                             <Tr>
-                                                <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{key + 1}</Td>
-                                                <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_id}</Td>
-                                                <Td onClick={() => openModal({ type: "detailFloor", floor: floor })}>{floor.floor_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{key + 1}</Td>
+                                                <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{deviceType.device_type_id}</Td>
+                                                <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{deviceType.device_type_name}</Td>
+                                                <Td 
+                                                 onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}
+                                                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <ImgDanhMuc src={deviceType.device_type_image} />
+                                                </Td>
                                                 <Td className="warning">
                                                     <ButtonFix
-                                                        onClick={() => openModal({ type: "updateFloor", floor: floor })}
+                                                        onClick={() => openModal({ type: "updateDeviceType", deviceType: deviceType })}
                                                     >
                                                         <DriveFileRenameOutlineOutlined />
                                                     </ButtonFix>
                                                 </Td>
                                                 <Td className="primary">
                                                     <ButtonDelete
-                                                        onClick={() => openModal({ type: "deleteFloor", floor: floor })}
+                                                        onClick={() => openModal({ type: "deleteDeviceType", deviceType: deviceType })}
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
@@ -511,23 +474,11 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                                             </Tr>
                                         );
                                     }))
+                                    :
+                                    null
                         }
                     </Tbody>
                 </Table>
-                <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
-                    pageCount={pageCount}
-                    onPageChange={changePage}
-                    containerClassName={"paginationBttns"}
-                    previousLinkClassName={"previousBttn"}
-                    nextLinkClassName={"nextBttn"}
-                    disabledClassName={"paginationDisabled"}
-                    activeClassName={"paginationActive"}
-                    nextClassName={"nextClassName"}
-                    pageLinkClassName={"pageLinkClassName"}
-                    forcePage={pageNumber}
-                />
                 <A onClick={() => {
                     window.scrollTo({
                         top: 0,
@@ -541,7 +492,7 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
                 showModal={showModal}   //state Đóng mở modal
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
-                floor={floorModal}  //Dữ liệu bên trong modal
+                deviceType={deviceTypeModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast
@@ -558,4 +509,4 @@ const FloorMain = ({ reRenderData, setReRenderData }) => {
 
 
 
-export default FloorMain;
+export default DeviceTypeMain;

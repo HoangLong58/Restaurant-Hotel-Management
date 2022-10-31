@@ -1,8 +1,9 @@
-const { createEmployee, getEmployeeByEmployeeId, getEmployees, updateEmployee, deleteEmployee, getEmployeeByEmail, checkEmailUnit, checkPhoneNumberUnit, getEmployeeByEmailOrPhoneNumber, findEmployeeByEmail, updateEmployeeOtpByEmail, updateEmployeePasswordByEmployeeId, findEmployeeByPhoneNumber, updateEmployeeOtpByPhoneNumber } = require("../service/EmployeeService");
+const { createEmployee, getEmployeeByEmployeeId, getEmployees, updateEmployee, deleteEmployee, getEmployeeByEmail, checkEmailUnit, checkPhoneNumberUnit, getEmployeeByEmailOrPhoneNumber, findEmployeeByEmail, updateEmployeeOtpByEmail, updateEmployeePasswordByEmployeeId, findEmployeeByPhoneNumber, updateEmployeeOtpByPhoneNumber, getAllEmployees, getQuantityEmployees, findEmployeeByIdOrName, findEmployeeById, checkEmployeeEmailUnit, checkEmployeePhoneNumberUnit, updateEmployeeById, checkUpdateEmployeeEmailUnit, checkUpdateEmployeePhoneNumberUnit, updateEmployeeNoPasswordById, updateEmployeeWithPasswordById, updateEmployeeStateById } = require("../service/EmployeeService");
+const { findPositionById } = require("../service/PositionService");
 
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
-const { randomIntFromInterval } = require("../utils/utils");
+const { randomIntFromInterval, createLogAdmin } = require("../utils/utils");
 
 // Twilio sent SMS
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -20,43 +21,6 @@ var transporter = nodemailer.createTransport({
 });
 
 module.exports = {
-    createEmployee: async (req, res) => {
-        const body = req.body;
-        const salt = genSaltSync(10);
-        body.password = hashSync(body.password, salt);
-
-        // Check email & phone number
-        let isEmailUnit = await checkEmailUnit(body);
-        let isPhoneNumberUnit = await checkPhoneNumberUnit(body);
-
-        if (isEmailUnit && isPhoneNumberUnit) {
-            createEmployee(body, (err, results) => {
-                if (err) {
-                    console.log("Lỗi create: ", err);
-                    return res.status(500).json({
-                        status: "fail",
-                        message: "Database connection error"
-                    });
-                }
-                return res.status(200).json({
-                    status: "success",
-                    data: results
-                });
-            });
-        }
-        if (!isEmailUnit) {
-            return res.status(400).json({
-                status: "fail",
-                message: "Email are used"
-            });
-        }
-        if (!isPhoneNumberUnit) {
-            return res.status(400).json({
-                status: "fail",
-                message: "Phone number are used"
-            });
-        }
-    },
     getEmployeeByEmployeeId: async (req, res) => {
         const employeeId = req.params.employeeId;
         try {
@@ -90,46 +54,6 @@ module.exports = {
                 data: results
             });
         })
-    },
-    updateEmployee: (req, res) => {
-        const body = req.body;
-        const salt = genSaltSync(10);
-        body.password = hashSync(body.password, salt);
-        updateEmployee(body, (err, results) => {
-            if (err) {
-                console.log("Lỗi updateEmployee: ", err);
-                return;
-            }
-            if (!results) {
-                return res.json({
-                    status: "fail",
-                    message: "Failed to update employee"
-                });
-            }
-            return res.json({
-                status: "success",
-                message: "Employee updated successfully"
-            })
-        })
-    },
-    deleteEmployee: (req, res) => {
-        const data = req.body;
-        deleteEmployee(data, (err, results) => {
-            if (err) {
-                console.log("Lỗi deleteEmployee: ", err);
-                return;
-            }
-            if (!results) {
-                return res.json({
-                    status: "fail",
-                    message: "Record not found"
-                });
-            }
-            return res.json({
-                status: "success",
-                message: "Employee deleted successfully"
-            });
-        });
     },
     login: (req, res) => {
         const body = req.body;
@@ -483,5 +407,626 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+
+    // ADMIN: Quản lý Nhân viên
+    getAllEmployees: async (req, res) => {
+        try {
+            const result = await getAllEmployees();
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Lấy employees thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi getAllEmployees",
+                error: err
+            });
+        }
+    },
+    getQuantityEmployee: async (req, res) => {
+        try {
+            const result = await getQuantityEmployees();
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Lấy quantity employees thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi getQuantityEmployees",
+                error: err
+            });
+        }
+    },
+    findEmployeeByIdOrName: async (req, res) => {
+        const search = req.params.search;
+        try {
+            const result = await findEmployeeByIdOrName(search);
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Tìm employees thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi findEmployeeByIdOrName",
+                error: err
+            });
+        }
+    },
+    findEmployeeById: async (req, res) => {
+        const employeeId = req.body.employeeId;
+        try {
+            const result = await findEmployeeById(employeeId);
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Tìm employees thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi findEmployeeById",
+                error: err
+            });
+        }
+    },
+    createEmployee: async (req, res) => {
+        // firstName, lastName, birthday, gender, phoneNumber, email, password, image, state, otp, positionId
+        const employeeFirstName = req.body.employeeFirstName;
+        const employeeLastName = req.body.employeeLastName;
+        const employeeBirthday = req.body.employeeBirthday;
+        const employeeGender = req.body.employeeGender;
+        const employeePhoneNumber = req.body.employeePhoneNumber;
+        const employeeEmail = req.body.employeeEmail;
+        let employeePassword = req.body.employeePassword;
+        const employeeImage = req.body.employeeImage;
+        const employeeState = 'ACTIVE';
+        const employeeOtp = null;
+        const positionId = req.body.positionId;
+
+        if (!employeeFirstName) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Họ của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeLastName) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Tên của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeBirthday) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày sinh của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeGender) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Giới tính của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeePhoneNumber) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Số điện thoại của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeEmail) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Email của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeePassword) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mật khẩu của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeImage) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Hình ảnh không hợp lệ!"
+            });
+        }
+        if (!positionId || !Number.isInteger(positionId) || positionId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã chức vụ không hợp lệ!"
+            });
+        }
+
+        // Mai làm tiếp check trùng email, sdt của customer
+        try {
+            const isEmailUnit = await checkEmployeeEmailUnit(employeeEmail);
+            if (!isEmailUnit) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Email Nhân viên đã tồn tại!"
+                });
+            }
+            try {
+                const isPhoneNumberUnit = await checkEmployeePhoneNumberUnit(employeePhoneNumber);
+                if (!isPhoneNumberUnit) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Số điện thoại Nhân viên đã tồn tại!"
+                    });
+                }
+                // Check có position
+                try {
+                    const positionRes = await findPositionById(positionId);
+                    if (!positionRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Chức vụ Nhân viên không tồn tại!"
+                        });
+                    }
+                    // Create employee
+                    const salt = genSaltSync(10);
+                    employeePassword = hashSync(employeePassword, salt);
+                    try {
+                        const createEmployeeRes = await createEmployee(
+                            employeeFirstName,
+                            employeeLastName,
+                            employeeBirthday,
+                            employeeGender,
+                            employeePhoneNumber,
+                            employeeEmail,
+                            employeePassword,
+                            employeeImage,
+                            employeeState,
+                            employeeOtp,
+                            positionId
+                        );
+                        if (!createEmployeeRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't create employee!"
+                            });
+                        }
+
+                        createLogAdmin(req, res, " vừa thêm Nhân viên mới tên: " + employeeFirstName + " " + employeeLastName, "CREATE").then(() => {
+                            // Success
+                            return res.status(200).json({
+                                status: "success",
+                                message: "Thêm Nhân viên mới thành công!"
+                            });
+                        });
+
+                    } catch (err) {
+                        
+                    console.log("ERR: ", err)
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when create employee!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find position!"
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't check employee phone number!"
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cann't check employee email!"
+            });
+        }
+    },
+    updateEmployee: async (req, res) => {
+        const employeeFirstName = req.body.employeeFirstName;
+        const employeeLastName = req.body.employeeLastName;
+        const employeeBirthday = req.body.employeeBirthday;
+        const employeeGender = req.body.employeeGender;
+        const employeePhoneNumber = req.body.employeePhoneNumber;
+        const employeeEmail = req.body.employeeEmail;
+        let employeePassword = req.body.employeePassword;
+        const employeeImage = req.body.employeeImage;
+        const positionId = req.body.positionId;
+        const employeeId = req.body.employeeId;
+        if (!employeeFirstName) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Họ của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeLastName) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Tên của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeBirthday) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày sinh của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeGender) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Giới tính của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeePhoneNumber) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Số điện thoại của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeEmail) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Email của Nhân viên không hợp lệ!"
+            });
+        }
+        if (employeePassword === undefined || employeePassword === NaN) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mật khẩu của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeImage) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Hình ảnh không hợp lệ!"
+            });
+        }
+        if (!positionId || !Number.isInteger(positionId) || positionId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã chức vụ không hợp lệ!"
+            });
+        }
+        if (!employeeId || !Number.isInteger(employeeId) || employeeId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã nhân viên không hợp lệ!"
+            });
+        }
+        // Find employee
+        try {
+            const employeeRes = await findEmployeeById(employeeId);
+            if (!employeeRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find employee!"
+                });
+            }
+            //  Find position
+            try {
+                const positionRes = await findPositionById(positionId);
+                if (!positionRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Chức vụ Nhân viên không tồn tại!"
+                    });
+                }
+                // Check new email or new phone number is unit
+                try {
+                    const isEmailUnit = await checkUpdateEmployeeEmailUnit(employeeEmail, employeeId);
+                    if (!isEmailUnit) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Email Nhân viên đã tồn tại!"
+                        });
+                    }
+                    try {
+                        const isPhoneNumberUnit = await checkUpdateEmployeePhoneNumberUnit(employeePhoneNumber, employeeId);
+                        if (!isPhoneNumberUnit) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Số điện thoại Nhân viên đã tồn tại!"
+                            });
+                        }
+
+                        // Update employee khi không có Password mới
+                        if (employeePassword === null) {
+                            try {
+                                const updateEmployeeRes = await updateEmployeeNoPasswordById(
+                                    employeeFirstName,
+                                    employeeLastName,
+                                    employeeBirthday,
+                                    employeeGender,
+                                    employeePhoneNumber,
+                                    employeeEmail,
+                                    employeeImage,
+                                    positionId,
+                                    employeeId
+                                );
+                                if (!updateEmployeeRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't update employee!"
+                                    });
+                                }
+
+                                createLogAdmin(req, res, " vừa cập nhật Nhân viên mã: " + employeeId, "UPDATE").then(() => {
+                                    // Success
+                                    return res.status(200).json({
+                                        status: "success",
+                                        message: "Cập nhật Nhân viên thành công!"
+                                    });
+                                });
+
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when update employee!",
+                                    error: err
+                                });
+                            }
+                        } else {
+                            try {
+                                const salt = genSaltSync(10);
+                                employeePassword = hashSync(employeePassword, salt);
+                                const updateEmployeeRes = await updateEmployeeWithPasswordById(
+                                    employeeFirstName,
+                                    employeeLastName,
+                                    employeeBirthday,
+                                    employeeGender,
+                                    employeePhoneNumber,
+                                    employeeEmail,
+                                    employeePassword,
+                                    employeeImage,
+                                    positionId,
+                                    employeeId
+                                );
+                                if (!updateEmployeeRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't update employee!"
+                                    });
+                                }
+
+                                createLogAdmin(req, res, " vừa cập nhật Nhân viên mã: " + employeeId, "UPDATE").then(() => {
+                                    // Success
+                                    return res.status(200).json({
+                                        status: "success",
+                                        message: "Cập nhật Nhân viên thành công!"
+                                    });
+                                });
+
+                            } catch (err) {
+                                console.log("ERR:", err);
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when update employee!",
+                                    error: err
+                                });
+                            }
+                        }
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't check employee phone number!"
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't check employee email!"
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when find position!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find employee!",
+                error: err
+            });
+        }
+    },
+    deleteEmployee: async (req, res) => {
+        const employeeId = parseInt(req.params.employeeId);
+        if (!employeeId || !Number.isInteger(employeeId) || employeeId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Nhân viên không hợp lệ!"
+            });
+        }
+        try {
+            const employeeRes = await findEmployeeById(employeeId);
+            if (!employeeRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find employee!"
+                });
+            }
+            try {
+                const deleteEmployeeRes = await deleteEmployee(employeeId);
+                if (!deleteEmployeeRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't delete employee!"
+                    });
+                }
+
+                createLogAdmin(req, res, " vừa xóa Nhân viên mã: " + employeeId, "DELETE").then(() => {
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Xóa Nhân viên thành công!"
+                    });
+                });
+
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when delete employee!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find employee!",
+                error: err
+            });
+        }
+    },
+    updateEmployeeStateToDisable: async (req, res) => {
+        const employeeState = "INACTIVE";
+        const employeeId = req.body.employeeId;
+        if (!employeeId || !Number.isInteger(employeeId) || employeeId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Nhân viên không hợp lệ!"
+            });
+        }
+        try {
+            const employeeRes = await getEmployeeByEmployeeId(employeeId);
+            if (!employeeRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find employee!"
+                });
+            }
+            // Check employee state now
+            let employeeStateDb = employeeRes.employee_state;
+            if(employeeStateDb === "INACTIVE") {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Nhân viên đang bị vô hiệu hóa!"
+                });
+            }
+            try {
+                const updateEmployeeStateDisableRes = await updateEmployeeStateById(employeeState, employeeId);
+                if (!updateEmployeeStateDisableRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't update employee state!"
+                    });
+                }
+
+                createLogAdmin(req, res, " vừa vô hiệu hóa Nhân viên có mã: " + employeeId, "UPDATE").then(() => {
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Vô hiệu hóa Nhân viên thành công!"
+                    });
+                });
+
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when update employee state!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find employee!",
+                error: err
+            });
+        }
+    },
+    updateEmployeeStateToAble: async (req, res) => {
+        const employeeId = req.body.employeeId;
+        const employeeState = "ACTIVE";
+        if (!employeeId || !Number.isInteger(employeeId) || employeeId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Nhân viên không hợp lệ!"
+            });
+        }
+        try {
+            const employeeRes = await getEmployeeByEmployeeId(employeeId);
+            if (!employeeRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find employee!"
+                });
+            }
+            if(employeeRes.employee_state !== "INACTIVE") {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Nhân viên chưa bị vô hiệu hóa!"
+                });
+            }
+            try {
+                const updateEmployeeStateUnDisableRes = await updateEmployeeStateById(employeeState, employeeId);
+                if (!updateEmployeeStateUnDisableRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't update employee state!"
+                    });
+                }
+
+                createLogAdmin(req, res, " vừa Mở khóa cho Nhân viên có mã: " + employeeId, "UPDATE").then(() => {
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Mở khóa Nhân viên thành công!"
+                    });
+                });
+
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when update employee state!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find employee!",
+                error: err
+            });
+        }
+    },
 }

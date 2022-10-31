@@ -1,10 +1,12 @@
-import styled from "styled-components";
 import { Add, CategoryOutlined } from "@mui/icons-material";
-import RightTop from "../Dashboard/RightTop";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import styled from "styled-components";
+import RightTop from "../Dashboard/RightTop";
+import Toast from "../Toast";
 import Modal from "./Modal";
-import Toast from "./Toast";
+
+// SERVICES
+import * as DeviceTypeService from "../../service/DeviceTypeService";
 
 const Container = styled.div`
 margin-top: 1.4rem;
@@ -80,7 +82,7 @@ const ItemRight = styled.div`
     width: 100%;
 `
 
-const KhachHangRight = ({ reRenderData, setReRenderData }) => {
+const DeviceRight = ({ reRenderData, setReRenderData }) => {
     // Thứ ngày tháng
     let today = new Date();
     let todayday = today.getDay();
@@ -97,20 +99,20 @@ const KhachHangRight = ({ reRenderData, setReRenderData }) => {
     }
     let ngaythangnam = "Thứ " + thu + ", " + today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
 
-    // Số lượng thú cưng
-    const [soLuongKhachHang, setSoLuongKhachHang] = useState();
+    // Số lượng thiết bị
+    const [quantityDeviceType, setQuantityDeviceType] = useState();
     useEffect(() => {
-        const getSoLuongKhachHang = async () => {
+        const getQuantityDeviceType = async () => {
             try {
-                const soluongkhachhangres = await axios.post("http://localhost:3001/api/user/getSoLuongKhachHang");
-                setSoLuongKhachHang(soluongkhachhangres.data[0].soluongkhachhang);
+                const quantityDeviceTypeRes = await DeviceTypeService.getQuantityDeviceType();
+                setQuantityDeviceType(quantityDeviceTypeRes.data.data.quantityDeviceType);
             } catch (err) {
                 console.log("Lỗi: ", err);
             }
         }
-        getSoLuongKhachHang();
+        getQuantityDeviceType();
     }, [reRenderData]);
-    console.log("Số lượng khách hàng: ", soLuongKhachHang);
+    console.log("Số lượng loại thiết bị: ", quantityDeviceType);
 
     // ===== Modal =====
     const [showModal, setShowModal] = useState(false);
@@ -136,25 +138,25 @@ const KhachHangRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Customers Analytics</H2>
+                <H2>Device Types Analytics</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>SỐ LƯỢNG KHÁCH HÀNG</h3>
+                            <h3>SỐ LƯỢNG LOẠI THIẾT BỊ</h3>
                             <small class="text-muted">{ngaythangnam}</small>
                         </Info>
-                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{soLuongKhachHang}</h3>
+                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityDeviceType}</h3>
                     </ItemRight>
                 </Item>
-                {/* <Item className="add-product"
-                    onClick={() => openModal({ type: "themthucung" })}
+                <Item className="add-product"
+                    onClick={() => openModal({ type: "createDeviceType" })}
                 >
                     <Add />
-                    <h3>Thêm thú cưng</h3>
-                </Item> */}
+                    <h3>Thêm Loại thiết bị</h3>
+                </Item>
             </SalesAnalytics>
 
             {/* ==== MODAL ==== */}
@@ -165,7 +167,7 @@ const KhachHangRight = ({ reRenderData, setReRenderData }) => {
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 showToastFromOut={showToastFromOut} //Hàm Hiện toast
             />
-            
+
             {/* ==== TOAST ==== */}
             <Toast
                 ref={toastRef}
@@ -175,4 +177,4 @@ const KhachHangRight = ({ reRenderData, setReRenderData }) => {
     );
 };
 
-export default KhachHangRight;
+export default DeviceRight;

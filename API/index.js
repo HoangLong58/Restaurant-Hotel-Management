@@ -39,6 +39,7 @@ const deviceTypeRouter = require("./router/DeviceTypeRouter");
 const floorRouter = require("./router/FloorRouter");
 const roomTypeRouter = require("./router/RoomTypeRouter");
 const adminLogRouter = require("./router/AdminLogRouter");
+const positionRouter = require("./router/PositionRouter");
 
 dotenv.config();
 app.use(cors({
@@ -98,6 +99,7 @@ app.use("/api/admin/device-types", deviceTypeRouter);
 app.use("/api/admin/floors", floorRouter);
 app.use("/api/admin/room-types", roomTypeRouter);
 app.use("/api/admin/admin-logs", adminLogRouter);
+app.use("/api/admin/positions", positionRouter);
 
 app.listen(process.env.PORT || 5000, () => {
     console.log("BACKEND server is running at:", process.env.PORT);

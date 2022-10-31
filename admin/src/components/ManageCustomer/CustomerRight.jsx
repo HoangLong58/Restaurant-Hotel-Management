@@ -4,7 +4,10 @@ import RightTop from "../Dashboard/RightTop";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Modal from "./Modal";
-import Toast from "./Toast";
+import Toast from "../Toast";
+
+// SERVICES
+import * as CustomerService from "../../service/CustomerService";
 
 const Container = styled.div`
 margin-top: 1.4rem;
@@ -80,7 +83,7 @@ const ItemRight = styled.div`
     width: 100%;
 `
 
-const NhanVienRight = ({ reRenderData, setReRenderData }) => {
+const CustomerRight = ({ reRenderData, setReRenderData }) => {
     // Thứ ngày tháng
     let today = new Date();
     let todayday = today.getDay();
@@ -97,20 +100,20 @@ const NhanVienRight = ({ reRenderData, setReRenderData }) => {
     }
     let ngaythangnam = "Thứ " + thu + ", " + today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
 
-    // Số lượng thú cưng
-    const [soLuongNhanVien, setSoLuongNhanVien] = useState();
+    // Số lượng Khách hàng
+    const [quantityCustomer, setQuantityCustomer] = useState();
     useEffect(() => {
-        const getSoLuongNhanVien = async () => {
+        const getQuantityCustomer = async () => {
             try {
-                const soluongnhanvienres = await axios.post("http://localhost:3001/api/user/getSoLuongNhanVien");
-                setSoLuongNhanVien(soluongnhanvienres.data[0].soluongnhanvien);
+                const quantityCustomerRes = await CustomerService.getQuantityCustomer();
+                setQuantityCustomer(quantityCustomerRes.data.data.quantityCustomer);
             } catch (err) {
-                console.log("Lỗi: ", err);
+                console.log("Lỗi: ", err.response);
             }
         }
-        getSoLuongNhanVien();
+        getQuantityCustomer();
     }, [reRenderData]);
-    console.log("Số lượng nhân viên: ", soLuongNhanVien);
+    console.log("quantityCustomer: ", quantityCustomer);
 
     // ===== Modal =====
     const [showModal, setShowModal] = useState(false);
@@ -136,24 +139,18 @@ const NhanVienRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Staff Analytics</H2>
+                <H2>Customers Analytics</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>SỐ LƯỢNG NHÂN VIÊN</h3>
+                            <h3>SỐ LƯỢNG KHÁCH HÀNG</h3>
                             <small class="text-muted">{ngaythangnam}</small>
                         </Info>
-                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{soLuongNhanVien}</h3>
+                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityCustomer}</h3>
                     </ItemRight>
-                </Item>
-                <Item className="add-product"
-                    onClick={() => openModal({ type: "themnhanvien" })}
-                >
-                    <Add />
-                    <h3>Thêm nhân viên</h3>
                 </Item>
             </SalesAnalytics>
 
@@ -175,4 +172,4 @@ const NhanVienRight = ({ reRenderData, setReRenderData }) => {
     );
 };
 
-export default NhanVienRight;
+export default CustomerRight;

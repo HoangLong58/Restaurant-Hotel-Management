@@ -6,6 +6,7 @@ import Modal from "./Modal";
 
 // SERVICES
 import * as DeviceTypeService from "../../service/DeviceTypeService";
+import ReactPaginate from "react-paginate";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -375,6 +376,51 @@ const DeviceTypeMain = ({ reRenderData, setReRenderData }) => {
             setIsLoading(false);
         }, 1200);
     };
+
+    // PHÂN TRANG
+    const [pageNumber, setPageNumber] = useState(0);
+
+    const deviceTypePerPage = 12;
+    const pageVisited = pageNumber * deviceTypePerPage;
+
+    const deviceTypeListFiltered = deviceTypeList
+        .slice(pageVisited, pageVisited + deviceTypePerPage)
+        .map((deviceType, key) => {
+            return (
+                <Tr>
+                    <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{pageNumber * deviceTypePerPage + (key + 1)}</Td>
+                    <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{deviceType.device_type_id}</Td>
+                    <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{deviceType.device_type_name}</Td>
+                    <Td
+                        onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}
+                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <ImgDanhMuc src={deviceType.device_type_image} />
+                    </Td>
+                    <Td className="warning">
+                        <ButtonFix
+                            onClick={() => openModal({ type: "updateDeviceType", deviceType: deviceType })}
+                        >
+                            <DriveFileRenameOutlineOutlined />
+                        </ButtonFix>
+                    </Td>
+                    <Td className="primary">
+                        <ButtonDelete
+                            onClick={() => openModal({ type: "deleteDeviceType", deviceType: deviceType })}
+                        >
+                            <DeleteSweepOutlined />
+                        </ButtonDelete>
+                    </Td>
+                </Tr>
+            );
+        }
+        );
+
+
+    const pageCount = Math.ceil(deviceTypeList.length / deviceTypePerPage);
+    const changePage = ({ selected }) => {
+        setPageNumber(selected);
+    }
+
     return (
         <Container>
             <H2>Quản lý Loại thiết bị - Khách sạn</H2>
@@ -446,15 +492,17 @@ const DeviceTypeMain = ({ reRenderData, setReRenderData }) => {
                             ) :
                                 deviceTypeList.length > 0
                                     ?
+                                    deviceTypeListFiltered
+                                    :
                                     (deviceTypeList.map((deviceType, key) => {
                                         return (
                                             <Tr>
                                                 <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{key + 1}</Td>
                                                 <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{deviceType.device_type_id}</Td>
                                                 <Td onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}>{deviceType.device_type_name}</Td>
-                                                <Td 
-                                                 onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}
-                                                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                <Td
+                                                    onClick={() => openModal({ type: "detailDeviceType", deviceType: deviceType })}
+                                                    style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                     <ImgDanhMuc src={deviceType.device_type_image} />
                                                 </Td>
                                                 <Td className="warning">
@@ -474,11 +522,23 @@ const DeviceTypeMain = ({ reRenderData, setReRenderData }) => {
                                             </Tr>
                                         );
                                     }))
-                                    :
-                                    null
                         }
                     </Tbody>
                 </Table>
+                <ReactPaginate
+                    previousLabel={"PREVIOUS"}
+                    nextLabel={"NEXT"}
+                    pageCount={pageCount}
+                    onPageChange={changePage}
+                    containerClassName={"paginationBttns"}
+                    previousLinkClassName={"previousBttn"}
+                    nextLinkClassName={"nextBttn"}
+                    disabledClassName={"paginationDisabled"}
+                    activeClassName={"paginationActive"}
+                    nextClassName={"nextClassName"}
+                    pageLinkClassName={"pageLinkClassName"}
+                    forcePage={pageNumber}
+                />
                 <A onClick={() => {
                     window.scrollTo({
                         top: 0,

@@ -1,8 +1,8 @@
-const { createCustomer, getCustomerByCustomerId, getCustomers, updateCustomer, deleteCustomer, getCustomerByEmail, checkEmailUnit, checkPhoneNumberUnit, getCustomerByEmailOrPhoneNumber, findCustomerByEmail, updateCustomerOtpByEmail, updateCustomerPasswordByCustomerId, findCustomerByPhoneNumber, updateCustomerOtpByPhoneNumber } = require("../service/CustomerService");
+const { createCustomer, getCustomerByCustomerId, getCustomers, updateCustomer, deleteCustomer, getCustomerByEmail, checkEmailUnit, checkPhoneNumberUnit, getCustomerByEmailOrPhoneNumber, findCustomerByEmail, updateCustomerOtpByEmail, updateCustomerPasswordByCustomerId, findCustomerByPhoneNumber, updateCustomerOtpByPhoneNumber, getAllCustomers, getQuantityCustomers, findCustomerByIdOrName, updateCustomerStateById } = require("../service/CustomerService");
 
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
-const { randomIntFromInterval } = require("../utils/utils");
+const { randomIntFromInterval, createLogAdmin } = require("../utils/utils");
 
 // Twilio sent SMS
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -483,5 +483,195 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+
+    // ADMIN: Quản lý Khách hàng
+    getAllCustomers: async (req, res) => {
+        try {
+            const result = await getAllCustomers();
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Lấy customers thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi getAllCustomers",
+                error: err
+            });
+        }
+    },
+    getQuantityCustomers: async (req, res) => {
+        try {
+            const result = await getQuantityCustomers();
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Lấy quantity customers thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi getQuantityCustomers",
+                error: err
+            });
+        }
+    },
+    findCustomerByIdOrName: async (req, res) => {
+        const search = req.params.search;
+        try {
+            const result = await findCustomerByIdOrName(search);
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Tìm customers thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi findCustomerByIdOrName",
+                error: err
+            });
+        }
+    },
+    updateCustomerStateToDisable: async (req, res) => {
+        const customerState = "DISABLE";
+        const customerId = req.body.customerId;
+        if (!customerId || !Number.isInteger(customerId) || customerId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Người dùng không hợp lệ!"
+            });
+        }
+        try {
+            const customerRes = await getCustomerByCustomerId(customerId);
+            if (!customerRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find customer!"
+                });
+            }
+            // Check customer state now
+            let customerStateDb = customerRes.customer_state;
+            if(customerStateDb === "DISABLE") {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Khách hàng đang bị vô hiệu hóa!"
+                });
+            }
+            try {
+                const updateCustomerStateDisableRes = await updateCustomerStateById(customerState, customerId);
+                if (!updateCustomerStateDisableRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't update customer state!"
+                    });
+                }
+
+                createLogAdmin(req, res, " vừa vô hiệu hóa Người dùng có mã: " + customerId, "UPDATE").then(() => {
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Vô hiệu hóa Người dùng thành công!"
+                    });
+                });
+
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when update customer state!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find customer!",
+                error: err
+            });
+        }
+    },
+    updateCustomerStateToAble: async (req, res) => {
+        const customerId = req.body.customerId;
+        if (!customerId || !Number.isInteger(customerId) || customerId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Người dùng không hợp lệ!"
+            });
+        }
+        try {
+            const customerRes = await getCustomerByCustomerId(customerId);
+            if (!customerRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find customer!"
+                });
+            }
+            let customerStateDb;
+            // Check customer state now: Có birth day thì sẽ là tài khoản đã cập nhật, chưa có thì mới khởi tạo
+            if(customerRes.customer_gender !== "") {
+                customerStateDb = "ACTIVE";
+            }else{ 
+                customerStateDb = "INIT";
+            }
+            if(customerRes.customer_state !== "DISABLE") {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Khách hàng chưa bị vô hiệu hóa!"
+                });
+            }
+            try {
+                const updateCustomerStateUnDisableRes = await updateCustomerStateById(customerStateDb, customerId);
+                if (!updateCustomerStateUnDisableRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't update customer state!"
+                    });
+                }
+
+                createLogAdmin(req, res, " vừa Mở khóa cho Người dùng có mã: " + customerId, "UPDATE").then(() => {
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Mở khóa Người dùng thành công!"
+                    });
+                });
+
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when update customer state!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find customer!",
+                error: err
+            });
+        }
+    },
 }

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Aside from "../components/Dashboard/Aside";
-import KhachHangMain from '../components/QuanLyKhachHang/KhachHangMain';
-import KhachHangRight from '../components/QuanLyKhachHang/KhachHangRight';
+import EmployeeMain from "../components/ManageEmployee/EmployeeMain";
+import EmployeeRight from "../components/ManageEmployee/EmployeeRight";
 
 const Container = styled.div`
     display: grid;
@@ -12,15 +12,15 @@ const Container = styled.div`
     grid-template-columns: 14rem auto 23rem;
 `
 
-const QuanLyKhachHang = () => {
+const ManageEmployee = () => {
     const [reRenderData, setReRenderData] = useState(true);   // State để Compo KhachHangRight và KhachHangMain thay đổi Effect
     return (
         <Container>
-            <Aside active="quanlykhachhang" />
-            <KhachHangMain reRenderData={reRenderData} setReRenderData={setReRenderData} />
-            <KhachHangRight reRenderData={reRenderData} setReRenderData={setReRenderData} />
+            <Aside active="manageEmployee" />
+            <EmployeeMain reRenderData={reRenderData} setReRenderData={setReRenderData} />
+            <EmployeeRight reRenderData={reRenderData} setReRenderData={setReRenderData} />
         </Container>
     )
 }
 
-export default QuanLyKhachHang;
+export default ManageEmployee;

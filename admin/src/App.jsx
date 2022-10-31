@@ -11,10 +11,11 @@ import ManageFloor from "./pages/ManageFloor";
 import ManageService from "./pages/ManageService";
 import ManageRoomType from "./pages/ManageRoomType";
 import ManageRoom from "./pages/ManageRoom";
+import ManageCustomer from "./pages/ManageCustomer";
+import ManageEmployee from "./pages/ManageEmployee";
+import ManagePosition from "./pages/ManagePosition";
 
 import QuanLyDonHang from "./pages/QuanLyDonHang";
-import QuanLyKhachHang from "./pages/QuanLyKhachHang";
-import QuanLyNhanVien from "./pages/QuanLyNhanVien";
 
 
 const App = () => {
@@ -64,19 +65,25 @@ const App = () => {
                         <ManageRoom />
                     </PrivateRoute>
                 } />
-
-
-
-                <Route path='/quanlykhachhang' element={
+                <Route path='/manageCustomer' element={
                     <PrivateRoute>
-                        <QuanLyKhachHang />
+                        <ManageCustomer />
                     </PrivateRoute>
                 } />
-                <Route path='/quanlynhanvien' element={
+                <Route path='/manageEmployee' element={
                     <PrivateRoute>
-                        <QuanLyNhanVien />
+                        <ManageEmployee />
                     </PrivateRoute>
                 } />
+                <Route path='/managePosition' element={
+                    <PrivateRoute>
+                        <ManagePosition />
+                    </PrivateRoute>
+                } />
+
+
+
+
                 <Route path='/quanlydonhang' element={
                     <PrivateRoute>
                         <QuanLyDonHang />
