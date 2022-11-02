@@ -116,13 +116,13 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
         setServiceIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
 
     // Quản lý Thiết bị
@@ -134,12 +134,12 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
         setServiceIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
 
     // Quản lý Loại thiết bị
@@ -150,13 +150,13 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
         setServiceIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
     // Quản lý Mã giảm giá
     const [isDiscountActive, setDiscountIsActive] = useState(props.active === "manageDiscount" ? true : false);
@@ -167,12 +167,12 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
         setServiceIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
     // Quản lý Tầng
     const [isFloorActive, setFloorIsActive] = useState(props.active === "manageFloor" ? true : false);
@@ -184,11 +184,11 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setRoomTypeIsActive(false);
         setServiceIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
     // Quản lý Dịch vụ
     const [isServiceActive, setServiceIsActive] = useState(props.active === "manageService" ? true : false);
@@ -199,12 +199,12 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
     // Quản lý Loại phòng - Khách sạn
     const [isRoomTypeActive, setRoomTypeIsActive] = useState(props.active === "manageRoomType" ? true : false);
@@ -217,10 +217,10 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setServiceIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
     // Quản lý Phòng
     const [isRoomActive, setRoomIsActive] = useState(props.active === "manageRoom" ? true : false);
@@ -230,13 +230,13 @@ const Aside = (props) => {
         setRoomIsActive(true);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
         setServiceIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
     // Quản lý Khách hàng
     const [isCustomerActive, setCustomerIsActive] = useState(props.active === "manageCustomer" ? true : false);
@@ -246,13 +246,13 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(true);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
         setServiceIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
     // Quản lý Nhân viên
     const [isEmployeeActive, setEmployeeIsActive] = useState(props.active === "manageEmployee" ? true : false);
@@ -262,13 +262,13 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(true);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
         setServiceIsActive(false);
         setPositionIsActive(false);
+        setRoomBookingIsActive(false);
     }
     // Quản lý Chức vụ nhân viên
     const [isPositionActive, setPositionIsActive] = useState(props.active === "managePosition" ? true : false);
@@ -279,28 +279,22 @@ const Aside = (props) => {
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(false);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
         setRoomTypeIsActive(false);
         setServiceIsActive(false);
+        setRoomBookingIsActive(false);
     }
-
-
-
-
-
-
-    // Quản lý Đơn hàng
-    const [isDonHangActive, setDonHangIsActive] = useState(props.active === "quanlydonhang" ? true : false);
-    const handleClickDonHang = () => {
+    // Quản lý Đặt phòng
+    const [isRoomBookingActive, setRoomBookingIsActive] = useState(props.active === "manageRoomBooking" ? true : false);
+    const handleClickRoomBooking = () => {
         setDashBoardIsActive(false);
         setDeviceTypeIsActive(false);
         setRoomIsActive(false);
         setCustomerIsActive(false);
         setEmployeeIsActive(false);
-        setDonHangIsActive(true);
+        setRoomBookingIsActive(true);
         setDeviceIsActive(false);
         setDiscountIsActive(false);
         setFloorIsActive(false);
@@ -308,6 +302,12 @@ const Aside = (props) => {
         setServiceIsActive(false);
         setPositionIsActive(false);
     }
+
+
+
+
+
+
 
     // Đăng xuất
     const admin = useSelector((state) => state.admin.currentAdmin);
@@ -395,16 +395,19 @@ const Aside = (props) => {
                         </IconSpan>
                         <H3>Quản lý Nhân viên</H3>
                     </LinkStyled>
-            
-
-
-                    <LinkStyled to={"/quanlydonhang"} className={isDonHangActive ? "active" : null} onClick={handleClickDonHang}>
+                    <LinkStyled to={"/manageRoomBooking"} className={isRoomBookingActive ? "active" : null} onClick={handleClickRoomBooking}>
                         <IconSpan>
                             <InventoryOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
                         </IconSpan>
-                        <H3>Quản lý Đơn hàng</H3>
+                        <H3>Quản lý Đặt phòng</H3>
                     </LinkStyled>
+
+
+
                 </SideBarTop>
+            
+
+
 
                 <SideBarBottom>
                     <LinkStyled to={"/"} onClick={() => handleDangXuat()}>

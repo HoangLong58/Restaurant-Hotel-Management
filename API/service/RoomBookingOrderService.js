@@ -45,7 +45,9 @@ module.exports = {
                 room_booking_order_state,
                 customer_id,
                 discount_id,
-                room_booking_order_note
+                room_booking_order_note,
+                room_booking_order_identity_card,
+                room_booking_order_nation
                 from room_booking_order
                 where room_booking_order_state = 0
                 and room_booking_order_id = ?`,
@@ -103,6 +105,8 @@ module.exports = {
                 rbo.room_booking_order_price,
                 rbo.room_booking_order_surcharge,
                 rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,
                 rbo.room_booking_order_total,
                 rbo.room_booking_order_state,
                 rbo.customer_id,
@@ -156,7 +160,7 @@ module.exports = {
                 `select
                 sum(room_booking_order_total) as sum_room_booking_order_total
                 from room_booking_order
-                where room_booking_order_state = 1`,
+                where room_booking_order_state = 2`,
                 [],
                 (error, results, fields) => {
                     if (error) {
@@ -174,7 +178,7 @@ module.exports = {
                 `select
                 sum(room_booking_order_total) as sum_room_booking_order_total
                 from room_booking_order
-                where room_booking_order_state = 1
+                where room_booking_order_state = 2
                 and DAY(room_booking_order_finish_date) = ?
                 and MONTH(room_booking_order_finish_date) = ?
                 and YEAR(room_booking_order_finish_date) = ?
@@ -257,7 +261,7 @@ module.exports = {
                 sum(room_booking_order_total) as canam 
                 from room_booking_order
                 WHERE year(room_booking_order_finish_date) = ? 
-                and room_booking_order_state = 1
+                and room_booking_order_state = 2
                 `,
                 [year],
                 (error, results, fields) => {
@@ -265,6 +269,268 @@ module.exports = {
                         return reject(error);
                     }
                     return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    // ADMIN: Quản lý Đặt phòng
+    getRoomBookingsAndDetail: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                d.discount_percent,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join discount d on rbo.discount_id = d.discount_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id
+                order by rbo.room_booking_order_state asc`,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    getQuantityRoomBookings: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                count(room_booking_order_id) as quantityRoomBooking 
+                from room_booking_order`,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName: (search) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                d.discount_percent,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join discount d on rbo.discount_id = d.discount_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                where c.customer_first_name like concat('%', ?, '%')
+                or rbo.room_booking_order_id = ?
+                or c.customer_email = ?
+                or c.customer_phone_number = ?
+                or c.customer_last_name like concat('%', ?, '%')
+                or r.room_name like concat('%', ?, '%')
+                order by rbo.room_booking_order_state asc`,
+                [search, search, search, search, search, search],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    findRoomBookingById: (id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                d.discount_percent,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                ri.room_image_content,
+                f.floor_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join discount d on rbo.discount_id = d.discount_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                join room_image ri on ri.room_id = r.room_id
+                where rbo.room_booking_order_id = ?
+                group by rbd.room_id`,
+                [id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    // Checkin
+    findRoomBookingOrderByIdCheckIn: (id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                room_booking_order_id,
+                room_booking_order_book_date, 
+                room_booking_order_finish_date, 
+                room_booking_order_price,
+                room_booking_order_surcharge,
+                room_booking_order_total,
+                room_booking_order_state,
+                customer_id,
+                discount_id,
+                room_booking_order_note
+                from room_booking_order
+                where room_booking_order_id = ?`,
+                [id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    updateRoomBookingOrderInfoWhenCheckInSuccess: (identityCard, nation, id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                room_booking_order 
+                set room_booking_order_identity_card = ?,
+                room_booking_order_nation = ?
+                where room_booking_order_id = ?`,
+                [identityCard, nation, id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        });
+    },
+    updateRoomBookingOrderState: (state, id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                room_booking_order 
+                set room_booking_order_state = ?
+                where room_booking_order_id = ?`,
+                [state, id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        });
+    },
+
+    // ADMIN: Check out
+    updateRoomBookingOrderFinishDateWhenCheckOutSuccess: (date, id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                room_booking_order 
+                set room_booking_order_finish_date = ?
+                where room_booking_order_id = ?`,
+                [date, id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
                 }
             );
         });

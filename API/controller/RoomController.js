@@ -1,4 +1,4 @@
-const { getRoomByRoomId, getRooms, getRoomsWithTypeAndFloor, getRoomsWithImageTypeFloor, getMinMaxRoomPrice, getRoomWithTypeAndFloorByRoomId, updateRoomState, getAllRooms, getQuantityRooms, findAllRoomByIdOrName, findAllRoomById, createRoom, findNewestRoomByInfo, findRoomByRoomId, updateRoomById, deleteRoom } = require("../service/RoomService");
+const { getRoomByRoomId, getRooms, getRoomsWithTypeAndFloor, getRoomsWithImageTypeFloor, getMinMaxRoomPrice, getRoomWithTypeAndFloorByRoomId, updateRoomState, getAllRooms, getQuantityRooms, findAllRoomByIdOrName, findAllRoomById, createRoom, findNewestRoomByInfo, findRoomByRoomId, updateRoomById, deleteRoom, findRoomsWithImageTypeFloor } = require("../service/RoomService");
 const { getServicesByRoomTypeId } = require("../service/ServiceService");
 const { getDevicesByRoomId } = require("../service/DeviceService");
 const { getRoomImagesByRoomId, createRoomImage, DeleteRoomImagesByRoomId } = require("../service/RoomImageService");
@@ -97,9 +97,17 @@ module.exports = {
         const checkinDateReq = new Date(checkInDate);
         const checkoutDateReq = new Date(checkOutDate);
 
-        getRoomsWithImageTypeFloor(async (err, results) => {
+        // Check date phải chênh lệch 1
+        if (checkInDate === checkOutDate) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Số ngày đặt không thể bé hơn 1!"
+            });
+        }
+
+        findRoomsWithImageTypeFloor(async (err, results) => {
             if (err) {
-                console.log("Lỗi getRoomsWithImageTypeFloor: ", err);
+                console.log("Lỗi findRoomsWithImageTypeFloor: ", err);
                 return;
             }
             if (!checkInDate) {
@@ -163,24 +171,25 @@ module.exports = {
                     try {
                         const getRoomBookingDetail = async (roomId) => {
                             const roomBookingDetail = await getRoomBookingDetailByRoomId(roomId);
-                            if (roomBookingDetail) {
-                                const roomDetailCheckinDate = new Date(roomBookingDetail.room_booking_detail_checkin_date);
-                                const roomDetailCheckoutDate = new Date(roomBookingDetail.room_booking_detail_checkout_date);
-
-                                if (
-                                    checkinDateReq <= roomDetailCheckinDate
-                                    && checkoutDateReq <= roomDetailCheckinDate
-                                ) {
-                                    return getServicesByRoomTypeIds(room.room_type_id);
-
-                                } else if (checkinDateReq >= roomDetailCheckoutDate
-                                    && checkoutDateReq >= roomDetailCheckoutDate) {
-                                    return getServicesByRoomTypeIds(room.room_type_id);
-                                } else {
-                                    return null;
-                                }
-                            } else {
+                            if (roomBookingDetail.length === 0) {
                                 return getServicesByRoomTypeIds(room.room_type_id);
+                            } else {
+                                for (var i = 0; i < roomBookingDetail.length; i++) {
+                                    const roomDetailCheckinDate = new Date(roomBookingDetail[i].room_booking_detail_checkin_date);
+                                    const roomDetailCheckoutDate = new Date(roomBookingDetail[i].room_booking_detail_checkout_date);
+                                    if (
+                                        checkinDateReq <= roomDetailCheckinDate
+                                        && checkoutDateReq <= roomDetailCheckinDate
+                                    ) {
+                                        return getServicesByRoomTypeIds(room.room_type_id);
+
+                                    } else if (checkinDateReq >= roomDetailCheckoutDate
+                                        && checkoutDateReq >= roomDetailCheckoutDate) {
+                                        return getServicesByRoomTypeIds(room.room_type_id);
+                                    } else {
+                                        return null;
+                                    }
+                                }
                             }
                         };
                         finalResultArray.push(getRoomBookingDetail(roomId));
@@ -190,9 +199,21 @@ module.exports = {
                 });
                 // Đợi tất cả promise hoàn thành thì trả result về
                 Promise.all(finalResultArray).then((result) => {
-                    result = result.filter(prev => prev !== null)
+                    // Loại bỏ phần tử NULL và chỉ giữ lại 1 phòng cho từng loại phòng có thể đặt
+                    result = result.filter(prev => prev !== null);
+                    var newArr = [];
+                    var roomTypeList = [];
+                    for (var i = 0; i < result.length; i++) {
+                        if (roomTypeList.includes(result[i].room_type_id)) {
+                            continue;
+                        } else {
+                            roomTypeList.push(result[i].room_type_id);
+                            newArr.push(result[i]);
+                        }
+                    }
+                    // console.log("RES: ",result, newArr, roomTypeList)
                     // ---Filter
-                    result.map((room, key) => {
+                    newArr.map((room, key) => {
                         if (
                             // Nếu giá phòng nhỏ hơn max
                             room.room_price <= maxPrice

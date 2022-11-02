@@ -6,7 +6,7 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as DeviceTypeService from "../../service/DeviceTypeService";
+import * as PositionService from "../../service/PositionService";
 
 const Container = styled.div`
 margin-top: 1.4rem;
@@ -82,7 +82,7 @@ const ItemRight = styled.div`
     width: 100%;
 `
 
-const DeviceRight = ({ reRenderData, setReRenderData }) => {
+const PositionRight = ({ reRenderData, setReRenderData }) => {
     // Thứ ngày tháng
     let today = new Date();
     let todayday = today.getDay();
@@ -99,20 +99,20 @@ const DeviceRight = ({ reRenderData, setReRenderData }) => {
     }
     let ngaythangnam = "Thứ " + thu + ", " + today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
 
-    // Số lượng thiết bị
-    const [quantityDeviceType, setQuantityDeviceType] = useState();
+    // Số lượng Chức vụ
+    const [quantityPosition, setQuantityPosition] = useState();
     useEffect(() => {
-        const getQuantityDeviceType = async () => {
+        const getQuantityPosition = async () => {
             try {
-                const quantityDeviceTypeRes = await DeviceTypeService.getQuantityDeviceType();
-                setQuantityDeviceType(quantityDeviceTypeRes.data.data.quantityDeviceType);
+                const quantityPositionRes = await PositionService.getQuantityPosition();
+                setQuantityPosition(quantityPositionRes.data.data.quantityPosition);
             } catch (err) {
-                console.log("Lỗi: ", err);
+                console.log("Lỗi: ", err.response);
             }
         }
-        getQuantityDeviceType();
+        getQuantityPosition();
     }, [reRenderData]);
-    console.log("Số lượng loại thiết bị: ", quantityDeviceType);
+    console.log("Số lượng Chức vụ: ", quantityPosition);
 
     // ===== Modal =====
     const [showModal, setShowModal] = useState(false);
@@ -138,24 +138,24 @@ const DeviceRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Device Types Analytics</H2>
+                <H2>Positions Analytics</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>SỐ LƯỢNG LOẠI THIẾT BỊ</h3>
+                            <h3>SỐ LƯỢNG CHỨC VỤ</h3>
                             <small class="text-muted">{ngaythangnam}</small>
                         </Info>
-                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityDeviceType}</h3>
+                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityPosition}</h3>
                     </ItemRight>
                 </Item>
                 <Item className="add-product"
-                    onClick={() => openModal({ type: "createDeviceType" })}
+                    onClick={() => openModal({ type: "createPosition" })}
                 >
                     <Add />
-                    <h3>Thêm Loại thiết bị</h3>
+                    <h3>Thêm Chức vụ mới</h3>
                 </Item>
             </SalesAnalytics>
 
@@ -177,4 +177,4 @@ const DeviceRight = ({ reRenderData, setReRenderData }) => {
     );
 };
 
-export default DeviceRight;
+export default PositionRight;

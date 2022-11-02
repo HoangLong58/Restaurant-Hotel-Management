@@ -50,5 +50,31 @@ module.exports = {
                 }
             );
         });
-    }
+    },
+    findRoomBookingFoodDetailByRoomBookingFoodOrderId: (roomBookingFoodOrderId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                rbfd.room_booking_food_detail_id,
+                rbfd.room_booking_food_detail_quantity,
+                rbfd.room_booking_food_detail_price, 
+                rbfd.room_booking_food_detail_total,
+                rbfd.food_id,
+                f.food_name,
+                ft.food_type_name,
+                rbfd.room_booking_food_order_id
+                from room_booking_food_detail rbfd
+                join food f on f.food_id = rbfd.food_id
+                join food_type ft on ft.food_type_id = f.food_type_id
+                where rbfd.room_booking_food_order_id = ?`,
+                [roomBookingFoodOrderId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
 };

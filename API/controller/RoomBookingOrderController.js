@@ -1,9 +1,9 @@
-const { getCustomerByCustomerId } = require("../service/CustomerService");
+const { getCustomerByCustomerId, findCustomerByEmailOrPhoneNumber } = require("../service/CustomerService");
 const { updateDiscountState } = require("../service/DiscountService");
-const { createRoomBookingDetail } = require("../service/RoomBookingDetailService");
-const { createRoomBookingOrder, findRoomBookingOrder } = require("../service/RoomBookingOrderService");
+const { createRoomBookingDetail, getRoomBookingDetailByRoomBookingOrderId } = require("../service/RoomBookingDetailService");
+const { createRoomBookingOrder, findRoomBookingOrder, getRoomBookingsAndDetail, getQuantityRoomBookings, findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName, findRoomBookingById, findRoomBookingOrderByIdCheckIn, updateRoomBookingOrderInfoWhenCheckInSuccess, updateRoomBookingOrderState, updateRoomBookingOrderFinishDateWhenCheckOutSuccess } = require("../service/RoomBookingOrderService");
 const { findRoomByRoomId } = require("../service/RoomService");
-const { format_money } = require("../utils/utils");
+const { format_money, createLogAdmin } = require("../utils/utils");
 
 // NODE Mailer
 var nodemailer = require('nodemailer');
@@ -244,6 +244,407 @@ module.exports = {
             return res.status(400).json({
                 status: "fail",
                 message: "Error when create room booking order!",
+                error: err
+            });
+        }
+    },
+
+    // ADMIN: Quản lý Đặt phòng
+    getRoomBookingAndDetails: async (req, res) => {
+        try {
+            const result = await getRoomBookingsAndDetail();
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Lấy room bookings thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi getRoomBookingsAndDetail",
+                error: err
+            });
+        }
+    },
+    getQuantityRoomBooking: async (req, res) => {
+        try {
+            const result = await getQuantityRoomBookings();
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Lấy quantity room bookings thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi getQuantityRoomBookings",
+                error: err
+            });
+        }
+    },
+    findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName: async (req, res) => {
+        const search = req.params.search;
+        try {
+            const result = await findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName(search);
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Tìm room bookings thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName",
+                error: err
+            });
+        }
+    },
+    findRoomBookingById: async (req, res) => {
+        const roomBookingId = req.body.roomBookingId;
+        try {
+            const result = await findRoomBookingById(roomBookingId);
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Tìm room bookings thành công",
+                data: result
+            });
+        } catch (err) {
+            console.log("ERR: ", err);
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi findRoomBookingById",
+                error: err
+            });
+        }
+    },
+    // ADMIN: Check in
+    checkInRoomBookingOrder: async (req, res) => {
+        const customerFirstName = req.body.customerFirstName;
+        const customerLastName = req.body.customerLastName;
+        const customerEmail = req.body.customerEmail;
+        const customerPhoneNumber = req.body.customerPhoneNumber;
+        const roomBookingOrderIdentityCard = req.body.roomBookingOrderIdentityCard;
+        const roomBookingOrderNation = req.body.roomBookingOrderNation;
+        const roomBookingOrderId = req.body.roomBookingOrderId;
+
+        if (!customerFirstName) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Họ của khách hàng không hợp lệ!"
+            });
+        }
+        if (!customerLastName) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Tên của khách hàng không hợp lệ!"
+            });
+        }
+        if (!customerEmail) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Email của khách hàng không hợp lệ!"
+            });
+        }
+        if (!customerPhoneNumber) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Số điện thoại của khách hàng không hợp lệ!"
+            });
+        }
+        if (!roomBookingOrderIdentityCard) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Số chứng minh thư của khách hàng không hợp lệ!"
+            });
+        }
+        if (!roomBookingOrderNation) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Quốc tịch của khách hàng không hợp lệ!"
+            });
+        }
+        if (!roomBookingOrderId || !Number.isInteger(roomBookingOrderId) || roomBookingOrderId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Đặt phòng không hợp lệ!"
+            });
+        }
+        // Tìm khách hàng
+        try {
+            const customerRes = await findCustomerByEmailOrPhoneNumber(customerEmail);
+            if (!customerRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record customer not found"
+                });
+            }
+            // Kiểm tra tên người dùng nhập vào
+            const customerIdRes = customerRes.customer_id;
+            const customerFirstNameRes = customerRes.customer_first_name;
+            const customerLastNameRes = customerRes.customer_last_name;
+            if (customerFirstNameRes !== customerFirstName && customerLastNameRes !== customerLastName) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Họ tên không đúng với email/ SDT đã đặt phòng!"
+                });
+            }
+            // Tìm room booking order
+            try {
+                const roomBookingOrderRes = await findRoomBookingOrderByIdCheckIn(roomBookingOrderId);
+                if (!roomBookingOrderRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Record room booking order not found"
+                    });
+                }
+                const roomBookingOrderStateRes = roomBookingOrderRes.room_booking_order_state;
+                if (roomBookingOrderStateRes !== 0) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Đơn đặt này Đã Check in hoặc Đã hoàn thành rồi!"
+                    });
+                }
+                // Kiểm tra người dùng phải người đã đặt phòng này không?
+                const customerIdInRoomBookingOrder = roomBookingOrderRes.customer_id;
+                if (customerIdRes !== customerIdInRoomBookingOrder) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Phòng không được đặt bởi khách hàng này!"
+                    });
+                }
+                // Kiểm tra ngày check in xem phải ngày muốn check in không?
+                try {
+                    const roomBookingDetailRes = await getRoomBookingDetailByRoomBookingOrderId(roomBookingOrderId);
+                    if (!roomBookingDetailRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Record room booking detail not found"
+                        });
+                    }
+                    var dateCheckinRes = new Date(roomBookingDetailRes.room_booking_detail_checkin_date);
+                    var dateCheckoutRes = new Date(roomBookingDetailRes.room_booking_detail_checkout_date);
+
+                    // So sánh ngày
+                    var today = new Date();
+                    var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate() + 1);
+                    var checkInDate = new Date(date);
+
+                    if (checkInDate < dateCheckinRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Không thể check in trước ngày " + roomBookingDetailRes.room_booking_detail_checkin_date
+                        });
+                    }
+                    if (checkInDate > dateCheckoutRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Ngày Check in đã quá ngày Check out: " + roomBookingDetailRes.room_booking_detail_checkout_date
+                        });
+                    }
+                    // Cập nhật số cmnd và quốc tịch
+                    try {
+                        const updateCheckInInfoRes = await updateRoomBookingOrderInfoWhenCheckInSuccess(roomBookingOrderIdentityCard, roomBookingOrderNation, roomBookingOrderId);
+                        if (!updateCheckInInfoRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't update room booking info when check in success"
+                            });
+                        }
+                        // Cập nhật state
+                        try {
+                            const updateStateRes = await updateRoomBookingOrderState(1, roomBookingOrderId);
+                            if (!updateStateRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't update room booking state when check in success"
+                                });
+                            }
+
+                            createLogAdmin(req, res, " vừa Check in cho Đơn đặt phòng có mã: " + roomBookingOrderId, "UPDATE").then(() => {
+                                // Success
+                                return res.status(200).json({
+                                    status: "success",
+                                    message: "Check in thành công!"
+                                });
+                            });
+
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when update room booking order state when check in success!",
+                                error: err
+                            });
+                        }
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when update room booking order info when check in success!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when find room booking detail!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when find room booking order!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find customer!",
+                error: err
+            });
+        }
+    },
+    // ADMIN: Check out
+    checkOutRoomBookingOrder: async (req, res) => {
+        const roomBookingOrderId = req.body.roomBookingOrderId;
+
+        if (!roomBookingOrderId || !Number.isInteger(roomBookingOrderId) || roomBookingOrderId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Đặt phòng không hợp lệ!"
+            });
+        }
+        // Tìm room booking order xem có không
+        try {
+            const roomBookingOrderRes = await findRoomBookingOrderByIdCheckIn(roomBookingOrderId);
+            if (!roomBookingOrderRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record room booking order not found"
+                });
+            }
+            const roomBookingOrderStateRes = roomBookingOrderRes.room_booking_order_state;
+            if (roomBookingOrderStateRes !== 1) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Đơn đặt này chưa Check in hoặc Đã hoàn thành rồi!"
+                });
+            }
+            // Kiểm tra ngày check in xem phải ngày muốn check in không?
+            try {
+                const roomBookingDetailRes = await getRoomBookingDetailByRoomBookingOrderId(roomBookingOrderId);
+                if (!roomBookingDetailRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Record room booking detail not found"
+                    });
+                }
+                var dateCheckinRes = new Date(roomBookingDetailRes.room_booking_detail_checkin_date);
+                var dateCheckoutRes = new Date(roomBookingDetailRes.room_booking_detail_checkout_date);
+
+                // So sánh ngày
+                var today = new Date();
+                var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate() + 1);
+                var checkOutDate = new Date(date);
+
+                if (checkOutDate < dateCheckinRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Không thể check in trước ngày " + roomBookingDetailRes.room_booking_detail_checkin_date
+                    });
+                }
+                if (checkOutDate > dateCheckoutRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Ngày Check in đã quá ngày Check out: " + roomBookingDetailRes.room_booking_detail_checkout_date
+                    });
+                }
+
+                // Cập nhật ngày hoàn thành check out: finish date
+                // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+                var today = new Date();
+                var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                var finishDate = date + ' ' + time;
+                try {
+                    const updateFinishDateRes = await updateRoomBookingOrderFinishDateWhenCheckOutSuccess(finishDate, roomBookingOrderId);
+                    if (!updateFinishDateRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't update room booking finish date when check out success"
+                        });
+                    }
+                    // Cập nhật state
+                    try {
+                        const updateStateRes = await updateRoomBookingOrderState(2, roomBookingOrderId);
+                        if (!updateStateRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't update room booking state when check out success"
+                            });
+                        }
+
+                        createLogAdmin(req, res, " vừa Check out cho Đơn đặt phòng có mã: " + roomBookingOrderId, "UPDATE").then(() => {
+                            // Success
+                            return res.status(200).json({
+                                status: "success",
+                                message: "Check out thành công!"
+                            });
+                        });
+
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when update room booking order state when check out success!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when update room booking order finish date when check out success!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when find room booking detail!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find room booking order!",
                 error: err
             });
         }

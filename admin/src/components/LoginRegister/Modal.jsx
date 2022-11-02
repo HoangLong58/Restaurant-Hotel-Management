@@ -756,11 +756,9 @@ const Modal = ({ showModal, setShowModal, type }) => {
     // ============== Fill Key and new password
     const handleChangePassword = (e) => {
         setPassword(e.target.value);
-        // setIsPasswordCorrect(false);
     }
     const handleChangeRePassword = (e) => {
         setRePassword(e.target.value);
-        // setIsPasswordCorrect(false);
     }
     // --Show/ hide password register
     const [passwordType, setPasswordType] = useState("password");

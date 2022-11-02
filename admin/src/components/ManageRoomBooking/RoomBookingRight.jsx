@@ -1,10 +1,13 @@
-import styled from "styled-components";
 import { Add, CategoryOutlined } from "@mui/icons-material";
-import RightTop from "../Dashboard/RightTop";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+import RightTop from "../Dashboard/RightTop";
+import Toast from "../Toast";
 import Modal from "./Modal";
-import Toast from "./Toast";
+
+// SERVICES
+import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
 
 const Container = styled.div`
 margin-top: 1.4rem;
@@ -80,7 +83,7 @@ const ItemRight = styled.div`
     width: 100%;
 `
 
-const DonHangRight = ({ reRenderData, setReRenderData }) => {
+const RoomBookingRight = ({ reRenderData, setReRenderData }) => {
     // Thứ ngày tháng
     let today = new Date();
     let todayday = today.getDay();
@@ -97,20 +100,20 @@ const DonHangRight = ({ reRenderData, setReRenderData }) => {
     }
     let ngaythangnam = "Thứ " + thu + ", " + today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
 
-    // Số lượng thú cưng
-    const [soLuongDonHang, setSoLuongDonHang] = useState();
+    // Số lượng Đặt phòng
+    const [roomBookingOrderQuantity, setRoomBookingOrderQuantity] = useState();
     useEffect(() => {
-        const getSoLuongDonHang = async () => {
+        const getRoomBookingOrderQuantity = async () => {
             try {
-                const soluongdonhangres = await axios.post("http://localhost:3001/api/order/getSoLuongDonHang");
-                setSoLuongDonHang(soluongdonhangres.data[0].soluongdonhang);
+                const roomQuantityRes = await RoomBookingOrderService.getQuantityRoomBooking();
+                setRoomBookingOrderQuantity(roomQuantityRes.data.data.quantityRoomBooking);
             } catch (err) {
-                console.log("Lỗi: ", err);
+                console.log("Lỗi: ", err.response);
             }
         }
-        getSoLuongDonHang();
+        getRoomBookingOrderQuantity();
     }, [reRenderData]);
-    console.log("Số lượng đơn hàng: ", soLuongDonHang);
+    console.log("Số lượng Đặt phòng: ", roomBookingOrderQuantity);
 
     // ===== Modal =====
     const [showModal, setShowModal] = useState(false);
@@ -136,24 +139,24 @@ const DonHangRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Orders Analytics</H2>
+                <H2>Room Booking Orders Analytics</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>SỐ LƯỢNG ĐƠN HÀNG</h3>
+                            <h3>SỐ LƯỢNG ĐẶT PHÒNG</h3>
                             <small class="text-muted">{ngaythangnam}</small>
                         </Info>
-                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{soLuongDonHang}</h3>
+                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{roomBookingOrderQuantity}</h3>
                     </ItemRight>
                 </Item>
                 {/* <Item className="add-product"
-                    onClick={() => openModal({ type: "themdonhang" })}
+                    onClick={() => openModal({ type: "createRoom" })}
                 >
                     <Add />
-                    <h3>Thêm đơn hàng</h3>
+                    <h3>Thêm Phòng</h3>
                 </Item> */}
             </SalesAnalytics>
 
@@ -165,7 +168,7 @@ const DonHangRight = ({ reRenderData, setReRenderData }) => {
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 showToastFromOut={showToastFromOut} //Hàm Hiện toast
             />
-            
+
             {/* ==== TOAST ==== */}
             <Toast
                 ref={toastRef}
@@ -175,4 +178,4 @@ const DonHangRight = ({ reRenderData, setReRenderData }) => {
     );
 };
 
-export default DonHangRight;
+export default RoomBookingRight;

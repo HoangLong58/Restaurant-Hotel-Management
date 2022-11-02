@@ -1,12 +1,12 @@
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined } from "@mui/icons-material";
+import { AssignmentOutlined, AssignmentTurnedInOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
+import ReactPaginate from "react-paginate";
 import styled from "styled-components";
 import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as PositionService from "../../service/PositionService";
-import ReactPaginate from "react-paginate";
+import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -62,15 +62,9 @@ const Td = styled.td`
 
 const A = styled.a`
     text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
+    display: block;
     margin: 1rem auto;
     color: var(--color-primary);
-    cursor: pointer;
-    font-weight: bold;
-    letter-spacing: 2px;
 `
 
 // Tìm kiếm
@@ -125,6 +119,11 @@ const Input = styled.input`
         transform: translate(0, 10px);
     }
 `
+
+const Label = styled.label`
+
+`
+
 
 const Button = styled.button`
     width: 50px;
@@ -246,12 +245,12 @@ const ButtonFix = styled.button`
     cursor: pointer;
 `
 
-const ButtonDelete = styled.button`
+const ButtonInfo = styled.button`
     width: 40px;
     height: 30px;
-    border: 2px solid var(--color-danger);
+    border: 2px solid var(--color-info);
     border-radius: var(--border-radius-2);
-    color: var(--color-danger);
+    color: var(--color-warnning);
     background: var(--color-white);
     padding:0px;
     outline:none;
@@ -259,10 +258,23 @@ const ButtonDelete = styled.button`
     cursor: pointer;
 `
 
+const ButtonDelete = styled.button`
+width: 40px;
+height: 30px;
+border: 2px solid var(--color-danger);
+border-radius: var(--border-radius-2);
+color: var(--color-danger);
+background: var(--color-white);
+padding:0px;
+outline:none;
+z-index: 2;
+cursor: pointer;
+`
+
 const ImgDanhMuc = styled.img`
-    width: auto;
+    width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
 `
 
 // Empty item
@@ -280,7 +292,7 @@ const EmptyContent = styled.div`
     font-weight: bold;
 `
 
-const PositionMain = ({ reRenderData, setReRenderData }) => {
+const RoomBookingMain = ({ reRenderData, setReRenderData }) => {
     const InputRef = useRef(null);
     const [isSearch, setIsSearch] = useState(false);
     const [search, setSearch] = useState("");
@@ -292,9 +304,9 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
         } else {
             // Thực hiện tìm kiếm
             console.log(search);
-            const findPosition = async () => {
+            const findRoomBooking = async () => {
                 try {
-                    const searchRes = await PositionService.findPositionByIdOrName(search);
+                    const searchRes = await RoomBookingOrderService.findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName(search);
                     if (searchRes.data.data.length === 0) {
                         setNoResultFound(true);
                         // Toast
@@ -303,7 +315,7 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
                         return;
                     }
                     setNoResultFound(false);
-                    setPositionList(searchRes.data.data);
+                    setRoomBookingOrderList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };
                     showToastFromOut(dataToast);
@@ -314,42 +326,43 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
                     showToastFromOut(dataToast);
                 }
             }
-            findPosition();
+            findRoomBooking();
             handleLoading();
         }
     }
+
     const handleClose = () => {
         setIsSearch(false);
         setNoResultFound(false);
         InputRef.current.value = "";
-        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - PositionMain & DanhMucRight.jsx
+        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DeviceMain & DanhMucRight.jsx
     }
 
-    // Lấy Chức vụ
-    const [positionList, setPositionList] = useState([]);
+    // Lấy Room booking order list
+    const [roomBookingOrderList, setRoomBookingOrderList] = useState([]);
     useEffect(() => {
-        const getPositions = async () => {
+        const getRoomBookingOrderList = async () => {
             try {
-                const positionRes = await PositionService.getPositions();
-                setPositionList(positionRes.data.data);
+                const getRoomBookingOrderRes = await RoomBookingOrderService.getRoomBookingAndDetails();
+                setRoomBookingOrderList(getRoomBookingOrderRes.data.data);
             } catch (err) {
-                console.log("Lỗi lấy position: ", err);
+                console.log("Lỗi lấy room booking order: ", err.response);
             }
         }
         handleLoading();
-        getPositions();
+        getRoomBookingOrderList();
     }, [reRenderData]);
-    console.log("positionList: ", positionList);
+    console.log("roomBookingOrderList: ", roomBookingOrderList);
 
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
-    const [positionModal, setPositionModal] = useState(null);
+    const [roomBookingOrderModal, setRoomBookingOrderModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
-        setPositionModal(modal.position);
+        setRoomBookingOrderModal(modal.roomBookingOrder);
     }
 
     // ===== TOAST =====
@@ -380,31 +393,39 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
-    const positionPerPage = 12;
-    const pageVisited = pageNumber * positionPerPage;
+    const roomBookingOrderPerPage = 12;
+    const pageVisited = pageNumber * roomBookingOrderPerPage;
 
-    const positionListFiltered = positionList
-        .slice(pageVisited, pageVisited + positionPerPage)
-        .map((position, key) => {
+    const roomBookingOrderListFiltered = roomBookingOrderList
+        .slice(pageVisited, pageVisited + roomBookingOrderPerPage)
+        .map((roomBookingOrder, key) => {
             return (
                 <Tr>
-                    <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{pageNumber * positionPerPage + (key + 1)}</Td>
-                    <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_id}</Td>
-                    <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_name}</Td>
-                    <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_salary}</Td>
-                    <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_bonus_salary}</Td>
-                    <Td className="warning">
-                        <ButtonFix
-                            onClick={() => openModal({ type: "updatePosition", position: position })}
+                    <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{pageNumber * roomBookingOrderPerPage + (key + 1)}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_booking_order_id}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_type_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.customer_first_name + " " + roomBookingOrder.customer_last_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_booking_detail_checkin_date}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_booking_detail_checkout_date}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_booking_order_total}</Td>
+                    <Td
+                        onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}
+                        style={{ backgroundColor: roomBookingOrder.room_booking_order_state === 0 ? "var(--color-info)" : roomBookingOrder.room_booking_order_state === 1 ? "var(--color-success)" : roomBookingOrder.room_booking_order_state === 2 ? "var(--color-danger)" : null }}>
+                        {roomBookingOrder.room_booking_order_state === 0 ? "Đã đặt" : roomBookingOrder.room_booking_order_state === 1 ? "Đã nhận phòng" : roomBookingOrder.room_booking_order_state === 2 ? "Hoàn thành" : null}
+                    </Td>
+                    <Td className="primary">
+                        <ButtonInfo
+                            onClick={() => openModal({ type: "checkin", roomBookingOrder: roomBookingOrder })}
                         >
-                            <DriveFileRenameOutlineOutlined />
-                        </ButtonFix>
+                            <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                        </ButtonInfo>
                     </Td>
                     <Td className="primary">
                         <ButtonDelete
-                            onClick={() => openModal({ type: "deletePosition", position: position })}
+                            onClick={() => openModal({ type: "checkout", roomBookingOrder: roomBookingOrder })}
                         >
-                            <DeleteSweepOutlined />
+                            <AssignmentTurnedInOutlined />
                         </ButtonDelete>
                     </Td>
                 </Tr>
@@ -413,42 +434,46 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
         );
 
 
-    const pageCount = Math.ceil(positionList.length / positionPerPage);
+    const pageCount = Math.ceil(roomBookingOrderList.length / roomBookingOrderPerPage);
     const changePage = ({ selected }) => {
         setPageNumber(selected);
     }
 
     return (
         <Container>
-            <H2>Quản lý Chức vụ nhân viên</H2>
+            <H2>Quản lý Đặt phòng - Khách sạn</H2>
 
             {/* Tìm kiếm */}
             <SearchWrapper className={isSearch ? "active" : null}>
                 <InputHolder>
-                    <Input ref={InputRef} type="text" placeHolder="Nhập vào mã danh mục" onChange={(e) => setSearch(e.target.value)} />
+                    <Input ref={InputRef} type="text" placeHolder="Nhập vào mã thú cưng" onChange={(e) => setSearch(e.target.value)} />
                     <Button onClick={(e) => { handleSeach(e) }}><Span></Span></Button>
                 </InputHolder>
                 <CloseSpan onClick={() => { handleClose() }}></CloseSpan>
             </SearchWrapper>
 
             <RecentOrders>
-                <H2>Chức vụ nhân viên hiện tại</H2>
+                <H2>Danh sách Đặt phòng hiện tại</H2>
                 <Table>
                     <Thead>
                         <Tr>
                             <Th>STT</Th>
-                            <Th>Mã chức vụ</Th>
-                            <Th>Tên Chức vụ</Th>
-                            <Th>Lương cơ bản</Th>
-                            <Th>Lương thưởng</Th>
-                            <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+                            <Th>Mã Đặt phòng</Th>
+                            <Th>Loại phòng</Th>
+                            <Th>Tên phòng</Th>
+                            <Th>Khách hàng</Th>
+                            <Th>Ngày Checkin</Th>
+                            <Th>Ngày Checkout</Th>
+                            <Th>Tổng tiền</Th>
+                            <Th>Trạng thái</Th>
+                            <Th>Checkin</Th>
+                            <Th>Checkout</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
                         {noResultFound ? (
                             <Tr>
-                                <Td colSpan={7}>
+                                <Td colSpan={11}>
                                     <EmptyItem>
                                         <EmptyItemSvg>
                                             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
@@ -475,7 +500,7 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
                         )
                             : isLoading ? (
                                 <Tr>
-                                    <Td colSpan={7} style={{ width: "100%", height: "100px" }}>
+                                    <Td colSpan={11} style={{ width: "100%", height: "100px" }}>
                                         <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             <div
                                                 class="spinner-border"
@@ -488,35 +513,44 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
                                     </Td>
                                 </Tr>
                             ) :
-                                positionList.length > 0
+                                roomBookingOrderList.length > 0
                                     ?
-                                    positionListFiltered
+                                    roomBookingOrderListFiltered
                                     :
-                                    (positionList.map((position, key) => {
+                                    (roomBookingOrderList.slice(0, 12).map((roomBookingOrder, key) => {
                                         return (
                                             <Tr>
-                                                <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{key + 1}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_id}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_name}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_salary}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_bonus_salary}</Td>
-                                                <Td className="warning">
-                                                    <ButtonFix
-                                                        onClick={() => openModal({ type: "updatePosition", position: position })}
+                                                <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{key + 1}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_booking_order_id}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_type_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.customer_first_name + " " + roomBookingOrder.customer_last_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_booking_detail_checkin_date}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_booking_detail_checkout_date}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}>{roomBookingOrder.room_booking_order_total}</Td>
+                                                <Td
+                                                    onClick={() => openModal({ type: "detailRoomBookingOrder", roomBookingOrder: roomBookingOrder })}
+                                                    style={{ backgroundColor: roomBookingOrder.room_booking_order_state === 0 ? "var(--color-info)" : roomBookingOrder.room_booking_order_state === 1 ? "var(--color-success)" : roomBookingOrder.room_booking_order_state === 2 ? "var(--color-danger)" : null }}>
+                                                    {roomBookingOrder.room_booking_order_state === 0 ? "Đã đặt" : roomBookingOrder.room_booking_order_state === 1 ? "Đã nhận phòng" : roomBookingOrder.room_booking_order_state === 2 ? "Hoàn thành" : null}
+                                                </Td>
+                                                <Td className="primary">
+                                                    <ButtonInfo
+                                                        onClick={() => openModal({ type: "checkin", roomBookingOrder: roomBookingOrder })}
                                                     >
-                                                        <DriveFileRenameOutlineOutlined />
-                                                    </ButtonFix>
+                                                        <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                                                    </ButtonInfo>
                                                 </Td>
                                                 <Td className="primary">
                                                     <ButtonDelete
-                                                        onClick={() => openModal({ type: "deletePosition", position: position })}
+                                                        onClick={() => openModal({ type: "checkout", roomBookingOrder: roomBookingOrder })}
                                                     >
-                                                        <DeleteSweepOutlined />
+                                                        <AssignmentTurnedInOutlined />
                                                     </ButtonDelete>
                                                 </Td>
                                             </Tr>
-                                        );
-                                    }))
+                                        )
+                                    }
+                                    ))
                         }
                     </Tbody>
                 </Table>
@@ -534,20 +568,13 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
                     pageLinkClassName={"pageLinkClassName"}
                     forcePage={pageNumber}
                 />
-                <A onClick={() => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    });
-                }}>
-                    <KeyboardArrowUpOutlined /> Lên trên</A>
 
             </RecentOrders>
             <Modal
                 showModal={showModal}   //state Đóng mở modal
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
-                position={positionModal}  //Dữ liệu bên trong modal
+                roomBookingOrder={roomBookingOrderModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast
@@ -564,4 +591,4 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
 
 
 
-export default PositionMain;
+export default RoomBookingMain;

@@ -5,7 +5,7 @@ router.post("/payment-stripe", (req, res) => {
     stripe.charges.create(
         {
             source: req.body.tokenId,
-            amount: req.body.amount,
+            amount: Math.round(req.body.amount * 100) / 100,
             currency: "usd",
         },
         (stripeErr, stripeRes) => {

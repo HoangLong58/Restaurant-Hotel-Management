@@ -572,6 +572,8 @@ const Payment = (props) => {
   const discountRoomBooking = useSelector((state) => state.roomBooking.discount);
   const roomTotalRoomBooking = useSelector((state) => state.roomBooking.roomTotal);
   const roomBooking = useSelector((state) => state.roomBooking);
+  const checkinDateRoomBooking = useSelector((state) => state.roomBooking.checkInDate);
+  const checkoutDateRoomBooking = useSelector((state) => state.roomBooking.checkOutDate);
   // STATE
   const [customer, setCustomer] = useState(customerRoomBooking);
   const [room, setRoom] = useState(roomRoomBooking);
@@ -812,11 +814,11 @@ const Payment = (props) => {
     if (discountRoomBooking) {
       const discountPercent = discountRoomBooking.discount_percent;
       dispatch(addRoomTotal({
-        roomTotal: roomPrice - (roomPrice * discountPercent / 100)
+        roomTotal: roomPrice * (checkoutDateRoomBooking - checkinDateRoomBooking)/ (24*60*60*1000) - (roomPrice * (checkoutDateRoomBooking - checkinDateRoomBooking)/ (24*60*60*1000) * discountPercent / 100)
       }));
     } else {
       dispatch(addRoomTotal({
-        roomTotal: roomPrice
+        roomTotal: roomPrice * (checkoutDateRoomBooking - checkinDateRoomBooking)/ (24*60*60*1000)
       }));
     }
   }, [roomPrice, discountRoomBooking]);
@@ -841,7 +843,7 @@ const Payment = (props) => {
         try {
           const createRoomBookingOrder = async () => {
             const bookingRes = await RoomBookingOrderService.createRoomBookingOrder({
-              roomBookingOrderPrice: roomPrice,
+              roomBookingOrderPrice: roomTotalRoomBooking,
               roomBookingOrderSurcharge: 0,
               roomBookingOrderTotal: roomTotalRoomBooking,
               customerId: customerId,

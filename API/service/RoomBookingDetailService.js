@@ -43,8 +43,34 @@ module.exports = {
                 from room_booking_detail rbd 
                 join room_booking_order rbo on rbd.room_booking_order_id = rbo.room_booking_order_id
                 where rbd.room_id = ?
-                and rbo.room_booking_order_state = 0`,
-                [roomId],
+                and rbo.room_booking_order_state = 0
+                or rbd.room_id = ? 
+                and rbo.room_booking_order_state = 1`,
+                [roomId, roomId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+
+    // Check in
+    getRoomBookingDetailByRoomBookingOrderId: (id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                room_booking_detail_id,
+                room_booking_detail_checkin_date,
+                room_booking_detail_checkout_date,
+                room_booking_detail_key,
+                room_id,
+                room_booking_order_id 
+                from room_booking_detail
+                where room_booking_order_id = ?`,
+                [id],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);

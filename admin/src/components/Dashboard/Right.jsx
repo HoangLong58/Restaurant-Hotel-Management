@@ -61,7 +61,7 @@ const Update = styled.div`
 `
 
 const Message = styled.div`
-
+    width: 80%;
 `
 
 // Sales Analytics

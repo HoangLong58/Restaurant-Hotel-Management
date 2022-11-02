@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Aside from "../components/Dashboard/Aside";
-import DonHangMain from "../components/QuanLyDonHang/DonHangMain";
-import DonHangRight from "../components/QuanLyDonHang/DonHangRight";
+import RoomBookingMain from "../components/ManageRoomBooking/RoomBookingMain";
+import RoomBookingRight from "../components/ManageRoomBooking/RoomBookingRight";
 
 const Container = styled.div`
     display: grid;
@@ -12,15 +12,15 @@ const Container = styled.div`
     grid-template-columns: 14rem auto 23rem;
 `
 
-const QuanLyDonHang = () => {
+const ManageRoomBooking = () => {
     const [reRenderData, setReRenderData] = useState(true);   // State để Compo KhachHangRight và KhachHangMain thay đổi Effect
     return (
         <Container>
-            <Aside active="quanlydonhang" />
-            <DonHangMain reRenderData={reRenderData} setReRenderData={setReRenderData} />
-            <DonHangRight reRenderData={reRenderData} setReRenderData={setReRenderData} />
+            <Aside active="manageRoomBooking" />
+            <RoomBookingMain reRenderData={reRenderData} setReRenderData={setReRenderData} />
+            <RoomBookingRight reRenderData={reRenderData} setReRenderData={setReRenderData} />
         </Container>
     )
 }
 
-export default QuanLyDonHang;
+export default ManageRoomBooking;

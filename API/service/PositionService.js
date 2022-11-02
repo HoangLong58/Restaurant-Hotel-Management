@@ -10,7 +10,7 @@ module.exports = {
                 position_name,
                 position_salary,
                 position_bonus_salary
-                from position`,
+                from employee_position`,
                 [],
                 (error, results, fields) => {
                     if (error) {
@@ -26,7 +26,7 @@ module.exports = {
             con.query(
                 `select 
                 count(position_id) as quantityPosition
-                from position`,
+                from employee_position`,
                 [],
                 (error, results, fields) => {
                     if (error) {
@@ -45,7 +45,7 @@ module.exports = {
                 position_name,
                 position_salary,
                 position_bonus_salary
-                from position 
+                from employee_position 
                 where position_name like concat('%', ?, '%')
                 or position_id = ?`,
                 [search, search],
@@ -66,7 +66,7 @@ module.exports = {
                 position_name,
                 position_salary,
                 position_bonus_salary
-                from position 
+                from employee_position 
                 where position_id = ?`,
                 [id],
                 (error, results, fields) => {
@@ -81,15 +81,7 @@ module.exports = {
     createPosition: (name, salary, bonus) => {
         return new Promise((resolve, reject) => {
             con.query(
-                `insert 
-                into position
-                (
-                    position_name,
-                    position_salary,
-                    position_bonus_salary
-                )
-                values
-                (?, ?, ?)`,
+                `insert into employee_position (position_name, position_salary, position_bonus_salary) values (?, ?, ?)`,
                 [name, salary, bonus],
                 (error, results, fields) => {
                     if (error) {
@@ -107,7 +99,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             con.query(
                 `update 
-                position 
+                employee_position 
                 set position_name = ?, 
                 position_salary = ?,
                 position_bonus_salary = ?
@@ -130,7 +122,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             con.query(
                 `delete 
-                from position
+                from employee_position
                 where position_id = ?`,
                 [id],
                 (error, results, fields) => {

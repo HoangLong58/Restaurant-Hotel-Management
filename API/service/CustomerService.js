@@ -387,4 +387,18 @@ module.exports = {
             );
         });
     },
+    findCustomerByEmailOrPhoneNumber: (email) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select * from customer where customer_email = ? and customer_state != 'DISABLE' or customer_phone_number = ? and customer_state != 'DISABLE'`,
+                [email, email],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    }
 };

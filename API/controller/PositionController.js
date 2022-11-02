@@ -137,6 +137,7 @@ module.exports = {
             });
 
         } catch (err) {
+            console.log("#EE", err)
             return res.status(400).json({
                 status: "fail",
                 message: "Error when create position!",

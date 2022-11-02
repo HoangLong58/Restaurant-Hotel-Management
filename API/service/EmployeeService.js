@@ -124,7 +124,7 @@ module.exports = {
             e.position_id,
             p.position_name
             from employee e
-            join position p on e.position_id = p.position_id
+            join employee_position p on e.position_id = p.position_id
             where e.employee_email = ?
             and e.employee_state = 'ACTIVE'
             or e.employee_phone_number = ?
@@ -282,7 +282,7 @@ module.exports = {
                 p.position_salary,
                 p.position_bonus_salary
                 from employee e
-                join position p on e.position_id = p.position_id`,
+                join employee_position p on e.position_id = p.position_id`,
                 [],
                 (error, results, fields) => {
                     if (error) {
@@ -329,7 +329,7 @@ module.exports = {
                 p.position_salary,
                 p.position_bonus_salary
                 from employee e
-                join position p on e.position_id = p.position_id
+                join employee_position p on e.position_id = p.position_id
                 where e.employee_first_name like concat('%', ?, '%')
                 or e.employee_last_name like concat('%', ?, '%')
                 or e.employee_phone_number = ?
@@ -365,7 +365,7 @@ module.exports = {
                 p.position_salary,
                 p.position_bonus_salary
                 from employee e
-                join position p on e.position_id = p.position_id
+                join employee_position p on e.position_id = p.position_id
                 where e.employee_id = ?`,
                 [id],
                 (error, results, fields) => {

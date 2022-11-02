@@ -115,6 +115,40 @@ module.exports = {
             }
         );
     },
+    findRoomsWithImageTypeFloor: callBack => {
+        con.query(
+            `select 
+            r.room_id, 
+            r.room_name,
+            r.room_description, 
+            r.room_feature, 
+            r.room_size, 
+            r.room_adult_quantity, 
+            r.room_child_quantity,
+            r.room_view, 
+            r.room_price, 
+            r.room_state, 
+            r.floor_id, 
+            f.floor_name, 
+            r.room_type_id, 
+            rt.room_type_name,
+            rt.room_type_vote_total,
+            ri.room_image_content
+            from room r 
+            join room_type rt on r.room_type_id = rt.room_type_id 
+            join floor f on r.floor_id = f.floor_id 
+            join room_image ri on r.room_id = ri.room_id
+            where r.room_state = 0
+            group by rt.room_type_id, r.room_id`,
+            [],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            }
+        );
+    },
     getMinMaxRoomPrice: callBack => {
         con.query(
             `select 

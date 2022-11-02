@@ -1,11 +1,9 @@
 import { CloseOutlined } from "@mui/icons-material";
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import app from "../../firebase";
 
 // SERVICES
-import * as DeviceTypeService from "../../service/DeviceTypeService";
+import * as PositionService from "../../service/PositionService";
 
 const Background = styled.div`
     width: 100%;
@@ -168,7 +166,7 @@ const FormImg = styled.img`
     height: 200px;
 `
 
-const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, handleClose, showToastFromOut }) => {
+const Modal = ({ showModal, setShowModal, type, position, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal
     const modalRef = useRef();
     const closeModal = (e) => {
@@ -194,22 +192,18 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
         [keyPress]
     );
 
-    // =============== Xử lý cập nhật danh mục ===============
-    useEffect(() => {
-        setDeviceTypeImageModalNew(null);
-        setDeviceTypeNameModalNew();
-    }, [showModal]);
-
-    const handleUpdateDeviceType = async (newDeviceTypeName, newDeviceTypeImage, deviceTypeId) => {
+    // =============== Xử lý cập nhật Chức vụ ===============
+    const handleUpdatePosition = async (positionName, positionSalary, positionBonusSalary, positionId) => {
         try {
-            const updateDeviceTypeRes = await DeviceTypeService.updateDeviceType({
-                deviceTypeId: deviceTypeId,
-                deviceTypeName: newDeviceTypeName,
-                deviceTypeImage: newDeviceTypeImage
+            const updatePositionRes = await PositionService.updatePosition({
+                positionId: positionId,
+                positionName: positionName,
+                positionSalary: positionSalary,
+                positionBonusSalary: positionBonusSalary
             });
-            if (!updateDeviceTypeRes) {
+            if (!updatePositionRes) {
                 // Toast
-                const dataToast = { message: updateDeviceTypeRes.data.message, type: "warning" };
+                const dataToast = { message: updatePositionRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -218,7 +212,7 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: updateDeviceTypeRes.data.message, type: "success" };
+            const dataToast = { message: updatePositionRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -230,174 +224,52 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             return;
         }
     }
-    //  test
-    const [deviceTypeModal, setDeviceTypeModal] = useState();
-    const [deviceTypeIdModal, setDeviceTypeIdModal] = useState();
-    const [deviceTypeNameModal, setDeviceTypeNameModal] = useState();
-    const [deviceTypeImageModal, setDeviceTypeImageModal] = useState();
 
-    const [deviceTypeModalOld, setDeviceTypeModalOld] = useState();
-    const [deviceTypeIdModalOld, setDeviceTypeIdModalOld] = useState();
-    const [deviceTypeNameModalOld, setDeviceTypeNameModalOld] = useState();
-    const [deviceTypeImageModalOld, setDeviceTypeImageModalOld] = useState();
+    // STATE:
+    const [positionModal, setPositionModal] = useState();
+    const [positionIdModal, setPositionIdModal] = useState();
+    const [positionNameModal, setPositionNameModal] = useState();
+    const [positionSalaryModal, setPositionSalaryModal] = useState();
+    const [positionBonusSalaryModal, setPositionBonusSalaryModal] = useState();
     useEffect(() => {
-        const getDeviceType = async () => {
+        const getPosition = async () => {
             try {
-                const deviceTypeRes = await DeviceTypeService.findDeviceTypeById({
-                    deviceTypeId: deviceType.device_type_id
+                const positionRes = await PositionService.findPositionById({
+                    positionId: position.position_id
                 });
-                console.log("RES: ", deviceTypeRes);
-                setDeviceTypeModal(deviceTypeRes.data.data);
-                setDeviceTypeIdModal(deviceTypeRes.data.data.device_type_id);
-                setDeviceTypeNameModal(deviceTypeRes.data.data.device_type_name);
-                setDeviceTypeImageModal(deviceTypeRes.data.data.device_type_image);
-
-                setDeviceTypeModalOld(deviceTypeRes.data.data);
-                setDeviceTypeIdModalOld(deviceTypeRes.data.data.device_type_id);
-                setDeviceTypeNameModalOld(deviceTypeRes.data.data.device_type_name);
-                setDeviceTypeImageModalOld(deviceTypeRes.data.data.device_type_image);
+                console.log("RES: ", positionRes);
+                setPositionModal(positionRes.data.data);
+                setPositionIdModal(positionRes.data.data.position_id);
+                setPositionNameModal(positionRes.data.data.position_name);
+                setPositionSalaryModal(positionRes.data.data.position_salary);
+                setPositionBonusSalaryModal(positionRes.data.data.position_bonus_salary);
             } catch (err) {
-                console.log("Lỗi lấy danh mục: ", err);
+                console.log("Lỗi lấy Chức vụ: ", err.response);
             }
         }
-        if (deviceType) {
-            getDeviceType();
+        if (position) {
+            getPosition();
         }
-    }, [deviceType]);
-    console.log("Danh mục modal: ", deviceTypeModal);
+    }, [position, showModal]);
+    console.log("Position modal: ", positionModal);
 
-    // Thay đổi hình ảnh
-    const handleChangeImg = (hinhmoi) => {
-        const hinhanhunique = new Date().getTime() + hinhmoi.name;
-        const storage = getStorage(app);
-        const storageRef = ref(storage, hinhanhunique);
-        const uploadTask = uploadBytesResumable(storageRef, hinhmoi);
+    // =============== Xử lý thêm Chức vụ ===============
+    const [positionNameModalNew, setPositionNameModalNew] = useState();
+    const [positionSalaryModalNew, setPositionSalaryModalNew] = useState();
+    const [positionBonusSalaryModalNew, setPositionBonusSalaryModalNew] = useState();
 
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
-                    default:
-                }
-            },
-            (error) => {
-                // A full list of error codes is available at
-                // https://firebase.google.com/docs/storage/web/handle-errors
-                switch (error.code) {
-                    case 'storage/unauthorized':
-                        // User doesn't have permission to access the object
-                        break;
-                    case 'storage/canceled':
-                        // User canceled the upload
-                        break;
-
-                    // ...
-
-                    case 'storage/unknown':
-                        // Unknown error occurred, inspect error.serverResponse
-                        break;
-                }
-            },
-            () => {
-                // Upload completed successfully, now we can get the download URL
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    try {
-                        setDeviceTypeImageModal(downloadURL);
-                    } catch (err) {
-                        console.log("Lỗi cập nhật hình ảnh:", err);
-                    }
-                });
-            }
-        );
-    }
-
-    const handleCloseUpdate = () => {
-        // Set lại giá trị cũ sau khi đóng Modal
-        setDeviceTypeNameModal(deviceTypeNameModalOld);
-        setDeviceTypeImageModal(deviceTypeImageModalOld);
-
-        setShowModal(prev => !prev);
-    }
-
-    // =============== Xử lý thêm danh mục ===============
-    const [deviceTypeNameModalNew, setDeviceTypeNameModalNew] = useState();
-    const [deviceTypeImageModalNew, setDeviceTypeImageModalNew] = useState(null);
-
-    // Thay đổi hình ảnh
-    const handleShowImg = (hinhmoi) => {
-        const hinhanhunique = new Date().getTime() + hinhmoi.name;
-        const storage = getStorage(app);
-        const storageRef = ref(storage, hinhanhunique);
-        const uploadTask = uploadBytesResumable(storageRef, hinhmoi);
-
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
-                    default:
-                }
-            },
-            (error) => {
-                // A full list of error codes is available at
-                // https://firebase.google.com/docs/storage/web/handle-errors
-                switch (error.code) {
-                    case 'storage/unauthorized':
-                        // User doesn't have permission to access the object
-                        break;
-                    case 'storage/canceled':
-                        // User canceled the upload
-                        break;
-
-                    // ...
-
-                    case 'storage/unknown':
-                        // Unknown error occurred, inspect error.serverResponse
-                        break;
-                }
-            },
-            () => {
-                // Upload completed successfully, now we can get the download URL
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    try {
-                        setDeviceTypeImageModalNew(downloadURL);
-                    } catch (err) {
-                        console.log("Lỗi cập nhật hình ảnh:", err);
-                    }
-                });
-            }
-        );
-    }
-
-    // Create new divice type
-    const handleCreateDeviceType = async (newName, newImage) => {
+    // Create new position
+    const handleCreatePosition = async (newName, newSalary, newBonusSalary) => {
+        console.log("asssssss: ", newName, newSalary, newBonusSalary);
         try {
-            const createDeviceTypeRes = await DeviceTypeService.createDeviceType({
-                deviceTypeName: newName,
-                deviceTypeImage: newImage
+            const createPositionRes = await PositionService.createPosition({
+                positionName: newName,
+                positionSalary: newSalary,
+                positionBonusSalary: newBonusSalary
             });
-            if (!createDeviceTypeRes) {
+            if (!createPositionRes) {
                 // Toast
-                const dataToast = { message: createDeviceTypeRes.data.message, type: "warning" };
+                const dataToast = { message: createPositionRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -405,9 +277,8 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             // Success
             setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DanhMucMain & DanhMucRight.jsx
             setShowModal(prev => !prev);
-            setDeviceTypeImageModalNew(null);
             // Toast
-            const dataToast = { message: createDeviceTypeRes.data.message, type: "success" };
+            const dataToast = { message: createPositionRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
 
@@ -421,13 +292,13 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
         }
     }
 
-    // =============== Xử lý xóa danh mục ===============
-    const handleDeleteDeviceType = async (deviceTypeId) => {
+    // =============== Xử lý xóa Chức vụ ===============
+    const handleDeletePosition = async (positionId) => {
         try {
-            const deleteDeviceTypeRes = await DeviceTypeService.deleteDeviceType(deviceTypeId);
-            if (!deleteDeviceTypeRes) {
+            const deletePositionRes = await PositionService.deletePosition(positionId);
+            if (!deletePositionRes) {
                 // Toast
-                const dataToast = { message: deleteDeviceTypeRes.data.message, type: "warning" };
+                const dataToast = { message: deletePositionRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -435,7 +306,7 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: deleteDeviceTypeRes.data.message, type: "success" };
+            const dataToast = { message: deletePositionRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -447,28 +318,31 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
     }
 
     // ================================================================
-    //  =============== Chi tiết Loại thiết bị ===============
-    if (type === "detailDeviceType") {
+    //  =============== Chi tiết Chức vụ ===============
+    if (type === "detailPosition") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Chi tiết Loại thiết bị</H1>
+                            <H1>Chi tiết Chức vụ</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Mã số Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" value={deviceTypeModal ? deviceTypeModal.device_type_id : null} readOnly />
+                                    <FormSpan>Mã Chức vụ:</FormSpan>
+                                    <FormInput type="text" value={positionModal ? positionModal.position_id : null} readOnly />
                                 </ModalFormItem>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" value={deviceTypeModal ? deviceTypeModal.device_type_name : null} readOnly />
+                                    <FormSpan>Tên Chức vụ:</FormSpan>
+                                    <FormInput type="text" value={positionModal ? positionModal.position_name : null} readOnly />
                                 </ModalFormItem>
                                 <ModalFormItem>
-                                    <FormSpan>Hình ảnh:</FormSpan>
-                                    <FormImg src={deviceTypeModal ? deviceTypeModal.device_type_image : null}></FormImg>
+                                    <FormSpan>Lương cơ bản:</FormSpan>
+                                    <FormInput type="text" value={positionModal ? positionModal.position_salary : null} readOnly />
                                 </ModalFormItem>
-
+                                <ModalFormItem>
+                                    <FormSpan>Lương thưởng:</FormSpan>
+                                    <FormInput type="text" value={positionModal ? positionModal.position_bonus_salary : null} readOnly />
+                                </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
@@ -489,30 +363,32 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             </>
         );
     }
-    //  =============== Thêm danh mục ===============
-    if (type === "createDeviceType") {
+    //  =============== Thêm Chức vụ ===============
+    if (type === "createPosition") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Thêm Loại thiết bị mới</H1>
+                            <H1>Thêm Chức vụ mới</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" onChange={(e) => setDeviceTypeNameModalNew(e.target.value)} placeholder="Nhập vào tên Loại thiết bị" />
+                                    <FormSpan>Tên Chức vụ mới:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setPositionNameModalNew(e.target.value)} placeholder="Nhập vào tên Chức vụ" />
                                 </ModalFormItem>
                                 <ModalFormItem>
-                                    <FormSpan>Hình ảnh:</FormSpan>
-                                    <FormInput type="file" onChange={(e) => handleShowImg(e.target.files[0])} />
-                                    <FormImg src={deviceTypeImageModalNew !== null ? deviceTypeImageModalNew : "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1650880603321No-Image-Placeholder.svg.png?alt=media&token=2a1b17ab-f114-41c0-a00d-dd81aea80d3e"} key={deviceTypeImageModalNew}></FormImg>
+                                    <FormSpan>Mức lương cơ bản:</FormSpan>
+                                    <FormInput type="number" onChange={(e) => setPositionSalaryModalNew(parseInt(e.target.value))} placeholder="Nhập vào số tiền Lương cơ bản" />
                                 </ModalFormItem>
-
+                                <ModalFormItem>
+                                    <FormSpan>Mức lương Thưởng:</FormSpan>
+                                    <FormInput type="number" onChange={(e) => setPositionBonusSalaryModalNew(parseInt(e.target.value))} placeholder="Nhập vào số tiền Lương thưởng" />
+                                </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleCreateDeviceType(deviceTypeNameModalNew, deviceTypeImageModalNew)}
+                                        onClick={() => handleCreatePosition(positionNameModalNew, positionSalaryModalNew, positionBonusSalaryModalNew)}
                                     >Thêm vào</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -533,40 +409,43 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             </>
         );
     }
-    // =============== Chỉnh sửa danh mục ===============
-    if (type === "updateDeviceType") {
+    // =============== Chỉnh sửa Chức vụ ===============
+    if (type === "updatePosition") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Cập nhật Loại thiết bị</H1>
+                            <H1>Cập nhật Chức vụ nhân viên</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại thiết bị:</FormSpan>
-                                    <FormInput type="text" onChange={(e) => setDeviceTypeNameModal(e.target.value)} value={deviceTypeNameModal} />
+                                    <FormSpan>Tên chức vụ nhân viên:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setPositionNameModal(e.target.value)} value={positionNameModal} />
                                 </ModalFormItem>
                                 <ModalFormItem>
-                                    <FormSpan>Hình ảnh:</FormSpan>
-                                    <FormInput type="file" onChange={(e) => handleChangeImg(e.target.files[0])} />
-                                    <FormImg src={deviceTypeImageModal !== deviceTypeImageModalOld ? deviceTypeImageModal : deviceTypeImageModalOld} key={deviceTypeImageModal}></FormImg>
+                                    <FormSpan>Mức lương cơ bản:</FormSpan>
+                                    <FormInput type="number" onChange={(e) => setPositionSalaryModal(parseInt(e.target.value))} value={positionSalaryModal} />
+                                </ModalFormItem>
+                                <ModalFormItem>
+                                    <FormSpan>Mức lương Thưởng:</FormSpan>
+                                    <FormInput type="number" onChange={(e) => setPositionBonusSalaryModal(parseInt(e.target.value))} value={positionBonusSalaryModal} />
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleUpdateDeviceType(deviceTypeNameModal, deviceTypeImageModal, deviceTypeIdModal)}
+                                        onClick={() => handleUpdatePosition(positionNameModal, positionSalaryModal, positionBonusSalaryModal, positionIdModal)}
                                     >Cập nhật</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleCloseUpdate()}
+                                        onClick={() => setShowModal(prev => !prev)}
                                     >Hủy bỏ</ButtonClick>
                                 </ButtonContainer>
                             </ButtonUpdate>
                             <CloseModalButton
                                 aria-label="Close modal"
-                                onClick={() => handleCloseUpdate()}
+                                onClick={() => setShowModal(prev => !prev)}
                             >
                                 <CloseOutlined />
                             </CloseModalButton>
@@ -576,20 +455,20 @@ const Modal = ({ showModal, setShowModal, type, deviceType, setReRenderData, han
             </>
         );
     }
-    // =============== Xóa danh mục ===============
-    if (type === "deleteDeviceType") {
+    // =============== Xóa Chức vụ ===============
+    if (type === "deletePosition") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ backgroundImage: `url("https://img.freepik.com/free-vector/alert-safety-background_97886-3460.jpg?w=1060")`, backgroundPosition: `center center`, backgroundRepeat: `no-repeat`, backgroundSize: `cover`, width: `600px`, height: `400px` }} >
                             <ModalContent>
-                                <h1>Bạn muốn xóa Loại thiết bị <span style={{ color: `var(--color-primary)` }}>{deviceTypeNameModal}</span> này?</h1>
+                                <h1>Bạn muốn xóa Chức vụ <span style={{ color: `var(--color-primary)` }}>{positionNameModal}</span> này?</h1>
                                 <p>Những thiết bị của loại này cũng sẽ bị xóa</p>
                                 <Button>
                                     <ButtonContainer>
                                         <ButtonClick
-                                            onClick={() => { handleDeleteDeviceType(deviceTypeIdModal) }}
+                                            onClick={() => { handleDeletePosition(positionIdModal) }}
                                         >Đồng ý</ButtonClick>
                                     </ButtonContainer>
                                     <ButtonContainer>

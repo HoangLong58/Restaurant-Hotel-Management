@@ -83,7 +83,7 @@ const ItemRight = styled.div`
     width: 100%;
 `
 
-const ThuCungRight = ({ reRenderData, setReRenderData }) => {
+const RoomRight = ({ reRenderData, setReRenderData }) => {
     // Thứ ngày tháng
     let today = new Date();
     let todayday = today.getDay();
@@ -178,4 +178,4 @@ const ThuCungRight = ({ reRenderData, setReRenderData }) => {
     );
 };
 
-export default ThuCungRight;
+export default RoomRight;

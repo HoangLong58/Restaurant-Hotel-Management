@@ -14,8 +14,8 @@ import ManageRoom from "./pages/ManageRoom";
 import ManageCustomer from "./pages/ManageCustomer";
 import ManageEmployee from "./pages/ManageEmployee";
 import ManagePosition from "./pages/ManagePosition";
+import ManageRoomBooking from "./pages/ManageRoomBooking";
 
-import QuanLyDonHang from "./pages/QuanLyDonHang";
 
 
 const App = () => {
@@ -80,15 +80,15 @@ const App = () => {
                         <ManagePosition />
                     </PrivateRoute>
                 } />
-
-
-
-
-                <Route path='/quanlydonhang' element={
+                <Route path='/manageRoomBooking' element={
                     <PrivateRoute>
-                        <QuanLyDonHang />
+                        <ManageRoomBooking />
                     </PrivateRoute>
                 } />
+
+
+
+
 
                 <Route path='/login' element={admin ? <Navigate to="/" /> : <LoginAdmin />} />
 

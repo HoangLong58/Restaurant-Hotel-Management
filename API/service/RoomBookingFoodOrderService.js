@@ -54,5 +54,27 @@ module.exports = {
                 }
             );
         });
+    },
+    findRoomBookingFoodOrdersByRoomBookingDetailId: (id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                room_booking_food_order_id,
+                room_booking_food_order_state,
+                room_booking_food_order_book_date,
+                room_booking_food_order_note,
+                room_booking_food_order_total,
+                room_booking_detail_id
+                from room_booking_food_order
+                where room_booking_detail_id = ?`,
+                [id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
     }
 };
