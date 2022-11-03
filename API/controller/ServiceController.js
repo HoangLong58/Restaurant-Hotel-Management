@@ -1,5 +1,7 @@
+const { findRoomTypeById } = require("../service/RoomTypeService");
 const { getServices, getAllServices, getQuantityServices, findServiceByIdOrName, findServiceById, createService, updateServiceById, deleteService } = require("../service/ServiceService");
 const { createLogAdmin } = require("../utils/utils");
+const { getAllServiceDetailByRoomTypeId } = require("../service/ServiceDetailService");
 
 module.exports = {
     getServices: (req, res) => {
@@ -273,5 +275,83 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+    // Admin: Quản lý loại phòng - Thêm dịch vụ
+    getAllServiceByRoomTypeId: async (req, res) => {
+        const roomTypeId = parseInt(req.params.roomTypeId);
+        if (!roomTypeId || !Number.isInteger(roomTypeId) || roomTypeId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Loại phòng không hợp lệ!"
+            });
+        }
+        // Kiểm tra tồn tại room type
+        try {
+            const roomTypeRes = await findRoomTypeById(roomTypeId);
+            if (!roomTypeRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find room type!"
+                });
+            }
+            // Lấy những dịch vụ chi tiết của roomId;
+            var serviceOfRoomTypeList = []  // Mảng lưu những chi tiết id của room type này
+            try {
+                const serviceDetailRes = await getAllServiceDetailByRoomTypeId(roomTypeId);
+                if (!serviceDetailRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't delete service!"
+                    });
+                }
+                for (var i = 0; i < serviceDetailRes.length; i++) {
+                    serviceOfRoomTypeList.push(serviceDetailRes[i].service_id);
+                }
+                var finalServiceListExceptThisRoomTypeService = []; //Mảng chứa list tất cả Dịch vụ mà Room type không có
+                try {
+                    const serviceListRes = await getAllServices();
+                    if (!serviceListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get service list!"
+                        });
+                    }
+
+                    for (var i = 0; i < serviceListRes.length; i++) {
+                        if (serviceOfRoomTypeList.includes(serviceListRes[i].service_id)) {
+                            continue;
+                        } else {
+                            finalServiceListExceptThisRoomTypeService.push(serviceListRes[i]);
+                        }
+                    }
+
+                    // Success
+                    return res.status(200).json({
+                        status: "success",
+                        message: "Lấy những dịch vụ mà Room type không có!",
+                        data: finalServiceListExceptThisRoomTypeService
+                    });
+
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when get all service!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when get detail service!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find room type!",
+                error: err
+            });
+        }
+    },
 }

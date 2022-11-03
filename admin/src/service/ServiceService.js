@@ -47,3 +47,9 @@ export const deleteService = async (serviceId) => {
     const res = await axios.delete(`${url_Service}/${serviceId}`);
     return res;
 };
+// Quản lý Loại phòng - Thêm Dịch vụ
+export const getAllServiceByRoomTypeId = async (roomTypeId) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.get(`${url_Service}/get-all-service-by-room-type-id/${roomTypeId}`);
+    return res;
+};

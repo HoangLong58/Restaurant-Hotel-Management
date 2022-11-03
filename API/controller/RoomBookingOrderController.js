@@ -1,6 +1,6 @@
 const { getCustomerByCustomerId, findCustomerByEmailOrPhoneNumber } = require("../service/CustomerService");
 const { updateDiscountState } = require("../service/DiscountService");
-const { createRoomBookingDetail, getRoomBookingDetailByRoomBookingOrderId } = require("../service/RoomBookingDetailService");
+const { createRoomBookingDetail, getRoomBookingDetailByRoomBookingOrderId, updateRoomBookingDetailKeyWhenCheckOutSuccess } = require("../service/RoomBookingDetailService");
 const { createRoomBookingOrder, findRoomBookingOrder, getRoomBookingsAndDetail, getQuantityRoomBookings, findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName, findRoomBookingById, findRoomBookingOrderByIdCheckIn, updateRoomBookingOrderInfoWhenCheckInSuccess, updateRoomBookingOrderState, updateRoomBookingOrderFinishDateWhenCheckOutSuccess } = require("../service/RoomBookingOrderService");
 const { findRoomByRoomId } = require("../service/RoomService");
 const { format_money, createLogAdmin } = require("../utils/utils");
@@ -469,9 +469,14 @@ module.exports = {
                             message: "Ngày Check in đã quá ngày Check out: " + roomBookingDetailRes.room_booking_detail_checkout_date
                         });
                     }
-                    // Cập nhật số cmnd và quốc tịch
+                    // Cập nhật số cmnd và quốc tịch và ngày bắt đầu nhận phòng
+                    // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+                    var todayCheckIn = new Date();
+                    var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+                    var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+                    var startDate = dateCheckIn + ' ' + timeCheckIn;
                     try {
-                        const updateCheckInInfoRes = await updateRoomBookingOrderInfoWhenCheckInSuccess(roomBookingOrderIdentityCard, roomBookingOrderNation, roomBookingOrderId);
+                        const updateCheckInInfoRes = await updateRoomBookingOrderInfoWhenCheckInSuccess(roomBookingOrderIdentityCard, roomBookingOrderNation, startDate, roomBookingOrderId);
                         if (!updateCheckInInfoRes) {
                             return res.status(400).json({
                                 status: "fail",
@@ -567,6 +572,7 @@ module.exports = {
                         message: "Record room booking detail not found"
                     });
                 }
+                var roomBookingDetailId = roomBookingDetailRes.room_booking_detail_id;
                 var dateCheckinRes = new Date(roomBookingDetailRes.room_booking_detail_checkin_date);
                 var dateCheckoutRes = new Date(roomBookingDetailRes.room_booking_detail_checkout_date);
 
@@ -602,28 +608,45 @@ module.exports = {
                             message: "Cann't update room booking finish date when check out success"
                         });
                     }
-                    // Cập nhật state
+
+                    // Cập nhật key trong detail thành null => Để người dùng không đặt được nữa khi Đã check out!
                     try {
-                        const updateStateRes = await updateRoomBookingOrderState(2, roomBookingOrderId);
-                        if (!updateStateRes) {
+                        const updateDetailKeyRes = await updateRoomBookingDetailKeyWhenCheckOutSuccess(null, roomBookingDetailId);
+                        if (!updateDetailKeyRes) {
                             return res.status(400).json({
                                 status: "fail",
-                                message: "Cann't update room booking state when check out success"
+                                message: "Cann't update room booking detail key when check out success"
                             });
                         }
+                        // Cập nhật state
+                        try {
+                            const updateStateRes = await updateRoomBookingOrderState(2, roomBookingOrderId);
+                            if (!updateStateRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't update room booking state when check out success"
+                                });
+                            }
 
-                        createLogAdmin(req, res, " vừa Check out cho Đơn đặt phòng có mã: " + roomBookingOrderId, "UPDATE").then(() => {
-                            // Success
-                            return res.status(200).json({
-                                status: "success",
-                                message: "Check out thành công!"
+                            createLogAdmin(req, res, " vừa Check out cho Đơn đặt phòng có mã: " + roomBookingOrderId, "UPDATE").then(() => {
+                                // Success
+                                return res.status(200).json({
+                                    status: "success",
+                                    message: "Check out thành công!"
+                                });
                             });
-                        });
 
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when update room booking order state when check out success!",
+                                error: err
+                            });
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
-                            message: "Error when update room booking order state when check out success!",
+                            message: "Error when update room booking detail key when check out success!",
                             error: err
                         });
                     }

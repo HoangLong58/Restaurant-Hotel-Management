@@ -1,4 +1,4 @@
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined } from "@mui/icons-material";
+import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined, PostAddOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Toast from "../Toast";
@@ -278,6 +278,18 @@ const EmptyContent = styled.div`
     color: var(--color-primary);
     font-weight: bold;
 `
+const ButtonInfo = styled.button`
+    width: 40px;
+    height: 30px;
+    border: 2px solid var(--color-info);
+    border-radius: var(--border-radius-2);
+    color: var(--color-warnning);
+    background: var(--color-white);
+    padding:0px;
+    outline:none;
+    z-index: 2;
+    cursor: pointer;
+`
 
 const RoomTypeMain = ({ reRenderData, setReRenderData }) => {
     const InputRef = useRef(null);
@@ -397,6 +409,7 @@ const RoomTypeMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Mã Loại phòng</Th>
                             <Th>Tên Loại phòng</Th>
                             <Th>Sao đánh giá</Th>
+                            <Th>Thêm Dịch vụ</Th>
                             <Th>Chỉnh sửa</Th>
                             <Th>Xóa</Th>
                         </Tr>
@@ -404,7 +417,7 @@ const RoomTypeMain = ({ reRenderData, setReRenderData }) => {
                     <Tbody>
                         {noResultFound ? (
                             <Tr>
-                                <Td colSpan={6}>
+                                <Td colSpan={7}>
                                     <EmptyItem>
                                         <EmptyItemSvg>
                                             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
@@ -431,7 +444,7 @@ const RoomTypeMain = ({ reRenderData, setReRenderData }) => {
                         )
                             : isLoading ? (
                                 <Tr>
-                                    <Td colSpan={6} style={{ width: "100%", height: "100px" }}>
+                                    <Td colSpan={7} style={{ width: "100%", height: "100px" }}>
                                         <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             <div
                                                 class="spinner-border"
@@ -453,6 +466,14 @@ const RoomTypeMain = ({ reRenderData, setReRenderData }) => {
                                                 <Td onClick={() => openModal({ type: "detailRoomType", roomType: roomType })}>{roomType.room_type_id}</Td>
                                                 <Td onClick={() => openModal({ type: "detailRoomType", roomType: roomType })}>{roomType.room_type_name}</Td>
                                                 <Td onClick={() => openModal({ type: "detailRoomType", roomType: roomType })}>{roomType.room_type_vote_total}</Td>
+
+                                                <Td className="primary">
+                                                    <ButtonInfo
+                                                        onClick={() => openModal({ type: "addService", roomType: roomType })}
+                                                    >
+                                                        <PostAddOutlined style={{ color: "var(--color-info)" }} />
+                                                    </ButtonInfo>
+                                                </Td>
                                                 <Td className="warning">
                                                     <ButtonFix
                                                         onClick={() => openModal({ type: "updateRoomType", roomType: roomType })}

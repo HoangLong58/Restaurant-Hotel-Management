@@ -423,8 +423,7 @@ const HotelRoomDetail = (props) => {
                                                             return (
                                                                 <ServiceItem className="row">
                                                                     <ServiceIconContainer className="col-lg-3">
-                                                                        {/* service_image */}
-                                                                        <ServiceIcon src={spaIcon} />
+                                                                        <ServiceIcon src={service.service_image} />
                                                                     </ServiceIconContainer>
                                                                     <div className="col-lg-9">
                                                                         <ServiceTitle className="row">
@@ -445,8 +444,7 @@ const HotelRoomDetail = (props) => {
                                                             return (
                                                                 <DeviceItem className="row">
                                                                     <DeviceIconContainer className="col-lg-3">
-                                                                        {/* device.device_type_image */}
-                                                                        <DeviceIcon src={bedIcon} />
+                                                                        <DeviceIcon src={device.device_type_image} />
                                                                     </DeviceIconContainer>
                                                                     <div className="col-lg-9">
                                                                         <DeviceTitle className="row">
@@ -458,7 +456,7 @@ const HotelRoomDetail = (props) => {
                                                                     </div>
                                                                     <DeviceDetailContainer>
                                                                         {/* deice.device_image */}
-                                                                        <DeviceDetailImage src={tiviMoi} />
+                                                                        <DeviceDetailImage src={device.device_image} />
                                                                     </DeviceDetailContainer>
                                                                 </DeviceItem>
                                                             );

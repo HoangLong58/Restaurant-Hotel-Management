@@ -767,7 +767,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                     </InfoItem>
                                                     <InfoItem className="row">
                                                         <InfoTitle className="col-lg-4">Trạng thái: </InfoTitle>
-                                                        <InfoDetail className="col-lg-8" style={{ fontWeight: "bold", color: "var(--color-primary)" }}>{roomBookingOrderModal ? roomBookingOrderModal.room_booking_order_state === 2 ? "Hoàn thành" : roomBookingOrderModal.room_booking_order_state === 1 ? "Đã checkin" : roomBookingOrderModal.room_booking_order_state === 0 ? "Đã đặt" : null : null}</InfoDetail>
+                                                        <InfoDetail className="col-lg-8" style={{ fontWeight: "bold", color: "var(--color-primary)" }}>{roomBookingOrderModal ? roomBookingOrderModal.room_booking_order_state === 2 ? "Hoàn thành lúc: " + roomBookingOrderModal.room_booking_order_finish_date : roomBookingOrderModal.room_booking_order_state === 1 ? "Đã checkin lúc: " + roomBookingOrderModal.room_booking_order_start_date : roomBookingOrderModal.room_booking_order_state === 0 ? "Đã đặt lúc: " + roomBookingOrderModal.room_booking_order_book_date : null : null}</InfoDetail>
                                                     </InfoItem>
                                                 </InforCustomer>
                                                 <LeftImage src={roomBookingOrderModal ? roomBookingOrderModal.room_image_content : null} />

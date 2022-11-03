@@ -80,4 +80,25 @@ module.exports = {
             );
         });
     },
+    // ADMIN: Check out
+    updateRoomBookingDetailKeyWhenCheckOutSuccess: (key, id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update
+                    room_booking_detail 
+                    set room_booking_detail_key = ?
+                    where room_booking_detail_id = ?`,
+                [key, id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        });
+    },
 };

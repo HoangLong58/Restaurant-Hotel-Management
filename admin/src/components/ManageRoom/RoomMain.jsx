@@ -1,4 +1,4 @@
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined } from "@mui/icons-material";
+import { AddToQueueOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, PostAddOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import ReactPaginate from "react-paginate";
 import styled from "styled-components";
@@ -419,6 +419,13 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                         style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
                         {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được khóa" : null}
                     </Td>
+                    <Td className="primary">
+                        <ButtonInfo
+                            onClick={() => openModal({ type: "addDevice", room: room })}
+                        >
+                            <AddToQueueOutlined style={{ color: "var(--color-info)" }} />
+                        </ButtonInfo>
+                    </Td>
                     <Td className="warning">
                         <ButtonFix
                             onClick={() => openModal({ type: "updateRoom", room: room })}
@@ -471,6 +478,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Vị trí</Th>
                             <Th>Giá phòng</Th>
                             <Th>Trạng thái</Th>
+                            <Th>Thêm Thiết bị</Th>
                             <Th>Chỉnh sửa</Th>
                             <Th>Xóa</Th>
                         </Tr>
@@ -478,7 +486,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                     <Tbody>
                         {noResultFound ? (
                             <Tr>
-                                <Td colSpan={11}>
+                                <Td colSpan={12}>
                                     <EmptyItem>
                                         <EmptyItemSvg>
                                             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
@@ -505,7 +513,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                         )
                             : isLoading ? (
                                 <Tr>
-                                    <Td colSpan={11} style={{ width: "100%", height: "100px" }}>
+                                    <Td colSpan={12} style={{ width: "100%", height: "100px" }}>
                                         <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             <div
                                                 class="spinner-border"
@@ -541,6 +549,13 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                                                     onClick={() => openModal({ type: "detailRoom", room: room })}
                                                     style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
                                                     {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được đặt" : null}
+                                                </Td>
+                                                <Td className="primary">
+                                                    <ButtonInfo
+                                                        onClick={() => openModal({ type: "addDevice", room: room })}
+                                                    >
+                                                        <AddToQueueOutlined style={{ color: "var(--color-info)" }} />
+                                                    </ButtonInfo>
                                                 </Td>
                                                 <Td className="warning">
                                                     <ButtonFix

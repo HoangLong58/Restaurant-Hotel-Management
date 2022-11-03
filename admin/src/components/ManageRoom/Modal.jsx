@@ -1,16 +1,15 @@
-import { format_money } from "../../utils/utils";
-import styled from "styled-components";
 import { CloseOutlined } from "@mui/icons-material";
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useCallback, useEffect, useRef, useState } from "react";
-import axios from "axios";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import styled from "styled-components";
 import app from "../../firebase";
 
 // SERVICES
-import * as RoomService from "../../service/RoomService";
-import * as RoomTypeService from "../../service/RoomTypeService";
 import * as FloorService from "../../service/FloorService";
 import * as RoomImageService from "../../service/RoomImageService";
+import * as RoomService from "../../service/RoomService";
+import * as RoomTypeService from "../../service/RoomTypeService";
+
 
 const Background = styled.div`
     width: 100%;
@@ -731,19 +730,25 @@ const Modal = ({ showModal, setShowModal, type, room, setReRenderData, handleClo
                             <H1>Chi tiết Phòng</H1>
                             <ModalForm>
                                 <div className="row">
-                                    <div className="col-lg-4">
+                                    <div className="col-lg-3">
                                         <ModalFormItem style={{ flex: "1" }}>
-                                            <FormSpan>Phòng thuộc Tầng:</FormSpan>
+                                            <FormSpan>Mã của Phòng:</FormSpan>
+                                            <FormInput type="text" value={roomModal ? roomModal.room_id : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-3">
+                                        <ModalFormItem style={{ flex: "1" }}>
+                                            <FormSpan>Thuộc Tầng:</FormSpan>
                                             <FormInput type="text" value={roomModal ? roomModal.floor_name : null} readOnly />
                                         </ModalFormItem>
                                     </div>
-                                    <div className="col-lg-4">
+                                    <div className="col-lg-3">
                                         <ModalFormItem style={{ flex: "1" }}>
-                                            <FormSpan>Phòng thuộc Loại:</FormSpan>
+                                            <FormSpan>Loại Phòng:</FormSpan>
                                             <FormInput type="text" value={roomModal ? roomModal.room_type_name : null} readOnly />
                                         </ModalFormItem>
                                     </div>
-                                    <div className="col-lg-4">
+                                    <div className="col-lg-3">
                                         <ModalFormItem>
                                             <FormSpan>Tên Phòng:</FormSpan>
                                             <FormInput type="text" value={roomModal ? roomModal.room_name : null} readOnly />
