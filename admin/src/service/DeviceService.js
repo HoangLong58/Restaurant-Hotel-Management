@@ -47,3 +47,9 @@ export const deleteDevice = async (deviceTypeId) => {
     const res = await axios.delete(`${url_Device}/${deviceTypeId}`);
     return res;
 };
+// Quản lý Phòng - Thêm Thiết bị
+export const getAllDeviceByDeviceTypeIdAndRoomId = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_Device}/get-all-device-by-device-type-id-and-room-id`, data);
+    return res;
+};

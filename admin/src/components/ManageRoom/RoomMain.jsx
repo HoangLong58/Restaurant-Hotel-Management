@@ -1,4 +1,4 @@
-import { AddToQueueOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, PostAddOutlined } from "@mui/icons-material";
+import { AddToQueueOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, PersonAddOutlined, PostAddOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import ReactPaginate from "react-paginate";
 import styled from "styled-components";
@@ -358,11 +358,13 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
     const [roomModal, setRoomModal] = useState(null);
+    const [roomAddEmployeeModal, setRoomAddEmployeeModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
         setRoomModal(modal.room);
+        setRoomAddEmployeeModal(modal.roomAddEmployee);
     }
 
     // ===== TOAST =====
@@ -403,7 +405,6 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
             return (
                 <Tr>
                     <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{pageNumber * roomPerPage + (key + 1)}</Td>
-                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_id}</Td>
                     <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_type_name}</Td>
                     <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_name}</Td>
                     <Td
@@ -418,6 +419,13 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                         onClick={() => openModal({ type: "detailRoom", room: room })}
                         style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
                         {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được khóa" : null}
+                    </Td>
+                    <Td className="primary">
+                        <ButtonInfo
+                            onClick={() => openModal({ type: "addEmployee", roomAddEmployee: room })}
+                        >
+                            <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                        </ButtonInfo>
                     </Td>
                     <Td className="primary">
                         <ButtonInfo
@@ -470,7 +478,6 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                     <Thead>
                         <Tr>
                             <Th>STT</Th>
-                            <Th>Mã của phòng</Th>
                             <Th>Loại phòng</Th>
                             <Th>Tên phòng</Th>
                             <Th>Hình ảnh</Th>
@@ -478,6 +485,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Vị trí</Th>
                             <Th>Giá phòng</Th>
                             <Th>Trạng thái</Th>
+                            <Th>Thêm Nhân viên</Th>
                             <Th>Thêm Thiết bị</Th>
                             <Th>Chỉnh sửa</Th>
                             <Th>Xóa</Th>
@@ -534,7 +542,6 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                                         return (
                                             <Tr>
                                                 <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{key + 1}</Td>
-                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_id}</Td>
                                                 <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_type_name}</Td>
                                                 <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_name}</Td>
                                                 <Td
@@ -549,6 +556,13 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                                                     onClick={() => openModal({ type: "detailRoom", room: room })}
                                                     style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
                                                     {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được đặt" : null}
+                                                </Td>
+                                                <Td className="primary">
+                                                    <ButtonInfo
+                                                        onClick={() => openModal({ type: "addEmployee", roomAddEmployee: room })}
+                                                    >
+                                                        <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                                                    </ButtonInfo>
                                                 </Td>
                                                 <Td className="primary">
                                                     <ButtonInfo
@@ -599,6 +613,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
                 room={roomModal}  //Dữ liệu bên trong modal
+                roomAddEmployee={roomAddEmployeeModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast

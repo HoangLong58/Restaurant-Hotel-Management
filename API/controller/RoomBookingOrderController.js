@@ -456,7 +456,8 @@ module.exports = {
                     var today = new Date();
                     var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate() + 1);
                     var checkInDate = new Date(date);
-
+                    checkInDate.setHours(-17, 0, 0, 0);
+                    console.log("checkInDate > dateCheckinRes: ", checkInDate > dateCheckinRes, checkInDate, dateCheckinRes)
                     if (checkInDate < dateCheckinRes) {
                         return res.status(400).json({
                             status: "fail",
@@ -580,17 +581,19 @@ module.exports = {
                 var today = new Date();
                 var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate() + 1);
                 var checkOutDate = new Date(date);
+                checkOutDate.setHours(-17, 0, 0, 0);
 
+                console.log("checkOutDate > dateCheckinRes: ", checkOutDate > dateCheckoutRes, checkOutDate, dateCheckoutRes)
                 if (checkOutDate < dateCheckinRes) {
                     return res.status(400).json({
                         status: "fail",
-                        message: "Không thể check in trước ngày " + roomBookingDetailRes.room_booking_detail_checkin_date
+                        message: "Không thể check out trước ngày " + roomBookingDetailRes.room_booking_detail_checkin_date
                     });
                 }
                 if (checkOutDate > dateCheckoutRes) {
                     return res.status(400).json({
                         status: "fail",
-                        message: "Ngày Check in đã quá ngày Check out: " + roomBookingDetailRes.room_booking_detail_checkout_date
+                        message: "Đã quá ngày Check out: " + roomBookingDetailRes.room_booking_detail_checkout_date
                     });
                 }
 

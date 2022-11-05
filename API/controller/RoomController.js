@@ -1,4 +1,4 @@
-const { getRoomByRoomId, getRooms, getRoomsWithTypeAndFloor, getRoomsWithImageTypeFloor, getMinMaxRoomPrice, getRoomWithTypeAndFloorByRoomId, updateRoomState, getAllRooms, getQuantityRooms, findAllRoomByIdOrName, findAllRoomById, createRoom, findNewestRoomByInfo, findRoomByRoomId, updateRoomById, deleteRoom, findRoomsWithImageTypeFloor } = require("../service/RoomService");
+const { getRoomByRoomId, getRooms, getRoomsWithTypeAndFloor, getRoomsWithImageTypeFloor, getMinMaxRoomPrice, getRoomWithTypeAndFloorByRoomId, updateRoomState, getAllRooms, getQuantityRooms, findAllRoomByIdOrName, findAllRoomById, createRoom, findNewestRoomByInfo, findRoomByRoomId, updateRoomById, deleteRoom, findRoomsWithImageTypeFloor, findRoomAndImageWhenAddDeviceByRoomId } = require("../service/RoomService");
 const { getServicesByRoomTypeId } = require("../service/ServiceService");
 const { getDevicesByRoomId } = require("../service/DeviceService");
 const { getRoomImagesByRoomId, createRoomImage, DeleteRoomImagesByRoomId } = require("../service/RoomImageService");
@@ -871,5 +871,37 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+
+    // Admin: Add device
+    findRoomAndImageWhenAddDeviceByRoomId: async (req, res) => {
+        const roomId = parseInt(req.params.roomId);
+        if (!roomId || !Number.isInteger(roomId) || roomId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Room id không hợp lệ!"
+            });
+        }
+        try {
+            const result = await findRoomAndImageWhenAddDeviceByRoomId(roomId);
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Tìm room and image when add device thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi findRoomAndImageWhenAddDeviceByRoomId",
+                error: err
+            });
+        }
+    },
 };

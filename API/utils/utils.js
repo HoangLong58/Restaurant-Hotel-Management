@@ -66,10 +66,20 @@ module.exports = {
                 }
             }
         });
+    },
+    //  Lấy thông tin Admin từ Jwt req
+    getAdminObjectFromJwtRequest: (req) => {
+        const userToken = req.headers.authorization;
+        const token = userToken.split(' ');
 
-
+        var adminFromJwtReq;
+        try {
+            adminFromJwtReq = verify(token[1], process.env.JWT_SEC);
+        } catch (e) {
+            console.log("Lỗi khi lấy adminFromJwtReq: ", e);
+        }
+        return adminFromJwtReq.result;
     }
-
 }
 
 

@@ -1,4 +1,4 @@
-const { createEmployee, getEmployeeByEmployeeId, getEmployees, updateEmployee, deleteEmployee, login, updateEmployeeOtpByEmail, updateEmployeePasswordWhenForgotPassword, updateEmployeePasswordWhenForgotPasswordPhoneNumber, updateEmployeeOtpByPhoneNumber, getQuantityEmployee, getAllEmployees, findEmployeeByIdOrName, findEmployeeById, updateEmployeeStateToDisable, updateEmployeeStateToAble } = require("../controller/EmployeeController");
+const { createEmployee, getEmployeeByEmployeeId, getEmployees, updateEmployee, deleteEmployee, login, updateEmployeeOtpByEmail, updateEmployeePasswordWhenForgotPassword, updateEmployeePasswordWhenForgotPasswordPhoneNumber, updateEmployeeOtpByPhoneNumber, getQuantityEmployee, getAllEmployees, findEmployeeByIdOrName, findEmployeeById, updateEmployeeStateToDisable, updateEmployeeStateToAble, getAllEmployeeByPositionIdAndRoomId } = require("../controller/EmployeeController");
 const router = require("express").Router();
 
 const { checkToken } = require("../auth/TokenValidation");
@@ -18,6 +18,7 @@ router.put("/", checkToken, updateEmployee);    //
 
 router.delete("/:employeeId", checkToken, deleteEmployee);  //
 
+router.post("/get-all-employee-by-position-id-and-room-id", checkToken, getAllEmployeeByPositionIdAndRoomId);   //
 router.post("/find-employee-by-id", checkToken, findEmployeeById);  //
 router.post("/register", createEmployee);
 router.post("/login", login);

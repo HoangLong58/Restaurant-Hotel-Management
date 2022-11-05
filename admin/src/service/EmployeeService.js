@@ -79,3 +79,9 @@ export const updateEmployeeStateToAble = async (data) => {
     const res = await axios.put(`${url_Employee}/undisable-employee`, data);
     return res;
 };
+// Quản lý Phòng - Thêm Nhân viên
+export const getAllEmployeeByPositionIdAndRoomId = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_Employee}/get-all-employee-by-position-id-and-room-id`, data);
+    return res;
+};

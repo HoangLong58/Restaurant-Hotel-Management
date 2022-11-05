@@ -334,4 +334,54 @@ module.exports = {
             );
         });
     },
+
+    // Admin: Quản lý Phòng - Thêm thiết bị
+    updateDeviceStateByDeviceId: (state, id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `update 
+                device 
+                set device_state = ?
+                where device_id = ?`,
+                [state, id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    if (!results) {
+                        return resolve(false);
+                    }
+                    return resolve(true);
+                }
+            );
+        });
+    },
+    getDevicesByDeviceTypeIdAndState0: (id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                d.device_id,
+                d.device_name,
+                d.device_date,
+                d.device_description,
+                d.device_image,
+                d.device_state,
+                d.device_type_id,
+                dt.device_type_name,
+                dt.device_type_image
+                from device d
+                join device_type dt on dt.device_type_id = d.device_type_id
+                where d.device_state = 0
+                and d.device_type_id = ?
+                `,
+                [id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    }
 };

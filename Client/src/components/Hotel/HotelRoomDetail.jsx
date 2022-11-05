@@ -455,48 +455,12 @@ const HotelRoomDetail = (props) => {
                                                                         </DeviceInfo>
                                                                     </div>
                                                                     <DeviceDetailContainer>
-                                                                        {/* deice.device_image */}
                                                                         <DeviceDetailImage src={device.device_image} />
                                                                     </DeviceDetailContainer>
                                                                 </DeviceItem>
                                                             );
                                                         })
                                                     }
-
-                                                    <DeviceItem className="row">
-                                                        <DeviceIconContainer className="col-lg-3">
-                                                            {/* service_image */}
-                                                            <DeviceIcon src={bedIcon} />
-                                                        </DeviceIconContainer>
-                                                        <div className="col-lg-9">
-                                                            <DeviceTitle className="row">
-                                                                <DeviceName>Giường ngủ </DeviceName>
-                                                            </DeviceTitle>
-                                                            <DeviceInfo className="row">
-                                                                <DeviceTime>Giường KING bed</DeviceTime>
-                                                            </DeviceInfo>
-                                                        </div>
-                                                        <DeviceDetailContainer>
-                                                            <DeviceDetailImage src={tiviMoi} />
-                                                        </DeviceDetailContainer>
-                                                    </DeviceItem>
-                                                    <DeviceItem className="row">
-                                                        <DeviceIconContainer className="col-lg-3">
-                                                            {/* service_image */}
-                                                            <DeviceIcon src={bedIcon} />
-                                                        </DeviceIconContainer>
-                                                        <div className="col-lg-9">
-                                                            <DeviceTitle className="row">
-                                                                <DeviceName>Giường ngủ </DeviceName>
-                                                            </DeviceTitle>
-                                                            <DeviceInfo className="row">
-                                                                <DeviceTime>Giường KING bed</DeviceTime>
-                                                            </DeviceInfo>
-                                                        </div>
-                                                        <DeviceDetailContainer>
-                                                            <DeviceDetailImage src={tiviMoi} />
-                                                        </DeviceDetailContainer>
-                                                    </DeviceItem>
                                                 </div>
                                             </div>
                                         </div>

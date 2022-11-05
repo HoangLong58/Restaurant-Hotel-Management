@@ -1,6 +1,7 @@
-const { getDevicesName, getDevicesAndTypeAndDetailAndRoomAndFloor, getQuantityDevices, findDeviceByIdOrName, findDeviceById, createDevice, updateDeviceById, deleteDeviceById } = require("../service/DeviceService");
+const { getDevicesName, getDevicesAndTypeAndDetailAndRoomAndFloor, getQuantityDevices, findDeviceByIdOrName, findDeviceById, createDevice, updateDeviceById, deleteDeviceById, getDevicesByDeviceTypeIdAndState0 } = require("../service/DeviceService");
 const { findDeviceTypeById } = require("../service/DeviceTypeService");
-const { deleteDeviceDetailById } = require("../service/DeviceDetailService");
+const { deleteDeviceDetailById, getAllDeviceDetailByRoomId } = require("../service/DeviceDetailService");
+const { findAllRoomById } = require("../service/RoomService");
 const { createLogAdmin } = require("../utils/utils");
 
 module.exports = {
@@ -376,5 +377,107 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+    // Admin: Quản lý Phòng - Thêm Thiết bị
+    getAllDeviceByDeviceTypeIdAndRoomId: async (req, res) => {
+        const roomId = req.body.roomId;
+        const deviceTypeId = req.body.deviceTypeId;
+        if (!roomId || !Number.isInteger(roomId) || roomId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Phòng không hợp lệ!"
+            });
+        }
+        if (!deviceTypeId || !Number.isInteger(deviceTypeId) || deviceTypeId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Loại thiết bị không hợp lệ!"
+            });
+        }
+        // Kiểm tra tồn tại room
+        try {
+            const roomRes = await findAllRoomById(roomId);
+            if (!roomRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find room!"
+                });
+            }
+            // Kiểm tra tồn tại deviceType 
+            try {
+                const deviceTypeRes = await findDeviceTypeById(deviceTypeId);
+                if (!deviceTypeRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find device type!"
+                    });
+                }
+                // Lấy tất cả device detail của room
+                var deviceOfRoomTypeList = []  // Mảng lưu những chi tiết thiết bị id của room này
+                try {
+                    const deviceDetailListRes = await getAllDeviceDetailByRoomId(roomId);
+                    if (!deviceDetailListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find device detail list of room!"
+                        });
+                    }
+                    for (var i = 0; i < deviceDetailListRes.length; i++) {
+                        deviceOfRoomTypeList.push(deviceDetailListRes[i].device_id);
+                    }
+                    var finalDeviceListExceptThisRoomDevice = []; //Mảng chứa list tất cả Thiết bị mà Room type không có
+                    // Lấy tất cả Thiết bị mà chưa phòng nào dùng (State 0) và Không chứa thiết bị cùa Phòng hiện tại
+                    try {
+                        const deviceDetailListRes = await getDevicesByDeviceTypeIdAndState0(deviceTypeId);
+                        if (!deviceDetailListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find device detail list of room!"
+                            });
+                        }
+
+                        for (var i = 0; i < deviceDetailListRes.length; i++) {
+                            if (deviceOfRoomTypeList.includes(deviceDetailListRes[i].device_id)) {
+                                continue;
+                            } else {
+                                finalDeviceListExceptThisRoomDevice.push(deviceDetailListRes[i]);
+                            }
+                        }
+
+                        // Success
+                        return res.status(200).json({
+                            status: "success",
+                            message: "Lấy những Thiết bi mà Phòng chưa có thành công!",
+                            data: finalDeviceListExceptThisRoomDevice
+                        });
+
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when find device detail list of room!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when find device detail list of room!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when find device type!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find room!",
+                error: err
+            });
+        }
+    },
 }

@@ -1,6 +1,7 @@
 const con = require("../config/database.config");
 
 module.exports = {
+    // Admin: Quản lý Loại phòng - Thêm dịch vụ
     getAllServiceDetails: () => {
         return new Promise((resolve, reject) => {
             con.query(

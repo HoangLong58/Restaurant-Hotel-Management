@@ -47,3 +47,9 @@ export const deleteRoom = async (roomId) => {
     const res = await axios.delete(`${url_Room}/${roomId}`);
     return res;
 };
+// Quản lý Phòng - Khách sạn - Thêm dịch vụ
+export const findRoomAndImageWhenAddDeviceByRoomId = async (roomId) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.get(`${url_Room}/find-room-when-add-device-by-room-id/${roomId}`);
+    return res;
+};

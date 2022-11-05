@@ -1,4 +1,4 @@
-const { createEmployee, getEmployeeByEmployeeId, getEmployees, updateEmployee, deleteEmployee, getEmployeeByEmail, checkEmailUnit, checkPhoneNumberUnit, getEmployeeByEmailOrPhoneNumber, findEmployeeByEmail, updateEmployeeOtpByEmail, updateEmployeePasswordByEmployeeId, findEmployeeByPhoneNumber, updateEmployeeOtpByPhoneNumber, getAllEmployees, getQuantityEmployees, findEmployeeByIdOrName, findEmployeeById, checkEmployeeEmailUnit, checkEmployeePhoneNumberUnit, updateEmployeeById, checkUpdateEmployeeEmailUnit, checkUpdateEmployeePhoneNumberUnit, updateEmployeeNoPasswordById, updateEmployeeWithPasswordById, updateEmployeeStateById } = require("../service/EmployeeService");
+const { createEmployee, getEmployeeByEmployeeId, getEmployees, updateEmployee, deleteEmployee, getEmployeeByEmail, checkEmailUnit, checkPhoneNumberUnit, getEmployeeByEmailOrPhoneNumber, findEmployeeByEmail, updateEmployeeOtpByEmail, updateEmployeePasswordByEmployeeId, findEmployeeByPhoneNumber, updateEmployeeOtpByPhoneNumber, getAllEmployees, getQuantityEmployees, findEmployeeByIdOrName, findEmployeeById, checkEmployeeEmailUnit, checkEmployeePhoneNumberUnit, updateEmployeeById, checkUpdateEmployeeEmailUnit, checkUpdateEmployeePhoneNumberUnit, updateEmployeeNoPasswordById, updateEmployeeWithPasswordById, updateEmployeeStateById, findAllEmployeeWithStateActiveByPositionId } = require("../service/EmployeeService");
 const { findPositionById } = require("../service/PositionService");
 
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
@@ -12,6 +12,8 @@ const client = require('twilio')(accountSid, authToken);
 
 // NODE Mailer
 var nodemailer = require('nodemailer');
+const { findAllRoomById } = require("../service/RoomService");
+const { getAllRoomEmployeeByRoomId } = require("../service/RoomEmployeeService");
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -1025,6 +1027,108 @@ module.exports = {
             return res.status(400).json({
                 status: "fail",
                 message: "Error when find employee!",
+                error: err
+            });
+        }
+    },
+    // Admin: Quản lý Phòng - Thêm Nhân viên
+    getAllEmployeeByPositionIdAndRoomId: async (req, res) => {
+        const roomId = req.body.roomId;
+        const positionId = req.body.positionId;
+        if (!roomId || !Number.isInteger(roomId) || roomId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Phòng không hợp lệ!"
+            });
+        }
+        if (!positionId || !Number.isInteger(positionId) || positionId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Chức vụ không hợp lệ!"
+            });
+        }
+        // Kiểm tra tồn tại room
+        try {
+            const roomRes = await findAllRoomById(roomId);
+            if (!roomRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find room!"
+                });
+            }
+            // Kiểm tra tồn tại position 
+            try {
+                const positionRes = await findPositionById(positionId);
+                if (!positionRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find position!"
+                    });
+                }
+                // Lấy tất cả room employee của room
+                var employeeOfRoomList = []  // Mảng lưu những nhân viên id của room này
+                try {
+                    const roomEmployeeListRes = await getAllRoomEmployeeByRoomId(roomId);
+                    if (!roomEmployeeListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find room employee list of room!"
+                        });
+                    }
+                    for (var i = 0; i < roomEmployeeListRes.length; i++) {
+                        employeeOfRoomList.push(roomEmployeeListRes[i].employee_id);
+                    }
+                    var finalEmployeeListExceptThisRoomEmployee = []; //Mảng chứa list tất cả Nhân vien mà Room không có
+                    // Lấy tất cả Nhân viên và Không chứa nhân viên cùa Phòng hiện tại
+                    try {
+                        const employeeListRes = await findAllEmployeeWithStateActiveByPositionId(positionId);
+                        if (!employeeListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find employee list of room!"
+                            });
+                        }
+
+                        for (var i = 0; i < employeeListRes.length; i++) {
+                            if (employeeOfRoomList.includes(employeeListRes[i].employee_id)) {
+                                continue;
+                            } else {
+                                finalEmployeeListExceptThisRoomEmployee.push(employeeListRes[i]);
+                            }
+                        }
+
+                        // Success
+                        return res.status(200).json({
+                            status: "success",
+                            message: "Lấy những Nhân viên mà Phòng chưa có thành công!",
+                            data: finalEmployeeListExceptThisRoomEmployee
+                        });
+
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when find employee list of room!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when find room employee list of room!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when find position!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find room!",
                 error: err
             });
         }

@@ -595,4 +595,35 @@ module.exports = {
             );
         });
     },
+    //Admin: Quản lý Phòng - Thêm Nhân viên
+    findAllEmployeeWithStateActiveByPositionId: (positionId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                employee_id, 
+                employee_first_name,
+                employee_last_name, 
+                employee_birthday,
+                employee_gender, 
+                employee_phone_number, 
+                employee_email, 
+                employee_password, 
+                employee_image, 
+                employee_state, 
+                employee_otp,
+                position_id 
+                from employee
+                where position_id = ?
+                and employee_state = 'ACTIVE'
+                `,
+                [positionId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        })
+    },
 };
