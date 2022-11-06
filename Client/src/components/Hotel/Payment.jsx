@@ -814,11 +814,11 @@ const Payment = (props) => {
     if (discountRoomBooking) {
       const discountPercent = discountRoomBooking.discount_percent;
       dispatch(addRoomTotal({
-        roomTotal: roomPrice * (checkoutDateRoomBooking - checkinDateRoomBooking)/ (24*60*60*1000) - (roomPrice * (checkoutDateRoomBooking - checkinDateRoomBooking)/ (24*60*60*1000) * discountPercent / 100)
+        roomTotal: roomPrice * (checkoutDateRoomBooking - checkinDateRoomBooking) / (24 * 60 * 60 * 1000) - (roomPrice * (checkoutDateRoomBooking - checkinDateRoomBooking) / (24 * 60 * 60 * 1000) * discountPercent / 100)
       }));
     } else {
       dispatch(addRoomTotal({
-        roomTotal: roomPrice * (checkoutDateRoomBooking - checkinDateRoomBooking)/ (24*60*60*1000)
+        roomTotal: roomPrice * (checkoutDateRoomBooking - checkinDateRoomBooking) / (24 * 60 * 60 * 1000)
       }));
     }
   }, [roomPrice, discountRoomBooking]);

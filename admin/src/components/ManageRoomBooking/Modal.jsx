@@ -1,14 +1,14 @@
-import { format_money } from "../../utils/utils";
-import styled from "styled-components";
 import { CloseOutlined } from "@mui/icons-material";
+import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import axios from "axios";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import app from "../../firebase";
+import styled from "styled-components";
 
 // SERVICES
-import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
 import * as RoomBookingFoodDetailService from "../../service/RoomBookingFoodDetailService";
+import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
+import * as CityService from "../../service/CityService";
+import * as DistrictService from "../../service/DistrictService";
+import * as WardService from "../../service/WardService";
 
 const Background = styled.div`
     width: 100%;
@@ -262,7 +262,7 @@ const LeftVoteItem = styled.div`
 const LeftImage = styled.img`
     margin: auto;
     width: 95%;
-    max-height: 150px;
+    max-height: 90px;
     object-fit: cover;
     border-radius: 20px;
 `
@@ -473,6 +473,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
         setRoomBookingOrderPhoneNumberModal();
         setRoomBookingOrderEmailModal();
         setRoomBookingOrderNationModal();
+        setRoomBookingOrderAddressModal();
         setRoomBookingOrderFirstNameModal();
         setRoomBookingOrderLastNameModal();
     }, [showModal]);
@@ -513,8 +514,52 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
     const [roomBookingOrderPhoneNumberModal, setRoomBookingOrderPhoneNumberModal] = useState();
     const [roomBookingOrderEmailModal, setRoomBookingOrderEmailModal] = useState();
     const [roomBookingOrderNationModal, setRoomBookingOrderNationModal] = useState();
+    const [roomBookingOrderAddressModal, setRoomBookingOrderAddressModal] = useState();
     const [roomBookingOrderFirstNameModal, setRoomBookingOrderFirstNameModal] = useState();
     const [roomBookingOrderLastNameModal, setRoomBookingOrderLastNameModal] = useState();
+
+    // TỈNH - HUYỆN - XÃ
+    const [roomBookingOrderCityIdModal, setRoomBookingOrderCityIdModal] = useState("");
+    const [roomBookingOrderDistrictIdModal, setRoomBookingOrderDistrictIdModal] = useState("");
+    const [roomBookingOrderWardIdModal, setRoomBookingOrderWardIdModal] = useState("");
+
+    const [roomBookingOrderCityListModal, setRoomBookingOrderCityListModal] = useState([]);
+    const [roomBookingOrderDistrictListModal, setRoomBookingOrderDistrictListModal] = useState([]);
+    const [roomBookingOrderWardListModal, setRoomBookingOrderWardListModal] = useState([]);
+
+    useEffect(() => {
+        const getCityList = async () => {
+            const cityRes = await CityService.getAllCitys();
+            setRoomBookingOrderCityListModal(cityRes.data.data);
+            console.log("Tỉnh TPUpdate [res]: ", roomBookingOrderCityListModal);
+        }
+        getCityList();
+
+        setRoomBookingOrderDistrictListModal([]);
+        setRoomBookingOrderWardListModal([]);
+
+        setRoomBookingOrderWardIdModal('');
+        setRoomBookingOrderCityIdModal('');
+        setRoomBookingOrderDistrictIdModal('');
+    }, [showModal])
+
+    useEffect(() => {
+        const getDistrictList = async () => {
+            const districtRes = await DistrictService.getAllDistrictsByCityId(roomBookingOrderCityIdModal)
+            setRoomBookingOrderDistrictListModal(districtRes.data.data);
+            console.log("Quận huyện Update [res]: ", roomBookingOrderDistrictListModal);
+        }
+        getDistrictList();
+    }, [roomBookingOrderCityIdModal])
+
+    useEffect(() => {
+        const getWardList = async () => {
+            const wardRes = await WardService.getAllWardByDistrictId(roomBookingOrderDistrictIdModal)
+            setRoomBookingOrderWardListModal(wardRes.data.data);
+            console.log("Xã phường Update res: ", roomBookingOrderWardListModal);
+        }
+        getWardList();
+    }, [roomBookingOrderDistrictIdModal])
 
     const handleChangeIdentityCard = (e) => {
         const resultKey = e.target.value.replace(/[^0-9 ]/gi, '');
@@ -534,6 +579,9 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
         const resultNation = e.target.value.replace(/[`~!#$%^&*()|+\-=?;:'",<>\{\}\[\]\\\/0-9]/gi, '');
         setRoomBookingOrderNationModal(resultNation);
     }
+    const handleChangeAddress = (e) => {
+        setRoomBookingOrderAddressModal(e.target.value);
+    }
     const handleChangeFirstName = (e) => {
         // Được nhập @ và . nhưng kí tự đb khác thì không
         const resultFirstName = e.target.value.replace(/[`~!#$%^&*()|+\-=?;:'",<>\{\}\[\]\\\/0-9]/gi, '');
@@ -552,6 +600,8 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
         customerPhoneNumber,
         roomBookingOrderIdentityCard,
         roomBookingOrderNation,
+        roomBookingOrderAddress,
+        roomBookingOrderWardId,
         roomBookingOrderId
     ) => {
         try {
@@ -562,6 +612,8 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                 customerPhoneNumber: customerPhoneNumber,
                 roomBookingOrderIdentityCard: roomBookingOrderIdentityCard,
                 roomBookingOrderNation: roomBookingOrderNation,
+                roomBookingOrderAddress: roomBookingOrderAddress,
+                roomBookingOrderWardId: roomBookingOrderWardId,
                 roomBookingOrderId: roomBookingOrderId
             });
             if (!checkInRes) {
@@ -616,6 +668,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
     }
 
     console.log("SHOW: ", roomBookingOrderModal, roomBookingFoodDetailListModal);
+    console.log("Ward: ", roomBookingOrderWardIdModal);
     // ================================================================
     //  =============== Checkin ===============
     if (type === "checkin") {
@@ -654,13 +707,121 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                         onChange={(e) => handleChangeIdentityCard(e)} />
                                 </ModalFormItem>
                                 <ModalFormItem>
-                                    <FormSpan>Quốc tịch:</FormSpan>
-                                    <FormInput type="text"
-                                        placeholder="Quốc tịch của Khách hàng"
-                                        value={roomBookingOrderNationModal}
-                                        onChange={(e) => handleChangeNation(e)}
-                                    />
+                                    <div className="row">
+                                        <div className="col-lg-6" style={{ display: "flex", flexDirection: "column" }}>
+                                            <FormSpan>Quốc tịch:</FormSpan>
+                                            <FormInput type="text"
+                                                placeholder="Quốc tịch của Khách hàng"
+                                                value={roomBookingOrderNationModal}
+                                                onChange={(e) => handleChangeNation(e)}
+                                            />
+                                        </div>
+                                        <div className="col-lg-6" style={{ display: "flex", flexDirection: "column" }}>
+                                            <FormSpan>Địa chỉ:</FormSpan>
+                                            <FormInput type="text"
+                                                placeholder="Địa chỉ của Khách hàng"
+                                            value={roomBookingOrderAddressModal}
+                                            onChange={(e) => handleChangeAddress(e)}
+                                            />
+                                        </div>
+                                    </div>
                                 </ModalFormItem>
+
+                                <ModalFormItem>
+                                    <div className="row">
+                                        <div className="col-lg-4" style={{ display: "flex", flexDirection: "column" }}>
+                                            <FormSpan>Thuộc Thành phố:</FormSpan>
+                                            <Box sx={{ minWidth: 120, margin: "5px 0" }}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel id="demo-simple-select-label"></InputLabel>
+                                                    <Select
+                                                        labelId="demo-simple-select-label"
+                                                        id="demo-simple-select"
+                                                        value={roomBookingOrderCityIdModal}
+                                                        label="Age"
+                                                        sx={{
+                                                            '& legend': { display: 'none' },
+                                                            '& fieldset': { top: 0 }
+                                                        }}
+                                                        onChange={(e) => setRoomBookingOrderCityIdModal(e.target.value)}
+                                                    >
+                                                        <MenuItem value="">-- Chọn thành phố --</MenuItem>
+                                                        {roomBookingOrderCityListModal.length > 0
+                                                            ?
+                                                            roomBookingOrderCityListModal.map((city, key) => {
+                                                                return (
+                                                                    <MenuItem value={city.city_id}> {city.city_name} </MenuItem>
+                                                                )
+                                                            }) : null
+                                                        }
+                                                    </Select>
+                                                </FormControl>
+                                            </Box>
+                                        </div>
+                                        <div className="col-lg-4" style={{ display: "flex", flexDirection: "column" }}>
+                                            <FormSpan>Thuộc Quận, huyện:</FormSpan>
+                                            <Box sx={{ minWidth: 120, margin: "5px 0" }}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel id="demo-simple-select-label"></InputLabel>
+                                                    <Select
+                                                        labelId="demo-simple-select-label"
+                                                        id="demo-simple-select"
+                                                        value={roomBookingOrderDistrictIdModal}
+                                                        label="Age"
+                                                        sx={{
+                                                            '& legend': { display: 'none' },
+                                                            '& fieldset': { top: 0 }
+                                                        }}
+                                                        onChange={(e) => setRoomBookingOrderDistrictIdModal(e.target.value)}
+                                                    >
+                                                        {
+                                                            roomBookingOrderDistrictListModal.length > 0
+                                                                ?
+                                                                roomBookingOrderDistrictListModal.map((district, key) => {
+                                                                    return (
+                                                                        <MenuItem value={district.district_id}> {district.district_name} </MenuItem>
+                                                                    )
+                                                                })
+                                                                :
+                                                                <MenuItem value="">-- Bạn chưa chọn Thành phố -- </MenuItem>
+                                                        }
+                                                    </Select>
+                                                </FormControl>
+                                            </Box>
+                                        </div>
+                                        <div className="col-lg-4" style={{ display: "flex", flexDirection: "column" }}>
+                                            <FormSpan>Thuộc Xã:</FormSpan>
+                                            <Box sx={{ minWidth: 120, margin: "5px 0" }}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel id="demo-simple-select-label"></InputLabel>
+                                                    <Select
+                                                        labelId="demo-simple-select-label"
+                                                        id="demo-simple-select"
+                                                        value={roomBookingOrderWardIdModal}
+                                                        label="Age"
+                                                        sx={{
+                                                            '& legend': { display: 'none' },
+                                                            '& fieldset': { top: 0 }
+                                                        }}
+                                                        onChange={(e) => setRoomBookingOrderWardIdModal(e.target.value)}
+                                                    >    {
+                                                            roomBookingOrderWardListModal.length > 0
+                                                                ?
+                                                                roomBookingOrderWardListModal.map((ward, key) => {
+                                                                    return (
+                                                                        <MenuItem value={ward.ward_id}> {ward.ward_name} </MenuItem>
+                                                                    )
+                                                                })
+                                                                :
+                                                                <MenuItem value="">-- Bạn chưa chọn Quận huyện -- </MenuItem>
+                                                        }
+                                                    </Select>
+                                                </FormControl>
+                                            </Box>
+                                        </div>
+                                    </div>
+                                </ModalFormItem>
+
                                 <ModalFormItem>
                                     <FormSpan>Email Khách hàng:</FormSpan>
                                     <FormInput type="text"
@@ -687,6 +848,8 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                             roomBookingOrderPhoneNumberModal,
                                             roomBookingOrderIdentityCardModal,
                                             roomBookingOrderNationModal,
+                                            roomBookingOrderAddressModal,
+                                            roomBookingOrderWardIdModal,
                                             roomBookingOrderIdModal
                                         )}
                                     >Check in</ButtonClick>
@@ -796,6 +959,10 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                     <InfoItem className="row">
                                                         <InfoTitle className="col-lg-4">Quốc tịch: </InfoTitle>
                                                         <InfoDetail className="col-lg-8">{roomBookingOrderModal ? roomBookingOrderModal.room_booking_order_state === 0 ? "Chưa Checkin" : roomBookingOrderModal.room_booking_order_nation : null}</InfoDetail>
+                                                    </InfoItem>
+                                                    <InfoItem className="row">
+                                                        <InfoTitle className="col-lg-4">Địa chỉ: </InfoTitle>
+                                                        <InfoDetail className="col-lg-8">{roomBookingOrderModal ? roomBookingOrderModal.room_booking_order_state === 0 ? "Chưa Checkin" : roomBookingOrderModal.room_booking_order_address + ", " + roomBookingOrderModal.ward_name + ", " + roomBookingOrderModal.district_name + ", " + roomBookingOrderModal.city_name : null}</InfoDetail>
                                                     </InfoItem>
                                                     <InfoItem className="row">
                                                         <InfoTitle className="col-lg-4">Email: </InfoTitle>

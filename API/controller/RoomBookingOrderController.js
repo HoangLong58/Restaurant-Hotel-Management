@@ -7,6 +7,7 @@ const { format_money, createLogAdmin } = require("../utils/utils");
 
 // NODE Mailer
 var nodemailer = require('nodemailer');
+const { getWardByWardId } = require("../service/WardService");
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -353,6 +354,8 @@ module.exports = {
         const customerPhoneNumber = req.body.customerPhoneNumber;
         const roomBookingOrderIdentityCard = req.body.roomBookingOrderIdentityCard;
         const roomBookingOrderNation = req.body.roomBookingOrderNation;
+        const roomBookingOrderAddress = req.body.roomBookingOrderAddress;
+        const roomBookingOrderWardId = req.body.roomBookingOrderWardId;
         const roomBookingOrderId = req.body.roomBookingOrderId;
 
         if (!customerFirstName) {
@@ -389,6 +392,18 @@ module.exports = {
             return res.status(400).json({
                 status: "fail",
                 message: "Quốc tịch của khách hàng không hợp lệ!"
+            });
+        }
+        if (!roomBookingOrderAddress) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Địa chỉ của khách hàng không hợp lệ!"
+            });
+        }
+        if (!roomBookingOrderWardId || roomBookingOrderWardId === '' || roomBookingOrderWardId === undefined || roomBookingOrderWardId === null) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Xã phường của khách hàng không hợp lệ!"
             });
         }
         if (!roomBookingOrderId || !Number.isInteger(roomBookingOrderId) || roomBookingOrderId < 0) {
@@ -470,49 +485,65 @@ module.exports = {
                             message: "Ngày Check in đã quá ngày Check out: " + roomBookingDetailRes.room_booking_detail_checkout_date
                         });
                     }
-                    // Cập nhật số cmnd và quốc tịch và ngày bắt đầu nhận phòng
-                    // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
-                    var todayCheckIn = new Date();
-                    var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
-                    var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
-                    var startDate = dateCheckIn + ' ' + timeCheckIn;
+                    // Tìm Xã phường có tồn tại không
                     try {
-                        const updateCheckInInfoRes = await updateRoomBookingOrderInfoWhenCheckInSuccess(roomBookingOrderIdentityCard, roomBookingOrderNation, startDate, roomBookingOrderId);
-                        if (!updateCheckInInfoRes) {
+                        const wardRes = await getWardByWardId(roomBookingOrderWardId);
+                        if (!wardRes) {
                             return res.status(400).json({
                                 status: "fail",
-                                message: "Cann't update room booking info when check in success"
+                                message: "Cann't find ward"
                             });
                         }
-                        // Cập nhật state
+                        // Cập nhật số cmnd và quốc tịch và ngày bắt đầu nhận phòng
+                        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+                        var todayCheckIn = new Date();
+                        var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+                        var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+                        var startDate = dateCheckIn + ' ' + timeCheckIn;
                         try {
-                            const updateStateRes = await updateRoomBookingOrderState(1, roomBookingOrderId);
-                            if (!updateStateRes) {
+                            const updateCheckInInfoRes = await updateRoomBookingOrderInfoWhenCheckInSuccess(roomBookingOrderIdentityCard, roomBookingOrderNation, roomBookingOrderAddress, roomBookingOrderWardId, startDate, roomBookingOrderId);
+                            if (!updateCheckInInfoRes) {
                                 return res.status(400).json({
                                     status: "fail",
-                                    message: "Cann't update room booking state when check in success"
+                                    message: "Cann't update room booking info when check in success"
                                 });
                             }
+                            // Cập nhật state
+                            try {
+                                const updateStateRes = await updateRoomBookingOrderState(1, roomBookingOrderId);
+                                if (!updateStateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't update room booking state when check in success"
+                                    });
+                                }
 
-                            createLogAdmin(req, res, " vừa Check in cho Đơn đặt phòng có mã: " + roomBookingOrderId, "UPDATE").then(() => {
-                                // Success
-                                return res.status(200).json({
-                                    status: "success",
-                                    message: "Check in thành công!"
+                                createLogAdmin(req, res, " vừa Check in cho Đơn đặt phòng có mã: " + roomBookingOrderId, "UPDATE").then(() => {
+                                    // Success
+                                    return res.status(200).json({
+                                        status: "success",
+                                        message: "Check in thành công!"
+                                    });
                                 });
-                            });
 
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when update room booking order state when check in success!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
-                                message: "Error when update room booking order state when check in success!",
+                                message: "Error when update room booking order info when check in success!",
                                 error: err
                             });
                         }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
-                            message: "Error when update room booking order info when check in success!",
+                            message: "Error when find ward!",
                             error: err
                         });
                     }

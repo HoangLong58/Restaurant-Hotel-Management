@@ -149,5 +149,5 @@ export const getQuantityFromDayToDay = (dayAgo, dayTo) => {
 // Đổi tiền tệ VNĐ to USA
 export const traceCurrency = (moneyVND) => {
     const moneyUSA = moneyVND / TRACE_VND_USA;
-    return Math.round(moneyUSA * 100) / 100;
+    return Math.round(moneyUSA);
 };

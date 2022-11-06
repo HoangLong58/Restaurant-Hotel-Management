@@ -410,6 +410,8 @@ module.exports = {
                 rbo.room_booking_order_note,
                 rbo.room_booking_order_identity_card,
                 rbo.room_booking_order_nation,
+                rbo.room_booking_order_address,
+                rbo.ward_id,
                 rbo.room_booking_order_total,
                 rbo.room_booking_order_state,
                 rbo.customer_id,
@@ -428,7 +430,10 @@ module.exports = {
                 r.room_name,
                 rt.room_type_name,
                 ri.room_image_content,
-                f.floor_name
+                f.floor_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name
                 from room_booking_order rbo
                 join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
                 join customer c on rbo.customer_id = c.customer_id
@@ -437,6 +442,9 @@ module.exports = {
                 join room_type rt on r.room_type_id = rt.room_type_id
                 join floor f on r.floor_id = f.floor_id 
                 join room_image ri on ri.room_id = r.room_id
+                left join ward w on rbo.ward_id = w.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
                 where rbo.room_booking_order_id = ?
                 group by rbd.room_id`,
                 [id],
@@ -478,16 +486,18 @@ module.exports = {
             );
         });
     },
-    updateRoomBookingOrderInfoWhenCheckInSuccess: (identityCard, nation, date, id) => {
+    updateRoomBookingOrderInfoWhenCheckInSuccess: (identityCard, nation, address, wardId, date, id) => {
         return new Promise((resolve, reject) => {
             con.query(
                 `update
                 room_booking_order 
                 set room_booking_order_identity_card = ?,
                 room_booking_order_nation = ?,
+                room_booking_order_address = ?,
+                ward_id = ?,
                 room_booking_order_start_date = ?
                 where room_booking_order_id = ?`,
-                [identityCard, nation, date, id],
+                [identityCard, nation, address, wardId, date, id],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);
