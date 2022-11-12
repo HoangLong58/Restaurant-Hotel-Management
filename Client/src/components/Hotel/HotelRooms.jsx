@@ -711,7 +711,7 @@ const HotelRooms = () => {
                                             </div>
                                         </div>
                                         <div className="col-12 pt-5">
-                                            <h6 className="color-white mb-3">Max night price:</h6>
+                                            <h6 className="color-white mb-3">Giá tối đa /1 đêm:</h6>
                                             <div className="selecteurPrix">
                                                 <div className="range-slider">
                                                     <input className="input-range" type="range" min={minRoomPrice} max={maxRoomPrice} value={maxPrice} onChange={(e) => setMaxPrice(parseInt(e.target.value))} />
@@ -751,7 +751,7 @@ const HotelRooms = () => {
                                             </ul>
                                         </div> */}
                                         <div className="col-12 col-md-6 col-lg-12 pt-5">
-                                            <h6 className="color-white mb-3">Extra services:</h6>
+                                            <h6 className="color-white mb-3">Gồm Những Dịch vụ:</h6>
                                             <ul className="list">
                                                 {
                                                     servicesList ?

@@ -1,7 +1,7 @@
 const { getCustomerByCustomerId, findCustomerByEmailOrPhoneNumber } = require("../service/CustomerService");
 const { updateDiscountState } = require("../service/DiscountService");
 const { createRoomBookingDetail, getRoomBookingDetailByRoomBookingOrderId, updateRoomBookingDetailKeyWhenCheckOutSuccess } = require("../service/RoomBookingDetailService");
-const { createRoomBookingOrder, findRoomBookingOrder, getRoomBookingsAndDetail, getQuantityRoomBookings, findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName, findRoomBookingById, findRoomBookingOrderByIdCheckIn, updateRoomBookingOrderInfoWhenCheckInSuccess, updateRoomBookingOrderState, updateRoomBookingOrderFinishDateWhenCheckOutSuccess } = require("../service/RoomBookingOrderService");
+const { createRoomBookingOrder, findRoomBookingOrder, getRoomBookingsAndDetail, getQuantityRoomBookings, findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName, findRoomBookingById, findRoomBookingOrderByIdCheckIn, updateRoomBookingOrderInfoWhenCheckInSuccess, updateRoomBookingOrderState, updateRoomBookingOrderFinishDateWhenCheckOutSuccess, getRoomBookingTotalByDate, getDistinctDateInRoomBookingOrderFromDateToDate, getRoomBookingTotalByMonth, getLimitRoomBookingTotalOfCityForEachQuarter, getRoomBookingOrderByCityId, getRoomBookingTotalOfCityByDateAndLimitAsc, getRoomBookingTotalOfCityByDateAndAsc, getRoomBookingTotalOfCityByDateAndLimitDesc, getRoomBookingTotalOfCityByDateAndDesc, getRoomBookingTotalOfCityByMonthAndLimitAsc, getRoomBookingTotalOfCityByMonthAndAsc, getRoomBookingTotalOfCityByMonthAndDesc, getRoomBookingTotalOfCityByMonthAndLimitDesc, getRoomBookingTotalOfCityByQuarter1AnCityId, getRoomBookingTotalOfCityByQuarter2AnCityId, getRoomBookingTotalOfCityByQuarter3AnCityId, getRoomBookingTotalOfCityByQuarter4AnCityId, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getRoomBookingTotalOfCityByDateByListDate, getRoomBookingTotalOfCityByDateByListDateNoLimit } = require("../service/RoomBookingOrderService");
 const { findRoomByRoomId } = require("../service/RoomService");
 const { format_money, createLogAdmin } = require("../utils/utils");
 
@@ -705,5 +705,1072 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+
+    // Admin: Quản lý đặt phòng - Thống kê doanh thu
+    getStatisticRoomBookingTotalByDate: async (req, res) => {
+        const dateFrom = req.body.dateFrom;
+        const dateTo = req.body.dateTo;
+        const sortWay = req.body.sortWay;
+        if (!dateFrom) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày bắt đầu thống kê không hợp lệ!"
+            });
+        }
+        if (!dateTo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày kết thúc thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        // Lấy ngày trong room booking từ dateFrom đến dateTo
+        try {
+            const fromDateToDateListRes = await getDistinctDateInRoomBookingOrderFromDateToDate(dateFrom, dateTo);
+            if (!fromDateToDateListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get date list"
+                });
+            }
+
+            let finalArray = [];
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            for (var i = 0; i < fromDateToDateListRes.length; i++) {
+                const date = fromDateToDateListRes[i].finishDate;
+                // Lấy doanh thu theo ngày
+                try {
+                    const totalRes = await getRoomBookingTotalByDate(date);
+                    if (!totalRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find room booking total by date"
+                        });
+                    }
+                    finalArray.push({
+                        date: date,
+                        data: totalRes.total
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when statist by date!",
+                        error: err
+                    });
+                }
+            }
+
+            // Sort
+            let dateArray = [];
+            let dataArray = [];
+            if (sortWay === "asc") {
+                finalArray = finalArray.sort((a, b) => a.data - b.data);
+            } else {
+                finalArray = finalArray.sort((a, b) => b.data - a.data);
+            }
+            for (var i = 0; i < finalArray.length; i++) {
+                dateArray.push(finalArray[i].date);
+                dataArray.push(finalArray[i].data);
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo ngày thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    dateArray: dateArray,
+                    data: finalArray,
+                    dataArray: dataArray,
+                    dateFrom: dateFrom,
+                    dateTo: dateTo
+                }
+            });
+        } catch (err) {
+            console.log(err)
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find date!",
+                error: err
+            });
+        }
+    },
+    // Admin: Quản lý đặt phòng - Thống kê doanh thu
+    getStatisticRoomBookingTotalByQuarter: async (req, res) => {
+        const quarter = req.body.quarter;
+        const sortWay = req.body.sortWay;
+        if (!quarter || !Number.isInteger(quarter) || quarter >= 5 || quarter < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Quý thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+
+        var monthInQuarterArray = [];
+        if (quarter === 1) {
+            monthInQuarterArray = [1, 2, 3];
+        } else if (quarter === 2) {
+            monthInQuarterArray = [4, 5, 6];
+        } else if (quarter === 3) {
+            monthInQuarterArray = [7, 8, 9];
+        } else {
+            monthInQuarterArray = [10, 11, 12];
+        }
+
+        let finalArray = [];
+        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+        var today = new Date();
+        var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        var statisticDate = date + ' ' + time;
+
+        for (var i = 0; i < monthInQuarterArray.length; i++) {
+            const month = monthInQuarterArray[i];
+            // Lấy doanh thu theo tháng
+            try {
+                const totalRes = await getRoomBookingTotalByMonth(month);
+                if (!totalRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find room booking total by month"
+                    });
+                }
+                finalArray.push({
+                    month: month,
+                    data: totalRes.total
+                });
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when statist by month!",
+                    error: err
+                });
+            }
+        }
+
+        // Sort
+        let monthArray = [];
+        let dataArray = [];
+        if (sortWay === "asc") {
+            finalArray = finalArray.sort((a, b) => a.data - b.data);
+        } else {
+            finalArray = finalArray.sort((a, b) => b.data - a.data);
+        }
+        for (var i = 0; i < finalArray.length; i++) {
+            monthArray.push(finalArray[i].month);
+            dataArray.push(finalArray[i].data);
+        }
+
+        // Success
+        return res.status(200).json({
+            status: "success",
+            message: "Thống kê doanh thu theo Tháng trong Quý thành công!",
+            data: {
+                statisticDate: statisticDate,
+                monthArray: monthArray,
+                data: finalArray,
+                dataArray: dataArray,
+                quarter: quarter
+            }
+        });
+    },
+    // Admin: Quản lý đặt phòng - Thống kê doanh thu Theo thành phố
+    getLimitRoomBookingTotalOfCityForEachQuarter: async (req, res) => {
+        const limit = 5;
+        try {
+            const roomBookingTotalOfCityForEachQuarterRes = await getLimitRoomBookingTotalOfCityForEachQuarter(limit);
+            if (!roomBookingTotalOfCityForEachQuarterRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get room booking total of city for each quarter list"
+                });
+            }
+
+            let finalDataTableArray = [];
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            for (var i = 0; i < roomBookingTotalOfCityForEachQuarterRes.length; i++) {
+                const cityId = roomBookingTotalOfCityForEachQuarterRes[i].city_id;
+                const cityName = roomBookingTotalOfCityForEachQuarterRes[i].city_name;
+                // Lấy đơn đặt phòng cho từng city id
+                try {
+                    const roomBookingByCityIdRes = await getRoomBookingOrderByCityId(cityId);
+                    if (!roomBookingByCityIdRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find room booking by city id"
+                        });
+                    }
+                    finalDataTableArray.push({
+                        cityName: cityName,
+                        data: roomBookingByCityIdRes
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when statist by date!",
+                        error: err
+                    });
+                }
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo Thành phố của 4 quý thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    data: roomBookingTotalOfCityForEachQuarterRes,
+                    dataArray: finalDataTableArray,
+                }
+            });
+        } catch (err) {
+            console.log(err)
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when get room booking total of city for each quarter list!",
+                error: err
+            });
+        }
+    },
+    // Admin: Quản lý đặt phòng - Thống kê doanh thu Theo thành phố
+    getStatisticRoomBookingTotalOfCityByDate: async (req, res) => {
+        const dateFrom = req.body.dateFrom;
+        const dateTo = req.body.dateTo;
+        const sortWay = req.body.sortWay;
+        const limit = req.body.limit;
+        if (!dateFrom) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày bắt đầu thống kê không hợp lệ!"
+            });
+        }
+        if (!dateTo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày kết thúc thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!limit || limit !== 'five' && limit !== 'ten' && limit !== 'all') {
+            return res.status(400).json({
+                status: "fail",
+                message: "Bạn chưa giới hạn số lượng tìm kiếm!"
+            });
+        }
+        // Lấy ngày trong room booking từ dateFrom đến dateTo
+        try {
+            const fromDateToDateListRes = await getDistinctDateInRoomBookingOrderFromDateToDate(dateFrom, dateTo);
+            if (!fromDateToDateListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get date list"
+                });
+            }
+
+            let finalArray = [];
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            for (var i = 0; i < fromDateToDateListRes.length; i++) {
+                const date = fromDateToDateListRes[i].finishDate;
+                if (sortWay === 'asc') {
+                    // Date: limit 5 - asc
+                    if (limit === 'five') {
+                        try {
+                            const totalRes = await getRoomBookingTotalOfCityByDateAndLimitAsc(date, 5);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find room booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                    // Date: limit 10 - asc
+                    if (limit === 'ten') {
+                        try {
+                            const totalRes = await getRoomBookingTotalOfCityByDateAndLimitAsc(date, 10);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find room booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                    // Date: - asc
+                    if (limit === 'all') {
+                        try {
+                            const totalRes = await getRoomBookingTotalOfCityByDateAndAsc(date);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find room booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                }
+                if (sortWay === 'desc') {
+                    // Date: limit 5 - desc
+                    if (limit === 'five') {
+                        try {
+                            const totalRes = await getRoomBookingTotalOfCityByDateAndLimitDesc(date, 5);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find room booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                    // Date: limit 10 - desc
+                    if (limit === 'ten') {
+                        try {
+                            const totalRes = await getRoomBookingTotalOfCityByDateAndLimitDesc(date, 10);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find room booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                    // Date: - desc
+                    if (limit === 'all') {
+                        try {
+                            const totalRes = await getRoomBookingTotalOfCityByDateAndDesc(date);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find room booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Sort
+            let dateArray = [];
+            let dataArray = [];
+            for (var i = 0; i < finalArray.length; i++) {
+                dateArray.push(finalArray[i].date);
+                dataArray.push(finalArray[i].data);
+            }
+
+            // Lấy data để hiện biểu đồ
+            var statistisData = {};
+            if (limit === "five") {
+                try {
+                    const roomBookingTotalOfCityByDateRes = await getRoomBookingTotalOfCityByDateByListDate(fromDateToDateListRes, sortWay, 5);
+                    if (!roomBookingTotalOfCityByDateRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get test"
+                        });
+                    }
+                    statistisData = roomBookingTotalOfCityByDateRes
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getRoomBookingTotalOfCityByDateByListDate 5!",
+                        error: err
+                    });
+                }
+            }
+            if (limit === "ten") {
+                try {
+                    const roomBookingTotalOfCityByDateRes = await getRoomBookingTotalOfCityByDateByListDate(fromDateToDateListRes, sortWay, 10);
+                    if (!roomBookingTotalOfCityByDateRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get test"
+                        });
+                    }
+                    statistisData = roomBookingTotalOfCityByDateRes
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getRoomBookingTotalOfCityByDateByListDate 10!",
+                        error: err
+                    });
+                }
+            }
+            if (limit === "all") {
+                try {
+                    // TEST
+                    const roomBookingTotalOfCityByDateRes = await getRoomBookingTotalOfCityByDateByListDateNoLimit(fromDateToDateListRes, sortWay);
+                    if (!roomBookingTotalOfCityByDateRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get test"
+                        });
+                    }
+                    statistisData = roomBookingTotalOfCityByDateRes
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getRoomBookingTotalOfCityByDateByListDateNoLimit!",
+                        error: err
+                    });
+                }
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo ngày của Thành phố thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    dateArray: dateArray,
+                    data: finalArray,
+                    dataArray: dataArray,
+                    dateFrom: dateFrom,
+                    dateTo: dateTo,
+                    limit: limit,
+                    sortWay: sortWay,
+                    statistisData: statistisData
+                }
+            });
+        } catch (err) {
+            console.log(err)
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find date!",
+                error: err
+            });
+        }
+    },
+
+    // Admin: Quản lý đặt phòng - Thống kê doanh thu Theo thành phố
+    getStatisticRoomBookingTotalOfCityByQuarter: async (req, res) => {
+        const quarter = req.body.quarter;
+        const sortWay = req.body.sortWay;
+        const limit = req.body.limit;
+        if (!quarter || !Number.isInteger(quarter) || quarter >= 5 || quarter < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Quý thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!limit || limit !== 'five' && limit !== 'ten' && limit !== 'all') {
+            return res.status(400).json({
+                status: "fail",
+                message: "Bạn chưa giới hạn số lượng tìm kiếm!"
+            });
+        }
+        let finalDataArray = {};
+        // Nếu là quý 1
+        if (quarter === 1) {
+            if (sortWay === "desc") {
+                if (limit === "five") {
+                    // Quarter 1: -limit 5 - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(5);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 1: -limit 5 - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 1: -limit 10 - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(10);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 1: -limit 10 - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 1: - no limit - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDesc();
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 1: - no limit - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDesc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+            if (sortWay === "asc") {
+                if (limit === "five") {
+                    // Quarter 1: -limit 5 - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(5);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 1: -limit 5 - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 1: -limit 10 - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(10);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 1: -limit 10 - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 1: - no limit - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAsc();
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 1: - no limit - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAsc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+        }
+        // Nếu là quý 2
+        if (quarter === 2) {
+            if (sortWay === "desc") {
+                if (limit === "five") {
+                    // Quarter 2: -limit 5 - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(5);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 2: -limit 5 - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 2: -limit 10 - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(10);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 2: -limit 10 - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 2: - no limit - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDesc();
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 2: - no limit - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDesc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+            if (sortWay === "asc") {
+                if (limit === "five") {
+                    // Quarter 2: -limit 5 - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(5);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 2: -limit 5 - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 2: -limit 10 - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(10);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 2: -limit 10 - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 2: - no limit - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAsc();
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 2: - no limit - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAsc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+        }
+        // Nếu là quý 3
+        if (quarter === 3) {
+            if (sortWay === "desc") {
+                if (limit === "five") {
+                    // Quarter 3: -limit 5 - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(5);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 3: -limit 5 - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 3: -limit 10 - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(10);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 3: -limit 10 - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 3: - no limit - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDesc();
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 3: - no limit - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDesc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+            if (sortWay === "asc") {
+                if (limit === "five") {
+                    // Quarter 3: -limit 5 - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(5);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 3: -limit 5 - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 3: -limit 10 - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(10);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 3: -limit 10 - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 3: - no limit - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAsc();
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 3: - no limit - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAsc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+        }
+
+        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+        var todayCheckIn = new Date();
+        var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+        var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+        var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+        var monthInQuarterArray = [];
+        if (quarter === 1) {
+            monthInQuarterArray = [1, 2, 3];
+        } else if (quarter === 2) {
+            monthInQuarterArray = [4, 5, 6];
+        } else if (quarter === 3) {
+            monthInQuarterArray = [7, 8, 9];
+        } else {
+            monthInQuarterArray = [10, 11, 12];
+        }
+
+        // Nếu là quý 4
+        if (quarter === 4) {
+            if (sortWay === "desc") {
+                if (limit === "five") {
+                    // Quarter 4: -limit 5 - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(5);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 3: -limit 5 - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 4: -limit 10 - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(10);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 4: -limit 10 - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 4: - no limit - desc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDesc();
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 4: - no limit - desc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDesc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+            if (sortWay === "asc") {
+                if (limit === "five") {
+                    // Quarter 4: -limit 5 - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(5);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 4: -limit 5 - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 4: -limit 10 - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(10);
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 4: -limit 10 - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 4: - no limit - asc
+                    try {
+                        const roomBookingTotalQuarterRes = await getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAsc();
+                        if (!roomBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find room booking by Quarter 4: - no limit - asc"
+                            });
+                        }
+                        finalDataArray = roomBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAsc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+        }
+        // Success
+        return res.status(200).json({
+            status: "success",
+            message: "Thống kê doanh thu theo tháng của Thành phố thành công!",
+            data: {
+                statisticDate: statisticDate,
+                quarter: quarter,
+                sortWay: sortWay,
+                limit: limit,
+                data: finalDataArray,
+                monthArray: monthInQuarterArray
+            }
+        });
+    },
 };

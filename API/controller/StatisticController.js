@@ -1,5 +1,5 @@
 const { getTotalFinishPartyBookingOrderByFinishDate, getTotalFinishPartyBookingOrder, getTotalFinishPartyBookingOrderForEachMonthByYear } = require("../service/PartyBookingOrderService");
-const { getTotalFinishRoomBookingOrderByFinishDate, getTotalFinishRoomBookingOrder, getTotalFinishRoomBookingOrderForEachMonthByYear } = require("../service/RoomBookingOrderService");
+const { getTotalFinishRoomBookingOrderByFinishDate, getTotalFinishRoomBookingOrder, getTotalFinishRoomBookingOrderForEachMonthByYear, getTotalFinishRoomBookingOrderForEachQuarterByYear } = require("../service/RoomBookingOrderService");
 const { getTotalFinishTableBookingOrderByFinishDate, getTotalFinishTableBookingOrder, getTotalFinishTableBookingOrderForEachMonthByYear } = require("../service/TableBookingOrderService");
 
 module.exports = {
@@ -121,7 +121,7 @@ module.exports = {
         var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
         var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
         var statisticDate = date + ' ' + time;
-        
+
         try {
             let resultArray = [];
             const getTotalRoomBookingForEachMonthRes = await getTotalFinishRoomBookingOrderForEachMonthByYear(year);
@@ -170,6 +170,49 @@ module.exports = {
             return res.status(400).json({
                 status: "fail",
                 message: "Error when get statistic booking order total for each month by year!",
+                error: err
+            });
+        }
+    },
+    // Admin: Quản lý Đặt phòng - Thống kê doanh thu Đặt phòng theo Từng quý
+    getStatisticRoomBookingTotalForEachQuarterByYear: async (req, res) => {
+        const year = req.body.year;
+        if (!year || !Number.isInteger(year) || year < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Năm cần thống kê không hợp lệ!"
+            });
+        }
+        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+        var today = new Date();
+        var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        var statisticDate = date + ' ' + time;
+
+        try {
+            const getTotalRoomBookingForEachQuarterRes = await getTotalFinishRoomBookingOrderForEachQuarterByYear(year);
+            if (!getTotalRoomBookingForEachQuarterRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get statistic room booking order total for each month by year!"
+                });
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Get statistic room booking order total for each quarter by year successfully!",
+                data: {
+                    data: getTotalRoomBookingForEachQuarterRes,
+                    name: "Doanh thu Đặt phòng - Khách sạn"
+                },
+                statisticDate: statisticDate
+            });
+
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when get statistic room booking order total for each quarter by year!",
                 error: err
             });
         }

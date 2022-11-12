@@ -17,3 +17,9 @@ export const getStatisticRoomAndTableAndPartyBookingForEachMonthByYear = async (
     const res = await axios.post(`${url_Statistic}/get-statistic-room-and-table-and-party-booking-for-each-month-by-year`, data);
     return res;
 };
+// Thống kê doanh thu của từng Room booking đã finish/ Theo Từng Quý dựa vào Năm
+export const getStatisticRoomBookingForEachQuarterByYear = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_Statistic}/get-statistic-room-booking-for-each-quater-by-year`, data);
+    return res;
+};

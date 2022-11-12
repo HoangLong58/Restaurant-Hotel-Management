@@ -1,13 +1,12 @@
 import { Add, CategoryOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
 import styled from "styled-components";
 import RightTop from "../Dashboard/RightTop";
 import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
+import * as FoodService from "../../service/FoodService";
 
 const Container = styled.div`
 margin-top: 1.4rem;
@@ -83,7 +82,7 @@ const ItemRight = styled.div`
     width: 100%;
 `
 
-const RoomBookingRight = ({ reRenderData, setReRenderData }) => {
+const FoodRight = ({ reRenderData, setReRenderData }) => {
     // Thứ ngày tháng
     let today = new Date();
     let todayday = today.getDay();
@@ -100,20 +99,20 @@ const RoomBookingRight = ({ reRenderData, setReRenderData }) => {
     }
     let ngaythangnam = "Thứ " + thu + ", " + today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
 
-    // Số lượng Đặt phòng
-    const [roomBookingOrderQuantity, setRoomBookingOrderQuantity] = useState();
+    // Số lượng danh mục
+    const [quantityFood, setQuantityFood] = useState();
     useEffect(() => {
-        const getRoomBookingOrderQuantity = async () => {
+        const getQuantityFood = async () => {
             try {
-                const roomQuantityRes = await RoomBookingOrderService.getQuantityRoomBooking();
-                setRoomBookingOrderQuantity(roomQuantityRes.data.data.quantityRoomBooking);
+                const quantityFoodRes = await FoodService.getQuantityFood();
+                setQuantityFood(quantityFoodRes.data.data.quantityFood);
             } catch (err) {
-                console.log("Lỗi: ", err.response);
+                console.log("Lỗi: ", err);
             }
         }
-        getRoomBookingOrderQuantity();
+        getQuantityFood();
     }, [reRenderData]);
-    console.log("Số lượng Đặt phòng: ", roomBookingOrderQuantity);
+    console.log("Số lượng danh mục: ", quantityFood);
 
     // ===== Modal =====
     const [showModal, setShowModal] = useState(false);
@@ -139,30 +138,24 @@ const RoomBookingRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Room Booking Orders Analytics</H2>
+                <H2>Foods Analytics</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>SỐ LƯỢNG ĐẶT PHÒNG</h3>
+                            <h3>SỐ LƯỢNG MÓN ĂN</h3>
                             <small class="text-muted">{ngaythangnam}</small>
                         </Info>
-                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{roomBookingOrderQuantity}</h3>
+                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityFood}</h3>
                     </ItemRight>
                 </Item>
                 <Item className="add-product"
-                    onClick={() => openModal({ type: "statisticRoomBooking" })}
+                    onClick={() => openModal({ type: "createFood" })}
                 >
                     <Add />
-                    <h3>Tìm kiếm &amp; Thống kê Đặt phòng Từng thành phố dựa vào Doanh thu cả năm</h3>
-                </Item>
-                <Item className="add-product"
-                    onClick={() => openModal({ type: "statisticRoomBookingTotal" })}
-                >
-                    <Add />
-                    <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn</h3>
+                    <h3>Thêm Món ăn</h3>
                 </Item>
             </SalesAnalytics>
 
@@ -184,4 +177,4 @@ const RoomBookingRight = ({ reRenderData, setReRenderData }) => {
     );
 };
 
-export default RoomBookingRight;
+export default FoodRight;

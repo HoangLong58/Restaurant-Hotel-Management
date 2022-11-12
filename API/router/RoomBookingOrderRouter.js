@@ -1,4 +1,4 @@
-const { createRoomBookingOrder, getRoomBookingAndDetails, findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName, getQuantityRoomBooking, findRoomBookingById, checkInRoomBookingOrder, checkOutRoomBookingOrder } = require("../controller/RoomBookingOrderController");
+const { createRoomBookingOrder, getRoomBookingAndDetails, findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName, getQuantityRoomBooking, findRoomBookingById, checkInRoomBookingOrder, checkOutRoomBookingOrder, getStatisticRoomBookingTotalByDate, getStatisticRoomBookingTotalByQuarter, getLimitRoomBookingTotalOfCityForEachQuarter, getStatisticRoomBookingTotalOfCityByDate, getStatisticRoomBookingTotalOfCityByQuarter } = require("../controller/RoomBookingOrderController");
 const { checkToken } = require("../auth/TokenValidation");
 
 const router = require("express").Router();
@@ -7,6 +7,11 @@ router.get("/quantity", checkToken, getQuantityRoomBooking);    //
 router.get("/:search", checkToken, findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName);  //
 router.get("/", checkToken, getRoomBookingAndDetails);  //
 
+router.post("/get-statistic-room-booking-order-total-of-city-for-each-quarter", checkToken, getLimitRoomBookingTotalOfCityForEachQuarter);   //
+router.post("/get-statistic-room-booking-order-total-of-city-by-date", checkToken, getStatisticRoomBookingTotalOfCityByDate);   //
+router.post("/get-statistic-room-booking-order-total-of-city-by-quarter", checkToken, getStatisticRoomBookingTotalOfCityByQuarter);   //
+router.post("/get-statistic-room-booking-order-total-by-date", checkToken, getStatisticRoomBookingTotalByDate);   //
+router.post("/get-statistic-room-booking-order-total-by-quarter", checkToken, getStatisticRoomBookingTotalByQuarter);   //
 router.post("/find-room-booking-by-id", checkToken, findRoomBookingById);   //
 router.post("/check-in-room-booking-order", checkToken, checkInRoomBookingOrder);   //
 router.post("/check-out-room-booking-order", checkToken, checkOutRoomBookingOrder);   //

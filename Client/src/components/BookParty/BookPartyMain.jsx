@@ -2875,7 +2875,7 @@ const BookPartyMain = () => {
                                                                 onClick={() => handleCheckAvailableTable()}
                                                             >
                                                                 {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
-                                                                CHECK AVAILABLE
+                                                                TÌM KIẾM SẢNH
                                                             </ButtonClick>
                                                         </ButtonContainer>
                                                     </Button>
