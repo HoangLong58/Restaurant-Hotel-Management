@@ -1,5 +1,5 @@
 import { Add, FavoriteBorderOutlined } from '@mui/icons-material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 // Multi carousel
 import Carousel from 'react-multi-carousel';
@@ -18,13 +18,17 @@ import menu5 from '../../img/menu5.jpg';
 import menu6 from '../../img/menu6.jpg';
 import menu7 from '../../img/menu7.jpg';
 import menu8 from '../../img/menu8.jpg';
-import Modal from './Modal';
 
 import view3 from '../../img/hoboi1.jpg';
 import view5 from '../../img/lavender1.jpg';
 import view2 from '../../img/lobby1.jpg';
 import view4 from '../../img/santhuong1.jpg';
 import view1 from '../../img/sanvuon1.jpg';
+
+// SERVICES
+import * as FoodTypeService from "../../service/FoodTypeService";
+import { Link } from 'react-router-dom';
+import { format_money } from '../../utils/utils';
 
 const Info = styled.div`
     opacity: 0;
@@ -257,10 +261,6 @@ const ViewDescription = styled.p`
 `
 
 const RestaurantMeals = () => {
-    //State
-    const [imageMenu, setImageMenu] = useState();
-    const [imageView, setImageView] = useState();
-
     // Responsive Multi Carousel
     const responsive = {
         desktop: {
@@ -279,28 +279,19 @@ const RestaurantMeals = () => {
             slidesToSlide: 1 // optional, default to 1.
         }
     };
-
-    // Modal
-    const [showModal, setShowModal] = useState(false);
-    const [typeModal, setTypeModal] = useState("")
-    const [danhMucModal, setDanhMucModal] = useState(null);
-
-    const openModal = (modal) => {
-        setShowModal(prev => !prev);
-        setTypeModal(modal.type);
-    }
-
-    //Handle
-    const handleClickMenu = (image) => {
-        setImageMenu(image);
-        openModal({ type: "showImageMenu" })
-    }
-
-    const handleClickView = (image) => {
-        setImageView(image);
-        openModal({ type: "showImageView" })
-    }
-
+    const [foodTypeAndFoodList, setFoodTypeAndFoodList] = useState([]);
+    useEffect(() => {
+        const getFoodTypeAndFoodList = async () => {
+            try {
+                const foodTypeAndFoodListRes = await FoodTypeService.getFoodTypeAndEachFoodOfThisType();
+                setFoodTypeAndFoodList(foodTypeAndFoodListRes.data.data);
+                console.log("foodTypeAndFoodListRes: ", foodTypeAndFoodListRes);
+            } catch (err) {
+                console.log("Lỗi lấy food type và list food");
+            }
+        }
+        getFoodTypeAndFoodList();
+    }, []);
     return (
         <>
             {/* Restaurant Menu */}
@@ -327,7 +318,7 @@ const RestaurantMeals = () => {
                             arrows={true}
                             rewindWithAnimation={true}
                         >
-                            <MenuItem onClick={() => handleClickMenu(menu1)}>
+                            <MenuItem>
                                 <MenuImage src={menu1} />
                                 <MenuInfo>
                                     <MenuTitle>MENU 4.950.000</MenuTitle>
@@ -336,7 +327,7 @@ const RestaurantMeals = () => {
                                     </MenuDescription>
                                 </MenuInfo>
                             </MenuItem>
-                            <MenuItem onClick={() => handleClickMenu(menu2)}>
+                            <MenuItem>
                                 <MenuImage src={menu2} />
                                 <MenuInfo>
                                     <MenuTitle>MENU 5.950.000</MenuTitle>
@@ -345,7 +336,7 @@ const RestaurantMeals = () => {
                                     </MenuDescription>
                                 </MenuInfo>
                             </MenuItem>
-                            <MenuItem onClick={() => handleClickMenu(menu3)}>
+                            <MenuItem>
                                 <MenuImage src={menu3} />
                                 <MenuInfo>
                                     <MenuTitle>MENU 6.250.000</MenuTitle>
@@ -354,7 +345,7 @@ const RestaurantMeals = () => {
                                     </MenuDescription>
                                 </MenuInfo>
                             </MenuItem>
-                            <MenuItem onClick={() => handleClickMenu(menu4)}>
+                            <MenuItem>
                                 <MenuImage src={menu4} />
                                 <MenuInfo>
                                     <MenuTitle>Menu 6.950.000</MenuTitle>
@@ -363,7 +354,7 @@ const RestaurantMeals = () => {
                                     </MenuDescription>
                                 </MenuInfo>
                             </MenuItem>
-                            <MenuItem onClick={() => handleClickMenu(menu5)}>
+                            <MenuItem>
                                 <MenuImage src={menu5} />
                                 <MenuInfo>
                                     <MenuTitle>Menu 7.550.000</MenuTitle>
@@ -372,7 +363,7 @@ const RestaurantMeals = () => {
                                     </MenuDescription>
                                 </MenuInfo>
                             </MenuItem>
-                            <MenuItem onClick={() => handleClickMenu(menu6)}>
+                            <MenuItem>
                                 <MenuImage src={menu6} />
                                 <MenuInfo>
                                     <MenuTitle>Menu thức uống</MenuTitle>
@@ -381,7 +372,7 @@ const RestaurantMeals = () => {
                                     </MenuDescription>
                                 </MenuInfo>
                             </MenuItem>
-                            <MenuItem onClick={() => handleClickMenu(menu7)}>
+                            <MenuItem>
                                 <MenuImage src={menu7} />
                                 <MenuInfo>
                                     <MenuTitle>Bảng giá dịch vụ</MenuTitle>
@@ -390,7 +381,7 @@ const RestaurantMeals = () => {
                                     </MenuDescription>
                                 </MenuInfo>
                             </MenuItem>
-                            <MenuItem onClick={() => handleClickMenu(menu8)}>
+                            <MenuItem>
                                 <MenuImage src={menu8} />
                                 <MenuInfo>
                                     <MenuTitle>BẢNG GIÁ DỊCH VỤ</MenuTitle>
@@ -431,7 +422,7 @@ const RestaurantMeals = () => {
                             arrows={true}
                             rewindWithAnimation={true}
                         >
-                            <ViewItem onClick={() => handleClickView(view1)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
                                 <ViewImage src={view1} />
                                 <ViewInfo>
                                     <ViewTitle>SẢNH IRIS &#8211; SÂN VƯỜN</ViewTitle>
@@ -440,7 +431,7 @@ const RestaurantMeals = () => {
                                     </ViewDescription>
                                 </ViewInfo>
                             </ViewItem>
-                            <ViewItem onClick={() => handleClickView(view2)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
                                 <ViewImage src={view2} />
                                 <ViewInfo>
                                     <ViewTitle>SẢNH DAISY &#8211; LOBBY</ViewTitle>
@@ -449,7 +440,7 @@ const RestaurantMeals = () => {
                                     </ViewDescription>
                                 </ViewInfo>
                             </ViewItem>
-                            <ViewItem onClick={() => handleClickView(view3)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
                                 <ViewImage src={view3} />
                                 <ViewInfo>
                                     <ViewTitle>SẢNH PEONY &#8211; HỒ BƠI</ViewTitle>
@@ -458,7 +449,7 @@ const RestaurantMeals = () => {
                                     </ViewDescription>
                                 </ViewInfo>
                             </ViewItem>
-                            <ViewItem onClick={() => handleClickView(view4)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
                                 <ViewImage src={view4} />
                                 <ViewInfo>
                                     <ViewTitle>SẢNH PANSEE &#8211; SÂN THƯỢNG</ViewTitle>
@@ -467,7 +458,7 @@ const RestaurantMeals = () => {
                                     </ViewDescription>
                                 </ViewInfo>
                             </ViewItem>
-                            <ViewItem onClick={() => handleClickView(view5)} style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
                                 <ViewImage src={view5} />
                                 <ViewInfo>
                                     <ViewTitle>SẢNH LAVENDER &#8211; ÁP MÁI</ViewTitle>
@@ -483,654 +474,55 @@ const RestaurantMeals = () => {
             {/* Restaurant Menu Item */}
             <div class="section padding-top-bottom z-bigger" style={{ paddingTop: "75px" }}>
                 <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-md-8 align-self-center">
-                            <div class="subtitle with-line text-center mb-4">Hoàng Long Restaurant</div>
-                            <h3 class="text-center padding-bottom-small">Bánh Đầu Giờ</h3>
-                        </div>
-                        <div class="section clearfix"></div>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture1} alt="" />
-                                <MealName><span>imported salmon steak</span></MealName>
-                                <MealDetail><span>salmon / veggies / oil</span></MealDetail>
-                                <MealPrice><span>$32</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture2} alt="" />
-                                <MealName><span>tuna roast source</span></MealName>
-                                <MealDetail><span>tuna / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$47</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture3} alt="" />
-                                <MealName><span>salted fried chicken</span></MealName>
-                                <MealDetail><span>chicken / olive oil / salt</span></MealDetail>
-                                <MealPrice><span>$26</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture4} alt="" />
-                                <MealName><span>crab with curry sources</span></MealName>
-                                <MealDetail><span>crab / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$64</span></MealPrice>
-                            </div>
-                        </MealItem>
-                    </div>
-                    <div class="row justify-content-center" style={{ marginTop: "70px" }}>
-                        <div class="col-md-8 align-self-center">
-                            <div class="subtitle with-line text-center mb-4">Hoàng Long Restaurant</div>
-                            <h3 class="text-center padding-bottom-small">Khai vị</h3>
-                        </div>
-                        <div class="section clearfix"></div>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture1} alt="" />
-                                <MealName><span>imported salmon steak</span></MealName>
-                                <MealDetail><span>salmon / veggies / oil</span></MealDetail>
-                                <MealPrice><span>$32</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture2} alt="" />
-                                <MealName><span>tuna roast source</span></MealName>
-                                <MealDetail><span>tuna / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$47</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture3} alt="" />
-                                <MealName><span>salted fried chicken</span></MealName>
-                                <MealDetail><span>chicken / olive oil / salt</span></MealDetail>
-                                <MealPrice><span>$26</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture4} alt="" />
-                                <MealName><span>crab with curry sources</span></MealName>
-                                <MealDetail><span>crab / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$64</span></MealPrice>
-                            </div>
-                        </MealItem>
-                    </div>
-                    <div class="row justify-content-center" style={{ marginTop: "70px" }}>
-                        <div class="col-md-8 align-self-center">
-                            <div class="subtitle with-line text-center mb-4">Hoàng Long Restaurant</div>
-                            <h3 class="text-center padding-bottom-small">Món Súp</h3>
-                        </div>
-                        <div class="section clearfix"></div>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture1} alt="" />
-                                <MealName><span>imported salmon steak</span></MealName>
-                                <MealDetail><span>salmon / veggies / oil</span></MealDetail>
-                                <MealPrice><span>$32</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture2} alt="" />
-                                <MealName><span>tuna roast source</span></MealName>
-                                <MealDetail><span>tuna / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$47</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture3} alt="" />
-                                <MealName><span>salted fried chicken</span></MealName>
-                                <MealDetail><span>chicken / olive oil / salt</span></MealDetail>
-                                <MealPrice><span>$26</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture4} alt="" />
-                                <MealName><span>crab with curry sources</span></MealName>
-                                <MealDetail><span>crab / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$64</span></MealPrice>
-                            </div>
-                        </MealItem>
-                    </div>
-                    <div class="row justify-content-center" style={{ marginTop: "70px" }}>
-                        <div class="col-md-8 align-self-center">
-                            <div class="subtitle with-line text-center mb-4">Hoàng Long Restaurant</div>
-                            <h3 class="text-center padding-bottom-small">Món Hải Sản</h3>
-                        </div>
-                        <div class="section clearfix"></div>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture1} alt="" />
-                                <MealName><span>imported salmon steak</span></MealName>
-                                <MealDetail><span>salmon / veggies / oil</span></MealDetail>
-                                <MealPrice><span>$32</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture2} alt="" />
-                                <MealName><span>tuna roast source</span></MealName>
-                                <MealDetail><span>tuna / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$47</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture3} alt="" />
-                                <MealName><span>salted fried chicken</span></MealName>
-                                <MealDetail><span>chicken / olive oil / salt</span></MealDetail>
-                                <MealPrice><span>$26</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture4} alt="" />
-                                <MealName><span>crab with curry sources</span></MealName>
-                                <MealDetail><span>crab / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$64</span></MealPrice>
-                            </div>
-                        </MealItem>
-                    </div>
-                    <div class="row justify-content-center" style={{ marginTop: "70px" }}>
-                        <div class="col-md-8 align-self-center">
-                            <div class="subtitle with-line text-center mb-4">Hoàng Long Restaurant</div>
-                            <h3 class="text-center padding-bottom-small">Món Thịt</h3>
-                        </div>
-                        <div class="section clearfix"></div>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture1} alt="" />
-                                <MealName><span>imported salmon steak</span></MealName>
-                                <MealDetail><span>salmon / veggies / oil</span></MealDetail>
-                                <MealPrice><span>$32</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture2} alt="" />
-                                <MealName><span>tuna roast source</span></MealName>
-                                <MealDetail><span>tuna / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$47</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture3} alt="" />
-                                <MealName><span>salted fried chicken</span></MealName>
-                                <MealDetail><span>chicken / olive oil / salt</span></MealDetail>
-                                <MealPrice><span>$26</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture4} alt="" />
-                                <MealName><span>crab with curry sources</span></MealName>
-                                <MealDetail><span>crab / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$64</span></MealPrice>
-                            </div>
-                        </MealItem>
-                    </div>
-                    <div class="row justify-content-center" style={{ marginTop: "70px" }}>
-                        <div class="col-md-8 align-self-center">
-                            <div class="subtitle with-line text-center mb-4">Hoàng Long Restaurant</div>
-                            <h3 class="text-center padding-bottom-small">Cơm-Mì-Lẩu</h3>
-                        </div>
-                        <div class="section clearfix"></div>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture1} alt="" />
-                                <MealName><span>imported salmon steak</span></MealName>
-                                <MealDetail><span>salmon / veggies / oil</span></MealDetail>
-                                <MealPrice><span>$32</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture2} alt="" />
-                                <MealName><span>tuna roast source</span></MealName>
-                                <MealDetail><span>tuna / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$47</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture3} alt="" />
-                                <MealName><span>salted fried chicken</span></MealName>
-                                <MealDetail><span>chicken / olive oil / salt</span></MealDetail>
-                                <MealPrice><span>$26</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture4} alt="" />
-                                <MealName><span>crab with curry sources</span></MealName>
-                                <MealDetail><span>crab / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$64</span></MealPrice>
-                            </div>
-                        </MealItem>
-                    </div>
-                    <div class="row justify-content-center" style={{ marginTop: "70px" }}>
-                        <div class="col-md-8 align-self-center">
-                            <div class="subtitle with-line text-center mb-4">Hoàng Long Restaurant</div>
-                            <h3 class="text-center padding-bottom-small">Tráng Miệng</h3>
-                        </div>
-                        <div class="section clearfix"></div>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture1} alt="" />
-                                <MealName><span>imported salmon steak</span></MealName>
-                                <MealDetail><span>salmon / veggies / oil</span></MealDetail>
-                                <MealPrice><span>$32</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture2} alt="" />
-                                <MealName><span>tuna roast source</span></MealName>
-                                <MealDetail><span>tuna / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$47</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture3} alt="" />
-                                <MealName><span>salted fried chicken</span></MealName>
-                                <MealDetail><span>chicken / olive oil / salt</span></MealDetail>
-                                <MealPrice><span>$26</span></MealPrice>
-                            </div>
-                        </MealItem>
-                        <MealItem>
-                            <Circle />
-                            <Info>
-                                <Like>
-                                    <Icon>
-                                        <FavoriteBorderOutlined />
-                                    </Icon>
-                                    <LikeNumber>5</LikeNumber>
-                                </Like>
-                                <AddToCart>
-                                    <Add style={{ marginRight: "5px" }} />
-                                    Thêm vào thực đơn
-                                </AddToCart>
-                            </Info>
-                            <div class="restaurant-box">
-                                <img src={picture4} alt="" />
-                                <MealName><span>crab with curry sources</span></MealName>
-                                <MealDetail><span>crab / potatoes / rice</span></MealDetail>
-                                <MealPrice><span>$64</span></MealPrice>
-                            </div>
-                        </MealItem>
-                    </div>
+                    {
+                        foodTypeAndFoodList.length > 0
+                            ? (
+                                foodTypeAndFoodList.map((foodTypeAndFoodListItem, key) => {
+                                    const foodType = foodTypeAndFoodListItem.foodType;
+                                    const foodList = foodTypeAndFoodListItem.foodList;
+                                    return (
+                                        <div class="row justify-content-center" style={{marginBottom: "50px"}}>
+                                            <div class="col-md-8 align-self-center">
+                                                <div class="subtitle with-line text-center mb-4">Hoàng Long Restaurant</div>
+                                                <h3 class="text-center padding-bottom-small">{foodType.food_type_name}</h3>
+                                            </div>
+                                            {
+                                                foodList.map((food, key) => {
+                                                    if (key > 3) return null;
+                                                    return (
+                                                        <MealItem>
+                                                            <Circle />
+                                                            <Info>
+                                                                <Like>
+                                                                    <Icon>
+                                                                        <FavoriteBorderOutlined />
+                                                                    </Icon>
+                                                                    <LikeNumber>{food.food_vote}</LikeNumber>
+                                                                </Like>
+                                                                <Link to="/order-food">
+                                                                    <AddToCart>
+                                                                        <Add style={{ marginRight: "5px" }} />
+                                                                        Thêm vào thực đơn
+                                                                    </AddToCart>
+                                                                </Link>
+                                                            </Info>
+                                                            <div class="restaurant-box">
+                                                                <img style={{ width: "330px", height: "275px", objectFit: "cover" }} src={food.food_image} alt="" />
+                                                                <MealName><span>{food.food_name}</span></MealName>
+                                                                <MealDetail><span>{food.food_ingredient}</span></MealDetail>
+                                                                <MealPrice><span>{format_money(food.food_price)} VNĐ</span></MealPrice>
+                                                            </div>
+                                                        </MealItem>
+                                                    )
+                                                })
+                                            }
+                                        </div>
+                                    )
+                                })
+                            ) : null
+                    }
                 </div>
             </div>
-
-            {/* Modal */}
-            <Modal
-                showModal={showModal}   //state Đóng mở modal
-                setShowModal={setShowModal} //Hàm Đóng mở modal
-                type={typeModal}    //Loại modal
-                imageMenu={imageMenu}   //Hình ảnh menu trong Modal
-                imageView={imageView}   //Hình ảnh view trong Modal
-            />
         </>
     )
 }

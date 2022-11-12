@@ -3,30 +3,21 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from 'styled-components';
 import SliderImage from "./SliderImage";
 // Date picker
-import { Star } from '@mui/icons-material';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import moment from 'moment';
 import Fade from 'react-reveal/Fade';
 
 import { useNavigate } from 'react-router-dom';
-import svg2 from '../../img/2.svg';
-import svg3 from '../../img/3.svg';
-import svg5 from '../../img/5.svg';
-import spaIcon from '../../img/spa.png';
-import bedIcon from '../../img/double-bed.png';
-import tiviMoi from '../../img/tivi-moi.jpg';
-import picture3 from '../../img/room3.jpg';
 import HotelProgress from './HotelProgress';
 
 // Service
-import * as RoomService from "../../service/RoomService";
-import { handleShowStar } from '../../utils/utils';
-import Toast from '../Toast';
 import { addCustomerBookingRoom, addRoomBookingRoom, addRoomTotal, chooseDayAndQuantity } from '../../redux/roomBookingRedux';
+import * as RoomService from "../../service/RoomService";
+import { format_money, handleShowStar } from '../../utils/utils';
+import Toast from '../Toast';
 
 const HotelItem = styled.div``
 
@@ -531,7 +522,7 @@ const HotelRoomDetail = (props) => {
                                                         onClick={() => handleBookNow()}
                                                     >
                                                         {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
-                                                        BOOK NOW
+                                                        ĐẶT NGAY
                                                     </ButtonClick>
                                                     <ButtonClick
                                                         onClick={() => navigate('/hotel')}
@@ -558,6 +549,7 @@ const HotelRoomDetail = (props) => {
                             (
                                 roomsSuggestDisplay.map((room, key) => {
                                     if (key > 2) return null;
+                                    const service = room.serviceList;
                                     return (
                                         <div className="col-lg-4">
                                             <HotelItem>
@@ -570,14 +562,22 @@ const HotelRoomDetail = (props) => {
                                                     <div className="room-box-in">
                                                         <h5 className="">{room.room_type_name}</h5>
                                                         <p className="mt-3" style={{ overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: "3" }}>{room.room_description}</p>
-                                                        <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from {room.room_price}$</a>
+                                                        <a className="mt-1 btn btn-primary"
+                                                            style={{ color: "var(--color-white)" }}
+                                                            onClick={() => handleClickFullInfo(room.room_id)}
+                                                        >Đặt với {format_money(room.room_price)}VNĐ</a>
                                                         <div className="room-icons mt-4 pt-4">
-                                                            <img src={svg5} alt="" />
-                                                            <img src={svg2} alt="" />
-                                                            <img src={svg3} alt="" />
+                                                            {
+                                                                service.map((serviceItem, key) => {
+                                                                    if (key > 3) return null;
+                                                                    return (
+                                                                        <img src={serviceItem.service_image} alt="" />
+                                                                    )
+                                                                })
+                                                            }
                                                             <DetailRoomButton
                                                                 onClick={() => handleClickFullInfo(room.room_id)}
-                                                            >full info</DetailRoomButton>
+                                                            >chi tiết</DetailRoomButton>
                                                         </div>
                                                     </div>
                                                 </div>

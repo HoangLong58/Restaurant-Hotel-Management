@@ -9,3 +9,9 @@ export const getFoodType = async () => {
     const res = await axios.get(`${url_FoodType}`);
     return res;
 };
+
+export const getFoodTypeAndEachFoodOfThisType = async () => {
+    authToken(localStorage.getItem("customer_token"));
+    const res = await axios.get(`${url_FoodType}/get-all-food-type-and-each-food-list`);
+    return res;
+};

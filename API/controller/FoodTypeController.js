@@ -1,3 +1,4 @@
+const { getFoodsAndTypeByFoodTypeId } = require("../service/FoodService");
 const { getFoodTypes, getAllFoodTypes, getQuantityFoodTypes, findAllFoodTypeByIdOrName, findAllFoodTypeById, createFoodType, updateFoodTypeById, deleteFoodType } = require("../service/FoodTypeService");
 const { createLogAdmin } = require("../utils/utils");
 
@@ -252,6 +253,54 @@ module.exports = {
             return res.status(400).json({
                 status: "fail",
                 message: "Error when find food type!",
+                error: err
+            });
+        }
+    },
+    // Client: Giao diện Restaurant show food type and food.
+    getFoodTypeAndEachFoodOfThisType: async (req, res) => {
+        try {
+            const foodTypeRes = await getAllFoodTypes();
+            if (!foodTypeRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get food type!"
+                });
+            }
+            var finalArray = [];
+            for (var i = 0; i < foodTypeRes.length; i++) {
+                const foodTypeId = foodTypeRes[i].food_type_id;
+                try {
+                    const foodListRes = await getFoodsAndTypeByFoodTypeId(foodTypeId);
+                    if (!foodListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get food list!"
+                        });
+                    }
+                    finalArray.push({
+                        foodType: foodTypeRes[i],
+                        foodList: foodListRes
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when get food list!",
+                        error: err
+                    });
+                }
+            }
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Lấy loại món ăn và những món ăn của loại thành công!",
+                data: finalArray
+            });
+
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when get food type!",
                 error: err
             });
         }

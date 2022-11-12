@@ -447,7 +447,7 @@ const LoginRegister = () => {
                     {error && <Error>Something went wrong...</Error>} */}
                         <Button onClick={handleClickLogin} disabled={isFetching} >Đăng nhập</Button>
                         {error && <Error>{errorLogin}</Error>}
-                        <Link onClick={() => openModal({ type: "forgetPassword" })}>DO NOT YOU REMEMBER THE PASSWORD?</Link>
+                        <Link onClick={() => openModal({ type: "forgetPassword" })}>BẠN ĐÃ QUÊN MẬT KHẨU CỦA MÌNH?</Link>
                     </Form>
                 </SignInPage>
 
@@ -522,7 +522,7 @@ const LoginRegister = () => {
                             </div>
                         </div>
                         <Agreement>
-                            By creating an account, I consent to the processing of my personal data in accordance with the <b>PRIVACY POLICY</b>
+                            Bằng cách tạo tài khoản, tôi đồng ý với việc xử lý dữ liệu cá nhân của mình theo <b>CHÍNH SÁCH BẢO MẬT</b>
                         </Agreement>
                         {isRePasswordCorrect && <Error>Mật khẩu không khớp...</Error>}
                         <Error>{wrong}</Error>

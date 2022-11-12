@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import logo from '../img/logos/logo.png';
 import { logout } from '../redux/callsAPI';
@@ -272,6 +272,7 @@ const ItemDescription = styled.span`
 
 
 const Navbar = (props) => {
+    const navigate = useNavigate();
     // Customer from Redux
     const customer = useSelector((state) => state.customer.currentCustomer);
     const dispatch = useDispatch();
@@ -312,7 +313,7 @@ const Navbar = (props) => {
                         <NavbarTopRow className="row">
                             <NavbarTopLeft className="col-6 px-0 px-md-3 pl-1 py-3">
                                 <NavbarPhoneSpan className="call-top">Liên hệ: </NavbarPhoneSpan>
-                                <NavbarPhoneA href="" className="call-top">(+84)929 4411 58</NavbarPhoneA>
+                                <NavbarPhoneA href="" className="call-top">(+84) 929 4411 58</NavbarPhoneA>
                             </NavbarTopLeft>
                             <NavbarTopRight className="col-6 px-0 px-md-3 py-3 text-right">
                                 {
@@ -370,7 +371,9 @@ const Navbar = (props) => {
                 <NavbarBottom className="menu">
                     <NavbarBottomA href="index.html">
                         <NavbarBottomLogo className="logo">
-                            <NavbarBottomLogoImg src={logo} />
+                            <Link to={"/home"} className={props.pageName === "Home" ? "curent-page" : ""}>
+                                <NavbarBottomLogoImg src={logo} />
+                            </Link>
                         </NavbarBottomLogo>
                     </NavbarBottomA>
                     <NavbarBottomUl>
@@ -416,42 +419,41 @@ const Navbar = (props) => {
                         </NavbarBottomItem>
 
                         <NavbarBottomItem className='menu-dropdown-icon'>
-                            <NavbarBottomItemA href="#">Pages</NavbarBottomItemA>
+                            <NavbarBottomItemA href="#">Trang khác</NavbarBottomItemA>
                             <NavbarBottomItemUl className='normal-sub'>
                                 <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="explore.html">Explore</NavbarBottomItemLiA>
+                                    <NavbarBottomItemLiA href="#">Tin tức</NavbarBottomItemLiA>
                                 </NavbarBottomItemLi>
                                 <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="search.html">Search</NavbarBottomItemLiA>
+                                    <NavbarBottomItemLiA href="#">Khám phá</NavbarBottomItemLiA>
                                 </NavbarBottomItemLi>
                                 <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="tandc.html">Terms &amp; Condition</NavbarBottomItemLiA>
+                                    <NavbarBottomItemLiA href="#">Quyền lợi &amp; Nghĩa vụ</NavbarBottomItemLiA>
                                 </NavbarBottomItemLi>
                                 <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="services.html">Services</NavbarBottomItemLiA>
+                                    <NavbarBottomItemLiA href="#">Dịch vụ</NavbarBottomItemLiA>
                                 </NavbarBottomItemLi>
                                 <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="restaurant.html">Restaurant</NavbarBottomItemLiA>
+                                    <NavbarBottomItemLiA href="#">Khách sạn &amp; Nhà hàng</NavbarBottomItemLiA>
                                 </NavbarBottomItemLi>
                                 <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="testimonials.html">Testimonials</NavbarBottomItemLiA>
-                                </NavbarBottomItemLi>
-                                <NavbarBottomItemLi>
-                                    <NavbarBottomItemLiA href="gallery.html">Gallery</NavbarBottomItemLiA>
+                                    <NavbarBottomItemLiA href="#">Kho ảnh</NavbarBottomItemLiA>
                                 </NavbarBottomItemLi>
                             </NavbarBottomItemUl>
                         </NavbarBottomItem>
 
                         <NavbarBottomItem>
-                            <NavbarBottomItemA href="about.html">Về chúng tôi</NavbarBottomItemA>
+                            <NavbarBottomItemA href="#">Về chúng tôi</NavbarBottomItemA>
                         </NavbarBottomItem>
 
                         <NavbarBottomItem>
-                            <NavbarBottomItemA href="contact.html">Liên hệ</NavbarBottomItemA>
+                            <NavbarBottomItemA href="#">Liên hệ</NavbarBottomItemA>
                         </NavbarBottomItem>
 
                         <NavbarBottomItem>
-                            <NavbarBottomItemA href="search.html"><span>Đặt phòng ngay</span></NavbarBottomItemA>
+                            <NavbarBottomItemA onClick={() => navigate("/hotel")}>
+                                    <span>Đặt phòng ngay</span>
+                            </NavbarBottomItemA>
                         </NavbarBottomItem>
                     </NavbarBottomUl>
                 </NavbarBottom>

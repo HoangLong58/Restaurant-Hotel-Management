@@ -9,6 +9,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import moment from 'moment';
+import { Link } from "react-router-dom";
 
 const CenterBooking = styled.div``
 const CenterBookingWrapper = styled.div``
@@ -163,7 +164,9 @@ const RestaurantLanding = (props) => {
                                     </BookingNumber>
 
                                     <BookingButton className="col-6  col-sm-4 col-lg-2">
-                                        <BookingButtonA className="booking-button" href="search.html">Đặt phòng ngay</BookingButtonA>
+                                        <Link to="/book-party">
+                                            <BookingButtonA className="booking-button">Đặt tiệc ngay</BookingButtonA>
+                                        </Link>
                                     </BookingButton>
                                 </BookingRow>
                             </CenterBookingWrapper>

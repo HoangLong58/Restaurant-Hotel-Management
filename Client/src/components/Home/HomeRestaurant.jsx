@@ -2,6 +2,7 @@ import React from 'react';
 import Fade from 'react-reveal/Fade';
 import pictureRestaurant1 from '../../img/rest-1.jpg';
 import pictureRestaurant2 from '../../img/rest-2.jpg';
+import { Link } from 'react-router-dom';
 
 const HomeRestaurant = () => {
 	return (
@@ -27,7 +28,9 @@ const HomeRestaurant = () => {
 							<div className="col-9 pt-4 pt-xl-0 pb-5 pb-xl-0 text-center">
 								<h5 className="">Hội nghị</h5>
 								<p className="mt-3">Grand Palace tọa lạc trong khu vực yên tĩnh, an ninh tuyệt đối, thuận tiện cho giao thông vào những giờ cao điểm. Đặc biệt với kiến trúc Châu Âu sang trọng cùng thiết kế sảnh theo...</p>
-								<a className="mt-1 btn btn-primary" href="restaurant.html">Khám phá</a>
+								<Link to="/restaurant">
+									<a className="mt-1 btn btn-primary" href="#">Khám phá</a>
+								</Link>
 							</div>
 						</div>
 					</div>
@@ -38,7 +41,9 @@ const HomeRestaurant = () => {
 							<div className="col-9 pt-4 pt-xl-0 pb-5 pb-xl-0 text-center">
 								<h5 className="">Tiệc cưới</h5>
 								<p className="mt-3">Sảnh Platin với kích thước 386 m2 được bày trí theo phong cách Châu Âu sang trọng sẽ thật sự phù hợp cho một hôn lễ ấm cúng với số lượng khách mời trong khoảng 20 đến 26 bàn...</p>
-								<a className="mt-1 btn btn-primary" href="restaurant.html">Khám phá</a>
+								<Link to="/restaurant">
+									<a className="mt-1 btn btn-primary" href="#">Khám phá</a>
+								</Link>
 							</div>
 						</div>
 					</div>

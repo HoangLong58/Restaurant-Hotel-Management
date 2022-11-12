@@ -2,6 +2,7 @@ import React from 'react';
 import Fade from 'react-reveal/Fade';
 import pictureRoom1 from '../../img/room1.jpg';
 import pictureRoom2 from '../../img/room2.jpg';
+import { Link } from 'react-router-dom';
 
 const HomeView = () => {
     return (
@@ -21,7 +22,9 @@ const HomeView = () => {
                             <div class="col-10 col-xl-8 text-center">
                                 <h3 class="text-center">Phòng Suite hồ bơi riêng</h3>
                                 <p class="text-center mt-4">Hãy tưởng tượng sự sang trọng của việc có một hồ bơi riêng, bồn tắm nước nóng hoặc bể sục chỉ cách giường của bạn vài bước chân. Hoàn hảo cho một kỳ nghỉ lãng mạn, tuần trăng mật hoặc một kỳ nghỉ gia đình đặc biệt. Hoàng Long Hotel &amp; Restaurant được xếp hạng hàng đầu tốt nhất, nơi bạn có thể đặt phòng suite hoặc biệt thự có hồ bơi.</p>
-                                <a class="mt-5 btn btn-primary" href="search.html">Tìm kiếm</a>
+                                <Link to="/hotel">
+                                    <a class="mt-5 btn btn-primary" href="search.html">Tìm kiếm</a>
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -32,7 +35,9 @@ const HomeView = () => {
                             <div class="col-10 col-xl-8 text-center">
                                 <h3 class="text-center">Phòng Suite view biển</h3>
                                 <p class="text-center mt-4">Khung cảnh đẹp nhất có thể tưởng tượng với tiếng sóng vỗ ngoài cửa sổ suốt đêm cho bài hát ru tuyệt vời nhất. Chúng tôi không thể yêu cầu một kỳ nghỉ đẹp hơn.</p>
-                                <a class="mt-5 btn btn-primary" href="search.html">Tìm kiếm</a>
+                                <Link to="/hotel">
+                                    <a class="mt-5 btn btn-primary" href="search.html">Tìm kiếm</a>
+                                </Link>
                             </div>
                         </div>
                     </div>

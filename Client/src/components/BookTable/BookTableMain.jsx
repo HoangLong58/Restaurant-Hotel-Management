@@ -915,7 +915,7 @@ const BookTableMain = () => {
                                                                                 <path d="M115.121 190.192L118.121 190.192L118.121 179.192L115.121 179.192L115.121 190.192Z" fill="#232729"></path>
                                                                             </svg>
                                                                         </EmptyItemSvg>
-                                                                        <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Hãy Check Available để kiểm tra bàn trống phù hợp!</EmptyContent>
+                                                                        <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Hãy tìm bàn trống phù hợp!</EmptyContent>
                                                                     </EmptyItem>
                                                                 )
                                                             )
@@ -1079,7 +1079,7 @@ const BookTableMain = () => {
                                                                     onClick={() => handleCheckAvailableTable()}
                                                                 >
                                                                     {/* <ButtonClick style={{marginLeft: "70%"}} className="button-disable"> */}
-                                                                    CHECK AVAILABLE
+                                                                    tìm bàn trống
                                                                 </ButtonClick>
                                                             </ButtonContainer>
                                                         </Button>

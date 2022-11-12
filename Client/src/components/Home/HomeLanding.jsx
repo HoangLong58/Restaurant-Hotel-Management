@@ -12,7 +12,7 @@ import moment from 'moment';
 import background1 from "../../img/1.jpg";
 import background2 from "../../img/2.jpg";
 import background3 from "../../img/3.jpg";
-
+import { Link } from 'react-router-dom';
 
 const Section = styled.div``
 const CenterSection = styled.div``
@@ -208,9 +208,10 @@ const HomeLanding = () => {
                                             </BookingNumberCol>
                                         </BookingNumberRow>
                                     </BookingNumber>
-
                                     <BookingButton className="col-6  col-sm-4 col-lg-2">
-                                        <BookingButtonA className="booking-button" href="search.html">Đặt phòng ngay</BookingButtonA>
+                                        <Link to="/hotel">
+                                            <BookingButtonA className="booking-button">Đặt phòng ngay</BookingButtonA>
+                                        </Link>
                                     </BookingButton>
                                 </BookingRow>
                             </CenterBookingWrapper>

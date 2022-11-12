@@ -33,14 +33,36 @@ module.exports = {
         });
     },
     getRoomsWithImageTypeFloor: (req, res) => {
-        getRoomsWithImageTypeFloor((err, results) => {
+        getRoomsWithImageTypeFloor(async (err, results) => {
             if (err) {
                 console.log("Lỗi getRoomsWithImageTypeFloor: ", err);
                 return;
             }
+            const dataArray = [];
+            for (var i = 0; i < results.length; i++) {
+                const roomTypeId = results[i].room_type_id;
+                try {
+                    const serviceRes = await getServicesByRoomTypeId(roomTypeId);
+                    if (!serviceRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Không tìm được services"
+                        });
+                    }
+                    dataArray.push({
+                        room: results[i],
+                        service: serviceRes
+                    })
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Lỗi getServicesByRoomTypeId"
+                    });
+                }
+            }
             return res.json({
                 status: "success",
-                data: results
+                data: dataArray
             });
         });
     },

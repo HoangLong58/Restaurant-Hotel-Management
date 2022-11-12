@@ -26,7 +26,7 @@ import HotelProgress from './HotelProgress';
 import * as ServiceService from "../../service/ServiceService";
 import * as RoomService from "../../service/RoomService";
 import Toast from '../Toast';
-import { handleShowStar } from '../../utils/utils';
+import { format_money, handleShowStar } from '../../utils/utils';
 
 const InputDateRangeFormItem = styled.div``
 const BookingNumberNiceSelect = styled.div``
@@ -111,7 +111,7 @@ const H1NoResultFound = styled.h1`
 const HotelRooms = () => {
     const navigate = useNavigate();
     // STATE
-    const [maxPrice, setMaxPrice] = useState();
+    const [maxPrice, setMaxPrice] = useState(0);
 
     // HANDLE - date
     const [checkInDate, setCheckInDate] = useState();
@@ -345,13 +345,14 @@ const HotelRooms = () => {
                                                         src="https://img.freepik.com/premium-vector/file-found-illustration-with-confused-people-holding-big-magnifier-search-no-result_258153-336.jpg?w=2000"
                                                         alt="Not Found Result"
                                                     />
-                                                    <H1NoResultFound>No result found</H1NoResultFound>
+                                                    <H1NoResultFound>Không tìm được kết quả</H1NoResultFound>
                                                 </PictureNoResultFound>
                                             )
                                                 : (
                                                     roomListFiltered.length > 0 ?
                                                         (
                                                             roomListFiltered.map((room, key) => {
+                                                                const service = room.serviceList;
                                                                 return (
                                                                     <HotelItem>
                                                                         <div className="room-box background-grey">
@@ -363,14 +364,21 @@ const HotelRooms = () => {
                                                                             <div className="room-box-in">
                                                                                 <h5 className="">{room.room_type_name}</h5>
                                                                                 <p className="mt-3" style={{ overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: "3" }}>{room.room_description}</p>
-                                                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from {room.room_price}$</a>
+                                                                                <a className="mt-1 btn btn-primary" style={{ color: "var(--color-white)" }}
+                                                                                    onClick={() => handleClickFullInfo(room.room_id)}
+                                                                                >Đặt giá {format_money(room.room_price)} VNĐ</a>
                                                                                 <div className="room-icons mt-4 pt-4">
-                                                                                    <img src={svg5} alt="" />
-                                                                                    <img src={svg2} alt="" />
-                                                                                    <img src={svg3} alt="" />
+                                                                                    {
+                                                                                        service.map((serviceItem, key) => {
+                                                                                            if (key > 3) return null;
+                                                                                            return (
+                                                                                                <img src={serviceItem.service_image} alt="" />
+                                                                                            )
+                                                                                        })
+                                                                                    }
                                                                                     <DetailRoomButton
                                                                                         onClick={() => handleClickFullInfo(room.room_id)}
-                                                                                    >full info</DetailRoomButton>
+                                                                                    >chi tiết</DetailRoomButton>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -381,6 +389,7 @@ const HotelRooms = () => {
                                                         : (
                                                             roomList ? (
                                                                 roomList.map((room, key) => {
+                                                                    const service = room.serviceList;
                                                                     return (
                                                                         <HotelItem>
                                                                             <div className="room-box background-grey">
@@ -392,14 +401,15 @@ const HotelRooms = () => {
                                                                                 <div className="room-box-in">
                                                                                     <h5 className="">{room.room_type_name}</h5>
                                                                                     <p className="mt-3" style={{ overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: "3" }}>{room.room_description}</p>
-                                                                                    {/* <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from {room.room_price}$</a> */}
+
                                                                                     <div className="room-icons mt-4 pt-4">
-                                                                                        <img src={svg5} alt="" />
-                                                                                        <img src={svg2} alt="" />
-                                                                                        <img src={svg3} alt="" />
-                                                                                        {/* <DetailRoomButton
-                                                                                            onClick={() => handleClickFullInfo(room.room_id)}
-                                                                                        >full info</DetailRoomButton> */}
+                                                                                        {
+                                                                                            service.map((serviceItem, key) => {
+                                                                                                return (
+                                                                                                    <img src={serviceItem.service_image} alt="" />
+                                                                                                )
+                                                                                            })
+                                                                                        }
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -410,204 +420,6 @@ const HotelRooms = () => {
                                                         )
                                                 )
                                         }
-                                        {/* <HotelItem>
-                                        <div className="room-box background-grey">
-                                            <div className="room-name">suite tanya</div>
-                                            <div className="room-per">
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                            </div>
-                                            <Fade bottom>
-                                                <img src={picture3} alt="" />
-                                            </Fade>
-                                            <div className="room-box-in">
-                                                <h5 className="">pool suite</h5>
-                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 130$</a>
-                                                <div className="room-icons mt-4 pt-4">
-                                                    <img src={svg5} alt="" />
-                                                    <img src={svg2} alt="" />
-                                                    <img src={svg3} alt="" />
-                                                    <DetailRoomButton
-                                                        onClick={() => navigate('/room-detail', {
-                                                            state: {
-                                                                id: 123,
-                                                                roomName: "Bungalow"
-                                                            }
-                                                        })}
-                                                    >full info</DetailRoomButton>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </HotelItem>
-                                    <HotelItem>
-                                        <div className="room-box background-grey">
-                                            <div className="room-name">suite helen</div>
-                                            <div className="room-per">
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <i className="fa fa-star-o"></i>
-                                            </div>
-                                            <Fade bottom>
-                                                <img src={[picture4]} alt="" />
-                                            </Fade>
-                                            <div className="room-box-in">
-                                                <h5 className="">small room</h5>
-                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 80$</a>
-                                                <div className="room-icons mt-4 pt-4">
-                                                    <img src={svg4} alt="" />
-                                                    <img src={svg2} alt="" />
-                                                    <img src={svg6} alt="" />
-                                                    <DetailRoomButton
-                                                        onClick={() => navigate('/room-detail', {
-                                                            state: {
-                                                                id: 123,
-                                                                roomName: "Bungalow"
-                                                            }
-                                                        })}
-                                                    >full info</DetailRoomButton>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </HotelItem>
-                                    <HotelItem>
-                                        <div className="room-box background-grey">
-                                            <div className="room-name">suite andrea</div>
-                                            <div className="room-per">
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                            </div>
-                                            <Fade bottom>
-                                                <img src={picture5} alt="" />
-                                            </Fade>
-                                            <div className="room-box-in">
-                                                <h5 className="">Apartment</h5>
-                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 110$</a>
-                                                <div className="room-icons mt-4 pt-4">
-                                                    <img src={svg5} alt="" />
-                                                    <img src={svg2} alt="" />
-                                                    <img src={svg3} alt="" />
-                                                    <DetailRoomButton
-                                                        onClick={() => navigate('/room-detail', {
-                                                            state: {
-                                                                id: 123,
-                                                                roomName: "Bungalow"
-                                                            }
-                                                        })}
-                                                    >full info</DetailRoomButton>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </HotelItem>
-                                    <HotelItem>
-                                        <div className="room-box background-grey">
-                                            <div className="room-name">suite diana</div>
-                                            <div className="room-per">
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                            </div>
-                                            <Fade bottom>
-                                                <img src={picture6} alt="" />
-                                            </Fade>
-                                            <div className="room-box-in">
-                                                <h5 className="">big Apartment</h5>
-                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 160$</a>
-                                                <div className="room-icons mt-4 pt-4">
-                                                    <img src={svg5} alt="" />
-                                                    <img src={svg2} alt="" />
-                                                    <img src={svg3} alt="" />
-                                                    <DetailRoomButton
-                                                        onClick={() => navigate('/room-detail', {
-                                                            state: {
-                                                                id: 123,
-                                                                roomName: "Bungalow"
-                                                            }
-                                                        })}
-                                                    >full info</DetailRoomButton>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </HotelItem>
-                                    <HotelItem>
-                                        <div className="room-box background-grey">
-                                            <div className="room-name">suite andrea</div>
-                                            <div className="room-per">
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                            </div>
-                                            <Fade bottom>
-                                                <img src={picture5} alt="" />
-                                            </Fade>
-                                            <div className="room-box-in">
-                                                <h5 className="">Apartment</h5>
-                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 110$</a>
-                                                <div className="room-icons mt-4 pt-4">
-                                                    <img src={svg5} alt="" />
-                                                    <img src={svg2} alt="" />
-                                                    <img src={svg3} alt="" />
-                                                    <DetailRoomButton
-                                                        onClick={() => navigate('/room-detail', {
-                                                            state: {
-                                                                id: 123,
-                                                                roomName: "Bungalow"
-                                                            }
-                                                        })}
-                                                    >full info</DetailRoomButton>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </HotelItem>
-                                    <HotelItem>
-                                        <div className="room-box background-grey">
-                                            <div className="room-name">suite diana</div>
-                                            <div className="room-per">
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                                <Star style={{ color: "yellow" }} />
-                                            </div>
-                                            <Fade bottom>
-                                                <img src={picture6} alt="" />
-                                            </Fade>
-                                            <div className="room-box-in">
-                                                <h5 className="">big Apartment</h5>
-                                                <p className="mt-3">Sed ut perspiciatis unde omnis, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et.</p>
-                                                <a className="mt-1 btn btn-primary" href="rooms-gallery.html">book from 160$</a>
-                                                <div className="room-icons mt-4 pt-4">
-                                                    <img src={svg5} alt="" />
-                                                    <img src={svg2} alt="" />
-                                                    <img src={svg3} alt="" />
-                                                    <DetailRoomButton
-                                                        onClick={() => navigate('/room-detail', {
-                                                            state: {
-                                                                id: 123,
-                                                                roomName: "Bungalow"
-                                                            }
-                                                        })}
-                                                    >full info</DetailRoomButton>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </HotelItem> */}
                                     </div>
                                 )}
 
@@ -716,40 +528,11 @@ const HotelRooms = () => {
                                                 <div className="range-slider">
                                                     <input className="input-range" type="range" min={minRoomPrice} max={maxRoomPrice} value={maxPrice} onChange={(e) => setMaxPrice(parseInt(e.target.value))} />
                                                     <div className="valeurPrix">
-                                                        <span className="range-value">{maxPrice} $</span>
+                                                        <span className="range-value">{format_money(maxPrice)} đ</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        {/* <div className="col-12 col-md-6 col-lg-12 pt-5">
-                                            <h6 className="color-white mb-3">SORT:</h6>
-                                            <ul className="list">
-                                                <li className="list__item" onClick={() => setSort("decreasePrice")}>
-                                                    <label className="label--checkbox">
-                                                        <input type="radio" name='hotelRooms_Sort' className="checkbox" />
-                                                        Giá giảm dần
-                                                    </label>
-                                                </li>
-                                                <li className="list__item" onClick={() => setSort("increasePrice")}>
-                                                    <label className="label--checkbox">
-                                                        <input type="radio" name='hotelRooms_Sort' className="checkbox" />
-                                                        Giá tăng dần
-                                                    </label>
-                                                </li>
-                                                <li className="list__item" onClick={() => setSort("decreaseVote")}>
-                                                    <label className="label--checkbox">
-                                                        <input type="radio" name='hotelRooms_Sort' className="checkbox" />
-                                                        Đánh giá giảm dần
-                                                    </label>
-                                                </li>
-                                                <li className="list__item" onClick={() => setSort("increaseVote")}>
-                                                    <label className="label--checkbox">
-                                                        <input type="radio" name='hotelRooms_Sort' className="checkbox" />
-                                                        Đánh giá tăng dần
-                                                    </label>
-                                                </li>
-                                            </ul>
-                                        </div> */}
                                         <div className="col-12 col-md-6 col-lg-12 pt-5">
                                             <h6 className="color-white mb-3">Gồm Những Dịch vụ:</h6>
                                             <ul className="list">

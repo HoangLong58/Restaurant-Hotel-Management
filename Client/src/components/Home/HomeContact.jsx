@@ -38,8 +38,8 @@ const HomeContact = () => {
                 <div className="container">
                     <div className="row justify-content-center padding-bottom-smaller">
                         <div className="col-md-8">
-                            <div className="subtitle with-line text-center mb-4">get in touch</div>
-                            <h3 className="text-center padding-bottom-small">drop us a line</h3>
+                            <div className="subtitle with-line text-center mb-4">Hoàng Long Hotel &amp; Restaurant</div>
+                            <h3 className="text-center padding-bottom-small">Thông tin liên lạc</h3>
                         </div>
                         <div className="section clearfix"></div>
                         <div className="col-md-6 col-lg-4">

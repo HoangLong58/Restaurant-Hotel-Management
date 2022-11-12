@@ -1,8 +1,10 @@
 
-const { getFoodTypes, getQuantityFoodType, getAllFoodTypes, findAllFoodTypeByIdOrName, findAllFoodTypeById, createFoodType, updateFoodType, deleteFoodType } = require("../controller/FoodTypeController");
+const { getFoodTypes, getQuantityFoodType, getAllFoodTypes, findAllFoodTypeByIdOrName, findAllFoodTypeById, createFoodType, updateFoodType, deleteFoodType, getFoodTypeAndEachFoodOfThisType } = require("../controller/FoodTypeController");
 const router = require("express").Router();
 
 const { checkToken } = require("../auth/TokenValidation");
+
+router.get("/get-all-food-type-and-each-food-list", checkToken, getFoodTypeAndEachFoodOfThisType);
 
 router.get("/quantity", checkToken, getQuantityFoodType); //
 router.get("/get-all-food-types", checkToken, getAllFoodTypes); //
