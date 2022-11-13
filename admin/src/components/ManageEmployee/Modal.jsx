@@ -1077,7 +1077,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
-                        <AlertWrapper showModal={showModal} s >
+                        <AlertWrapper showModal={showModal}>
                             <ModalForm>
                                 <ModalFormItem>
                                     <h1>Bạn muốn Vô hiệu hóa Nhân viên <span style={{ color: `var(--color-primary)` }}>{employeeModal ? employeeModal.employee_first_name + " " + employeeModal.employee_last_name : null}</span> này?</h1>
@@ -1114,7 +1114,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
-                        <AlertWrapper showModal={showModal} s >
+                        <AlertWrapper showModal={showModal}>
                             <ModalForm>
                                 <ModalFormItem>
                                     <h1>Bạn muốn Mở khóa Nhân viên <span style={{ color: `var(--color-primary)` }}>{employeeModal ? employeeModal.employee_first_name + " " + employeeModal.employee_last_name : null}</span> này?</h1>

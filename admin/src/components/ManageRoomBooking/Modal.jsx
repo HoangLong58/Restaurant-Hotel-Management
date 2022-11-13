@@ -1465,7 +1465,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column`, width: "50%" }}>
-                            <H1>Checkin nhận Phòng 14</H1>
+                            <H1>Checkin nhận {roomBookingOrder ? roomBookingOrder.room_name : null}</H1>
                             <ModalForm>
                                 <ModalFormItem>
                                     <div className="row">

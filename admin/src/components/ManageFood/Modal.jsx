@@ -609,10 +609,16 @@ const Modal = ({ showModal, setShowModal, type, food, setReRenderData, handleClo
                                             </div>
                                         </div>
                                         <div className="row">
-                                            <div className="col-lg-8">
+                                            <div className="col-lg-6">
                                                 <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Thành phần:</FormSpan>
                                                     <FormInput type="text" value={foodModal ? foodModal.food_ingredient : null} readOnly />
+                                                </ModalFormItem>
+                                            </div>
+                                            <div className="col-lg-2">
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
+                                                    <FormSpan>Đánh giá:</FormSpan>
+                                                    <FormInput type="text" value={foodModal ? foodModal.food_vote + " sao" : null} readOnly />
                                                 </ModalFormItem>
                                             </div>
                                             <div className="col-lg-4">
