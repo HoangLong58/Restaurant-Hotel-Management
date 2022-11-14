@@ -19,6 +19,9 @@ import ManageFoodType from "./pages/ManageFoodType";
 import ManageFood from "./pages/ManageFood";
 import ManageFoodVote from "./pages/ManageFoodVote";
 import ManagePartyBookingType from "./pages/ManagePartyBookingType";
+import ManagePartyHallType from "./pages/ManagePartyHallType";
+import ManagePartyServiceType from "./pages/ManagePartyServiceType";
+import ManageTableType from "./pages/ManageTableType";
 
 const App = () => {
     // Lấy admin từ Redux
@@ -105,6 +108,21 @@ const App = () => {
                 <Route path='/managePartyBookingType' element={
                     <PrivateRoute>
                         <ManagePartyBookingType />
+                    </PrivateRoute>
+                } />
+                <Route path='/managePartyHallType' element={
+                    <PrivateRoute>
+                        <ManagePartyHallType />
+                    </PrivateRoute>
+                } />
+                <Route path='/managePartyServiceType' element={
+                    <PrivateRoute>
+                        <ManagePartyServiceType />
+                    </PrivateRoute>
+                } />
+                <Route path='/manageTableType' element={
+                    <PrivateRoute>
+                        <ManageTableType />
                     </PrivateRoute>
                 } />
 

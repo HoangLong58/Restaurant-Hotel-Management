@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 // SERVICES
-import * as PartyBookingTypeService from "../../service/PartyBookingTypeService";
+import * as PartyHallTypeService from "../../service/PartyHallTypeService";
 
 const Background = styled.div`
     width: 100%;
@@ -186,7 +186,7 @@ const AlertWrapper = styled.div`
 `
 
 
-const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderData, handleClose, showToastFromOut }) => {
+const Modal = ({ showModal, setShowModal, type, partyHallType, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal
     const modalRef = useRef();
     const closeModal = (e) => {
@@ -214,18 +214,18 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
 
     // =============== Xử lý cập nhật danh mục ===============
     useEffect(() => {
-        setPartyBookingTypeNameModalNew();
+        setPartyHallTypeNameModalNew();
     }, [showModal]);
 
-    const handleUpdatePartyBookingType = async (newPartyBookingTypeName, partyBookingTypeId) => {
+    const handleUpdatePartyHallType = async (newPartyHallTypeName, partyHallTypeId) => {
         try {
-            const updatePartyBookingTypeRes = await PartyBookingTypeService.updatePartyBookingType({
-                partyBookingTypeId: partyBookingTypeId,
-                partyBookingTypeName: newPartyBookingTypeName
+            const updatePartyHallTypeRes = await PartyHallTypeService.updatePartyHallType({
+                partyHallTypeId: partyHallTypeId,
+                partyHallTypeName: newPartyHallTypeName
             });
-            if (!updatePartyBookingTypeRes) {
+            if (!updatePartyHallTypeRes) {
                 // Toast
-                const dataToast = { message: updatePartyBookingTypeRes.data.message, type: "warning" };
+                const dataToast = { message: updatePartyHallTypeRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -234,7 +234,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: updatePartyBookingTypeRes.data.message, type: "success" };
+            const dataToast = { message: updatePartyHallTypeRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -247,54 +247,54 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
         }
     }
     //  test
-    const [partyBookingTypeModal, setPartyBookingTypeModal] = useState();
-    const [partyBookingTypeIdModal, setPartyBookingTypeIdModal] = useState();
-    const [partyBookingTypeNameModal, setPartyBookingTypeNameModal] = useState();
+    const [partyHallTypeModal, setPartyHallTypeModal] = useState();
+    const [partyHallTypeIdModal, setPartyHallTypeIdModal] = useState();
+    const [partyHallTypeNameModal, setPartyHallTypeNameModal] = useState();
 
-    const [partyBookingTypeModalOld, setPartyBookingTypeModalOld] = useState();
-    const [partyBookingTypeNameModalOld, setPartyBookingTypeNameModalOld] = useState();
+    const [partyHallTypeModalOld, setPartyHallTypeModalOld] = useState();
+    const [partyHallTypeNameModalOld, setPartyHallTypeNameModalOld] = useState();
     useEffect(() => {
-        const getPartyBookingType = async () => {
+        const getPartyHallType = async () => {
             try {
-                const partyBookingTypeRes = await PartyBookingTypeService.findPartyBookingTypeById({
-                    partyBookingTypeId: partyBookingType.party_booking_type_id
+                const partyHallTypeRes = await PartyHallTypeService.findPartyHallTypeById({
+                    partyHallTypeId: partyHallType.party_hall_type_id
                 });
-                console.log("RES: ", partyBookingTypeRes);
-                setPartyBookingTypeModal(partyBookingTypeRes.data.data);
-                setPartyBookingTypeIdModal(partyBookingTypeRes.data.data.party_booking_type_id);
-                setPartyBookingTypeNameModal(partyBookingTypeRes.data.data.party_booking_type_name);
+                console.log("RES: ", partyHallTypeRes);
+                setPartyHallTypeModal(partyHallTypeRes.data.data);
+                setPartyHallTypeIdModal(partyHallTypeRes.data.data.party_hall_type_id);
+                setPartyHallTypeNameModal(partyHallTypeRes.data.data.party_hall_type_name);
 
-                setPartyBookingTypeModalOld(partyBookingTypeRes.data.data);
-                setPartyBookingTypeNameModalOld(partyBookingTypeRes.data.data.party_booking_type_name);
+                setPartyHallTypeModalOld(partyHallTypeRes.data.data);
+                setPartyHallTypeNameModalOld(partyHallTypeRes.data.data.party_hall_type_name);
             } catch (err) {
                 console.log("Lỗi lấy danh mục: ", err.response);
             }
         }
-        if (partyBookingType) {
-            getPartyBookingType();
+        if (partyHallType) {
+            getPartyHallType();
         }
-    }, [partyBookingType]);
-    console.log("Danh mục modal: ", partyBookingTypeModal);
+    }, [partyHallType]);
+    console.log("Danh mục modal: ", partyHallTypeModal);
 
     const handleCloseUpdate = () => {
         // Set lại giá trị cũ sau khi đóng Modal
-        setPartyBookingTypeNameModal(partyBookingTypeNameModalOld);
+        setPartyHallTypeNameModal(partyHallTypeNameModalOld);
 
         setShowModal(prev => !prev);
     }
 
     // =============== Xử lý thêm danh mục ===============
-    const [partyBookingTypeNameModalNew, setPartyBookingTypeNameModalNew] = useState();
+    const [partyHallTypeNameModalNew, setPartyHallTypeNameModalNew] = useState();
 
     // Create new party booking type
-    const handleCreatePartyBookingType = async (newName) => {
+    const handleCreatePartyHallType = async (newName) => {
         try {
-            const createPartyBookingTypeRes = await PartyBookingTypeService.createPartyBookingType({
-                partyBookingTypeName: newName
+            const createPartyHallTypeRes = await PartyHallTypeService.createPartyHallType({
+                partyHallTypeName: newName
             });
-            if (!createPartyBookingTypeRes) {
+            if (!createPartyHallTypeRes) {
                 // Toast
-                const dataToast = { message: createPartyBookingTypeRes.data.message, type: "warning" };
+                const dataToast = { message: createPartyHallTypeRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -303,7 +303,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
             setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DanhMucMain & DanhMucRight.jsx
             setShowModal(prev => !prev);
             // Toast
-            const dataToast = { message: createPartyBookingTypeRes.data.message, type: "success" };
+            const dataToast = { message: createPartyHallTypeRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
 
@@ -318,12 +318,12 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
     }
 
     // =============== Xử lý xóa danh mục ===============
-    const handleDeletePartyBookingType = async (partyBookingTypeId) => {
+    const handleDeletePartyHallType = async (partyHallTypeId) => {
         try {
-            const deletePartyBookingTypeRes = await PartyBookingTypeService.deletePartyBookingType(partyBookingTypeId);
-            if (!deletePartyBookingTypeRes) {
+            const deletePartyHallTypeRes = await PartyHallTypeService.deletePartyHallType(partyHallTypeId);
+            if (!deletePartyHallTypeRes) {
                 // Toast
-                const dataToast = { message: deletePartyBookingTypeRes.data.message, type: "warning" };
+                const dataToast = { message: deletePartyHallTypeRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -331,7 +331,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: deletePartyBookingTypeRes.data.message, type: "success" };
+            const dataToast = { message: deletePartyHallTypeRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -343,14 +343,14 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
     }
 
     // =============== Xử lý Disable Party booking type ===============
-    const handleDisablePartyBookingType = async (partyBookingTypeId) => {
+    const handleDisablePartyHallType = async (partyHallTypeId) => {
         try {
-            const disablePartyBookingTypeRes = await PartyBookingTypeService.disablePartyBookingTypeById({
-                partyBookingTypeId: partyBookingTypeId
+            const disablePartyHallTypeRes = await PartyHallTypeService.disablePartyHallTypeById({
+                partyHallTypeId: partyHallTypeId
             });
-            if (!disablePartyBookingTypeRes) {
+            if (!disablePartyHallTypeRes) {
                 // Toast
-                const dataToast = { message: disablePartyBookingTypeRes.data.message, type: "warning" };
+                const dataToast = { message: disablePartyHallTypeRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -358,7 +358,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: disablePartyBookingTypeRes.data.message, type: "success" };
+            const dataToast = { message: disablePartyHallTypeRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -372,14 +372,14 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
     }
 
     // =============== Xử lý Able Party booking type ===============
-    const handleAblePartyBookingType = async (partyBookingTypeId) => {
+    const handleAblePartyHallType = async (partyHallTypeId) => {
         try {
-            const ablePartyBookingTypeRes = await PartyBookingTypeService.ablePartyBookingTypeById({
-                partyBookingTypeId: partyBookingTypeId
+            const ablePartyHallTypeRes = await PartyHallTypeService.ablePartyHallTypeById({
+                partyHallTypeId: partyHallTypeId
             });
-            if (!ablePartyBookingTypeRes) {
+            if (!ablePartyHallTypeRes) {
                 // Toast
-                const dataToast = { message: ablePartyBookingTypeRes.data.message, type: "warning" };
+                const dataToast = { message: ablePartyHallTypeRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -387,7 +387,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: ablePartyBookingTypeRes.data.message, type: "success" };
+            const dataToast = { message: ablePartyHallTypeRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -400,26 +400,26 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
         }
     }
     // ================================================================
-    //  =============== Chi tiết Loại đặt tiệc ===============
-    if (type === "detailPartyBookingType") {
+    //  =============== Chi tiết Loại Sảnh tiệc ===============
+    if (type === "detailPartyHallType") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Chi tiết Loại đặt tiệc</H1>
+                            <H1>Chi tiết Loại Sảnh tiệc</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Mã số Loại đặt tiệc:</FormSpan>
-                                    <FormInput type="text" value={partyBookingTypeModal ? partyBookingTypeModal.party_booking_type_id : null} readOnly />
+                                    <FormSpan>Mã số Loại Sảnh tiệc:</FormSpan>
+                                    <FormInput type="text" value={partyHallTypeModal ? partyHallTypeModal.party_hall_type_id : null} readOnly />
                                 </ModalFormItem>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại đặt tiệc:</FormSpan>
-                                    <FormInput type="text" value={partyBookingTypeModal ? partyBookingTypeModal.party_booking_type_name : null} readOnly />
+                                    <FormSpan>Tên Loại Sảnh tiệc:</FormSpan>
+                                    <FormInput type="text" value={partyHallTypeModal ? partyHallTypeModal.party_hall_type_name : null} readOnly />
                                 </ModalFormItem>
                                 <ModalFormItem>
                                     <FormSpan>Trạng thái:</FormSpan>
-                                    <FormInput type="text" value={partyBookingTypeModal ? partyBookingTypeModal.party_booking_type_state === 0 ? "Đang hoạt động" : partyBookingTypeModal.party_booking_type_state === 1 ? "Ngưng hoạt động" : null : null} readOnly />
+                                    <FormInput type="text" value={partyHallTypeModal ? partyHallTypeModal.party_hall_type_state === 0 ? "Đang hoạt động" : partyHallTypeModal.party_hall_type_state === 1 ? "Ngưng hoạt động" : null : null} readOnly />
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
@@ -442,23 +442,23 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
         );
     }
     //  =============== Thêm danh mục ===============
-    if (type === "createPartyBookingType") {
+    if (type === "createPartyHallType") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Thêm Loại đặt tiệc mới</H1>
+                            <H1>Thêm Loại Sảnh tiệc mới</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại đặt tiệc:</FormSpan>
-                                    <FormInput type="text" onChange={(e) => setPartyBookingTypeNameModalNew(e.target.value)} placeholder="Nhập vào tên Loại đặt tiệc" />
+                                    <FormSpan>Tên Loại Sảnh tiệc:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setPartyHallTypeNameModalNew(e.target.value)} placeholder="Nhập vào tên Loại Sảnh tiệc" />
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleCreatePartyBookingType(partyBookingTypeNameModalNew)}
+                                        onClick={() => handleCreatePartyHallType(partyHallTypeNameModalNew)}
                                     >Thêm vào</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -480,23 +480,23 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
         );
     }
     // =============== Chỉnh sửa danh mục ===============
-    if (type === "updatePartyBookingType") {
+    if (type === "updatePartyHallType") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Cập nhật Loại đặt tiệc</H1>
+                            <H1>Cập nhật Loại Sảnh tiệc</H1>
                             <ModalForm>
                                 <ModalFormItem>
-                                    <FormSpan>Tên Loại đặt tiệc:</FormSpan>
-                                    <FormInput type="text" onChange={(e) => setPartyBookingTypeNameModal(e.target.value)} value={partyBookingTypeNameModal} />
+                                    <FormSpan>Tên Loại Sảnh tiệc:</FormSpan>
+                                    <FormInput type="text" onChange={(e) => setPartyHallTypeNameModal(e.target.value)} value={partyHallTypeNameModal} />
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleUpdatePartyBookingType(partyBookingTypeNameModal, partyBookingTypeIdModal)}
+                                        onClick={() => handleUpdatePartyHallType(partyHallTypeNameModal, partyHallTypeIdModal)}
                                     >Cập nhật</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -517,8 +517,8 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
             </>
         );
     }
-        // =============== Disable PartyBookingType ===============
-        if (type === "disablePartyBookingType") {
+        // =============== Disable PartyHallType ===============
+        if (type === "disablePartyHallType") {
             return (
                 <>
                     {showModal ? (
@@ -526,14 +526,14 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
                             <AlertWrapper showModal={showModal}>
                                 <ModalForm>
                                     <ModalFormItem>
-                                        <h1>Bạn muốn Vô hiệu hóa Loại đặt tiệc <span style={{ color: `var(--color-primary)` }}>{partyBookingTypeModal ? partyBookingTypeModal.party_booking_type_name : null}</span> này?</h1>
-                                        <p style={{ marginTop: "10px" }}>Loại đặt tiệc này sẽ ngưng hoạt động và Khách hàng không thể đặt được nữa!</p>
+                                        <h1>Bạn muốn Vô hiệu hóa Loại Sảnh tiệc <span style={{ color: `var(--color-primary)` }}>{partyHallTypeModal ? partyHallTypeModal.party_hall_type_name : null}</span> này?</h1>
+                                        <p style={{ marginTop: "10px" }}>Loại Sảnh tiệc này sẽ ngưng hoạt động và Khách hàng không thể đặt được nữa!</p>
                                     </ModalFormItem>
                                 </ModalForm>
                                 <ButtonUpdate>
                                     <ButtonContainer>
                                         <ButtonClick
-                                            onClick={() => handleDisablePartyBookingType(partyBookingTypeIdModal)}
+                                            onClick={() => handleDisablePartyHallType(partyHallTypeIdModal)}
                                         >Đồng ý</ButtonClick>
                                     </ButtonContainer>
                                     <ButtonContainer>
@@ -554,8 +554,8 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
                 </>
             );
         }
-        // =============== able PartyBookingType ===============
-        if (type === "ablePartyBookingType") {
+        // =============== able PartyHallType ===============
+        if (type === "ablePartyHallType") {
             return (
                 <>
                     {showModal ? (
@@ -563,14 +563,14 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
                             <AlertWrapper showModal={showModal}>
                                 <ModalForm>
                                     <ModalFormItem>
-                                        <h1>Bạn muốn Mở khóa Loại đặt tiệc <span style={{ color: `var(--color-primary)` }}>{partyBookingTypeModal ? partyBookingTypeModal.party_booking_type_name : null}</span> này?</h1>
+                                        <h1>Bạn muốn Mở khóa Loại Sảnh tiệc <span style={{ color: `var(--color-primary)` }}>{partyHallTypeModal ? partyHallTypeModal.party_hall_type_name : null}</span> này?</h1>
                                         <p style={{ marginTop: "10px" }}>Khách hàng lại có thể Đặt loại tiệc này như trước!</p>
                                     </ModalFormItem>
                                 </ModalForm>
                                 <ButtonUpdate>
                                     <ButtonContainer>
                                         <ButtonClick
-                                            onClick={() => handleAblePartyBookingType(partyBookingTypeIdModal)}
+                                            onClick={() => handleAblePartyHallType(partyHallTypeIdModal)}
                                         >Đồng ý</ButtonClick>
                                     </ButtonContainer>
                                     <ButtonContainer>
@@ -592,19 +592,19 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
             );
         }
     // =============== Xóa danh mục ===============
-    if (type === "deletePartyBookingType") {
+    if (type === "deletePartyHallType") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ backgroundImage: `url("https://img.freepik.com/free-vector/alert-safety-background_97886-3460.jpg?w=1060")`, backgroundPosition: `center center`, backgroundRepeat: `no-repeat`, backgroundSize: `cover`, width: `600px`, height: `400px` }} >
                             <ModalContent>
-                                <h1>Bạn muốn xóa Loại đặt tiệc <span style={{ color: `var(--color-primary)` }}>{partyBookingTypeNameModal}</span> này?</h1>
-                                <p>Những đặt tiệc của loại này cũng sẽ bị xóa</p>
+                                <h1>Bạn muốn xóa Loại Sảnh tiệc <span style={{ color: `var(--color-primary)` }}>{partyHallTypeNameModal}</span> này?</h1>
+                                <p>Những Đặt tiệc của loại này cũng sẽ bị xóa</p>
                                 <Button>
                                     <ButtonContainer>
                                         <ButtonClick
-                                            onClick={() => { handleDeletePartyBookingType(partyBookingTypeIdModal) }}
+                                            onClick={() => { handleDeletePartyHallType(partyHallTypeIdModal) }}
                                         >Đồng ý</ButtonClick>
                                     </ButtonContainer>
                                     <ButtonContainer>
