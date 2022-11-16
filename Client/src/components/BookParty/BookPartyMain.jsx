@@ -1175,7 +1175,7 @@ const BookPartyMain = () => {
                 const res = await SetMenuService.getSetMenuWithFoodTypeAndFoods();
                 setSetMenuList(res.data.data);
             } catch (err) {
-                console.log("Error getSetMenuWithFoodTypeAndFoods: ", err);
+                console.log("Error getSetMenuWithFoodTypeAndFoods: ", err.response);
             }
         }
         getSetMenuWithFoodTypeAndFoods();

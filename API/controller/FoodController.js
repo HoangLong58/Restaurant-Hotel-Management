@@ -1,5 +1,7 @@
 const { getFoodsAndType, getFoodsAndTypeByFoodTypeId, getMinMaxFoodPriceByFoodTypeId, getFoodsAndTypeByFoodId, getAllFoods, getQuantityFoods, findAllFoodByIdOrName, findAllFoodById, createFood, updateFoodById, deleteFood } = require("../service/FoodService");
 const { findAllFoodTypeById } = require("../service/FoodTypeService");
+const { getAllMenuDetailFoodBySetMenuId } = require("../service/MenuDetailFoodService");
+const { findSetMenuById } = require("../service/SetMenuService");
 const { createLogAdmin } = require("../utils/utils");
 
 module.exports = {
@@ -417,5 +419,107 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+    // Admin: Quản lý Set Menu - Thêm Food
+    getAllFoodByFoodTypeIdAndSetMenuId: async (req, res) => {
+        const foodTypeId = req.body.foodTypeId;
+        const setMenuId = req.body.setMenuId;
+        if (!setMenuId || !Number.isInteger(setMenuId) || setMenuId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Set Menu không hợp lệ!"
+            });
+        }
+        if (!foodTypeId || !Number.isInteger(foodTypeId) || foodTypeId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Loại món ăn không hợp lệ!"
+            });
+        }
+        // Kiểm tra tồn tại set menu
+        try {
+            const setMenuRes = await findSetMenuById(setMenuId);
+            if (!setMenuRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find set menu!"
+                });
+            }
+            // Kiểm tra tồn tại food type 
+            try {
+                const foodTypeRes = await findAllFoodTypeById(foodTypeId);
+                if (!foodTypeRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find food type!"
+                    });
+                }
+                // Lấy tất cả menu detail food của set menu
+                var foodOfSetMenuList = []  // Mảng lưu những food id của set menu này
+                try {
+                    const menuDetailFoodListRes = await getAllMenuDetailFoodBySetMenuId(setMenuId);
+                    if (!menuDetailFoodListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find menu detail food list of set menu!"
+                        });
+                    }
+                    for (var i = 0; i < menuDetailFoodListRes.length; i++) {
+                        foodOfSetMenuList.push(menuDetailFoodListRes[i].food_id);
+                    }
+                    var finalFoodListExceptThisSetMenuFood = []; //Mảng chứa list tất cả món ăn mà set menu không có mà food type đang còn hoạt động
+                    // Lấy tất cả food mà food type đang còn hoạt động và Không chứa food cùa set menu hiện tại 
+                    try {
+                        const foodListRes = await getFoodsAndTypeByFoodTypeId(foodTypeId);
+                        if (!foodListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find food list of food type!"
+                            });
+                        }
+
+                        for (var i = 0; i < foodListRes.length; i++) {
+                            if (foodOfSetMenuList.includes(foodListRes[i].food_id)) {
+                                continue;
+                            } else {
+                                finalFoodListExceptThisSetMenuFood.push(foodListRes[i]);
+                            }
+                        }
+
+                        // Success
+                        return res.status(200).json({
+                            status: "success",
+                            message: "Lấy những Món ăn mà Set Menu chưa có thành công!",
+                            data: finalFoodListExceptThisSetMenuFood
+                        });
+
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when find food list of food type!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when find menu detail food list of set menu!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when find food type!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find set menu!",
+                error: err
+            });
+        }
+    },
 }

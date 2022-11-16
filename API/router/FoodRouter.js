@@ -1,5 +1,5 @@
 
-const { getFoodsAndType, getFoodsAndTypeByFoodTypeId, getMinMaxFoodPrice, getFoodsAndTypeByFoodId, getQuantityFood, getAllFoods, findAllFoodByIdOrName, findAllFoodById, createFood, updateFood, deleteFood } = require("../controller/FoodController");
+const { getFoodsAndType, getFoodsAndTypeByFoodTypeId, getMinMaxFoodPrice, getFoodsAndTypeByFoodId, getQuantityFood, getAllFoods, findAllFoodByIdOrName, findAllFoodById, createFood, updateFood, deleteFood, getAllFoodByFoodTypeIdAndSetMenuId } = require("../controller/FoodController");
 const router = require("express").Router();
 
 const { checkToken } = require("../auth/TokenValidation");
@@ -12,6 +12,7 @@ router.get("/", checkToken, getFoodsAndType);
 
 router.put("/", checkToken, updateFood); //
 
+router.post("/get-all-food-by-food-type-id-and-set-menu-id", checkToken, getAllFoodByFoodTypeIdAndSetMenuId);   //
 router.post("/find-food-by-id", checkToken, findAllFoodById); //
 router.post("/get-food-and-type-by-food-type-id", checkToken, getFoodsAndTypeByFoodTypeId);
 router.post("/get-min-max-food-price", checkToken, getMinMaxFoodPrice);

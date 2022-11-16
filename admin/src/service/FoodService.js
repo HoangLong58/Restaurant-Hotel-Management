@@ -47,3 +47,9 @@ export const deleteFood = async (foodId) => {
     const res = await axios.delete(`${url_Food}/${foodId}`);
     return res;
 };
+// Quản lý Set Menu - Thêm Món ăn
+export const getAllFoodByFoodTypeIdAndSetMenuId = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_Food}/get-all-food-by-food-type-id-and-set-menu-id`, data);
+    return res;
+};
