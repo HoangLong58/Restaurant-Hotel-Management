@@ -4,17 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import app from "../../firebase";
 
-// Date picker
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import moment from 'moment';
-
 // SERVICES
-import * as DeviceService from "../../service/DeviceService";
-import * as DeviceTypeService from "../../service/DeviceTypeService";
+import * as FloorService from "../../service/FloorService";
+import * as PartyHallImageService from "../../service/PartyHallImageService";
+import * as PartyHallService from "../../service/PartyHallService";
+import * as PartyHallTypeService from "../../service/PartyHallTypeService";
+
 
 const Background = styled.div`
     width: 100%;
@@ -102,7 +97,7 @@ height: 100%;
 `
 
 const ModalFormItem = styled.div`
-margin: 10px 30px;
+margin: 0px 30px;
 display: flex;
 flex-direction: column;
 `
@@ -172,9 +167,9 @@ const ButtonClick = styled.button`
 
 const FormImg = styled.img`
     margin: auto;
-    width: 50%;
+    width: 100px;
     object-fit: contain;
-    height: 200px;
+    height: 100px;
 `
 
 const ModalChiTietItem = styled.div`
@@ -254,7 +249,436 @@ const H1Delete = styled.h1`
     width: "90%";
     text-align: center;
 `
-const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleClose, showToastFromOut }) => {
+
+// Left
+const LeftVote = styled.div``
+const LeftVoteItem = styled.div`
+    position: relative;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    box-shadow: 6px 6px 30px #d1d9e6;
+    border-radius: 20px;
+    background-color: var(--color-white);
+`
+const LeftImage = styled.img`
+    margin: auto;
+    width: 95%;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 20px;
+`
+const LeftVoteTitle = styled.span`
+    margin: auto;
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0px 15px 0px;
+    color: var(--color-dark);
+`
+const LeftVoteItemRating = styled.div`
+    /* position: relative; */
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    width: 95%;
+    height: auto;
+    box-shadow: 6px 6px 30px #d1d9e6;
+    border-radius: 20px;
+    background-color: var(--color-white);
+`
+const CartItem = styled.div`
+display: flex;
+width: 100%;
+font-size: 1.1rem;
+background: var(--color-grey);
+margin-top: 10px;
+padding: 10px 12px;
+border-radius: 5px;
+cursor: pointer;
+border: 1px solid transparent;
+`
+
+const Circle = styled.span`
+height: 12px;
+width: 12px;
+background: #ccc;
+border-radius: 50%;
+margin-right: 15px;
+border: 4px solid transparent;
+display: inline-block;
+`
+
+const Course = styled.div`
+width: 100%;
+color: var(--color-dark);
+`
+
+const Content = styled.div`
+display: flex;
+align-items: center;
+justify-content: space-between;
+`
+
+const InforCustomer = styled.div``
+const InfoItem = styled.div``
+const InfoTitle = styled.div`
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    padding: 10px 0px 10px 50px;
+    color: var(--color-dark);
+`
+const InfoDetail = styled.div`
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    padding: 10px 20px;
+    color: var(--color-dark);
+`
+const LeftVoteItem2 = styled.div`
+    position: relative;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    box-shadow: 6px 6px 30px #d1d9e6;
+    border-radius: 20px;
+    background-color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+`
+
+// Right
+const RightVote = styled.div`
+    padding-left: 40px;
+`
+const RightVoteItem = styled.div`
+    position: relative;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    box-shadow: 6px 6px 30px #d1d9e6;
+    border-radius: 20px;
+    background-color: var(--color-white);
+`
+
+const RightVoteTitle = styled.span`
+    margin: auto;
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0px 15px 0px;
+    color: var(--color-dark);
+`
+const Surcharge = styled.div`
+    height: 310px;
+    max-height: 310px;
+    overflow-y: scroll;
+`
+const RightVoteItem2 = styled.div`
+    position: relative;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    box-shadow: 6px 6px 30px #d1d9e6;
+    border-radius: 20px;
+    background-color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+`
+
+const InforTotal = styled.div``
+const InfoTotalItem = styled.div``
+const InfoTotalTitle = styled.div`
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    padding: 10px 0px 10px 50px;
+    color: var(--color-dark);
+`
+const InfoTotalDetail = styled.div`
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 10px 20px;
+    color: var(--color-primary);
+`
+
+const AlertWrapper = styled.div`
+    width: 50%;
+    height: auto;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
+    background: var(--color-white);
+    color: var(--color-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    position: relative;
+    z-index: 10;
+    border-radius: 10px;
+    --growth-from: 0.7;
+    --growth-to: 1;
+    animation: growth linear 0.1s;
+`
+
+// Empty item
+const EmptyItem = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+`
+const EmptyItemSvg = styled.div``
+const EmptyContent = styled.div`
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    font-weight: bold;
+`
+
+// Service Item
+const ServiceItem = styled.div`
+    background-color: var(--color-light);
+    padding: 10px 30px;
+    width: 80%;
+    margin: 5px auto 10px auto;
+    border-radius: 20px;
+    position: relative;
+`;
+const ServiceIcon = styled.img`
+    width: 40px;
+    height: auto;
+`;
+const ServiceName = styled.div`
+    font-size: 1rem;
+    font-weight: bold;
+`;
+const ServiceTime = styled.div`
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+`;
+const ServiceTitle = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+`;
+const ServiceInfo = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+`;
+const ServiceIconContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+const ServiceList = styled.div`
+    min-height: 200px;
+    max-height: 200px;
+    overflow-y: scroll;
+`;
+
+// Checkbox
+const LabelCheckbox = styled.label`
+    cursor: pointer;
+`
+const FormChucNang = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    /* position: absolute;
+    left: 50%;
+    bottom: 50%; */
+    /* transform: translateX(-50%); */
+    text-align: center;
+    justify-content: space-around;
+`
+
+const SignInBtn = styled.button`
+    padding: 0px 35px;
+    width: auto;
+    height: 42px;
+    margin: 5px 0px 10px 0px;
+    border: none;
+    outline: none;
+    border-radius: 20px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    font-weight: 700;
+    box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    color: var(--color-dark);
+    background-color: var(--color-light);
+    transition: all 0.3s ease;
+    &:hover {
+        background-color: var(--color-primary);
+        color: var(--color-white);
+    }
+    &:active {
+        transform: scale(1.05);
+    }
+`
+
+const SignUpBtn = styled.button`
+    padding: 0px 35px;
+    width: auto;
+    height: 42px;
+    margin: 5px 0px;
+    border: none;
+    outline: none;
+    border-radius: 20px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    font-weight: 700;
+    box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    color: var(--color-dark);
+    background-color: var(--color-light);
+    transition: all 0.3s ease;
+    &:hover {
+        color: var(--color-white);
+        background-color: var(--color-primary);
+    }
+    &:active {
+        transform: scale(1.05);
+    }   
+`
+
+const DeleteService = styled.span`
+    cursor: pointer;
+    color: var(--color-dark);
+    position: absolute;
+    top: 17px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    z-index: 10;
+    &:hover {
+        color: var(--color-primary);
+        transform: scale(1.3);
+        transition: all 200ms linear; 
+    }
+`
+
+
+// Device Item
+const DeviceList = styled.div`
+    min-height: 200px;
+    max-height: 200px;
+    overflow-y: scroll;
+`;
+const DeviceIcon = styled.img`
+    width: 40px;
+    height: auto;
+`;
+const DeviceName = styled.div`
+    font-size: 1rem;
+    font-weight: bold;
+`;
+const DeviceTime = styled.div`
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+`;
+const DeviceTitle = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+`;
+const DeviceInfo = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+`;
+const DeviceIconContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+// Device detail
+const DeviceDetailContainer = styled.div`
+    border-radius: 5px;
+    padding: 12px;
+    /* position: absolute;
+    bottom: calc(100% + 20px);
+    right: -100px; */
+    position: fixed;
+    bottom: 400px;
+    left: 650px;
+    background-color: #f5f5f5;
+    width: 250px;
+    border-radius: 2px;
+    box-shadow: 0 1px 3.125rem 0 rgb(0 0 0 / 20%);
+    -webkit-animation: fadeIn ease-in 0.2s;
+    animation: fadeIn ease-in 0.2s;
+    transition: all 0.85s ease;
+    cursor: default;
+    z-index: 10;
+    display: none;
+    /* opacity: 0; */
+    &::after {
+        content: "";
+        position: absolute;
+        cursor: pointer;
+        left: 24px;
+        bottom: -28px;
+        border-width: 16px 20px;
+        border-style: solid;
+        border-color: #f5f5f5 transparent transparent transparent;
+    }
+`;
+const DeviceDetailImage = styled.img`
+    border-radius: 5px;
+    width: 100%;
+`;
+
+const DeviceItem = styled.div`
+    border-radius: 20px;
+    background-color: var(--color-light);
+    padding: 10px 30px;
+    width: 80%;
+    margin: 5px auto 10px auto;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    &:hover {
+        background-color: #f5f5f5;
+        ${DeviceDetailContainer} {
+            /* opacity: 1; */
+            display: block;
+        }
+        &::after {
+            opacity: 1;
+        }
+    }
+    &::after {
+        content: "";
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        height: 5px;
+        width: 5px;
+        background: var(--color-primary);
+        border-radius: 50%;
+        margin-right: 15px;
+        border: 4px solid transparent;
+        display: block;
+        opacity: 0;
+    }
+`;
+
+const Modal = ({ showModal, setShowModal, type, partyHall, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal
     const modalRef = useRef();
     const closeModal = (e) => {
@@ -280,40 +704,122 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
         [keyPress]
     );
 
-    // =============== Xử lý cập nhật danh mục ===============
+    // ==================== Xử lý thêm Sảnh tiệc ====================
     useEffect(() => {
-        setDeviceImageModalNew(null);
-        setDeviceNameModalNew();
+        setPartyHallImageListModalNew([]);
+        setPartyHallImageListModalChange([]);
     }, [showModal]);
+    // STATE
+    const [partyHallTypeIdModalNew, setPartyHallTypeIdModalNew] = useState();
+    const [floorIdModalNew, setFloorIdModalNew] = useState();
+    const [partyHallNameModalNew, setPartyHallNameModalNew] = useState();
+    const [partyHallViewModalNew, setPartyHallViewModalNew] = useState();
+    const [partyHallDescriptionModalNew, setPartyHallDescriptionModalNew] = useState();
+    const [partyHallSizeModalNew, setPartyHallSizeModalNew] = useState();
+    const [partyHallOccupancyModalNew, setPartyHallOccupancyModalNew] = useState();
+    const [partyHallPriceModalNew, setPartyHallPriceModalNew] = useState();
+    const [partyHallImageListModalNew, setPartyHallImageListModalNew] = useState([]);
 
-    const handleUpdateDevice = async (newDeviceName, newDeviceDate, newDeviceDescription, newDeviceImage, newDeviceState, deviceTypeId, deviceId) => {
+    // Thay đổi hình ảnh
+    const handleShowImg = (hinhmoiarray) => {
+        // Chạy vòng lặp thêm từng hình trong mảng lên firebase rồi lưu vô mảng [partyHallImageListModalNew] ở modal Thêm Sảnh tiệc
+        setPartyHallImageListModalNew([]);
+        for (let i = 0; i < hinhmoiarray.length; i++) {
+            // console.log("hinh moi: ", hinhmoiarray[i]);
+            const hinhanhunique = new Date().getTime() + hinhmoiarray[i].name;
+            const storage = getStorage(app);
+            const storageRef = ref(storage, hinhanhunique);
+            const uploadTask = uploadBytesResumable(storageRef, hinhmoiarray[i]);
+
+            // Listen for state changes, errors, and completion of the upload.
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case 'paused':
+                            console.log('Upload is paused');
+                            break;
+                        case 'running':
+                            console.log('Upload is running');
+                            break;
+                        default:
+                    }
+                },
+                (error) => {
+                    // A full list of error codes is available at
+                    // https://firebase.google.com/docs/storage/web/handle-errors
+                    switch (error.code) {
+                        case 'storage/unauthorized':
+                            // User doesn't have permission to access the object
+                            break;
+                        case 'storage/canceled':
+                            // User canceled the upload
+                            break;
+
+                        // ...
+
+                        case 'storage/unknown':
+                            // Unknown error occurred, inspect error.serverResponse
+                            break;
+                    }
+                },
+                () => {
+                    // Upload completed successfully, now we can get the download URL
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+                        try {
+                            setPartyHallImageListModalNew(prev => [...prev, downloadURL]);
+                            console.log("Up thành công 1 hình: ", downloadURL);
+                        } catch (err) {
+                            console.log("Lỗi show hình ảnh:", err);
+                        }
+                    });
+                }
+            );
+        }
+    }
+
+    const handleCreatePartyHall = async (
+        partyHallTypeIdModalNew,
+        floorIdModalNew,
+        partyHallNameModalNew,
+        partyHallViewModalNew,
+        partyHallDescriptionModalNew,
+        partyHallSizeModalNew,
+        partyHallOccupancyModalNew,
+        partyHallPriceModalNew,
+        partyHallImageListModalNew  //Mảng hình nhe
+    ) => {
         try {
-            const updateDeviceRes = await DeviceService.updateDevice({
-                deviceId: deviceId,
-                deviceName: newDeviceName,
-                deviceDate: newDeviceDate,
-                deviceDescription: newDeviceDescription,
-                deviceImage: newDeviceImage,
-                deviceState: newDeviceState,
-                deviceTypeId: deviceTypeId
+            const createPartyHallRes = await PartyHallService.createPartyHall({
+                partyHallName: partyHallNameModalNew,
+                partyHallView: partyHallViewModalNew,
+                partyHallDescription: partyHallDescriptionModalNew,
+                partyHallSize: partyHallSizeModalNew,
+                partyHallOccupancy: partyHallOccupancyModalNew,
+                partyHallPrice: partyHallPriceModalNew,
+                floorId: floorIdModalNew,
+                partyHallTypeId: partyHallTypeIdModalNew,
+                partyHallImageList: partyHallImageListModalNew
             });
-            if (!updateDeviceRes) {
+            if (!createPartyHallRes) {
                 // Toast
-                const dataToast = { message: updateDeviceRes.data.message, type: "warning" };
+                const dataToast = { message: createPartyHallRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
-
-            // Success
+            setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DanhMucMain & DanhMucRight.jsx
             setShowModal(prev => !prev);
-            handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
+            setPartyHallImageListModalNew([]);  //Làm rỗng mảng hình
             // Toast
-            const dataToast = { message: updateDeviceRes.data.message, type: "success" };
+            const dataToast = { message: createPartyHallRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
+            setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DanhMucMain & DanhMucRight.jsx
             setShowModal(prev => !prev);
-            handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
             const dataToast = { message: err.response.data.message, type: "danger" };
             showToastFromOut(dataToast);
@@ -321,238 +827,296 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
         }
     }
 
+    // State chứa mảng floor và party hall type - Lấy về floor và party hall type để hiện select-option
+    const [floorList, setFloorList] = useState([]);
+    const [partyHallTypeList, setPartyHallTypeList] = useState([]);
     useEffect(() => {
-        const getDeviceType = async () => {
+        const getFloorList = async () => {
             try {
-                const deviceTypeRes = await DeviceTypeService.getDeviceTypes();
-                setDeviceTypeList(deviceTypeRes.data.data);
+                const floorListRes = await FloorService.getFloors();
+                setFloorList(floorListRes.data.data);
             } catch (err) {
-                console.log("Lỗi lấy device type: ", err);
+                console.log("Lỗi lấy floor list: ", err.response);
             }
-        };
-        getDeviceType();
-    }, []);
-
-    // STATE:
-    const [deviceModal, setDeviceModal] = useState();
-    const [deviceIdModal, setDeviceIdModal] = useState();
-    const [deviceNameModal, setDeviceNameModal] = useState();
-    const [deviceImageModal, setDeviceImageModal] = useState();
-    const [deviceDescriptionModal, setDeviceDescriptionModal] = useState();
-    const [deviceDateModal, setDeviceDateModal] = useState();
-    const [deviceStateModal, setDeviceStateModal] = useState();
-    const [deviceTypeIdModal, setDeviceTypeIdModal] = useState();
-
-    const [deviceModalOld, setDeviceModalOld] = useState();
-    const [deviceIdModalOld, setDeviceIdModalOld] = useState();
-    const [deviceNameModalOld, setDeviceNameModalOld] = useState();
-    const [deviceImageModalOld, setDeviceImageModalOld] = useState();
-    const [deviceDescriptionModalOld, setDeviceDescriptionModalOld] = useState();
-    const [deviceDateModalOld, setDeviceDateModalOld] = useState();
-    const [deviceStateModalOld, setDeviceStateModalOld] = useState();
-    const [deviceTypeIdModalOld, setDeviceTypeIdModalOld] = useState();
-
-    const [deviceTypeList, setDeviceTypeList] = useState([]);
-    useEffect(() => {
-        const getDevice = async () => {
+        }
+        getFloorList();
+        const getPartyHallTypeList = async () => {
             try {
-                const deviceRes = await DeviceService.findDeviceById({
-                    deviceId: device.device_id
+                const partyHallTypeListRes = await PartyHallTypeService.getAllPartyHallTypes();
+                setPartyHallTypeList(partyHallTypeListRes.data.data);
+            } catch (err) {
+                console.log("Lỗi lấy party hall type list: ", err.response);
+            }
+        }
+        getPartyHallTypeList();
+    }, [partyHall]);
+
+    // =============== Xử lý cập nhật Room ===============
+    // STATE
+    const [partyHallModal, setPartyHallModal] = useState();
+    const [partyHallIdModal, setPartyHallIdModal] = useState();
+    const [partyHallTypeIdModal, setPartyHallTypeIdModal] = useState();
+    const [floorIdModal, setFloorIdModal] = useState();
+    const [partyHallNameModal, setPartyHallNameModal] = useState();
+    const [partyHallViewModal, setPartyHallViewModal] = useState();
+    const [partyHallDescriptionModal, setPartyHallDescriptionModal] = useState();
+    const [partyHallSizeModal, setPartyHallSizeModal] = useState();
+    const [partyHallOccupancyModal, setPartyHallOccupancyModal] = useState();
+    const [partyHallPriceModal, setPartyHallPriceModal] = useState();
+    const [partyHallImageListModal, setPartyHallImageListModal] = useState([]);
+    const [partyHallImageListModalChange, setPartyHallImageListModalChange] = useState([]);
+
+    const [partyHallModalOld, setPartyHallModalOld] = useState();
+    const [partyHallTypeIdModalOld, setPartyHallTypeIdModalOld] = useState();
+    const [floorIdModalOld, setFloorIdModalOld] = useState();
+    const [partyHallNameModalOld, setPartyHallNameModalOld] = useState();
+    const [partyHallViewModalOld, setPartyHallViewModalOld] = useState();
+    const [partyHallDescriptionModalOld, setPartyHallDescriptionModalOld] = useState();
+    const [partyHallSizeModalOld, setPartyHallSizeModalOld] = useState();
+    const [partyHallOccupancyModalOld, setPartyHallOccupancyModalOld] = useState();
+    const [partyHallPriceModalOld, setPartyHallPriceModalOld] = useState();
+    const [partyHallImageListModalOld, setPartyHallImageListModalOld] = useState([]);
+
+    const handleUpdateRoom = async (
+        partyHallIdModal,
+        partyHallTypeIdModal,
+        floorIdModal,
+        partyHallNameModal,
+        partyHallViewModal,
+        partyHallDescriptionModal,
+        partyHallSizeModal,
+        partyHallOccupancyModal,
+        partyHallPriceModal,
+        partyHallImageListModal
+    ) => {
+        try {
+            if (partyHallImageListModalChange.length > 0) {
+                const updatePartyHallRes = await PartyHallService.updatePartyHall({
+                    partyHallName: partyHallNameModal,
+                    partyHallView: partyHallViewModal,
+                    partyHallDescription: partyHallDescriptionModal,
+                    partyHallSize: partyHallSizeModal,
+                    partyHallOccupancy: partyHallOccupancyModal,
+                    partyHallPrice: partyHallPriceModal,
+                    floorId: floorIdModal,
+                    partyHallTypeId: partyHallTypeIdModal,
+                    partyHallId: partyHallIdModal,
+                    partyHallImageList: partyHallImageListModalChange
                 });
-                console.log("RES: ", deviceRes);
-                setDeviceModal(deviceRes.data.data);
-                setDeviceIdModal(deviceRes.data.data.device_id);
-                setDeviceNameModal(deviceRes.data.data.device_name);
-                setDeviceDescriptionModal(deviceRes.data.data.device_description);
-                setDeviceDateModal(deviceRes.data.data.device_date);
-                setDeviceStateModal(deviceRes.data.data.device_state);
-                setDeviceImageModal(deviceRes.data.data.device_image);
-                setDeviceTypeIdModal(deviceRes.data.data.device_type_id);
+                if (!updatePartyHallRes) {
+                    // Toast
+                    const dataToast = { message: updatePartyHallRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+                // Success
+                setShowModal(prev => !prev);
+                handleClose();
+                setPartyHallImageListModalChange([]);
+                // Toast
+                const dataToast = { message: updatePartyHallRes.data.message, type: "success" };
+                showToastFromOut(dataToast);
+                return;
+            } else {
+                const updatePartyHallRes = await PartyHallService.updatePartyHall({
+                    partyHallName: partyHallNameModal,
+                    partyHallView: partyHallViewModal,
+                    partyHallDescription: partyHallDescriptionModal,
+                    partyHallSize: partyHallSizeModal,
+                    partyHallOccupancy: partyHallOccupancyModal,
+                    partyHallPrice: partyHallPriceModal,
+                    floorId: floorIdModal,
+                    partyHallTypeId: partyHallTypeIdModal,
+                    partyHallId: partyHallIdModal,
+                    partyHallImageList: partyHallImageListModal
+                });
+                if (!updatePartyHallRes) {
+                    // Toast
+                    const dataToast = { message: updatePartyHallRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+                // Success
+                setShowModal(prev => !prev);
+                handleClose();
+                setIsUpdate(prev => !prev);
+                // Toast
+                const dataToast = { message: updatePartyHallRes.data.message, type: "success" };
+                showToastFromOut(dataToast);
+                return;
+            }
+        } catch (err) {
+            setShowModal(prev => !prev);
+            handleClose();
+            // Toast
+            const dataToast = { message: err.response.data.message, type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+    }
 
-                setDeviceModalOld(deviceRes.data.data);
-                setDeviceIdModalOld(deviceRes.data.data.device_id);
-                setDeviceNameModalOld(deviceRes.data.data.device_name);
-                setDeviceDescriptionModalOld(deviceRes.data.data.device_description);
-                setDeviceDateModalOld(deviceRes.data.data.device_date);
-                setDeviceStateModalOld(deviceRes.data.data.device_state);
-                setDeviceImageModalOld(deviceRes.data.data.device_image);
-                setDeviceTypeIdModalOld(deviceRes.data.data.device_type_id);
+    const [isUpdate, setIsUpdate] = useState(true);
+    useEffect(() => {
+        const getPartyHall = async () => {
+            try {
+                const partyHallRes = await PartyHallService.findPartyHallById({
+                    partyHallId: partyHall.party_hall_id
+                });
+                setPartyHallModal(partyHallRes.data.data);
+                setPartyHallIdModal(partyHallRes.data.data.party_hall_id);
+                setPartyHallTypeIdModal(partyHallRes.data.data.party_hall_type_id);
+                setFloorIdModal(partyHallRes.data.data.floor_id);
+                setPartyHallNameModal(partyHallRes.data.data.party_hall_name);
+                setPartyHallViewModal(partyHallRes.data.data.party_hall_view);
+                setPartyHallDescriptionModal(partyHallRes.data.data.party_hall_description);
+                setPartyHallSizeModal(partyHallRes.data.data.party_hall_size);
+                setPartyHallOccupancyModal(partyHallRes.data.data.party_hall_occupancy);
+                setPartyHallPriceModal(partyHallRes.data.data.party_hall_price);
+
+                setPartyHallModalOld(partyHallRes.data.data);
+                setPartyHallTypeIdModalOld(partyHallRes.data.data.party_hall_type_id);
+                setFloorIdModalOld(partyHallRes.data.data.floor_id);
+                setPartyHallNameModalOld(partyHallRes.data.data.party_hall_name);
+                setPartyHallViewModalOld(partyHallRes.data.data.party_hall_view);
+                setPartyHallDescriptionModalOld(partyHallRes.data.data.party_hall_description);
+                setPartyHallSizeModalOld(partyHallRes.data.data.party_hall_size);
+                setPartyHallOccupancyModalOld(partyHallRes.data.data.party_hall_occupancy);
+                setPartyHallPriceModalOld(partyHallRes.data.data.party_hall_price);
             } catch (err) {
-                console.log("Lỗi lấy device: ", err);
+                console.log("Lỗi lấy PartyHall: ", err.response);
             }
         }
-        if (device) {
-            getDevice();
+        const getPartyHallImage = async () => {
+            try {
+                setPartyHallImageListModal([]);
+                const partyHallImageListModalRes = await PartyHallImageService.getPartyHallImagesByPartyHallId(partyHall.party_hall_id);
+                console.log("partyHallImageListModalRes: ", partyHallImageListModalRes);
+                partyHallImageListModalRes.data.data.map((partyHallImage, index) => {
+                    setPartyHallImageListModal(prev => {
+                        const isHave = partyHallImageListModal.includes(partyHallImage.party_hall_image_content);
+                        if (isHave) {
+                            return [...prev];
+                        } else {
+                            return [...prev, partyHallImage.party_hall_image_content];
+                        }
+                    });
+                    setPartyHallImageListModalOld(prev => {
+                        const isHave = partyHallImageListModalOld.includes(partyHallImage.party_hall_image_content);
+                        if (isHave) {
+                            return [...prev];
+                        } else {
+                            return [...prev, partyHallImage.party_hall_image_content];
+                        }
+                    });
+                })
+            } catch (err) {
+                console.log("Lỗi lấy hình ảnh sảnh: ", err.response);
+            }
         }
-    }, [device]);
-    console.log("Danh mục modal: ", deviceModal);
+        getPartyHall();
+        getPartyHallImage();
+    }, [partyHall, showModal, isUpdate]);
 
+    useEffect(() => {
+        const getImageUpdate = async () => {
+            try {
+                const partyHallImageUpdateRes = await PartyHallImageService.getPartyHallImagesByPartyHallId(partyHall.party_hall_id);
+                partyHallImageUpdateRes.data.data.map((partyHallImage, index) => {
+                    setPartyHallImageListModal(prev => {
+                        const isHave = partyHallImageListModal.includes(partyHallImage.party_hall_image_content);
+                        if (isHave) {
+                            return [...prev];
+                        } else {
+                            return [...prev, partyHallImage.party_hall_image_content];
+                        }
+                    });
+                })
+            } catch (err) {
+                console.log("Lỗi lấy hình ảnh party hall: ", err.response);
+            }
+        }
+        getImageUpdate();
+    }, [isUpdate])
     // Thay đổi hình ảnh
-    const handleChangeImg = (hinhmoi) => {
-        const hinhanhunique = new Date().getTime() + hinhmoi.name;
-        const storage = getStorage(app);
-        const storageRef = ref(storage, hinhanhunique);
-        const uploadTask = uploadBytesResumable(storageRef, hinhmoi);
+    const handleChangeImg = (hinhmoiarray) => {
+        setPartyHallImageListModalChange([]);
+        for (let i = 0; i < hinhmoiarray.length; i++) {
+            // console.log("hinh moi: ", hinhmoiarray[i]);
+            const hinhanhunique = new Date().getTime() + hinhmoiarray[i].name;
+            const storage = getStorage(app);
+            const storageRef = ref(storage, hinhanhunique);
+            const uploadTask = uploadBytesResumable(storageRef, hinhmoiarray[i]);
 
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
-                    default:
-                }
-            },
-            (error) => {
-                // A full list of error codes is available at
-                // https://firebase.google.com/docs/storage/web/handle-errors
-                switch (error.code) {
-                    case 'storage/unauthorized':
-                        // User doesn't have permission to access the object
-                        break;
-                    case 'storage/canceled':
-                        // User canceled the upload
-                        break;
-
-                    // ...
-
-                    case 'storage/unknown':
-                        // Unknown error occurred, inspect error.serverResponse
-                        break;
-                }
-            },
-            () => {
-                // Upload completed successfully, now we can get the download URL
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    try {
-                        setDeviceImageModal(downloadURL);
-                    } catch (err) {
-                        console.log("Lỗi cập nhật hình ảnh:", err);
+            // Listen for state changes, errors, and completion of the upload.
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case 'paused':
+                            console.log('Upload is paused');
+                            break;
+                        case 'running':
+                            console.log('Upload is running');
+                            break;
+                        default:
                     }
-                });
-            }
-        );
+                },
+                (error) => {
+                    // A full list of error codes is available at
+                    // https://firebase.google.com/docs/storage/web/handle-errors
+                    switch (error.code) {
+                        case 'storage/unauthorized':
+                            // User doesn't have permission to access the object
+                            break;
+                        case 'storage/canceled':
+                            // User canceled the upload
+                            break;
+
+                        // ...
+
+                        case 'storage/unknown':
+                            // Unknown error occurred, inspect error.serverResponse
+                            break;
+                    }
+                },
+                () => {
+                    // Upload completed successfully, now we can get the download URL
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+                        try {
+                            setPartyHallImageListModalChange(prev => [...prev, downloadURL]);
+                        } catch (err) {
+                            console.log("Lỗi cập nhật hình ảnh:", err);
+                        }
+                    });
+                }
+            );
+        }
     }
 
     const handleCloseUpdate = () => {
         // Set lại giá trị cũ sau khi đóng Modal
-        setDeviceNameModal(deviceNameModalOld);
-        setDeviceImageModal(deviceImageModalOld);
+        setPartyHallModal(partyHallModalOld);
+        setPartyHallTypeIdModal(partyHallTypeIdModalOld);
+        setFloorIdModal(floorIdModalOld);
+        setPartyHallNameModal(partyHallNameModalOld);
+        setPartyHallViewModal(partyHallViewModalOld);
+        setPartyHallDescriptionModal(partyHallDescriptionModalOld);
+        setPartyHallSizeModal(partyHallSizeModalOld);
+        setPartyHallOccupancyModal(partyHallOccupancyModalOld);
+        setPartyHallPriceModal(partyHallPriceModalOld);
 
         setShowModal(prev => !prev);
     }
-
-    // =============== Xử lý thêm danh mục ===============
-    const [deviceNameModalNew, setDeviceNameModalNew] = useState();
-    const [deviceImageModalNew, setDeviceImageModalNew] = useState(null);
-    const [deviceDescriptionModalNew, setDeviceDescriptionModalNew] = useState();
-    const [deviceTypeIdModalNew, setDeviceTypeIdModalNew] = useState();
-
-    // Thay đổi hình ảnh
-    const handleShowImg = (hinhmoi) => {
-        const hinhanhunique = new Date().getTime() + hinhmoi.name;
-        const storage = getStorage(app);
-        const storageRef = ref(storage, hinhanhunique);
-        const uploadTask = uploadBytesResumable(storageRef, hinhmoi);
-
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
-                    default:
-                }
-            },
-            (error) => {
-                // A full list of error codes is available at
-                // https://firebase.google.com/docs/storage/web/handle-errors
-                switch (error.code) {
-                    case 'storage/unauthorized':
-                        // User doesn't have permission to access the object
-                        break;
-                    case 'storage/canceled':
-                        // User canceled the upload
-                        break;
-
-                    // ...
-
-                    case 'storage/unknown':
-                        // Unknown error occurred, inspect error.serverResponse
-                        break;
-                }
-            },
-            () => {
-                // Upload completed successfully, now we can get the download URL
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    try {
-                        setDeviceImageModalNew(downloadURL);
-                    } catch (err) {
-                        console.log("Lỗi cập nhật hình ảnh:", err);
-                    }
-                });
-            }
-        );
-    }
-
-    // Create new divice
-    const handleCreateDevice = async (newName, newDescription, newImage, deviceTypeId) => {
+    // =============== Xử lý xóa Sảnh tiệc ===============
+    const handleDeletePartyHall = async (partyHallId) => {
         try {
-            const createDeviceRes = await DeviceService.createDevice({
-                deviceName: newName,
-                deviceDescription: newDescription,
-                deviceImage: newImage,
-                deviceTypeId: deviceTypeId
-            });
-            if (!createDeviceRes) {
+            const deletePartyHallRes = await PartyHallService.deletePartyHall(partyHallId);
+            if (!deletePartyHallRes) {
                 // Toast
-                const dataToast = { message: createDeviceRes.data.message, type: "warning" };
-                showToastFromOut(dataToast);
-                return;
-            }
-
-            // Success
-            setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DanhMucMain & DanhMucRight.jsx
-            setShowModal(prev => !prev);
-            setDeviceImageModalNew(null);
-            // Toast
-            const dataToast = { message: createDeviceRes.data.message, type: "success" };
-            showToastFromOut(dataToast);
-            return;
-
-        } catch (err) {
-            setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DanhMucMain & DanhMucRight.jsx
-            setShowModal(prev => !prev);
-            // Toast
-            const dataToast = { message: err.response.data.message, type: "danger" };
-            showToastFromOut(dataToast);
-            return;
-        }
-    }
-
-    // =============== Xử lý xóa danh mục ===============
-    const handleDeleteDevice = async (deviceId) => {
-        try {
-            const deleteDeviceRes = await DeviceService.deleteDevice(deviceId);
-            if (!deleteDeviceRes) {
-                // Toast
-                const dataToast = { message: deleteDeviceRes.data.message, type: "warning" };
+                const dataToast = { message: deletePartyHallRes.data.message, type: "warning" };
                 showToastFromOut(dataToast);
                 return;
             }
@@ -560,7 +1124,7 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
             setShowModal(prev => !prev);
             handleClose();  //Đóng thanh tìm kiếm và render lại giá trị mới ở compo Main
             // Toast
-            const dataToast = { message: deleteDeviceRes.data.message, type: "success" };
+            const dataToast = { message: deletePartyHallRes.data.message, type: "success" };
             showToastFromOut(dataToast);
             return;
         } catch (err) {
@@ -570,67 +1134,100 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
             return;
         }
     }
-
     // ================================================================
-    if (type === "detailDevice") {
+    //  =============== Xem chi tiết Sảnh tiệc ===============
+    if (type === "detailPartyHall") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
-                        <ChiTietWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Chi tiết Thiết bị</H1>
+                        <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
+                            <H1>Chi tiết Sảnh tiệc</H1>
                             <ModalForm>
                                 <div className="row">
                                     <div className="col-lg-3">
-                                        <ChiTietHinhAnh src={deviceModal ? deviceModal.device_image : null} />
+                                        <ModalFormItem style={{ flex: "1" }}>
+                                            <FormSpan>Mã của Sảnh:</FormSpan>
+                                            <FormInput type="text" value={partyHallModal ? partyHallModal.party_hall_id : null} readOnly />
+                                        </ModalFormItem>
                                     </div>
-                                    <div className="col-lg-9">
-                                        <div className="row">
-                                            <div className="col-lg-3">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
-                                                    <FormSpan>Mã thiết bị:</FormSpan>
-                                                    <FormInput type="text" value={deviceModal ? deviceModal.device_id : null} readOnly />
-                                                </ModalFormItem>
-                                            </div>
-                                            <div className="col-lg-3">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
-                                                    <FormSpan>Tên thiết bị:</FormSpan>
-                                                    <FormInput type="text" value={deviceModal ? deviceModal.device_name : null} readOnly />
-                                                </ModalFormItem>
-                                            </div>
-                                            <div className="col-lg-3">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
-                                                    <FormSpan>Phân loại:</FormSpan>
-                                                    <FormInput type="text" value={deviceModal ? deviceModal.device_type_name : null} readOnly />
-                                                </ModalFormItem>
-                                            </div>
-                                            <div className="col-lg-3">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
-                                                    <FormSpan>Ngày thêm:</FormSpan>
-                                                    <FormInput type="text" value={deviceModal ? deviceModal.device_date : null} readOnly />
-                                                </ModalFormItem>
-                                            </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-lg-8">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
-                                                    <FormSpan>Mô tả chi tiết:</FormSpan>
-                                                    <FormTextArea style={{height: "140px"}} rows="2" cols="50" value={deviceModal ? deviceModal.device_description : null} readOnly />
-                                                </ModalFormItem>
-                                            </div>
-                                            <div className="col-lg-4">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
-                                                    <FormSpan>Trạng thái:</FormSpan>
-                                                    <FormInput type="text" value={deviceModal ? deviceModal.device_state === 0 ? "Lưu kho" : deviceModal.device_state === 1 ? "Đang sử dụng" : "Chưa có" : null} readOnly />
-                                                </ModalFormItem>
-                                                <ModalFormItem style={{margin: "0 10px"}}>
-                                                    <FormSpan>Vị trí:</FormSpan>
-                                                    <FormInput type="text" value={deviceModal && deviceModal.room_name && deviceModal.floor_name ? deviceModal.room_name + ", " + deviceModal.floor_name : "Chưa có"} readOnly />
-                                                </ModalFormItem>
-                                            </div>
-                                        </div>
+                                    <div className="col-lg-3">
+                                        <ModalFormItem style={{ flex: "1" }}>
+                                            <FormSpan>Thuộc Tầng:</FormSpan>
+                                            <FormInput type="text" value={partyHallModal ? partyHallModal.floor_name : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-3">
+                                        <ModalFormItem style={{ flex: "1" }}>
+                                            <FormSpan>Loại Sảnh:</FormSpan>
+                                            <FormInput type="text" value={partyHallModal ? partyHallModal.party_hall_type_name : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-3">
+                                        <ModalFormItem>
+                                            <FormSpan>Tên Sảnh:</FormSpan>
+                                            <FormInput type="text" value={partyHallModal ? partyHallModal.party_hall_name : null} readOnly />
+                                        </ModalFormItem>
                                     </div>
                                 </div>
+                                <div className="row">
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>View hướng:</FormSpan>
+                                            <FormInput type="text" value={partyHallModal ? partyHallModal.party_hall_view : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>Kích thước:</FormSpan>
+                                            <FormInput type="text" value={partyHallModal ? partyHallModal.party_hall_size : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>Sức chứa:</FormSpan>
+                                            <FormInput type="text" value={partyHallModal ? partyHallModal.party_hall_occupancy : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                </div>
+
+                                <ModalFormItem>
+                                    <FormSpan>Mô tả về Sảnh:</FormSpan>
+                                    <FormTextArea style={{ height: "140px" }} rows="2" cols="50" value={partyHallModal ? partyHallModal.party_hall_description : null} readOnly />
+                                </ModalFormItem>
+
+                                <div className="row">
+                                    <div className="col-lg-6">
+                                        <ModalFormItem>
+                                            <FormSpan>Trạng thái:</FormSpan>
+                                            <FormInput type="text" value={partyHallModal ? partyHallModal.party_hall_state === 0 ? "Đang trống" : partyHallModal.party_hall_state === 1 ? "Đang bị khóa" : null : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-6">
+                                        <ModalFormItem>
+                                            <FormSpan>Giá Sảnh:</FormSpan>
+                                            <FormInput type="text" value={partyHallModal ? partyHallModal.party_hall_price : null} readOnly />
+                                        </ModalFormItem>
+                                    </div>
+                                </div>
+
+                                <ModalChiTietItem>
+                                    <FormSpan>Hình ảnh:</FormSpan>
+                                    <ImageWrapper>
+                                        {
+                                            partyHallImageListModal.length > 0   //Khi mảng hình có hình thì hiện các hình trong mảng
+                                                ?
+                                                partyHallImageListModal.map((partyHallImage, index) => {
+                                                    return (
+                                                        <FormImg src={partyHallImage} />
+                                                    );
+                                                })
+                                                :   //Khi mảng hình trống thì hiện No Available Image
+                                                <FormImg src={"https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1650880603321No-Image-Placeholder.svg.png?alt=media&token=2a1b17ab-f114-41c0-a00d-dd81aea80d3e"} />
+                                        }
+                                    </ImageWrapper>
+                                </ModalChiTietItem>
+
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
@@ -645,60 +1242,122 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
                             >
                                 <CloseOutlined />
                             </CloseModalButton>
-                        </ChiTietWrapper>
+                        </ModalWrapper>
                     </Background>
                 ) : null}
             </>
         );
     }
-    //  =============== Thêm thiết bị ===============
-    if (type === "createDevice") {
+    //  =============== Thêm Room ===============
+    if (type === "createPartyHall") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Thêm Thiết bị mới</H1>
+                            <H1>Thêm Sảnh tiệc mới</H1>
                             <ModalForm>
                                 <div className="row">
-                                    <div className="col-lg-6">
+                                    <div className="col-lg-4">
                                         <ModalFormItem style={{ flex: "1" }}>
-                                            <FormSpan>Loại thiết bị:</FormSpan>
-                                            <FormSelect onChange={(e) => { setDeviceTypeIdModalNew(parseInt(e.target.value)) }}>
+                                            <FormSpan>Sảnh tiệc thuộc Tầng:</FormSpan>
+                                            <FormSelect onChange={(e) => { setFloorIdModalNew(parseInt(e.target.value)) }}>
                                                 {
-                                                    deviceTypeList.map((deviceType, key) => {
+                                                    floorList.map((floor, key) => {
                                                         return (
-                                                            <FormOption value={deviceType.device_type_id}>{deviceType.device_type_name}</FormOption>
+                                                            <FormOption value={floor.floor_id}>{floor.floor_name}</FormOption>
                                                         )
                                                     })
                                                 }
                                             </FormSelect>
                                         </ModalFormItem>
                                     </div>
-                                    <div className="col-lg-6">
+                                    <div className="col-lg-4">
+                                        <ModalFormItem style={{ flex: "1" }}>
+                                            <FormSpan>Sảnh tiệc thuộc Loại:</FormSpan>
+                                            <FormSelect onChange={(e) => { setPartyHallTypeIdModalNew(parseInt(e.target.value)) }}>
+                                                {
+                                                    partyHallTypeList.map((partyHallType, key) => {
+                                                        return (
+                                                            <FormOption value={partyHallType.party_hall_type_id}>{partyHallType.party_hall_type_name}</FormOption>
+                                                        )
+                                                    })
+                                                }
+                                            </FormSelect>
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-4">
                                         <ModalFormItem>
-                                            <FormSpan>Tên thiết bị:</FormSpan>
-                                            <FormInput type="text" onChange={(e) => setDeviceNameModalNew(e.target.value)} placeholder="Nhập vào Tên thiết bị" />
+                                            <FormSpan>Tên Sảnh tiệc:</FormSpan>
+                                            <FormInput type="text" onChange={(e) => setPartyHallNameModalNew(e.target.value)} placeholder="Nhập vào tên Sảnh tiệc" />
+                                        </ModalFormItem>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>View hướng:</FormSpan>
+                                            <FormInput type="text" onChange={(e) => setPartyHallViewModalNew(e.target.value)} placeholder="Nhập vào tên Sảnh tiệc" />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>Kích thước:</FormSpan>
+                                            <FormInput type="text" onChange={(e) => setPartyHallSizeModalNew(e.target.value)} placeholder="Nhập vào Kích thước Sảnh tiệc" />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>Sức chứa:</FormSpan>
+                                            <FormInput type="number" min={1} onChange={(e) => setPartyHallOccupancyModalNew(parseInt(e.target.value))} placeholder="Nhập vào Sức chứa Sảnh tiệc" />
                                         </ModalFormItem>
                                     </div>
                                 </div>
 
                                 <ModalFormItem>
-                                    <FormSpan>Mô tả thiết bị:</FormSpan>
-                                    <FormTextArea rows="2" cols="50" onChange={(e) => setDeviceDescriptionModalNew(e.target.value)} placeholder="Mô tả về thiết bị này" />
+                                    <FormSpan>Mô tả về Sảnh tiệc:</FormSpan>
+                                    <FormTextArea rows="2" cols="50" onChange={(e) => setPartyHallDescriptionModalNew(e.target.value)} placeholder="Mô tả về Sảnh tiệc này" />
                                 </ModalFormItem>
 
                                 <ModalFormItem>
-                                    <FormSpan>Hình ảnh:</FormSpan>
-                                    <FormInput type="file" onChange={(e) => handleShowImg(e.target.files[0])} />
-                                    <FormImg src={deviceImageModalNew !== null ? deviceImageModalNew : "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1650880603321No-Image-Placeholder.svg.png?alt=media&token=2a1b17ab-f114-41c0-a00d-dd81aea80d3e"} key={deviceImageModalNew}></FormImg>
+                                    <FormSpan>Giá Sảnh tiệc:</FormSpan>
+                                    <FormInput type="number" min={1} onChange={(e) => setPartyHallPriceModalNew(parseInt(e.target.value))} placeholder="Giá của Sảnh tiệc này" />
                                 </ModalFormItem>
+
+                                <ModalChiTietItem>
+                                    <FormSpan>Hình ảnh:</FormSpan>
+                                    <FormInput type="file" multiple onChange={(e) => handleShowImg(e.target.files)} />
+                                    <ImageWrapper>
+                                        {
+                                            partyHallImageListModalNew.length > 0   //Khi mảng hình có hình thì hiện các hình trong mảng
+                                                ?
+                                                partyHallImageListModalNew.map((partyHallImage, index) => {
+                                                    return (
+                                                        <FormImg src={partyHallImage} />
+                                                    );
+                                                })
+                                                :   //Khi mảng hình trống thì hiện No Available Image
+                                                <FormImg src={"https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1650880603321No-Image-Placeholder.svg.png?alt=media&token=2a1b17ab-f114-41c0-a00d-dd81aea80d3e"} />
+                                        }
+                                    </ImageWrapper>
+                                </ModalChiTietItem>
 
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick
-                                        onClick={() => handleCreateDevice(deviceNameModalNew, deviceDescriptionModalNew, deviceImageModalNew, deviceTypeIdModalNew)}
+                                        onClick={() =>
+                                            handleCreatePartyHall(
+                                                partyHallTypeIdModalNew,
+                                                floorIdModalNew,
+                                                partyHallNameModalNew,
+                                                partyHallViewModalNew,
+                                                partyHallDescriptionModalNew,
+                                                partyHallSizeModalNew,
+                                                partyHallOccupancyModalNew,
+                                                partyHallPriceModalNew,
+                                                partyHallImageListModalNew
+                                            )}
                                     >Thêm vào</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -719,117 +1378,136 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
             </>
         );
     }
-    // =============== Chỉnh sửa thiết bị ===============
-    if (type === "updateDevice") {
+    //  =============== Cập nhật Room ===============
+    if (type === "updatePartyHall") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Cập nhật Thiết bị</H1>
+                            <H1>Cập nhật Sảnh tiệc</H1>
                             <ModalForm>
                                 <div className="row">
-                                    <div className="col-lg-6">
-                                        <ModalFormItem style={{ flex: "1", margin: "0 30px" }}>
-                                            <FormSpan>Loại thiết bị:</FormSpan>
-                                            <FormSelect onChange={(e) => { setDeviceTypeIdModal(parseInt(e.target.value)) }}>
-                                                {deviceTypeList.map((deviceType, key) => {
-                                                    if (deviceType.device_type_id === deviceTypeIdModal) {
+                                    <div className="col-lg-4">
+                                        <ModalFormItem style={{ flex: "1" }}>
+                                            <FormSpan>Sảnh tiệc thuộc Tầng:</FormSpan>
+                                            <FormSelect onChange={(e) => { setFloorIdModal(parseInt(e.target.value)) }}>
+                                                {floorList.map((floor, key) => {
+                                                    if (floor.floor_id === floorIdModal) {
                                                         return (
-                                                            <FormOption value={deviceType.device_type_id} selected> {deviceType.device_type_name} </FormOption>
+                                                            <FormOption value={floor.floor_id} selected> {floor.floor_name} </FormOption>
                                                         )
                                                     } else {
                                                         return (
-                                                            <FormOption value={deviceType.device_type_id}> {deviceType.device_type_name} </FormOption>
+                                                            <FormOption value={floor.floor_id}> {floor.floor_name} </FormOption>
                                                         )
                                                     }
                                                 })}
                                             </FormSelect>
                                         </ModalFormItem>
                                     </div>
-                                    <div className="col-lg-6">
-                                        <ModalFormItem style={{ margin: "0 30px" }}>
-                                            <FormSpan>Tên Thiết bị:</FormSpan>
-                                            <FormInput type="text" onChange={(e) => setDeviceNameModal(e.target.value)} value={deviceNameModal} />
-                                        </ModalFormItem>
-                                    </div>
-                                </div>
-
-                                <ModalFormItem style={{ margin: "0 30px" }}>
-                                    <FormSpan>Mô tả thiết bị:</FormSpan>
-                                    <FormTextArea rows="2" cols="50" onChange={(e) => setDeviceDescriptionModal(e.target.value)} value={deviceDescriptionModal} />
-                                </ModalFormItem>
-
-                                <div className="row">
-                                    <div className="col-lg-6">
-                                        <ModalFormItem style={{ flex: "1", margin: "0 30px" }}>
-                                            <FormSpan>Trạng thái thiết bị:</FormSpan>
-                                            <FormSelect onChange={(e) => { setDeviceStateModal(parseInt(e.target.value)) }}>
-                                                <FormOption value={0} selected={deviceModal && deviceStateModal === 0 ? true : false}> Lưu kho </FormOption>
-                                                <FormOption value={1} selected={deviceModal && deviceStateModal === 1 ? true : false}> Đang sử dụng </FormOption>
+                                    <div className="col-lg-4">
+                                        <ModalFormItem style={{ flex: "1" }}>
+                                            <FormSpan>Sảnh tiệc thuộc Loại:</FormSpan>
+                                            <FormSelect onChange={(e) => { setPartyHallTypeIdModal(parseInt(e.target.value)) }}>
+                                                {partyHallTypeList.map((partyHallType, key) => {
+                                                    if (partyHallType.party_hall_type_id === partyHallTypeIdModal) {
+                                                        return (
+                                                            <FormOption value={partyHallType.party_hall_type_id} selected> {partyHallType.party_hall_type_name} </FormOption>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <FormOption value={partyHallType.party_hall_type_id}> {partyHallType.party_hall_type_name} </FormOption>
+                                                        )
+                                                    }
+                                                })}
                                             </FormSelect>
                                         </ModalFormItem>
                                     </div>
-                                    <div className="col-lg-6">
-                                        <ModalFormItem style={{ marginTop: "10px" }}>
-                                            <FormSpan>Ngày thêm Thiết bị:</FormSpan>
-                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                <Stack spacing={1}>
-                                                    <DesktopDatePicker
-                                                        label="Ngày thêm Thiết bị:"
-                                                        inputFormat="dd/MM/yyyy"
-                                                        disableFuture
-                                                        value={deviceDateModal}
-                                                        onChange={(newValue) => { setDeviceDateModal(moment(newValue).format("YYYY-MM-DD HH:mm:ss")); }}
-                                                        renderInput={(params) => <TextField {...params} sx={{
-                                                            '& .MuiOutlinedInput-root': {
-                                                                '& fieldset': {
-                                                                    borderColor: 'var(--color-dark)',
-                                                                },
-                                                                '&:hover fieldset': {
-                                                                    borderColor: 'var(--color-dark)',
-                                                                },
-                                                                '&.Mui-focused fieldset': {
-                                                                    borderColor: 'var(--color-dark)',
-                                                                },
-                                                            },
-                                                            '& .MuiInputBase-input': {
-                                                                height: '10px', // Set your height here.
-                                                                padding: "15px 25px"
-                                                            },
-                                                            '& .MuiInputLabel-root': {
-                                                                color: 'var(--color-dark)',
-                                                                fontWeight: "bold"
-                                                            },
-                                                            '& .MuiOutlinedInput-root': {
-                                                                color: 'var(--color-dark)',
-                                                                letterSpacing: '2px'
-                                                            },
-                                                            '& .MuiFormLabel-root': {
-                                                                display: 'none'
-                                                            }
-                                                        }}
-                                                        />}
-                                                        InputLabelProps={{ shrink: true }}
-                                                        InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "var(--color-dark)" } } }}
-                                                    />
-                                                </Stack>
-                                            </LocalizationProvider>
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>Tên Sảnh tiệc:</FormSpan>
+                                            <FormInput type="text" onChange={(e) => setPartyHallNameModal(e.target.value)} value={partyHallNameModal} maxLength={150} />
+                                        </ModalFormItem>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>View hướng:</FormSpan>
+                                            <FormInput type="text" onChange={(e) => setPartyHallViewModal(e.target.value)} value={partyHallViewModal} maxLength={150} />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>Kích thước:</FormSpan>
+                                            <FormInput type="text" onChange={(e) => setPartyHallSizeModal(e.target.value)} value={partyHallSizeModal} maxLength={150} />
+                                        </ModalFormItem>
+                                    </div>
+                                    <div className="col-lg-4">
+                                        <ModalFormItem>
+                                            <FormSpan>Sức chứa:</FormSpan>
+                                            <FormInput type="number" min={1} onChange={(e) => setPartyHallOccupancyModal(parseInt(e.target.value))} value={partyHallOccupancyModal} />
                                         </ModalFormItem>
                                     </div>
                                 </div>
 
-                                <ModalFormItem style={{ margin: "0 30px" }}>
-                                    <FormSpan>Hình ảnh:</FormSpan>
-                                    <FormInput type="file" onChange={(e) => handleChangeImg(e.target.files[0])} />
-                                    <FormImg src={deviceImageModal !== deviceImageModalOld ? deviceImageModal : deviceImageModalOld} key={deviceImageModal}></FormImg>
+                                <ModalFormItem>
+                                    <FormSpan>Mô tả về Sảnh tiệc:</FormSpan>
+                                    <FormTextArea rows="2" cols="50" onChange={(e) => setPartyHallDescriptionModal(e.target.value)} value={partyHallDescriptionModal} maxLength={150} />
                                 </ModalFormItem>
+
+                                <div className="row">
+                                    <div className="col-lg-12">
+                                        <ModalFormItem>
+                                            <FormSpan>Giá Sảnh tiệc:</FormSpan>
+                                            <FormInput type="number" min={1} onChange={(e) => setPartyHallPriceModal(parseInt(e.target.value))} value={partyHallPriceModal} />
+                                        </ModalFormItem>
+                                    </div>
+                                </div>
+
+                                <ModalChiTietItem>
+                                    <FormSpan>Hình ảnh:</FormSpan>
+                                    <FormInput type="file" multiple onChange={(e) => handleChangeImg(e.target.files)} />
+                                    <ImageWrapper>
+                                        {
+                                            partyHallImageListModalChange.length > 0   //Khi mảng hình có hình thì hiện các hình trong mảng
+                                                ?
+                                                partyHallImageListModalChange.map((partyHallImage, key) => {
+                                                    return (
+                                                        <FormImg src={partyHallImage} />
+                                                    );
+                                                })
+                                                :
+                                                partyHallImageListModal.length > 0
+                                                    ?
+                                                    partyHallImageListModal.map((partyHallImage, key) => {
+                                                        return (
+                                                            <FormImg src={partyHallImage} />
+                                                        );
+                                                    })
+                                                    : null
+                                        }
+                                    </ImageWrapper>
+                                </ModalChiTietItem>
+
                             </ModalForm>
                             <ButtonUpdate>
                                 <ButtonContainer>
-                                    {/* newDeviceName, newDeviceDate, newDeviceDescription, newDeviceImage, newDeviceState, deviceTypeId, deviceId */}
                                     <ButtonClick
-                                        onClick={() => handleUpdateDevice(deviceNameModal, deviceDateModal, deviceDescriptionModal, deviceImageModal, deviceStateModal, deviceTypeIdModal, deviceIdModal)}
+                                        onClick={() =>
+                                            handleUpdateRoom(
+                                                partyHallIdModal,
+                                                partyHallTypeIdModal,
+                                                floorIdModal,
+                                                partyHallNameModal,
+                                                partyHallViewModal,
+                                                partyHallDescriptionModal,
+                                                partyHallSizeModal,
+                                                partyHallOccupancyModal,
+                                                partyHallPriceModal,
+                                                partyHallImageListModal
+                                            )}
                                     >Cập nhật</ButtonClick>
                                 </ButtonContainer>
                                 <ButtonContainer>
@@ -850,20 +1528,20 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
             </>
         );
     }
-    // =============== Xóa danh mục ===============
-    if (type === "deleteDevice") {
+    // =============== Xóa Sảnh tiệc ===============
+    if (type === "deletePartyHall") {
         return (
             <>
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ backgroundImage: `url("https://img.freepik.com/free-vector/alert-safety-background_97886-3460.jpg?w=1060")`, backgroundPosition: `center center`, backgroundRepeat: `no-repeat`, backgroundSize: `cover`, width: `600px`, height: `400px` }} >
                             <ModalContent>
-                                <H1Delete>Bạn muốn xóa Thiết bị <span style={{ color: `var(--color-primary)` }}>{deviceNameModal}</span> này?</H1Delete>
+                                <H1Delete>Bạn muốn xóa Sảnh tiệc <span style={{ color: `var(--color-primary)` }}>{partyHallNameModal}</span> này?</H1Delete>
                                 <p>Click Đồng ý nếu bạn muốn thực hiện hành động này!</p>
                                 <Button>
                                     <ButtonContainer>
                                         <ButtonClick
-                                            onClick={() => { handleDeleteDevice(deviceIdModal) }}
+                                            onClick={() => { handleDeletePartyHall(partyHallIdModal) }}
                                         >Đồng ý</ButtonClick>
                                     </ButtonContainer>
                                     <ButtonContainer>

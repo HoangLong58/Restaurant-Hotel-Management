@@ -6,7 +6,7 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as PartyHallService from "../../service/PartyHallService";
+import * as TableBookingService from "../../service/TableBookingService";
 
 const Container = styled.div`
 margin-top: 1.4rem;
@@ -82,7 +82,7 @@ const ItemRight = styled.div`
     width: 100%;
 `
 
-const PartyHallRight = ({ reRenderData, setReRenderData }) => {
+const TableBookingRight = ({ reRenderData, setReRenderData }) => {
     // Thứ ngày tháng
     let today = new Date();
     let todayday = today.getDay();
@@ -99,20 +99,20 @@ const PartyHallRight = ({ reRenderData, setReRenderData }) => {
     }
     let ngaythangnam = "Thứ " + thu + ", " + today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
 
-    // Số lượng Phòng
-    const [partyHallQuantity, setPartyHallQuantity] = useState();
+    // Số lượng thiết bị
+    const [quantityTableBooking, setQuantityTableBooking] = useState();
     useEffect(() => {
-        const getPartyHallQuantity = async () => {
+        const getQuantityTableBooking = async () => {
             try {
-                const partyHallQuantityRes = await PartyHallService.getQuantityPartyHall();
-                setPartyHallQuantity(partyHallQuantityRes.data.data.quantityPartyHall);
+                const quantityTableBookingRes = await TableBookingService.getQuantityTableBooking();
+                setQuantityTableBooking(quantityTableBookingRes.data.data.quantityTableBooking);
             } catch (err) {
-                console.log("Lỗi: ", err.response);
+                console.log("Lỗi: ", err);
             }
         }
-        getPartyHallQuantity();
+        getQuantityTableBooking();
     }, [reRenderData]);
-    console.log("Số lượng Phòng: ", partyHallQuantity);
+    console.log("Số lượng loại thiết bị: ", quantityTableBooking);
 
     // ===== Modal =====
     const [showModal, setShowModal] = useState(false);
@@ -138,24 +138,24 @@ const PartyHallRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Party Halls Analytics</H2>
+                <H2>Tables Analytics</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>SỐ LƯỢNG SẢNH TIỆC</h3>
+                            <h3>SỐ LƯỢNG BÀN ĂN</h3>
                             <small class="text-muted">{ngaythangnam}</small>
                         </Info>
-                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{partyHallQuantity}</h3>
+                        <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityTableBooking}</h3>
                     </ItemRight>
                 </Item>
                 <Item className="add-product"
-                    onClick={() => openModal({ type: "createPartyHall" })}
+                    onClick={() => openModal({ type: "createTableBooking" })}
                 >
                     <Add />
-                    <h3>Thêm Sảnh tiệc</h3>
+                    <h3>Thêm Bàn ăn</h3>
                 </Item>
             </SalesAnalytics>
 
@@ -177,4 +177,4 @@ const PartyHallRight = ({ reRenderData, setReRenderData }) => {
     );
 };
 
-export default PartyHallRight;
+export default TableBookingRight;

@@ -261,7 +261,7 @@ module.exports = {
                             party_hall_type_id 
                         )
                         values
-                        (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [name, view, description, size, occupancy, price, state, date, floorId, partyHallTypeId],
                 (error, results, fields) => {
                     if (error) {

@@ -1,12 +1,12 @@
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined } from "@mui/icons-material";
+import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
-import ReactPaginate from "react-paginate";
 import styled from "styled-components";
 import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as PartyHallService from "../../service/PartyHallService";
+import ReactPaginate from "react-paginate";
+import * as TableBookingService from "../../service/TableBookingService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -62,9 +62,15 @@ const Td = styled.td`
 
 const A = styled.a`
     text-align: center;
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
     margin: 1rem auto;
     color: var(--color-primary);
+    cursor: pointer;
+    font-weight: bold;
+    letter-spacing: 2px;
 `
 
 // Tìm kiếm
@@ -119,11 +125,6 @@ const Input = styled.input`
         transform: translate(0, 10px);
     }
 `
-
-const Label = styled.label`
-
-`
-
 
 const Button = styled.button`
     width: 50px;
@@ -245,12 +246,12 @@ const ButtonFix = styled.button`
     cursor: pointer;
 `
 
-const ButtonInfo = styled.button`
+const ButtonDelete = styled.button`
     width: 40px;
     height: 30px;
-    border: 2px solid var(--color-info);
+    border: 2px solid var(--color-danger);
     border-radius: var(--border-radius-2);
-    color: var(--color-warnning);
+    color: var(--color-danger);
     background: var(--color-white);
     padding:0px;
     outline:none;
@@ -258,23 +259,10 @@ const ButtonInfo = styled.button`
     cursor: pointer;
 `
 
-const ButtonDelete = styled.button`
-width: 40px;
-height: 30px;
-border: 2px solid var(--color-danger);
-border-radius: var(--border-radius-2);
-color: var(--color-danger);
-background: var(--color-white);
-padding:0px;
-outline:none;
-z-index: 2;
-cursor: pointer;
-`
-
 const ImgDanhMuc = styled.img`
-    width: 100%;
+    width: auto;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 `
 
 // Empty item
@@ -292,7 +280,7 @@ const EmptyContent = styled.div`
     font-weight: bold;
 `
 
-const PartyHallMain = ({ reRenderData, setReRenderData }) => {
+const TableBookingMain = ({ reRenderData, setReRenderData }) => {
     const InputRef = useRef(null);
     const [isSearch, setIsSearch] = useState(false);
     const [search, setSearch] = useState("");
@@ -304,9 +292,9 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
         } else {
             // Thực hiện tìm kiếm
             console.log(search);
-            const findPartyHall = async () => {
+            const findTableBooking = async () => {
                 try {
-                    const searchRes = await PartyHallService.findPartyHallByIdOrName(search);
+                    const searchRes = await TableBookingService.findTableBookingByIdOrName(search);
                     if (searchRes.data.data.length === 0) {
                         setNoResultFound(true);
                         // Toast
@@ -315,7 +303,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                         return;
                     }
                     setNoResultFound(false);
-                    setPartyHallList(searchRes.data.data);
+                    setTableBookingList(searchRes.data.data);
                     // Toast
                     const dataToast = { message: searchRes.data.message, type: "success" };
                     showToastFromOut(dataToast);
@@ -326,43 +314,42 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                     showToastFromOut(dataToast);
                 }
             }
-            findPartyHall();
+            findTableBooking();
             handleLoading();
         }
     }
-
     const handleClose = () => {
         setIsSearch(false);
         setNoResultFound(false);
         InputRef.current.value = "";
-        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - DeviceMain & DanhMucRight.jsx
+        setReRenderData(prev => !prev); //Render lại csdl ở Compo cha là - TableBookingMain & DanhMucRight.jsx
     }
 
-    // Lấy partyHall list
-    const [partyHallList, setPartyHallList] = useState([]);
+    // Lấy danh mục
+    const [tableBookingList, setTableBookingList] = useState([]);
     useEffect(() => {
-        const getPartyHallList = async () => {
+        const getTableBookings = async () => {
             try {
-                const getpartyHallRes = await PartyHallService.getAllPartyHalls();
-                setPartyHallList(getpartyHallRes.data.data);
+                const tableBookingRes = await TableBookingService.getAllTableBookings();
+                setTableBookingList(tableBookingRes.data.data);
             } catch (err) {
-                console.log("Lỗi lấy thú cưng: ", err.response);
+                console.log("Lỗi lấy table booking: ", err.response);
             }
         }
         handleLoading();
-        getPartyHallList();
+        getTableBookings();
     }, [reRenderData]);
-    console.log("partyHall list: ", partyHallList);
+    console.log("tableBookingList: ", tableBookingList);
 
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
-    const [partyHallModal, setPartyHallModal] = useState(null);
+    const [tableBookingModal, setTableBookingModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
-        setPartyHallModal(modal.partyHall);
+        setTableBookingModal(modal.tableBooking);
     }
 
     // ===== TOAST =====
@@ -391,43 +378,36 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
     };
 
     // PHÂN TRANG
-
     const [pageNumber, setPageNumber] = useState(0);
 
-    const partyHallPerPage = 12;
-    const pageVisited = pageNumber * partyHallPerPage;
+    const tableBookingPerPage = 12;
+    const pageVisited = pageNumber * tableBookingPerPage;
 
-    const partyHallListFiltered = partyHallList
-        .slice(pageVisited, pageVisited + partyHallPerPage)
-        .map((partyHall, key) => {
+    const tableBookingListFiltered = tableBookingList
+        .slice(pageVisited, pageVisited + tableBookingPerPage)
+        .map((tableBooking, key) => {
             return (
                 <Tr>
-                    <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{pageNumber * partyHallPerPage + (key + 1)}</Td>
-                    <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_type_name}</Td>
-                    <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{pageNumber * tableBookingPerPage + (key + 1)}</Td>
+                    <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{tableBooking.table_booking_id}</Td>
+                    <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{tableBooking.table_type_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{tableBooking.table_booking_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{tableBooking.floor_name}</Td>
                     <Td
-                        onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}
-                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <ImgDanhMuc src={partyHall.party_hall_image_content} />
-                    </Td>
-                    <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_view}</Td>
-                    <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.floor_name}</Td>
-                    <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_price}</Td>
-                    <Td
-                        onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}
-                        style={{ backgroundColor: partyHall.party_hall_state === 0 ? "var(--color-info)" : partyHall.party_hall_state === 1 ? "var(--color-danger)" : null }}>
-                        {partyHall.party_hall_state === 0 ? "Còn trống" : partyHall.party_hall_state === 1 ? "Đã được khóa" : null}
+                        onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}
+                        style={{ backgroundColor: tableBooking.table_booking_state === 0 ? "var(--color-info)" : tableBooking.table_booking_state === 1 ? "var(--color-danger)" : null }}>
+                        {tableBooking.table_booking_state === 0 ? "Còn trống" : tableBooking.table_booking_state === 1 ? "Đã được khóa" : null}
                     </Td>
                     <Td className="warning">
                         <ButtonFix
-                            onClick={() => openModal({ type: "updatePartyHall", partyHall: partyHall })}
+                            onClick={() => openModal({ type: "updateTableBooking", tableBooking: tableBooking })}
                         >
                             <DriveFileRenameOutlineOutlined />
                         </ButtonFix>
                     </Td>
                     <Td className="primary">
                         <ButtonDelete
-                            onClick={() => openModal({ type: "deletePartyHall", partyHall: partyHall })}
+                            onClick={() => openModal({ type: "deleteTableBooking", tableBooking: tableBooking })}
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
@@ -438,36 +418,34 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
         );
 
 
-    const pageCount = Math.ceil(partyHallList.length / partyHallPerPage);
+    const pageCount = Math.ceil(tableBookingList.length / tableBookingPerPage);
     const changePage = ({ selected }) => {
         setPageNumber(selected);
     }
 
     return (
         <Container>
-            <H2>Quản lý Sảnh tiệc - Nhà hàng</H2>
+            <H2>Quản lý Bàn ăn - Nhà hàng</H2>
 
             {/* Tìm kiếm */}
             <SearchWrapper className={isSearch ? "active" : null}>
                 <InputHolder>
-                    <Input ref={InputRef} type="text" placeHolder="Nhập vào mã thú cưng" onChange={(e) => setSearch(e.target.value)} />
+                    <Input ref={InputRef} type="text" placeHolder="Nhập vào mã danh mục" onChange={(e) => setSearch(e.target.value)} />
                     <Button onClick={(e) => { handleSeach(e) }}><Span></Span></Button>
                 </InputHolder>
                 <CloseSpan onClick={() => { handleClose() }}></CloseSpan>
             </SearchWrapper>
 
             <RecentOrders>
-                <H2>Sảnh - Nhà hàng hiện tại</H2>
+                <H2>Bàn ăn - Nhà hàng hiện tại</H2>
                 <Table>
                     <Thead>
                         <Tr>
                             <Th>STT</Th>
-                            <Th>Loại Sảnh</Th>
-                            <Th>Tên Sảnh</Th>
-                            <Th>Hình ảnh</Th>
-                            <Th>View hướng</Th>
-                            <Th>Vị trí</Th>
-                            <Th>Giá tiền</Th>
+                            <Th>Mã Bàn ăn</Th>
+                            <Th>Loại Bàn ăn</Th>
+                            <Th>Tên Bàn ăn</Th>
+                            <Th>Thuộc Tầng</Th>
                             <Th>Trạng thái</Th>
                             <Th>Chỉnh sửa</Th>
                             <Th>Xóa</Th>
@@ -476,7 +454,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                     <Tbody>
                         {noResultFound ? (
                             <Tr>
-                                <Td colSpan={12}>
+                                <Td colSpan={8}>
                                     <EmptyItem>
                                         <EmptyItemSvg>
                                             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
@@ -503,7 +481,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                         )
                             : isLoading ? (
                                 <Tr>
-                                    <Td colSpan={12} style={{ width: "100%", height: "100px" }}>
+                                    <Td colSpan={8} style={{ width: "100%", height: "100px" }}>
                                         <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             <div
                                                 class="spinner-border"
@@ -516,47 +494,40 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                                     </Td>
                                 </Tr>
                             ) :
-                                partyHallList.length > 0
+                                tableBookingList.length > 0
                                     ?
-                                    partyHallListFiltered
+                                    tableBookingListFiltered
                                     :
-                                    (partyHallList.slice(0, 12).map((partyHall, key) => {
+                                    (tableBookingList.map((tableBooking, key) => {
                                         return (
                                             <Tr>
-                                                <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{pageNumber * partyHallPerPage + (key + 1)}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_type_name}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{(key + 1)}</Td>
+                                                <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{tableBooking.table_booking_id}</Td>
+                                                <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{tableBooking.table_type_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{tableBooking.table_booking_name}</Td>
+                                                <Td onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}>{tableBooking.floor_name}</Td>
                                                 <Td
-                                                    onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}
-                                                    style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <ImgDanhMuc src={partyHall.party_hall_image_content} />
-                                                </Td>
-                                                <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_view}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.floor_name}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_price}</Td>
-                                                <Td
-                                                    onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}
-                                                    style={{ backgroundColor: partyHall.party_hall_state === 0 ? "var(--color-info)" : partyHall.party_hall_state === 1 ? "var(--color-danger)" : null }}>
-                                                    {partyHall.party_hall_state === 0 ? "Còn trống" : partyHall.party_hall_state === 1 ? "Đã được khóa" : null}
+                                                    onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}
+                                                    style={{ backgroundColor: tableBooking.table_booking_state === 0 ? "var(--color-info)" : tableBooking.table_booking_state === 1 ? "var(--color-danger)" : null }}>
+                                                    {tableBooking.table_booking_state === 0 ? "Còn trống" : tableBooking.table_booking_state === 1 ? "Đã được khóa" : null}
                                                 </Td>
                                                 <Td className="warning">
                                                     <ButtonFix
-                                                        onClick={() => openModal({ type: "updatePartyHall", partyHall: partyHall })}
+                                                        onClick={() => openModal({ type: "updateTableBooking", tableBooking: tableBooking })}
                                                     >
                                                         <DriveFileRenameOutlineOutlined />
                                                     </ButtonFix>
                                                 </Td>
                                                 <Td className="primary">
                                                     <ButtonDelete
-                                                        onClick={() => openModal({ type: "deletePartyHall", partyHall: partyHall })}
+                                                        onClick={() => openModal({ type: "deleteTableBooking", tableBooking: tableBooking })}
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
                                                 </Td>
                                             </Tr>
-                                        )
-                                    }
-                                    ))
+                                        );
+                                    }))
                         }
                     </Tbody>
                 </Table>
@@ -574,13 +545,20 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                     pageLinkClassName={"pageLinkClassName"}
                     forcePage={pageNumber}
                 />
+                <A onClick={() => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                }}>
+                    <KeyboardArrowUpOutlined /> Lên trên</A>
 
             </RecentOrders>
             <Modal
                 showModal={showModal}   //state Đóng mở modal
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
-                partyHall={partyHallModal}  //Dữ liệu bên trong modal
+                tableBooking={tableBookingModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast
@@ -597,4 +575,4 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
 
 
 
-export default PartyHallMain;
+export default TableBookingMain;

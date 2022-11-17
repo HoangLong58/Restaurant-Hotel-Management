@@ -171,7 +171,7 @@ module.exports = {
     },
     updatePartyHallState: async (req, res) => {
         const partyHallList = req.body.partyHallList;
-        const partyHallState = req.body.partyHallState;
+        const partyHallState = parseInt(req.body.partyHallState);
         for (var i = 0; i < partyHallList.length; i++) {
             const partyHall = partyHallList[i];
             try {
@@ -433,6 +433,7 @@ module.exports = {
                         });
 
                     } catch (err) {
+                        console.log("ERR", err);
                         return res.status(400).json({
                             status: "fail",
                             message: "Error when find party hall newest!",
