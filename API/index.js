@@ -47,6 +47,9 @@ const roomEmployeeRouter = require("./router/RoomEmployeeRouter");
 const cityRouter = require("./router/CityRouter");
 const districtRouter = require("./router/DistrictRouter");
 const wardRouter = require("./router/WardRouter");
+const partyBookingOrderDetailFoodRouter = require("./router/PartyBookingOrderDetailFoodRouter");
+const partServiceDetailRouter = require("./router/PartyServiceDetailRouter");
+const tableDetailRouter = require("./router/TableDetailRouter");
 
 dotenv.config();
 app.use(cors({
@@ -114,6 +117,9 @@ app.use("/api/admin/room-employees", roomEmployeeRouter);
 app.use("/api/admin/citys", cityRouter);
 app.use("/api/admin/districts", districtRouter);
 app.use("/api/admin/wards", wardRouter);
+app.use("/api/admin/party-booking-order-detail-foods", partyBookingOrderDetailFoodRouter);
+app.use("/api/admin/party-service-details", partServiceDetailRouter);
+app.use("/api/admin/table-details", tableDetailRouter);
 
 app.listen(process.env.PORT || 5000, () => {
     console.log("BACKEND server is running at:", process.env.PORT);

@@ -36,7 +36,39 @@ const partyBookingSlice = createSlice({
             state.partyHall = action.payload.partyHall;
         },
         addPartyServiceBookingParty: (state, action) => {
-            state.partyService = action.payload.partyService;
+            var arrayFinal = [];
+            action.payload.partyService.map((service, key) => {
+                arrayFinal.push({
+                    ...service,
+                    partyServiceQuantity: 1
+                })
+            })
+            state.partyService = arrayFinal;
+        },
+        updatePartyServiceBookingParty: (state, action) => {
+            console.log("Cap nhat san pham: ", action.payload)
+            for (var i = 0; i < state.partyService.length; i++) {
+                if (state.partyService[i].party_service_id === parseInt(action.payload.party_service_id)) {
+                    if (action.payload.partyServiceQuantityUpdate === 0) {
+                        state.partyService[i].partyServiceQuantity = action.payload.partyServiceQuantityUpdate;
+                        state.partyService.splice(i, 1);
+                        state.partyBookingTotal -= action.payload.party_service_price * action.payload.partyServiceQuantity;
+                    }
+                    if (action.payload.partyServiceQuantityUpdate === 1) {
+                        state.partyService[i].partyServiceQuantity += 1;
+                        state.partyBookingTotal += action.payload.party_service_price * 1;
+                    }
+                    if (action.payload.partyServiceQuantityUpdate === -1) {
+                        state.partyService[i].partyServiceQuantity -= 1;
+                        if (state.partyService[i].partyServiceQuantity <= 0) {
+                            state.partyService.splice(i, 1);
+                            state.partyBookingTotal -= action.payload.party_service_price * action.payload.partyServiceQuantity;
+                        } else {
+                            state.partyBookingTotal -= action.payload.party_service_price * 1;
+                        }
+                    }
+                }
+            }
         },
         addSetMenuBookingParty: (state, action) => {
             state.setMenu = action.payload.setMenu;
@@ -76,6 +108,7 @@ export const {
     addCustomerBookingParty,
     addPartyHallBookingParty,
     addPartyServiceBookingParty,
+    updatePartyServiceBookingParty,
     addSetMenuBookingParty,
     addFoodListBookingParty,
     addDiscountBookingParty,

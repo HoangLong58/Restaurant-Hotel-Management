@@ -79,4 +79,27 @@ module.exports = {
             );
         });
     },
+    // ADMIN: Check in
+    getPartyHallDetailByPartyBookingOrderId: (id) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                    party_hall_detail_id,
+                    party_hall_detail_name,
+                    party_hall_detail_date,
+                    party_hall_id,
+                    party_hall_time_id,
+                    party_booking_order_id 
+                    from party_hall_detail
+                    where party_booking_order_id = ?`,
+                [id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
 };

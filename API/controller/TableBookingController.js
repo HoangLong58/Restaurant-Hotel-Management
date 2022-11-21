@@ -100,23 +100,31 @@ module.exports = {
                         }
                         finalResultArray.push(tableBookingResult[i]);
                     } else {
-                        var checkInDateBookingOrder = new Date(tableBookingOrderRes.table_booking_order_checkin_date);
-                        if (dateBookingReq.getFullYear() === checkInDateBookingOrder.getFullYear()
-                            && dateBookingReq.getMonth() === checkInDateBookingOrder.getMonth()
-                            && dateBookingReq.getDate() === checkInDateBookingOrder.getDate()
-                        ) {
-                            continue;
+                        var isFindSameDateInTableBookingOrderRes = false;
+                        // Kiểm tra trong booking order nếu ngày tháng năm trùng thì set đã tìm được trùng
+                        for (var j = 0; j < tableBookingOrderRes.length; j++) {
+                            var checkInDateBookingOrder = new Date(tableBookingOrderRes[j].table_booking_order_checkin_date);
+                            if (dateBookingReq.getFullYear() === checkInDateBookingOrder.getFullYear()
+                                && dateBookingReq.getMonth() === checkInDateBookingOrder.getMonth()
+                                && dateBookingReq.getDate() === checkInDateBookingOrder.getDate()
+                            ) {
+                                isFindSameDateInTableBookingOrderRes = true;
+                            }
                         }
-                        //  Check table type
-                        if (tableBookingResult[i].table_type_id !== tableTypeId) {
-                            continue;
+                        // Nếu không tìm thấy ngày trùng trong booking thì xét tiếp loại
+                        if (!isFindSameDateInTableBookingOrderRes) {
+                            //  Check table type
+                            if (tableBookingResult[i].table_type_id !== tableTypeId) {
+                                continue;
+                            }
+                            finalResultArray.push(tableBookingResult[i]);
                         }
-                        finalResultArray.push(tableBookingResult[i]);
                     }
                 } catch (err) {
+                    console.log(err)
                     return res.status(400).json({
                         status: "fail",
-                        message: "Lỗi getTableBookingWithTypeAndFloor",
+                        message: "Lỗi getTableBookingOrderByTableBookingId",
                         error: err
                     });
                 }

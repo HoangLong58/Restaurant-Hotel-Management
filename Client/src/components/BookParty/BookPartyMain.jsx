@@ -43,7 +43,7 @@ import * as SetMenuService from "../../service/SetMenuService";
 import StripeCheckout from 'react-stripe-checkout';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { addCustomerBookingParty, addDiscountBookingParty, addPartyBookingTotal, chooseDayAndQuantityBookingParty, logoutPartyBooking } from '../../redux/partyBookingRedux';
+import { addCustomerBookingParty, addDiscountBookingParty, addPartyBookingTotal, chooseDayAndQuantityBookingParty, logoutPartyBooking, updatePartyServiceBookingParty } from '../../redux/partyBookingRedux';
 import { format_money, traceCurrency } from '../../utils/utils';
 
 const Box2 = styled.div`
@@ -996,7 +996,29 @@ const EmptyContent = styled.div`
     color: var(--color-primary);
     font-weight: bold;
 `
+const PriceDetail = styled.div`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 
+`
+// Thông tin - Thông tin giá
+const ProductAmountContainer = styled.div`
+    display: flex;
+    align-items: center;
+`
+
+const ProductAmount = styled.div`
+    font-size: 24px;
+    margin: 5px;
+`
+
+const ProductPrice = styled.div`
+    font-size: 30px;
+    font-weight: 200;
+`
 const BookPartyMain = () => {
     const customer = useSelector((state) => state.customer.currentCustomer);
     const partyBooking = useSelector((state) => state.partyBooking);
@@ -1072,7 +1094,7 @@ const BookPartyMain = () => {
             const setMenuPrice = partyBooking.setMenu.set_menu_price;
             let partyServiceTotal = 0;
             for (var i = 0; i < partyServiceList.length; i++) {
-                partyServiceTotal += partyServiceList[i].party_service_price;
+                partyServiceTotal += partyServiceList[i].party_service_price * partyServiceList[i].partyServiceQuantity;
             }
             setPartyServiceTotal(partyServiceTotal);
             setPartyHallTotal(partyHallPrice);
@@ -1307,6 +1329,7 @@ const BookPartyMain = () => {
 
     useEffect(() => {
         if (minutes === 0 && seconds === 0) {
+            dispatch(logoutPartyBooking());
             // Update all party hall in list to state 0
             try {
                 const updatePartyHallState = async () => {
@@ -1334,6 +1357,8 @@ const BookPartyMain = () => {
     }, [minutes, seconds]);
 
     const handleUpdatePartyHallStateTo0 = () => {
+        // Log out booking
+        dispatch(logoutPartyBooking());
         // Update all party hall in list to state 0
         try {
             const updatePartyHallState = async () => {
@@ -1860,13 +1885,33 @@ const BookPartyMain = () => {
                                                         {
                                                             partyServiceRedux ? (
                                                                 partyServiceRedux.map((service, key) => {
+                                                                    const handleRemove = (partyServiceQuantityUpdate) => {
+                                                                        dispatch(updatePartyServiceBookingParty({ ...service, partyServiceQuantityUpdate }));
+                                                                        if (partyServiceQuantityUpdate === 0) {
+                                                                            // Toast
+                                                                            const dataToast = { message: "Đã xóa Dịch vụ khỏi bữa tiệc!", type: "success" };
+                                                                            showToastFromOut(dataToast);
+                                                                        }
+                                                                    }
                                                                     return (
                                                                         <CartItem>
                                                                             <Circle />
                                                                             <Course>
                                                                                 <Content>
                                                                                     <span style={{ width: "320px", fontWeight: "bold", color: "var(--color-dark)" }}> {service.party_service_name} </span>
-                                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(service.party_service_price)} VNĐ</span>
+                                                                                    <PriceDetail>
+                                                                                        <ProductAmountContainer>
+                                                                                            {/* <div onClick={() => product.soluongmua < product.data[0].soluong && handleRemove(1)}> */}
+                                                                                            <div onClick={() => handleRemove(1)}>
+                                                                                                <Add />
+                                                                                            </div>
+                                                                                            <ProductAmount>{service.partyServiceQuantity}</ProductAmount>
+                                                                                            <div onClick={() => handleRemove(-1)}>
+                                                                                                <Remove />
+                                                                                            </div>
+                                                                                        </ProductAmountContainer>
+                                                                                    </PriceDetail>
+                                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(service.partyServiceQuantity * service.party_service_price)} VNĐ</span>
                                                                                 </Content>
                                                                             </Course>
                                                                         </CartItem>

@@ -26,6 +26,8 @@ import ManageSetMenu from "./pages/ManageSetMenu";
 import ManagePartyService from "./pages/ManagePartyService";
 import ManagePartyHall from "./pages/ManagePartyHall";
 import ManageTableBooking from "./pages/ManageTableBooking";
+import ManagePartyBooking from "./pages/ManagePartyBooking";
+import ManageTableBookingOrder from "./pages/ManageTableBookingOrder";
 
 const App = () => {
     // Lấy admin từ Redux
@@ -147,6 +149,16 @@ const App = () => {
                 <Route path='/manageTableBooking' element={
                     <PrivateRoute>
                         <ManageTableBooking />
+                    </PrivateRoute>
+                } />
+                <Route path='/managePartyBooking' element={
+                    <PrivateRoute>
+                        <ManagePartyBooking />
+                    </PrivateRoute>
+                } />
+                <Route path='/manageTableBookingOrder' element={
+                    <PrivateRoute>
+                        <ManageTableBookingOrder />
                     </PrivateRoute>
                 } />
 

@@ -47,3 +47,10 @@ export const deletePartyService = async (partyServiceId) => {
     const res = await axios.delete(`${url_PartyService}/${partyServiceId}`);
     return res;
 };
+
+// Quản lý Đặt tiệc - Nhà hàng: Thêm Dịch vụ cho Tiệc
+export const getPartyServiceByPartyServiceTypeId = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_PartyService}/get-party-services-by-type-id`, data);
+    return res;
+};

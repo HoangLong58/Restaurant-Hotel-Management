@@ -517,80 +517,80 @@ const Modal = ({ showModal, setShowModal, type, partyHallType, setReRenderData, 
             </>
         );
     }
-        // =============== Disable PartyHallType ===============
-        if (type === "disablePartyHallType") {
-            return (
-                <>
-                    {showModal ? (
-                        <Background ref={modalRef} onClick={closeModal}>
-                            <AlertWrapper showModal={showModal}>
-                                <ModalForm>
-                                    <ModalFormItem>
-                                        <h1>Bạn muốn Vô hiệu hóa Loại Sảnh tiệc <span style={{ color: `var(--color-primary)` }}>{partyHallTypeModal ? partyHallTypeModal.party_hall_type_name : null}</span> này?</h1>
-                                        <p style={{ marginTop: "10px" }}>Loại Sảnh tiệc này sẽ ngưng hoạt động và Khách hàng không thể đặt được nữa!</p>
-                                    </ModalFormItem>
-                                </ModalForm>
-                                <ButtonUpdate>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => handleDisablePartyHallType(partyHallTypeIdModal)}
-                                        >Đồng ý</ButtonClick>
-                                    </ButtonContainer>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => setShowModal(prev => !prev)}
-                                        >Hủy bỏ</ButtonClick>
-                                    </ButtonContainer>
-                                </ButtonUpdate>
-                                <CloseModalButton
-                                    aria-label="Close modal"
-                                    onClick={() => setShowModal(prev => !prev)}
-                                >
-                                    <CloseOutlined />
-                                </CloseModalButton>
-                            </AlertWrapper>
-                        </Background>
-                    ) : null}
-                </>
-            );
-        }
-        // =============== able PartyHallType ===============
-        if (type === "ablePartyHallType") {
-            return (
-                <>
-                    {showModal ? (
-                        <Background ref={modalRef} onClick={closeModal}>
-                            <AlertWrapper showModal={showModal}>
-                                <ModalForm>
-                                    <ModalFormItem>
-                                        <h1>Bạn muốn Mở khóa Loại Sảnh tiệc <span style={{ color: `var(--color-primary)` }}>{partyHallTypeModal ? partyHallTypeModal.party_hall_type_name : null}</span> này?</h1>
-                                        <p style={{ marginTop: "10px" }}>Khách hàng lại có thể Đặt loại tiệc này như trước!</p>
-                                    </ModalFormItem>
-                                </ModalForm>
-                                <ButtonUpdate>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => handleAblePartyHallType(partyHallTypeIdModal)}
-                                        >Đồng ý</ButtonClick>
-                                    </ButtonContainer>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => setShowModal(prev => !prev)}
-                                        >Hủy bỏ</ButtonClick>
-                                    </ButtonContainer>
-                                </ButtonUpdate>
-                                <CloseModalButton
-                                    aria-label="Close modal"
-                                    onClick={() => setShowModal(prev => !prev)}
-                                >
-                                    <CloseOutlined />
-                                </CloseModalButton>
-                            </AlertWrapper>
-                        </Background>
-                    ) : null}
-                </>
-            );
-        }
+    // =============== Disable PartyHallType ===============
+    if (type === "disablePartyHallType") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <AlertWrapper showModal={showModal}>
+                            <ModalForm>
+                                <ModalFormItem>
+                                    <h1>Bạn muốn Vô hiệu hóa Loại Sảnh tiệc <span style={{ color: `var(--color-primary)` }}>{partyHallTypeModal ? partyHallTypeModal.party_hall_type_name : null}</span> này?</h1>
+                                    <p style={{ marginTop: "10px" }}>Loại Sảnh tiệc này sẽ ngưng hoạt động và Khách hàng không thể đặt được nữa!</p>
+                                </ModalFormItem>
+                            </ModalForm>
+                            <ButtonUpdate>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => handleDisablePartyHallType(partyHallTypeIdModal)}
+                                    >Đồng ý</ButtonClick>
+                                </ButtonContainer>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => setShowModal(prev => !prev)}
+                                    >Hủy bỏ</ButtonClick>
+                                </ButtonContainer>
+                            </ButtonUpdate>
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </AlertWrapper>
+                    </Background>
+                ) : null}
+            </>
+        );
+    }
+    // =============== able PartyHallType ===============
+    if (type === "ablePartyHallType") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <AlertWrapper showModal={showModal}>
+                            <ModalForm>
+                                <ModalFormItem>
+                                    <h1>Bạn muốn Mở khóa Loại Sảnh tiệc <span style={{ color: `var(--color-primary)` }}>{partyHallTypeModal ? partyHallTypeModal.party_hall_type_name : null}</span> này?</h1>
+                                    <p style={{ marginTop: "10px" }}>Khách hàng lại có thể Đặt loại tiệc này như trước!</p>
+                                </ModalFormItem>
+                            </ModalForm>
+                            <ButtonUpdate>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => handleAblePartyHallType(partyHallTypeIdModal)}
+                                    >Đồng ý</ButtonClick>
+                                </ButtonContainer>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => setShowModal(prev => !prev)}
+                                    >Hủy bỏ</ButtonClick>
+                                </ButtonContainer>
+                            </ButtonUpdate>
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </AlertWrapper>
+                    </Background>
+                ) : null}
+            </>
+        );
+    }
     // =============== Xóa danh mục ===============
     if (type === "deletePartyHallType") {
         return (

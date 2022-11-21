@@ -53,3 +53,9 @@ export const getAllFoodByFoodTypeIdAndSetMenuId = async (data) => {
     const res = await axios.post(`${url_Food}/get-all-food-by-food-type-id-and-set-menu-id`, data);
     return res;
 };
+// Quản lý Đặt món - Thêm Món ăn
+export const getFoodByFoodTypeId = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_Food}/get-food-and-type-by-food-type-id`, data);
+    return res;
+};
