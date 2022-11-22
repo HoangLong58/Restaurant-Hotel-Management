@@ -758,6 +758,7 @@ module.exports = {
                 join district di on w.district_id = di.district_id
                 join city ci on di.city_id = ci.city_id
                 where ci.city_id = ?
+                and rbo.room_booking_order_state = 2
                 `,
                 [cityId],
                 (error, results, fields) => {

@@ -55,7 +55,7 @@ const PDFFileCityByQuarter = (props) => {
         <Document>
             <Page style={styles.body}>
                 <Image style={{ width: "50px", height: "50px" }} src="https://i.ibb.co/DkbxyCK/favicon-logo.png" />
-                <Text style={styles.header} fixed>Thống kê doanh thu Đặt phòng của các Thành phố từ ngày {dateFrom} đến {dateTo} dựa vào doanh thu cả năm 2022</Text>
+                <Text style={styles.header} fixed>Thống kê doanh thu Đặt bàn của các Thành phố từ ngày {dateFrom} đến {dateTo} dựa vào doanh thu cả năm 2022</Text>
                 {
                     dataArray.map((data, key) => {
                         return (
@@ -87,7 +87,7 @@ const PDFFileCityByQuarter = (props) => {
                 }
 
                 <Image style={styles.image} src={props.image} />
-                <Text style={styles.header}> Biểu đồ thống kê doanh thu Đặt phòng của các Thành phố từ ngày {dateFrom} đến {dateTo} dựa vào doanh thu cả năm 2022</Text>
+                <Text style={styles.header}> Biểu đồ thống kê doanh thu Đặt bàn của các Thành phố từ ngày {dateFrom} đến {dateTo} dựa vào doanh thu cả năm 2022</Text>
                 <Text
                     style={styles.pageNumber}
                     render={({ pageNumber, totalPages }) =>

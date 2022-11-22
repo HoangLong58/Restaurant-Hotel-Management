@@ -153,13 +153,13 @@ const TableBookingRight = ({ reRenderData, setReRenderData }) => {
                     </ItemRight>
                 </Item>
                 <Item className="add-product"
-                    onClick={() => openModal({ type: "statistictableBooking" })}
+                    onClick={() => openModal({ type: "statisticTableBooking" })}
                 >
                     <Add />
                     <h3>Tìm kiếm &amp; Thống kê Đặt bàn Từng thành phố dựa vào Doanh thu cả năm</h3>
                 </Item>
                 <Item className="add-product"
-                    onClick={() => openModal({ type: "statistictableBookingTotal" })}
+                    onClick={() => openModal({ type: "statisticTableBookingTotal" })}
                 >
                     <Add />
                     <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt bàn - Nhà hàng</h3>

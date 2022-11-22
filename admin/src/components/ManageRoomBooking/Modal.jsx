@@ -1075,6 +1075,9 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                 }, 3000);
             }
         });;
+        setIsTotalOfCityForEachQuarter(true);
+        setIsTotalOfCityByDate(false);
+        setIsTotalOfCityByQuarter(false);
     }, [showModal]);
 
     const handleStatisticOfCity = async (e, statisticWay, startDate, finishDate, quarter, sortWay, limit) => {
@@ -1304,6 +1307,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
             }
         });
         // Reset state
+        setIsTotalForEachMonth(true);
         setIsStatisticRoomBookingOrderTotalByDate(false);
         setIsStatisticRoomBookingOrderTotalByQuarter(false);
         setStatisticWayTotal();

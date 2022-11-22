@@ -54,7 +54,7 @@ const PDFFileCity = (props) => {
         <Document>
             <Page style={styles.body}>
                 <Image style={{ width: "50px", height: "50px" }} src="https://i.ibb.co/DkbxyCK/favicon-logo.png" />
-                <Text style={styles.header} fixed>Thống kê 5 Thành phố có doanh thu Đặt phòng cao nhất các Quý 2022</Text>
+                <Text style={styles.header} fixed>Thống kê 5 Thành phố có doanh thu Đặt tiệc cao nhất các Quý 2022</Text>
                 <Table
                     data={totalOfCityForEachQuarter.data}
                 >
@@ -88,9 +88,9 @@ const PDFFileCity = (props) => {
                     </TableBody>
                 </Table>
                 <Image style={styles.image} src={props.image} />
-                <Text style={styles.header}> Biểu đồ thống kê 5 Thành phố có doanh thu Đặt phòng cao nhất các Quý 2022</Text>
+                <Text style={styles.header}> Biểu đồ thống kê 5 Thành phố có doanh thu Đặt tiệc cao nhất các Quý 2022</Text>
                 {/* <Text style={styles.text}>
-                    Biểu đồ thống kê doanh thu Đặt phòng từng Quý năm 2022
+                    Biểu đồ thống kê doanh thu Đặt tiệc từng Quý năm 2022
                 </Text> */}
                 <Table
                     data={totalOfCityForEachQuarterDataTable}
@@ -115,10 +115,10 @@ const PDFFileCity = (props) => {
                             Ngày Checkout
                         </TableCell>
                         <TableCell>
-                            Loại phòng
+                            Loại Tiệc
                         </TableCell>
                         <TableCell>
-                            Vị trí phòng
+                            Vị trí Sảnh
                         </TableCell>
                         <TableCell>
                             Tổng tiền
@@ -128,12 +128,12 @@ const PDFFileCity = (props) => {
                         <DataTableCell getContent={(r) => r.customer_first_name + " " + r.customer_last_name} />
                         <DataTableCell getContent={(r) => r.customer_email} />
                         <DataTableCell getContent={(r) => r.customer_phone_number} />
-                        <DataTableCell getContent={(r) => r.room_booking_order_address + ", " + r.ward_name + ", " + r.district_name + ", " + r.city_name} />
-                        <DataTableCell getContent={(r) => r.room_booking_order_start_date} />
-                        <DataTableCell getContent={(r) => r.room_booking_order_finish_date} />
-                        <DataTableCell getContent={(r) => r.room_type_name} />
-                        <DataTableCell getContent={(r) => r.floor_name + ", " + r.room_name} />
-                        <DataTableCell getContent={(r) => r.room_booking_order_total} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_address + ", " + r.ward_name + ", " + r.district_name + ", " + r.city_name} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_start_date} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_finish_date} />
+                        <DataTableCell getContent={(r) => r.party_booking_type_name} />
+                        <DataTableCell getContent={(r) => r.party_hall_name + ', ' + r.floor_name} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_total} />
                     </TableBody>
                 </Table>
                 <Text

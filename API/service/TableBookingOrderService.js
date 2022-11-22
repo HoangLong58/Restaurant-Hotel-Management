@@ -562,4 +562,1351 @@ module.exports = {
             );
         });
     },
+
+    // ADMIN: Quản lý Đặt bàn - Thống kê doanh thu theo từng Quý
+    getTotalFinishTableBookingOrderForEachQuarterByYear: (year) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                sum(
+                    case QUARTER(table_booking_order_finish_date) when 1 
+                    then table_booking_order_total 
+                    else 0 END
+                ) as quy1, 
+                sum(
+                    case QUARTER(table_booking_order_finish_date) when 2 
+                    then table_booking_order_total
+                    else 0 END
+                ) as quy2, 
+                sum(
+                    case QUARTER(table_booking_order_finish_date) when 3 
+                    then table_booking_order_total
+                    else 0 END
+                ) as quy3, 
+                sum(
+                    case QUARTER(table_booking_order_finish_date) when 4 
+                    then table_booking_order_total
+                    else 0 END
+                ) as quy4, 
+                sum(table_booking_order_total) as canam 
+                from table_booking_order
+                WHERE year(table_booking_order_finish_date) = ? 
+                and table_booking_order_state = 2
+                `,
+                [year],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    // Admin: Quản lý đặt bàn - Thống kê doanh thu
+    getDistinctDateInTableBookingOrderFromDateToDate: (fromDate, toDate) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select distinct 
+                date(tbo.table_booking_order_finish_date) as finishDate
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id
+                join district d on w.district_id = d.district_id
+                join city c on d.city_id = c.city_id
+                where date(tbo.table_booking_order_finish_date) >= ?
+                and date(tbo.table_booking_order_finish_date) <= ?
+                order by date(tbo.table_booking_order_finish_date) asc
+                `,
+                [fromDate, toDate],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    getTableBookingTotalByDate: (date) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                sum(
+                    case date(tbo.table_booking_order_finish_date) when ?
+                    then tbo.table_booking_order_total
+                    else 0 END
+                ) as total
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                `,
+                [date],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    getTableBookingTotalByMonth: (month) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                sum(
+                    case month(tbo.table_booking_order_finish_date) when ?
+                    then tbo.table_booking_order_total
+                    else 0 END
+                ) as total
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                `,
+                [month],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // Admin: Quản lý đặt bàn - Thống kê doanh thu 
+    getLimitTableBookingTotalOfCityForEachQuarter: (limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                c.city_name, 
+                sum(
+                    case QUARTER(tbo.table_booking_order_finish_date) when 1 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as quy1,
+                sum(
+                    case QUARTER(tbo.table_booking_order_finish_date) when 2 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as quy2,
+                sum(
+                    case QUARTER(tbo.table_booking_order_finish_date) when 3
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as quy3,
+                sum(
+                    case QUARTER(tbo.table_booking_order_finish_date) when 4 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as quy4,
+                c.city_id,
+                sum(tbo.table_booking_order_total) as canam 
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by sum(tbo.table_booking_order_total) desc
+                limit ?
+                `,
+                [limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    getTableBookingOrderByCityId: (cityId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where ci.city_id = ?
+                and tbo.table_booking_order_state = 2
+                `,
+                [cityId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Date: -limit-desc
+    getTableBookingTotalOfCityByDateAndLimitDesc: (date, limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case DATE(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam desc
+                limit ?
+                `,
+                [date, limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Date: -desc
+    getTableBookingTotalOfCityByDateAndDesc: (date) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case DATE(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam desc
+                `,
+                [date],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Date: -limit-asc
+    getTableBookingTotalOfCityByDateAndLimitAsc: (date, limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case DATE(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam asc
+                limit ?
+                `,
+                [date, limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Date: -asc
+    getTableBookingTotalOfCityByDateAndAsc: (date) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case DATE(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam asc
+                `,
+                [date],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Month: -limit-desc
+    getTableBookingTotalOfCityByMonthAndLimitDesc: (month, limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by total desc
+                limit ?
+                `,
+                [month, limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Month: -desc
+    getTableBookingTotalOfCityByMonthAndDesc: (month) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by total desc
+                `,
+                [month],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Month: -limit-asc
+    getTableBookingTotalOfCityByMonthAndLimitAsc: (month, limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by total asc
+                limit ?
+                `,
+                [month, limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Month: -asc
+    getTableBookingTotalOfCityByMonthAndAsc: (month) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by total asc
+                `,
+                [month],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    getTableBookingTotalOfCityByQuarter1AnCityId: (cityId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 1 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 2 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 3 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2 and c.city_id = ?
+                group by d.city_id
+                `,
+                [cityId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    getTableBookingTotalOfCityByQuarter2AnCityId: (cityId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 4 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 5 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 6 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2 and c.city_id = ?
+                group by d.city_id
+                `,
+                [cityId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    getTableBookingTotalOfCityByQuarter3AnCityId: (cityId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 7 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 8 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 9 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2 and c.city_id = ?
+                group by d.city_id
+                `,
+                [cityId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    getTableBookingTotalOfCityByQuarter4AnCityId: (cityId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 10 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 11 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 12 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2 and c.city_id = ?
+                group by d.city_id
+                `,
+                [cityId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+
+    // ADMIN: THỐNG KÊ DOANH THU CỦA THÀNH PHỐ DỰA VÀO QUÝ
+    // Quarter 1: No limit - Desc
+    getTableBookingTotalOfCityByQuarterOneOrderByCaNamDesc: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 1 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 2
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 3 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam desc
+                `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 1: Limit - Desc
+    getTableBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit: (limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 1 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 2
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 3 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam desc
+                limit ?
+                `,
+                [limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 1: No limit - Asc
+    getTableBookingTotalOfCityByQuarterOneOrderByCaNamAsc: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 1 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 2
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 3 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam asc
+                `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 1: Limit - Asc
+    getTableBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit: (limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 1 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 2
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 3 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam asc
+                limit ?
+                `,
+                [limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 2: No limit - Desc
+    getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDesc: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 4 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 5
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 6 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam desc
+                `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 2: Limit - Desc
+    getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit: (limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 4 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 5
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 6 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam desc
+                limit ?
+                `,
+                [limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 2: No limit - Asc
+    getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAsc: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 4
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 5
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 6 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam asc
+                `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 2: Limit - Asc
+    getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit: (limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                c.city_id,
+                c.city_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 4 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 5
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 6 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam asc
+                limit ?
+                `,
+                [limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 3: No limit - Desc
+    getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDesc: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                    c.city_id,
+                    c.city_name,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 7 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthFirst,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 8
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthSecond,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 9 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthThird,
+                    sum(table_booking_order_total) as canam
+                    from table_booking_order tbo 
+                    join ward w on tbo.ward_id = w.ward_id 
+                    join district d on w.district_id = d.district_id 
+                    join city c on d.city_id = c.city_id
+                    where tbo.table_booking_order_state = 2
+                    group by d.city_id
+                    order by canam desc
+                    `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 3: Limit - Desc
+    getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit: (limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                    c.city_id,
+                    c.city_name,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 7 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthFirst,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 8
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthSecond,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 9 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthThird,
+                    sum(table_booking_order_total) as canam
+                    from table_booking_order tbo 
+                    join ward w on tbo.ward_id = w.ward_id 
+                    join district d on w.district_id = d.district_id 
+                    join city c on d.city_id = c.city_id
+                    where tbo.table_booking_order_state = 2
+                    group by d.city_id
+                    order by canam desc
+                    limit ?
+                    `,
+                [limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 3: No limit - Asc
+    getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAsc: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                    c.city_id,
+                    c.city_name,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 7
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthFirst,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 8
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthSecond,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 9 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthThird,
+                    sum(table_booking_order_total) as canam
+                    from table_booking_order tbo 
+                    join ward w on tbo.ward_id = w.ward_id 
+                    join district d on w.district_id = d.district_id 
+                    join city c on d.city_id = c.city_id
+                    where tbo.table_booking_order_state = 2
+                    group by d.city_id
+                    order by canam asc
+                    `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 3: Limit - Asc
+    getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit: (limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                    c.city_id,
+                    c.city_name,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 7 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthFirst,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 8
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthSecond,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 9 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthThird,
+                    sum(table_booking_order_total) as canam
+                    from table_booking_order tbo 
+                    join ward w on tbo.ward_id = w.ward_id 
+                    join district d on w.district_id = d.district_id 
+                    join city c on d.city_id = c.city_id
+                    where tbo.table_booking_order_state = 2
+                    group by d.city_id
+                    order by canam asc
+                    limit ?
+                    `,
+                [limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 4: No limit - Desc
+    getTableBookingTotalOfCityByQuarterFourOrderByCaNamDesc: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                    c.city_id,
+                    c.city_name,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 10 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthFirst,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 11
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthSecond,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 12 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthThird,
+                    sum(table_booking_order_total) as canam
+                    from table_booking_order tbo 
+                    join ward w on tbo.ward_id = w.ward_id 
+                    join district d on w.district_id = d.district_id 
+                    join city c on d.city_id = c.city_id
+                    where tbo.table_booking_order_state = 2
+                    group by d.city_id
+                    order by canam desc
+                    `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 4: Limit - Desc
+    getTableBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit: (limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                    c.city_id,
+                    c.city_name,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 10 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthFirst,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 11
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthSecond,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 12 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthThird,
+                    sum(table_booking_order_total) as canam
+                    from table_booking_order tbo 
+                    join ward w on tbo.ward_id = w.ward_id 
+                    join district d on w.district_id = d.district_id 
+                    join city c on d.city_id = c.city_id
+                    where tbo.table_booking_order_state = 2
+                    group by d.city_id
+                    order by canam desc
+                    limit ?
+                    `,
+                [limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 4: No limit - Asc
+    getTableBookingTotalOfCityByQuarterFourOrderByCaNamAsc: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                    c.city_id,
+                    c.city_name,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 10
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthFirst,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 11
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthSecond,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 12 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthThird,
+                    sum(table_booking_order_total) as canam
+                    from table_booking_order tbo 
+                    join ward w on tbo.ward_id = w.ward_id 
+                    join district d on w.district_id = d.district_id 
+                    join city c on d.city_id = c.city_id
+                    where tbo.table_booking_order_state = 2
+                    group by d.city_id
+                    order by canam asc
+                    `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // Quarter 4: Limit - Asc
+    getTableBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit: (limit) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                    c.city_id,
+                    c.city_name,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 10 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthFirst,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 11
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthSecond,
+                    sum(
+                        case MONTH(tbo.table_booking_order_finish_date) when 12 
+                        then tbo.table_booking_order_total 
+                        else 0 END
+                    ) as monthThird,
+                    sum(table_booking_order_total) as canam
+                    from table_booking_order tbo 
+                    join ward w on tbo.ward_id = w.ward_id 
+                    join district d on w.district_id = d.district_id 
+                    join city c on d.city_id = c.city_id
+                    where tbo.table_booking_order_state = 2
+                    group by d.city_id
+                    order by canam asc
+                    limit ?
+                    `,
+                [limit],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+
+    // DATE: -Limit
+    getTableBookingTotalOfCityByDateByListDate: (listDate, sort, limit) => {
+        var query = "";
+        query += "select c.city_id, c.city_name, "
+        for (var i = 0; i < listDate.length; i++) {
+            const date = listDate[i].finishDate;
+            query += `sum(
+                case DATE(tbo.table_booking_order_finish_date) when '` + date + `' 
+                then tbo.table_booking_order_total 
+                else 0 END
+            ) as date` + (i + 1) + `,`;
+        }
+        query += `sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam ` + sort + `
+                limit ` + limit + `;`;
+        return new Promise((resolve, reject) => {
+            con.query(query,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // DATE: - No limit
+    getTableBookingTotalOfCityByDateByListDateNoLimit: (listDate, sort) => {
+        var query = "";
+        query += "select c.city_id, c.city_name, "
+        for (var i = 0; i < listDate.length; i++) {
+            const date = listDate[i].finishDate;
+            query += `sum(
+                case DATE(tbo.table_booking_order_finish_date) when '` + date + `' 
+                then tbo.table_booking_order_total 
+                else 0 END
+            ) as date` + (i + 1) + `,`;
+        }
+        query += `sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                group by d.city_id
+                order by canam ` + sort + `;`;
+        return new Promise((resolve, reject) => {
+            con.query(query,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
 };

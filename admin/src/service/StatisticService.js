@@ -23,3 +23,15 @@ export const getStatisticRoomBookingForEachQuarterByYear = async (data) => {
     const res = await axios.post(`${url_Statistic}/get-statistic-room-booking-for-each-quater-by-year`, data);
     return res;
 };
+// Thống kê doanh thu của từng Party booking đã finish/ Theo Từng Quý dựa vào Năm
+export const getStatisticPartyBookingForEachQuarterByYear = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_Statistic}/get-statistic-party-booking-for-each-quater-by-year`, data);
+    return res;
+};
+// Thống kê doanh thu của từng Table booking đã finish/ Theo Từng Quý dựa vào Năm
+export const getStatisticTableBookingForEachQuarterByYear = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_Statistic}/get-statistic-table-booking-for-each-quater-by-year`, data);
+    return res;
+};

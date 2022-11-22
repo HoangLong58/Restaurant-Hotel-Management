@@ -1,4 +1,4 @@
-const { createPartyBookingOrder, findPartyBookingOrder, getPartyBookingsAndDetail, getQuantityPartyBookings, findPartyBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findPartyBookingById, findPartyBookingOrderByIdCheckIn, updatePartyBookingOrderInfoWhenCheckInSuccess, updatePartyBookingOrderState, updatePartyBookingOrderFinishDateWhenCheckOutSuccess } = require("../service/PartyBookingOrderService");
+const { createPartyBookingOrder, findPartyBookingOrder, getPartyBookingsAndDetail, getQuantityPartyBookings, findPartyBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findPartyBookingById, findPartyBookingOrderByIdCheckIn, updatePartyBookingOrderInfoWhenCheckInSuccess, updatePartyBookingOrderState, updatePartyBookingOrderFinishDateWhenCheckOutSuccess, getDistinctDateInPartyBookingOrderFromDateToDate, getPartyBookingTotalByDate, getPartyBookingTotalByMonth, getLimitPartyBookingTotalOfCityForEachQuarter, getPartyBookingOrderByCityId, getPartyBookingTotalOfCityByDateAndLimitAsc, getPartyBookingTotalOfCityByDateAndAsc, getPartyBookingTotalOfCityByDateAndLimitDesc, getPartyBookingTotalOfCityByDateAndDesc, getPartyBookingTotalOfCityByDateByListDate, getPartyBookingTotalOfCityByDateByListDateNoLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAsc } = require("../service/PartyBookingOrderService");
 const { createPartyHallDetail, getPartyHallDetailByPartyBookingOrderId } = require("../service/PartyHallDetailService");
 const { getPartyHallWithTypeFloorByPartyHallId } = require("../service/PartyHallService");
 const { getSetMenuBySetMenuId } = require("../service/SetMenuService");
@@ -806,5 +806,1072 @@ module.exports = {
                 error: err
             });
         }
+    },
+
+    // Admin: Quản lý đặt Tiệc - Thống kê doanh thu
+    getStatisticPartyBookingTotalByDate: async (req, res) => {
+        const dateFrom = req.body.dateFrom;
+        const dateTo = req.body.dateTo;
+        const sortWay = req.body.sortWay;
+        if (!dateFrom) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày bắt đầu thống kê không hợp lệ!"
+            });
+        }
+        if (!dateTo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày kết thúc thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        // Lấy ngày trong party booking từ dateFrom đến dateTo
+        try {
+            const fromDateToDateListRes = await getDistinctDateInPartyBookingOrderFromDateToDate(dateFrom, dateTo);
+            if (!fromDateToDateListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get date list"
+                });
+            }
+
+            let finalArray = [];
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            for (var i = 0; i < fromDateToDateListRes.length; i++) {
+                const date = fromDateToDateListRes[i].finishDate;
+                // Lấy doanh thu theo ngày
+                try {
+                    const totalRes = await getPartyBookingTotalByDate(date);
+                    if (!totalRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking total by date"
+                        });
+                    }
+                    finalArray.push({
+                        date: date,
+                        data: totalRes.total
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when statist by date!",
+                        error: err
+                    });
+                }
+            }
+
+            // Sort
+            let dateArray = [];
+            let dataArray = [];
+            if (sortWay === "asc") {
+                finalArray = finalArray.sort((a, b) => a.data - b.data);
+            } else {
+                finalArray = finalArray.sort((a, b) => b.data - a.data);
+            }
+            for (var i = 0; i < finalArray.length; i++) {
+                dateArray.push(finalArray[i].date);
+                dataArray.push(finalArray[i].data);
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo ngày thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    dateArray: dateArray,
+                    data: finalArray,
+                    dataArray: dataArray,
+                    dateFrom: dateFrom,
+                    dateTo: dateTo
+                }
+            });
+        } catch (err) {
+            console.log(err)
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find date!",
+                error: err
+            });
+        }
+    },
+    // Admin: Quản lý đặt Tiệc - Thống kê doanh thu
+    getStatisticPartyBookingTotalByQuarter: async (req, res) => {
+        const quarter = req.body.quarter;
+        const sortWay = req.body.sortWay;
+        if (!quarter || !Number.isInteger(quarter) || quarter >= 5 || quarter < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Quý thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+
+        var monthInQuarterArray = [];
+        if (quarter === 1) {
+            monthInQuarterArray = [1, 2, 3];
+        } else if (quarter === 2) {
+            monthInQuarterArray = [4, 5, 6];
+        } else if (quarter === 3) {
+            monthInQuarterArray = [7, 8, 9];
+        } else {
+            monthInQuarterArray = [10, 11, 12];
+        }
+
+        let finalArray = [];
+        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+        var today = new Date();
+        var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        var statisticDate = date + ' ' + time;
+
+        for (var i = 0; i < monthInQuarterArray.length; i++) {
+            const month = monthInQuarterArray[i];
+            // Lấy doanh thu theo tháng
+            try {
+                const totalRes = await getPartyBookingTotalByMonth(month);
+                if (!totalRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find party booking total by month"
+                    });
+                }
+                finalArray.push({
+                    month: month,
+                    data: totalRes.total
+                });
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when statist by month!",
+                    error: err
+                });
+            }
+        }
+
+        // Sort
+        let monthArray = [];
+        let dataArray = [];
+        if (sortWay === "asc") {
+            finalArray = finalArray.sort((a, b) => a.data - b.data);
+        } else {
+            finalArray = finalArray.sort((a, b) => b.data - a.data);
+        }
+        for (var i = 0; i < finalArray.length; i++) {
+            monthArray.push(finalArray[i].month);
+            dataArray.push(finalArray[i].data);
+        }
+
+        // Success
+        return res.status(200).json({
+            status: "success",
+            message: "Thống kê doanh thu theo Tháng trong Quý thành công!",
+            data: {
+                statisticDate: statisticDate,
+                monthArray: monthArray,
+                data: finalArray,
+                dataArray: dataArray,
+                quarter: quarter
+            }
+        });
+    },
+    // Admin: Quản lý đặt Tiệc - Thống kê doanh thu Theo thành phố
+    getLimitPartyBookingTotalOfCityForEachQuarter: async (req, res) => {
+        const limit = 5;
+        try {
+            const PartyBookingTotalOfCityForEachQuarterRes = await getLimitPartyBookingTotalOfCityForEachQuarter(limit);
+            if (!PartyBookingTotalOfCityForEachQuarterRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get party booking total of city for each quarter list"
+                });
+            }
+
+            let finalDataTableArray = [];
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            for (var i = 0; i < PartyBookingTotalOfCityForEachQuarterRes.length; i++) {
+                const cityId = PartyBookingTotalOfCityForEachQuarterRes[i].city_id;
+                const cityName = PartyBookingTotalOfCityForEachQuarterRes[i].city_name;
+                // Lấy đơn đặt Tiệc cho từng city id
+                try {
+                    const PartyBookingByCityIdRes = await getPartyBookingOrderByCityId(cityId);
+                    if (!PartyBookingByCityIdRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking by city id"
+                        });
+                    }
+                    finalDataTableArray.push({
+                        cityName: cityName,
+                        data: PartyBookingByCityIdRes
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when statist by date!",
+                        error: err
+                    });
+                }
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo Thành phố của 4 quý thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    data: PartyBookingTotalOfCityForEachQuarterRes,
+                    dataArray: finalDataTableArray,
+                }
+            });
+        } catch (err) {
+            console.log(err)
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when get party booking total of city for each quarter list!",
+                error: err
+            });
+        }
+    },
+    // Admin: Quản lý đặt Tiệc - Thống kê doanh thu Theo thành phố
+    getStatisticPartyBookingTotalOfCityByDate: async (req, res) => {
+        const dateFrom = req.body.dateFrom;
+        const dateTo = req.body.dateTo;
+        const sortWay = req.body.sortWay;
+        const limit = req.body.limit;
+        if (!dateFrom) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày bắt đầu thống kê không hợp lệ!"
+            });
+        }
+        if (!dateTo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày kết thúc thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!limit || limit !== 'five' && limit !== 'ten' && limit !== 'all') {
+            return res.status(400).json({
+                status: "fail",
+                message: "Bạn chưa giới hạn số lượng tìm kiếm!"
+            });
+        }
+        // Lấy ngày trong party booking từ dateFrom đến dateTo
+        try {
+            const fromDateToDateListRes = await getDistinctDateInPartyBookingOrderFromDateToDate(dateFrom, dateTo);
+            if (!fromDateToDateListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get date list"
+                });
+            }
+
+            let finalArray = [];
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            for (var i = 0; i < fromDateToDateListRes.length; i++) {
+                const date = fromDateToDateListRes[i].finishDate;
+                if (sortWay === 'asc') {
+                    // Date: limit 5 - asc
+                    if (limit === 'five') {
+                        try {
+                            const totalRes = await getPartyBookingTotalOfCityByDateAndLimitAsc(date, 5);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find party booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                    // Date: limit 10 - asc
+                    if (limit === 'ten') {
+                        try {
+                            const totalRes = await getPartyBookingTotalOfCityByDateAndLimitAsc(date, 10);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find party booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                    // Date: - asc
+                    if (limit === 'all') {
+                        try {
+                            const totalRes = await getPartyBookingTotalOfCityByDateAndAsc(date);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find party booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                }
+                if (sortWay === 'desc') {
+                    // Date: limit 5 - desc
+                    if (limit === 'five') {
+                        try {
+                            const totalRes = await getPartyBookingTotalOfCityByDateAndLimitDesc(date, 5);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find party booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                    // Date: limit 10 - desc
+                    if (limit === 'ten') {
+                        try {
+                            const totalRes = await getPartyBookingTotalOfCityByDateAndLimitDesc(date, 10);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find party booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                    // Date: - desc
+                    if (limit === 'all') {
+                        try {
+                            const totalRes = await getPartyBookingTotalOfCityByDateAndDesc(date);
+                            if (!totalRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find party booking total by date"
+                                });
+                            }
+                            finalArray.push({
+                                date: date,
+                                data: totalRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when statist by date!",
+                                error: err
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Sort
+            let dateArray = [];
+            let dataArray = [];
+            for (var i = 0; i < finalArray.length; i++) {
+                dateArray.push(finalArray[i].date);
+                dataArray.push(finalArray[i].data);
+            }
+
+            // Lấy data để hiện biểu đồ
+            var statistisData = {};
+            if (limit === "five") {
+                try {
+                    const PartyBookingTotalOfCityByDateRes = await getPartyBookingTotalOfCityByDateByListDate(fromDateToDateListRes, sortWay, 5);
+                    if (!PartyBookingTotalOfCityByDateRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get test"
+                        });
+                    }
+                    statistisData = PartyBookingTotalOfCityByDateRes
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingTotalOfCityByDateByListDate 5!",
+                        error: err
+                    });
+                }
+            }
+            if (limit === "ten") {
+                try {
+                    const PartyBookingTotalOfCityByDateRes = await getPartyBookingTotalOfCityByDateByListDate(fromDateToDateListRes, sortWay, 10);
+                    if (!PartyBookingTotalOfCityByDateRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get test"
+                        });
+                    }
+                    statistisData = PartyBookingTotalOfCityByDateRes
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingTotalOfCityByDateByListDate 10!",
+                        error: err
+                    });
+                }
+            }
+            if (limit === "all") {
+                try {
+                    // TEST
+                    const PartyBookingTotalOfCityByDateRes = await getPartyBookingTotalOfCityByDateByListDateNoLimit(fromDateToDateListRes, sortWay);
+                    if (!PartyBookingTotalOfCityByDateRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get test"
+                        });
+                    }
+                    statistisData = PartyBookingTotalOfCityByDateRes
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingTotalOfCityByDateByListDateNoLimit!",
+                        error: err
+                    });
+                }
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo ngày của Thành phố thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    dateArray: dateArray,
+                    data: finalArray,
+                    dataArray: dataArray,
+                    dateFrom: dateFrom,
+                    dateTo: dateTo,
+                    limit: limit,
+                    sortWay: sortWay,
+                    statistisData: statistisData
+                }
+            });
+        } catch (err) {
+            console.log(err)
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find date!",
+                error: err
+            });
+        }
+    },
+
+    // Admin: Quản lý đặt Tiệc - Thống kê doanh thu Theo thành phố
+    getStatisticPartyBookingTotalOfCityByQuarter: async (req, res) => {
+        const quarter = req.body.quarter;
+        const sortWay = req.body.sortWay;
+        const limit = req.body.limit;
+        if (!quarter || !Number.isInteger(quarter) || quarter >= 5 || quarter < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Quý thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!limit || limit !== 'five' && limit !== 'ten' && limit !== 'all') {
+            return res.status(400).json({
+                status: "fail",
+                message: "Bạn chưa giới hạn số lượng tìm kiếm!"
+            });
+        }
+        let finalDataArray = {};
+        // Nếu là quý 1
+        if (quarter === 1) {
+            if (sortWay === "desc") {
+                if (limit === "five") {
+                    // Quarter 1: -limit 5 - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(5);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 1: -limit 5 - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 1: -limit 10 - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(10);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 1: -limit 10 - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 1: - no limit - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDesc();
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 1: - no limit - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDesc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+            if (sortWay === "asc") {
+                if (limit === "five") {
+                    // Quarter 1: -limit 5 - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(5);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 1: -limit 5 - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 1: -limit 10 - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(10);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 1: -limit 10 - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 1: - no limit - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAsc();
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 1: - no limit - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAsc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+        }
+        // Nếu là quý 2
+        if (quarter === 2) {
+            if (sortWay === "desc") {
+                if (limit === "five") {
+                    // Quarter 2: -limit 5 - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(5);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 2: -limit 5 - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 2: -limit 10 - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(10);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 2: -limit 10 - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 2: - no limit - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDesc();
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 2: - no limit - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDesc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+            if (sortWay === "asc") {
+                if (limit === "five") {
+                    // Quarter 2: -limit 5 - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(5);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 2: -limit 5 - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 2: -limit 10 - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(10);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 2: -limit 10 - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 2: - no limit - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAsc();
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 2: - no limit - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAsc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+        }
+        // Nếu là quý 3
+        if (quarter === 3) {
+            if (sortWay === "desc") {
+                if (limit === "five") {
+                    // Quarter 3: -limit 5 - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(5);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 3: -limit 5 - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 3: -limit 10 - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(10);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 3: -limit 10 - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 3: - no limit - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDesc();
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 3: - no limit - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDesc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+            if (sortWay === "asc") {
+                if (limit === "five") {
+                    // Quarter 3: -limit 5 - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(5);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 3: -limit 5 - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 3: -limit 10 - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(10);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 3: -limit 10 - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 3: - no limit - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAsc();
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 3: - no limit - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAsc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+        }
+
+        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+        var todayCheckIn = new Date();
+        var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+        var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+        var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+        var monthInQuarterArray = [];
+        if (quarter === 1) {
+            monthInQuarterArray = [1, 2, 3];
+        } else if (quarter === 2) {
+            monthInQuarterArray = [4, 5, 6];
+        } else if (quarter === 3) {
+            monthInQuarterArray = [7, 8, 9];
+        } else {
+            monthInQuarterArray = [10, 11, 12];
+        }
+
+        // Nếu là quý 4
+        if (quarter === 4) {
+            if (sortWay === "desc") {
+                if (limit === "five") {
+                    // Quarter 4: -limit 5 - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(5);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 3: -limit 5 - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 4: -limit 10 - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(10);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 4: -limit 10 - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 4: - no limit - desc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDesc();
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 4: - no limit - desc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDesc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+            if (sortWay === "asc") {
+                if (limit === "five") {
+                    // Quarter 4: -limit 5 - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(5);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 4: -limit 5 - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit 5!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "ten") {
+                    // Quarter 4: -limit 10 - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(10);
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 4: -limit 10 - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit 10!",
+                            error: err
+                        });
+                    }
+                }
+                if (limit === "all") {
+                    // Quarter 4: - no limit - asc
+                    try {
+                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAsc();
+                        if (!PartyBookingTotalQuarterRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by Quarter 4: - no limit - asc"
+                            });
+                        }
+                        finalDataArray = PartyBookingTotalQuarterRes;
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAsc!",
+                            error: err
+                        });
+                    }
+                }
+            }
+        }
+        // Success
+        return res.status(200).json({
+            status: "success",
+            message: "Thống kê doanh thu theo tháng của Thành phố thành công!",
+            data: {
+                statisticDate: statisticDate,
+                quarter: quarter,
+                sortWay: sortWay,
+                limit: limit,
+                data: finalDataArray,
+                monthArray: monthInQuarterArray
+            }
+        });
     },
 };

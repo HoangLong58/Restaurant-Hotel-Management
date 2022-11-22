@@ -55,7 +55,7 @@ const PDFFileByDate = (props) => {
         <Document>
             <Page style={styles.body}>
                 <Image style={{ width: "50px", height: "50px" }} src="https://i.ibb.co/DkbxyCK/favicon-logo.png" />
-                <Text style={styles.header} fixed>Thống kê doanh thu Đặt phòng từ ngày {dateFrom} đến {dateTo}</Text>
+                <Text style={styles.header} fixed>Thống kê doanh thu Đặt tiệc từ ngày {dateFrom} đến {dateTo}</Text>
                 <Table
                     data={statisticDateArray}
                 >
@@ -73,9 +73,9 @@ const PDFFileByDate = (props) => {
                     </TableBody>
                 </Table>
                 <Image style={styles.image} src={props.image} />
-                <Text style={styles.header} fixed> Biểu đồ thống kê doanh thu Đặt phòng từ ngày {dateFrom} đến {dateTo}</Text>
+                <Text style={styles.header} fixed> Biểu đồ thống kê doanh thu Đặt tiệc từ ngày {dateFrom} đến {dateTo}</Text>
                 {/* <Text style={styles.text}>
-                    Biểu đồ thống kê doanh thu Đặt phòng từng Quý năm 2022
+                    Biểu đồ thống kê doanh thu Đặt tiệc từng Quý năm 2022
                 </Text> */}
                 <Text
                     style={styles.pageNumber}

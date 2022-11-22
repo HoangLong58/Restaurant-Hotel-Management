@@ -41,3 +41,35 @@ export const checkOut = async (data) => {
     const res = await axios.post(`${url_TableBookingOrder}/check-out-table-booking-order`, data);
     return res;
 };
+
+// Quản lý Đặt bàn - Thống kê doanh thu theo ngày
+export const getStatisticTableBookingTotalByDate = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_TableBookingOrder}/get-statistic-table-booking-order-total-by-date`, data);
+    return res;
+};
+// Quản lý Đặt bàn - Thống kê doanh thu theo Tháng trong Quý
+export const getStatisticTableBookingTotalByQuarter = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_TableBookingOrder}/get-statistic-table-booking-order-total-by-quarter`, data);
+    return res;
+};
+
+// Quản lý Đặt bàn - Thống kê doanh thu Từng thành phố
+export const getLimitTableBookingTotalOfCityForEachQuarter = async () => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_TableBookingOrder}/get-statistic-table-booking-order-total-of-city-for-each-quarter`);
+    return res;
+};
+// Quản lý Đặt bàn - Thống kê doanh thu Từng thành phố theo Ngày
+export const getStatisticTableBookingTotalOfCityByDate = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_TableBookingOrder}/get-statistic-table-booking-order-total-of-city-by-date`, data);
+    return res;
+};
+// Quản lý Đặt bàn - Thống kê doanh thu Từng thành phố theo Tháng trong Quý
+export const getStatisticTableBookingTotalOfCityByQuarter = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_TableBookingOrder}/get-statistic-table-booking-order-total-of-city-by-quarter`, data);
+    return res;
+};
