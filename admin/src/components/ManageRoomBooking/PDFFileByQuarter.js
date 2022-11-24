@@ -50,6 +50,7 @@ const PDFFileByQuarter = (props) => {
     const statisticQuarterArray = props.data.data;
     console.log("statisticQuarterArray: ", statisticQuarterArray);
     const quarter = props.data.quarter;
+    const totalDataTable = props.dataTable;
     return (
         <Document>
             <Page style={styles.body}>
@@ -72,10 +73,54 @@ const PDFFileByQuarter = (props) => {
                     </TableBody>
                 </Table>
                 <Image style={styles.image} src={props.image} />
-                <Text style={styles.header} fixed> Biểu đồ thống kê doanh thu Đặt phòng từng tháng trong Quý {quarter} năm 2022</Text>
+                <Text style={styles.header}> Biểu đồ thống kê doanh thu Đặt phòng từng tháng trong Quý {quarter} năm 2022</Text>
                 {/* <Text style={styles.text}>
                     Biểu đồ thống kê doanh thu Đặt phòng từng Quý năm 2022
                 </Text> */}
+                <Table
+                    data={totalDataTable}
+                >
+                    <TableHeader>
+                        <TableCell>
+                            Họ tên
+                        </TableCell>
+                        <TableCell>
+                            Email
+                        </TableCell>
+                        <TableCell>
+                            Số điện thoại
+                        </TableCell>
+                        <TableCell>
+                            Địa chỉ
+                        </TableCell>
+                        <TableCell>
+                            Ngày Checkin
+                        </TableCell>
+                        <TableCell>
+                            Ngày Checkout
+                        </TableCell>
+                        <TableCell>
+                            Loại phòng
+                        </TableCell>
+                        <TableCell>
+                            Vị trí phòng
+                        </TableCell>
+                        <TableCell>
+                            Tổng tiền
+                        </TableCell>
+                    </TableHeader>
+                    <TableBody>
+                        <DataTableCell getContent={(r) => r.customer_first_name + " " + r.customer_last_name} />
+                        <DataTableCell getContent={(r) => r.customer_email} />
+                        <DataTableCell getContent={(r) => r.customer_phone_number} />
+                        <DataTableCell getContent={(r) => r.room_booking_order_address + ", " + r.ward_name + ", " + r.district_name + ", " + r.city_name} />
+                        <DataTableCell getContent={(r) => r.room_booking_order_start_date} />
+                        <DataTableCell getContent={(r) => r.room_booking_order_finish_date} />
+                        <DataTableCell getContent={(r) => r.room_type_name} />
+                        <DataTableCell getContent={(r) => r.floor_name + ", " + r.room_name} />
+                        <DataTableCell getContent={(r) => r.room_booking_order_total} />
+                    </TableBody>
+                </Table>
                 <Text
                     style={styles.pageNumber}
                     render={({ pageNumber, totalPages }) =>

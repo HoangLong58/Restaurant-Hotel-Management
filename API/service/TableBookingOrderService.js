@@ -1909,4 +1909,276 @@ module.exports = {
             );
         });
     },
+    getTableBookingOrderByDate: (date) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where date(tbo.table_booking_order_finish_date) = ?
+                and tbo.table_booking_order_state = 2
+                `,
+                [date],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    getTableBookingOrderByQuarterAndCityId: (quarter, cityId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where quarter(tbo.table_booking_order_finish_date) = ?
+                and ci.city_id = ?
+                and tbo.table_booking_order_state = 2
+                `,
+                [quarter, cityId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Bảng đặt bàn Chi tiết - 4 Quý
+    getTableBookingOrderOf4Quarter: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where tbo.table_booking_order_state = 2
+                order by date(tbo.table_booking_order_finish_date) asc
+                `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Bảng đặt bàn Chi tiết - Quý
+    getTableBookingOrderOfQuarter: (quarter) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where tbo.table_booking_order_state = 2
+                and quarter(tbo.table_booking_order_finish_date) = ?
+                order by date(tbo.table_booking_order_finish_date) asc
+                `,
+                [quarter],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Bảng đặt bàn Chi tiết - Date
+    getTableBookingOrderFromDateToDate: (fromDate, toDate) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where tbo.table_booking_order_state = 2
+                and date(tbo.table_booking_order_finish_date) >= ?
+                and date(tbo.table_booking_order_finish_date) <= ?
+                order by date(tbo.table_booking_order_finish_date) asc
+                `,
+                [fromDate, toDate],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
 };

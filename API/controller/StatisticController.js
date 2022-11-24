@@ -1,6 +1,6 @@
-const { getTotalFinishPartyBookingOrderByFinishDate, getTotalFinishPartyBookingOrder, getTotalFinishPartyBookingOrderForEachMonthByYear, getTotalFinishPartyBookingOrderForEachQuarterByYear } = require("../service/PartyBookingOrderService");
-const { getTotalFinishRoomBookingOrderByFinishDate, getTotalFinishRoomBookingOrder, getTotalFinishRoomBookingOrderForEachMonthByYear, getTotalFinishRoomBookingOrderForEachQuarterByYear } = require("../service/RoomBookingOrderService");
-const { getTotalFinishTableBookingOrderByFinishDate, getTotalFinishTableBookingOrder, getTotalFinishTableBookingOrderForEachMonthByYear, getTotalFinishTableBookingOrderForEachQuarterByYear } = require("../service/TableBookingOrderService");
+const { getTotalFinishPartyBookingOrderByFinishDate, getTotalFinishPartyBookingOrder, getTotalFinishPartyBookingOrderForEachMonthByYear, getTotalFinishPartyBookingOrderForEachQuarterByYear, getPartyBookingOrderOf4Quarter } = require("../service/PartyBookingOrderService");
+const { getTotalFinishRoomBookingOrderByFinishDate, getTotalFinishRoomBookingOrder, getTotalFinishRoomBookingOrderForEachMonthByYear, getTotalFinishRoomBookingOrderForEachQuarterByYear, getRoomBookingOrderOf4Quarter } = require("../service/RoomBookingOrderService");
+const { getTotalFinishTableBookingOrderByFinishDate, getTotalFinishTableBookingOrder, getTotalFinishTableBookingOrderForEachMonthByYear, getTotalFinishTableBookingOrderForEachQuarterByYear, getTableBookingOrderOf4Quarter } = require("../service/TableBookingOrderService");
 
 module.exports = {
     getStatisticRoomAndTableAndPartyBooking: async (req, res) => {
@@ -197,7 +197,24 @@ module.exports = {
                     message: "Cann't get statistic room booking order total for each month by year!"
                 });
             }
-
+            var roomBookingOrderList = [];
+            // Lấy danh sách đặt phòng chi tiết
+            try {
+                const roomBookingOrderListRes = await getRoomBookingOrderOf4Quarter();
+                if (!roomBookingOrderListRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find room booking order of 4 quarter"
+                    });
+                }
+                roomBookingOrderList = roomBookingOrderListRes;
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getRoomBookingOrderOf4Quarter!",
+                    error: err
+                });
+            }
             // Success
             return res.status(200).json({
                 status: "success",
@@ -206,7 +223,8 @@ module.exports = {
                     data: getTotalRoomBookingForEachQuarterRes,
                     name: "Doanh thu Đặt phòng - Khách sạn"
                 },
-                statisticDate: statisticDate
+                statisticDate: statisticDate,
+                roomBookingOrderList: roomBookingOrderList
             });
 
         } catch (err) {
@@ -240,7 +258,24 @@ module.exports = {
                     message: "Cann't get statistic party booking order total for each month by year!"
                 });
             }
-
+            var partyBookingOrderList = [];
+            // Lấy danh sách đặt tiệc chi tiết
+            try {
+                const partyBookingOrderListRes = await getPartyBookingOrderOf4Quarter();
+                if (!partyBookingOrderListRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find room booking order of 4 quarter"
+                    });
+                }
+                partyBookingOrderList = partyBookingOrderListRes;
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getPartyBookingOrderOf4Quarter!",
+                    error: err
+                });
+            }
             // Success
             return res.status(200).json({
                 status: "success",
@@ -249,7 +284,8 @@ module.exports = {
                     data: getTotalPartyBookingForEachQuarterRes,
                     name: "Doanh thu Đặt tiệc - Nhà hàng"
                 },
-                statisticDate: statisticDate
+                statisticDate: statisticDate,
+                partyBookingOrderList: partyBookingOrderList
             });
 
         } catch (err) {
@@ -283,7 +319,24 @@ module.exports = {
                     message: "Cann't get statistic table booking order total for each month by year!"
                 });
             }
-
+            var tableBookingOrderList = [];
+            // Lấy danh sách đặt bàn chi tiết
+            try {
+                const tableBookingOrderListRes = await getTableBookingOrderOf4Quarter();
+                if (!tableBookingOrderListRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find room booking order of 4 quarter"
+                    });
+                }
+                tableBookingOrderList = tableBookingOrderListRes;
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getTableBookingOrderOf4Quarter!",
+                    error: err
+                });
+            }
             // Success
             return res.status(200).json({
                 status: "success",
@@ -292,7 +345,8 @@ module.exports = {
                     data: getTotalTableBookingForEachQuarterRes,
                     name: "Doanh thu Đặt bàn - Nhà hàng"
                 },
-                statisticDate: statisticDate
+                statisticDate: statisticDate,
+                tableBookingOrderList: tableBookingOrderList
             });
 
         } catch (err) {

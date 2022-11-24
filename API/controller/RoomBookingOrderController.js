@@ -1,7 +1,7 @@
 const { getCustomerByCustomerId, findCustomerByEmailOrPhoneNumber } = require("../service/CustomerService");
 const { updateDiscountState } = require("../service/DiscountService");
 const { createRoomBookingDetail, getRoomBookingDetailByRoomBookingOrderId, updateRoomBookingDetailKeyWhenCheckOutSuccess } = require("../service/RoomBookingDetailService");
-const { createRoomBookingOrder, findRoomBookingOrder, getRoomBookingsAndDetail, getQuantityRoomBookings, findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName, findRoomBookingById, findRoomBookingOrderByIdCheckIn, updateRoomBookingOrderInfoWhenCheckInSuccess, updateRoomBookingOrderState, updateRoomBookingOrderFinishDateWhenCheckOutSuccess, getRoomBookingTotalByDate, getDistinctDateInRoomBookingOrderFromDateToDate, getRoomBookingTotalByMonth, getLimitRoomBookingTotalOfCityForEachQuarter, getRoomBookingOrderByCityId, getRoomBookingTotalOfCityByDateAndLimitAsc, getRoomBookingTotalOfCityByDateAndAsc, getRoomBookingTotalOfCityByDateAndLimitDesc, getRoomBookingTotalOfCityByDateAndDesc, getRoomBookingTotalOfCityByMonthAndLimitAsc, getRoomBookingTotalOfCityByMonthAndAsc, getRoomBookingTotalOfCityByMonthAndDesc, getRoomBookingTotalOfCityByMonthAndLimitDesc, getRoomBookingTotalOfCityByQuarter1AnCityId, getRoomBookingTotalOfCityByQuarter2AnCityId, getRoomBookingTotalOfCityByQuarter3AnCityId, getRoomBookingTotalOfCityByQuarter4AnCityId, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getRoomBookingTotalOfCityByDateByListDate, getRoomBookingTotalOfCityByDateByListDateNoLimit } = require("../service/RoomBookingOrderService");
+const { createRoomBookingOrder, findRoomBookingOrder, getRoomBookingsAndDetail, getQuantityRoomBookings, findRoomBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerNameOrRoomName, findRoomBookingById, findRoomBookingOrderByIdCheckIn, updateRoomBookingOrderInfoWhenCheckInSuccess, updateRoomBookingOrderState, updateRoomBookingOrderFinishDateWhenCheckOutSuccess, getRoomBookingTotalByDate, getDistinctDateInRoomBookingOrderFromDateToDate, getRoomBookingTotalByMonth, getLimitRoomBookingTotalOfCityForEachQuarter, getRoomBookingOrderByCityId, getRoomBookingTotalOfCityByDateAndLimitAsc, getRoomBookingTotalOfCityByDateAndAsc, getRoomBookingTotalOfCityByDateAndLimitDesc, getRoomBookingTotalOfCityByDateAndDesc, getRoomBookingTotalOfCityByMonthAndLimitAsc, getRoomBookingTotalOfCityByMonthAndAsc, getRoomBookingTotalOfCityByMonthAndDesc, getRoomBookingTotalOfCityByMonthAndLimitDesc, getRoomBookingTotalOfCityByQuarter1AnCityId, getRoomBookingTotalOfCityByQuarter2AnCityId, getRoomBookingTotalOfCityByQuarter3AnCityId, getRoomBookingTotalOfCityByQuarter4AnCityId, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getRoomBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getRoomBookingTotalOfCityByDateByListDate, getRoomBookingTotalOfCityByDateByListDateNoLimit, getRoomBookingOrderByDate, getRoomBookingOrderByQuarterAndCityId, getRoomBookingOrderFromDateToDate, getRoomBookingOrderOfQuarter } = require("../service/RoomBookingOrderService");
 const { findRoomByRoomId } = require("../service/RoomService");
 const { format_money, createLogAdmin } = require("../utils/utils");
 
@@ -784,6 +784,25 @@ module.exports = {
                 dataArray.push(finalArray[i].data);
             }
 
+            var roomBookingOrderList = [];
+            // Lấy danh sách đặt phòng chi tiết
+            try {
+                const roomBookingOrderListRes = await getRoomBookingOrderFromDateToDate(dateFrom, dateTo);
+                if (!roomBookingOrderListRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find room booking order from date to date"
+                    });
+                }
+                roomBookingOrderList = roomBookingOrderListRes;
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getRoomBookingOrderFromDateToDate!",
+                    error: err
+                });
+            }
+
             // Success
             return res.status(200).json({
                 status: "success",
@@ -794,7 +813,8 @@ module.exports = {
                     data: finalArray,
                     dataArray: dataArray,
                     dateFrom: dateFrom,
-                    dateTo: dateTo
+                    dateTo: dateTo,
+                    roomBookingOrderList: roomBookingOrderList
                 }
             });
         } catch (err) {
@@ -877,7 +897,24 @@ module.exports = {
             monthArray.push(finalArray[i].month);
             dataArray.push(finalArray[i].data);
         }
-
+        var roomBookingOrderList = [];
+        // Lấy danh sách đặt phòng chi tiết
+        try {
+            const roomBookingOrderListRes = await getRoomBookingOrderOfQuarter(quarter);
+            if (!roomBookingOrderListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find room booking order of quarter"
+                });
+            }
+            roomBookingOrderList = roomBookingOrderListRes;
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when getRoomBookingOrderOfQuarter!",
+                error: err
+            });
+        }
         // Success
         return res.status(200).json({
             status: "success",
@@ -887,7 +924,8 @@ module.exports = {
                 monthArray: monthArray,
                 data: finalArray,
                 dataArray: dataArray,
-                quarter: quarter
+                quarter: quarter,
+                roomBookingOrderList: roomBookingOrderList
             }
         });
     },
@@ -1000,7 +1038,6 @@ module.exports = {
             var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
             var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
             var statisticDate = dateCheckIn + ' ' + timeCheckIn;
-
             for (var i = 0; i < fromDateToDateListRes.length; i++) {
                 const date = fromDateToDateListRes[i].finishDate;
                 if (sortWay === 'asc') {
@@ -1014,10 +1051,27 @@ module.exports = {
                                     message: "Cann't find room booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt phòng cho từng Ngày
+                            try {
+                                const roomBookingByDateRes = await getRoomBookingOrderByDate(date);
+                                if (!roomBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    roomBookingOrderDetailList: roomBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1036,10 +1090,27 @@ module.exports = {
                                     message: "Cann't find room booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt phòng cho từng Ngày
+                            try {
+                                const roomBookingByDateRes = await getRoomBookingOrderByDate(date);
+                                if (!roomBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    roomBookingOrderDetailList: roomBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1058,10 +1129,27 @@ module.exports = {
                                     message: "Cann't find room booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt phòng cho từng Ngày
+                            try {
+                                const roomBookingByDateRes = await getRoomBookingOrderByDate(date);
+                                if (!roomBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    roomBookingOrderDetailList: roomBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1082,10 +1170,27 @@ module.exports = {
                                     message: "Cann't find room booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt phòng cho từng Ngày
+                            try {
+                                const roomBookingByDateRes = await getRoomBookingOrderByDate(date);
+                                if (!roomBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    roomBookingOrderDetailList: roomBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1104,10 +1209,27 @@ module.exports = {
                                     message: "Cann't find room booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt phòng cho từng Ngày
+                            try {
+                                const roomBookingByDateRes = await getRoomBookingOrderByDate(date);
+                                if (!roomBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    roomBookingOrderDetailList: roomBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1126,10 +1248,27 @@ module.exports = {
                                     message: "Cann't find room booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt phòng cho từng Ngày
+                            try {
+                                const roomBookingByDateRes = await getRoomBookingOrderByDate(date);
+                                if (!roomBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    roomBookingOrderDetailList: roomBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1257,6 +1396,7 @@ module.exports = {
             });
         }
         let finalDataArray = {};
+        let roomBookingOrderDetailList = [];
         // Nếu là quý 1
         if (quarter === 1) {
             if (sortWay === "desc") {
@@ -1271,6 +1411,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1290,6 +1452,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1309,6 +1493,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1330,6 +1536,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1349,6 +1577,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1368,6 +1618,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1392,6 +1664,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1411,6 +1705,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1430,6 +1746,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1451,6 +1789,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1470,6 +1830,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1489,6 +1871,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1513,6 +1917,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1532,6 +1958,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1551,6 +1999,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1572,6 +2042,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1591,6 +2083,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1610,6 +2124,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1652,6 +2188,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1671,6 +2229,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1690,6 +2270,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1711,6 +2313,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1730,6 +2354,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1749,6 +2395,28 @@ module.exports = {
                             });
                         }
                         finalDataArray = roomBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt phòng chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < roomBookingTotalQuarterRes.length; j++) {
+                            const cityId = roomBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const roomBookingOrderListRes = await getRoomBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!roomBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find room booking order list by quarter and city id"
+                                    });
+                                }
+                                roomBookingOrderListRes.map((roomBookingOrder, key) => {
+                                    roomBookingOrderDetailList.push(roomBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getRoomBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1769,7 +2437,8 @@ module.exports = {
                 sortWay: sortWay,
                 limit: limit,
                 data: finalDataArray,
-                monthArray: monthInQuarterArray
+                monthArray: monthInQuarterArray,
+                roomBookingOrderDetailList: roomBookingOrderDetailList
             }
         });
     },

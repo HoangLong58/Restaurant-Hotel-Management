@@ -1,4 +1,4 @@
-const { createPartyBookingOrder, findPartyBookingOrder, getPartyBookingsAndDetail, getQuantityPartyBookings, findPartyBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findPartyBookingById, findPartyBookingOrderByIdCheckIn, updatePartyBookingOrderInfoWhenCheckInSuccess, updatePartyBookingOrderState, updatePartyBookingOrderFinishDateWhenCheckOutSuccess, getDistinctDateInPartyBookingOrderFromDateToDate, getPartyBookingTotalByDate, getPartyBookingTotalByMonth, getLimitPartyBookingTotalOfCityForEachQuarter, getPartyBookingOrderByCityId, getPartyBookingTotalOfCityByDateAndLimitAsc, getPartyBookingTotalOfCityByDateAndAsc, getPartyBookingTotalOfCityByDateAndLimitDesc, getPartyBookingTotalOfCityByDateAndDesc, getPartyBookingTotalOfCityByDateByListDate, getPartyBookingTotalOfCityByDateByListDateNoLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAsc } = require("../service/PartyBookingOrderService");
+const { createPartyBookingOrder, findPartyBookingOrder, getPartyBookingsAndDetail, getQuantityPartyBookings, findPartyBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findPartyBookingById, findPartyBookingOrderByIdCheckIn, updatePartyBookingOrderInfoWhenCheckInSuccess, updatePartyBookingOrderState, updatePartyBookingOrderFinishDateWhenCheckOutSuccess, getDistinctDateInPartyBookingOrderFromDateToDate, getPartyBookingTotalByDate, getPartyBookingTotalByMonth, getLimitPartyBookingTotalOfCityForEachQuarter, getPartyBookingOrderByCityId, getPartyBookingTotalOfCityByDateAndLimitAsc, getPartyBookingTotalOfCityByDateAndAsc, getPartyBookingTotalOfCityByDateAndLimitDesc, getPartyBookingTotalOfCityByDateAndDesc, getPartyBookingTotalOfCityByDateByListDate, getPartyBookingTotalOfCityByDateByListDateNoLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getPartyBookingOrderFromDateToDate, getPartyBookingOrderOfQuarter, getPartyBookingOrderByDate, getPartyBookingOrderByQuarterAndCityId } = require("../service/PartyBookingOrderService");
 const { createPartyHallDetail, getPartyHallDetailByPartyBookingOrderId } = require("../service/PartyHallDetailService");
 const { getPartyHallWithTypeFloorByPartyHallId } = require("../service/PartyHallService");
 const { getSetMenuBySetMenuId } = require("../service/SetMenuService");
@@ -616,7 +616,7 @@ module.exports = {
                                 message: "Cann't find ward"
                             });
                         }
-                        // Cập nhật số cmnd và quốc tịch và ngày bắt đầu nhận phòng
+                        // Cập nhật số cmnd và quốc tịch và ngày bắt đầu nhận tiệc
                         // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
                         var todayCheckIn = new Date();
                         var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
@@ -885,6 +885,25 @@ module.exports = {
                 dataArray.push(finalArray[i].data);
             }
 
+            var partyBookingOrderList = [];
+            // Lấy danh sách đặt tiệc chi tiết
+            try {
+                const partyBookingOrderListRes = await getPartyBookingOrderFromDateToDate(dateFrom, dateTo);
+                if (!partyBookingOrderListRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find party booking order from date to date"
+                    });
+                }
+                partyBookingOrderList = partyBookingOrderListRes;
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getPartyBookingOrderFromDateToDate!",
+                    error: err
+                });
+            }
+
             // Success
             return res.status(200).json({
                 status: "success",
@@ -895,7 +914,8 @@ module.exports = {
                     data: finalArray,
                     dataArray: dataArray,
                     dateFrom: dateFrom,
-                    dateTo: dateTo
+                    dateTo: dateTo,
+                    partyBookingOrderList: partyBookingOrderList
                 }
             });
         } catch (err) {
@@ -979,6 +999,24 @@ module.exports = {
             dataArray.push(finalArray[i].data);
         }
 
+        var partyBookingOrderList = [];
+        // Lấy danh sách đặt tiệc chi tiết
+        try {
+            const partyBookingOrderListRes = await getPartyBookingOrderOfQuarter(quarter);
+            if (!partyBookingOrderListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find party booking order from date to date"
+                });
+            }
+            partyBookingOrderList = partyBookingOrderListRes;
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when getPartyBookingOrderOfQuarter!",
+                error: err
+            });
+        }
         // Success
         return res.status(200).json({
             status: "success",
@@ -988,7 +1026,8 @@ module.exports = {
                 monthArray: monthArray,
                 data: finalArray,
                 dataArray: dataArray,
-                quarter: quarter
+                quarter: quarter,
+                partyBookingOrderList: partyBookingOrderList
             }
         });
     },
@@ -1115,10 +1154,27 @@ module.exports = {
                                     message: "Cann't find party booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt tiệc cho từng Ngày
+                            try {
+                                const partyBookingByDateRes = await getPartyBookingOrderByDate(date);
+                                if (!partyBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    partyBookingOrderDetailList: partyBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1137,10 +1193,27 @@ module.exports = {
                                     message: "Cann't find party booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt tiệc cho từng Ngày
+                            try {
+                                const partyBookingByDateRes = await getPartyBookingOrderByDate(date);
+                                if (!partyBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    partyBookingOrderDetailList: partyBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1159,10 +1232,27 @@ module.exports = {
                                     message: "Cann't find party booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt tiệc cho từng Ngày
+                            try {
+                                const partyBookingByDateRes = await getPartyBookingOrderByDate(date);
+                                if (!partyBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    partyBookingOrderDetailList: partyBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1183,10 +1273,27 @@ module.exports = {
                                     message: "Cann't find party booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt tiệc cho từng Ngày
+                            try {
+                                const partyBookingByDateRes = await getPartyBookingOrderByDate(date);
+                                if (!partyBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    partyBookingOrderDetailList: partyBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1205,10 +1312,27 @@ module.exports = {
                                     message: "Cann't find party booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt tiệc cho từng Ngày
+                            try {
+                                const partyBookingByDateRes = await getPartyBookingOrderByDate(date);
+                                if (!partyBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    partyBookingOrderDetailList: partyBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1227,10 +1351,27 @@ module.exports = {
                                     message: "Cann't find party booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt tiệc cho từng Ngày
+                            try {
+                                const partyBookingByDateRes = await getPartyBookingOrderByDate(date);
+                                if (!partyBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    partyBookingOrderDetailList: partyBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1358,20 +1499,43 @@ module.exports = {
             });
         }
         let finalDataArray = {};
+        let partyBookingOrderDetailList = [];
         // Nếu là quý 1
         if (quarter === 1) {
             if (sortWay === "desc") {
                 if (limit === "five") {
                     // Quarter 1: -limit 5 - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(5);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(5);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 1: -limit 5 - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1383,14 +1547,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 1: -limit 10 - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(10);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(10);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 1: -limit 10 - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1402,14 +1588,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 1: - no limit - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDesc();
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDesc();
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 1: - no limit - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1423,14 +1631,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 1: -limit 5 - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(5);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(5);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 1: -limit 5 - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1442,14 +1672,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 1: -limit 10 - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(10);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(10);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 1: -limit 10 - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1461,14 +1713,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 1: - no limit - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAsc();
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAsc();
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 1: - no limit - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1485,14 +1759,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 2: -limit 5 - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(5);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(5);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 2: -limit 5 - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1504,14 +1800,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 2: -limit 10 - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(10);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(10);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 2: -limit 10 - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1523,14 +1841,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 2: - no limit - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDesc();
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDesc();
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 2: - no limit - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1544,14 +1884,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 2: -limit 5 - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(5);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(5);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 2: -limit 5 - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1563,14 +1925,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 2: -limit 10 - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(10);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(10);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 2: -limit 10 - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1582,14 +1966,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 2: - no limit - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAsc();
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAsc();
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 2: - no limit - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1606,14 +2012,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 3: -limit 5 - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(5);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(5);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 3: -limit 5 - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1625,14 +2053,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 3: -limit 10 - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(10);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(10);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 3: -limit 10 - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1644,14 +2094,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 3: - no limit - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDesc();
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDesc();
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 3: - no limit - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1665,14 +2137,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 3: -limit 5 - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(5);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(5);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 3: -limit 5 - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1684,14 +2178,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 3: -limit 10 - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(10);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(10);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 3: -limit 10 - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1703,14 +2219,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 3: - no limit - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAsc();
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAsc();
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 3: - no limit - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1745,15 +2283,38 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 4: -limit 5 - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(5);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(5);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 3: -limit 5 - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
+                        console.log("err", err)
                         return res.status(400).json({
                             status: "fail",
                             message: "Error when getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit 5!",
@@ -1764,14 +2325,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 4: -limit 10 - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(10);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(10);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 4: -limit 10 - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1783,14 +2366,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 4: - no limit - desc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDesc();
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDesc();
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 4: - no limit - desc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1804,14 +2409,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 4: -limit 5 - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(5);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(5);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 4: -limit 5 - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1823,14 +2450,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 4: -limit 10 - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(10);
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(10);
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 4: -limit 10 - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1842,14 +2491,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 4: - no limit - asc
                     try {
-                        const PartyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAsc();
-                        if (!PartyBookingTotalQuarterRes) {
+                        const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAsc();
+                        if (!partyBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find party booking by Quarter 4: - no limit - asc"
                             });
                         }
-                        finalDataArray = PartyBookingTotalQuarterRes;
+                        finalDataArray = partyBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt tiệc chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < partyBookingTotalQuarterRes.length; j++) {
+                            const cityId = partyBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!partyBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find party booking order list by quarter and city id"
+                                    });
+                                }
+                                partyBookingOrderListRes.map((partyBookingOrder, key) => {
+                                    partyBookingOrderDetailList.push(partyBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getPartyBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1870,7 +2541,8 @@ module.exports = {
                 sortWay: sortWay,
                 limit: limit,
                 data: finalDataArray,
-                monthArray: monthInQuarterArray
+                monthArray: monthInQuarterArray,
+                partyBookingOrderDetailList: partyBookingOrderDetailList
             }
         });
     },

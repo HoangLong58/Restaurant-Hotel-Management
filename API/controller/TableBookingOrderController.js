@@ -1,4 +1,4 @@
-const { getTableBookingOrders, createTableBookingOrder, findTableBookingOrder, getTableBookingsAndDetail, getQuantityTableBookings, findTableBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findTableBookingById, findTableBookingOrderByIdCheckIn, updateTableBookingOrderInfoWhenCheckInSuccess, updateTableBookingOrderState, updateTableBookingOrderFinishDateWhenCheckOutSuccess, getDistinctDateInTableBookingOrderFromDateToDate, getLimitTableBookingTotalOfCityForEachQuarter, getTableBookingTotalOfCityByDateAndLimitAsc, getTableBookingTotalOfCityByDateAndAsc, getTableBookingTotalOfCityByDateAndLimitDesc, getTableBookingTotalOfCityByDateAndDesc, getTableBookingTotalOfCityByDateByListDate, getTableBookingTotalOfCityByDateByListDateNoLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getTableBookingTotalByMonth, getTableBookingOrderByCityId, getTableBookingTotalByDate } = require("../service/TableBookingOrderService");
+const { getTableBookingOrders, createTableBookingOrder, findTableBookingOrder, getTableBookingsAndDetail, getQuantityTableBookings, findTableBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findTableBookingById, findTableBookingOrderByIdCheckIn, updateTableBookingOrderInfoWhenCheckInSuccess, updateTableBookingOrderState, updateTableBookingOrderFinishDateWhenCheckOutSuccess, getDistinctDateInTableBookingOrderFromDateToDate, getLimitTableBookingTotalOfCityForEachQuarter, getTableBookingTotalOfCityByDateAndLimitAsc, getTableBookingTotalOfCityByDateAndAsc, getTableBookingTotalOfCityByDateAndLimitDesc, getTableBookingTotalOfCityByDateAndDesc, getTableBookingTotalOfCityByDateByListDate, getTableBookingTotalOfCityByDateByListDateNoLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getTableBookingTotalByMonth, getTableBookingOrderByCityId, getTableBookingTotalByDate, getTableBookingOrderFromDateToDate, getTableBookingOrderOfQuarter, getTableBookingOrderByDate, getTableBookingOrderByQuarterAndCityId } = require("../service/TableBookingOrderService");
 // NODE Mailer
 var nodemailer = require('nodemailer');
 const { getCustomerByCustomerId, findCustomerByEmailOrPhoneNumber } = require("../service/CustomerService");
@@ -676,6 +676,25 @@ module.exports = {
                 dataArray.push(finalArray[i].data);
             }
 
+            var tableBookingOrderList = [];
+            // Lấy danh sách đặt bàn chi tiết
+            try {
+                const tableBookingOrderListRes = await getTableBookingOrderFromDateToDate(dateFrom, dateTo);
+                if (!tableBookingOrderListRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find table booking order from date to date"
+                    });
+                }
+                tableBookingOrderList = tableBookingOrderListRes;
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getTableBookingOrderFromDateToDate!",
+                    error: err
+                });
+            }
+
             // Success
             return res.status(200).json({
                 status: "success",
@@ -686,7 +705,8 @@ module.exports = {
                     data: finalArray,
                     dataArray: dataArray,
                     dateFrom: dateFrom,
-                    dateTo: dateTo
+                    dateTo: dateTo,
+                    tableBookingOrderList: tableBookingOrderList
                 }
             });
         } catch (err) {
@@ -770,6 +790,25 @@ module.exports = {
             dataArray.push(finalArray[i].data);
         }
 
+        var tableBookingOrderList = [];
+        // Lấy danh sách đặt bàn chi tiết
+        try {
+            const tableBookingOrderListRes = await getTableBookingOrderOfQuarter(quarter);
+            if (!tableBookingOrderListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find table booking order of quarter"
+                });
+            }
+            tableBookingOrderList = tableBookingOrderListRes;
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when getTableBookingOrderOfQuarter!",
+                error: err
+            });
+        }
+
         // Success
         return res.status(200).json({
             status: "success",
@@ -779,7 +818,8 @@ module.exports = {
                 monthArray: monthArray,
                 data: finalArray,
                 dataArray: dataArray,
-                quarter: quarter
+                quarter: quarter,
+                tableBookingOrderList: tableBookingOrderList
             }
         });
     },
@@ -906,10 +946,27 @@ module.exports = {
                                     message: "Cann't find table booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt bàn cho từng Ngày
+                            try {
+                                const tableBookingByDateRes = await getTableBookingOrderByDate(date);
+                                if (!tableBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    tableBookingOrderDetailList: tableBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -928,10 +985,27 @@ module.exports = {
                                     message: "Cann't find table booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt bàn cho từng Ngày
+                            try {
+                                const tableBookingByDateRes = await getTableBookingOrderByDate(date);
+                                if (!tableBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    tableBookingOrderDetailList: tableBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -950,10 +1024,27 @@ module.exports = {
                                     message: "Cann't find table booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt bàn cho từng Ngày
+                            try {
+                                const tableBookingByDateRes = await getTableBookingOrderByDate(date);
+                                if (!tableBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    tableBookingOrderDetailList: tableBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -974,10 +1065,27 @@ module.exports = {
                                     message: "Cann't find table booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt bàn cho từng Ngày
+                            try {
+                                const tableBookingByDateRes = await getTableBookingOrderByDate(date);
+                                if (!tableBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    tableBookingOrderDetailList: tableBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -996,10 +1104,27 @@ module.exports = {
                                     message: "Cann't find table booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt bàn cho từng Ngày
+                            try {
+                                const tableBookingByDateRes = await getTableBookingOrderByDate(date);
+                                if (!tableBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    tableBookingOrderDetailList: tableBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1018,10 +1143,27 @@ module.exports = {
                                     message: "Cann't find table booking total by date"
                                 });
                             }
-                            finalArray.push({
-                                date: date,
-                                data: totalRes
-                            });
+                            // Lấy đơn đặt bàn cho từng Ngày
+                            try {
+                                const tableBookingByDateRes = await getTableBookingOrderByDate(date);
+                                if (!tableBookingByDateRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking by date"
+                                    });
+                                }
+                                finalArray.push({
+                                    date: date,
+                                    data: totalRes,
+                                    tableBookingOrderDetailList: tableBookingByDateRes
+                                });
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByDate!",
+                                    error: err
+                                });
+                            }
                         } catch (err) {
                             return res.status(400).json({
                                 status: "fail",
@@ -1149,20 +1291,43 @@ module.exports = {
             });
         }
         let finalDataArray = {};
+        let tableBookingOrderDetailList = [];
         // Nếu là quý 1
         if (quarter === 1) {
             if (sortWay === "desc") {
                 if (limit === "five") {
                     // Quarter 1: -limit 5 - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(5);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(5);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 1: -limit 5 - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1174,14 +1339,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 1: -limit 10 - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(10);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit(10);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 1: -limit 10 - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1193,14 +1380,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 1: - no limit - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamDesc();
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamDesc();
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 1: - no limit - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1214,14 +1423,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 1: -limit 5 - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(5);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(5);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 1: -limit 5 - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1233,14 +1464,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 1: -limit 10 - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(10);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit(10);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 1: -limit 10 - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1252,14 +1505,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 1: - no limit - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamAsc();
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterOneOrderByCaNamAsc();
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 1: - no limit - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1276,14 +1551,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 2: -limit 5 - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(5);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(5);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 2: -limit 5 - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1295,14 +1592,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 2: -limit 10 - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(10);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit(10);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 2: -limit 10 - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1314,14 +1633,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 2: - no limit - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDesc();
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDesc();
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 2: - no limit - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1335,14 +1676,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 2: -limit 5 - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(5);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(5);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 2: -limit 5 - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1354,14 +1717,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 2: -limit 10 - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(10);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit(10);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 2: -limit 10 - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1373,14 +1758,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 2: - no limit - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAsc();
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAsc();
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 2: - no limit - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1397,14 +1804,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 3: -limit 5 - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(5);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(5);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 3: -limit 5 - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1416,14 +1845,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 3: -limit 10 - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(10);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit(10);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 3: -limit 10 - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1435,14 +1886,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 3: - no limit - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDesc();
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDesc();
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 3: - no limit - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1456,14 +1929,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 3: -limit 5 - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(5);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(5);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 3: -limit 5 - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1475,14 +1970,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 3: -limit 10 - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(10);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit(10);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 3: -limit 10 - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1494,14 +2011,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 3: - no limit - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAsc();
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAsc();
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 3: - no limit - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1536,14 +2075,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 4: -limit 5 - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(5);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(5);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 3: -limit 5 - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1555,14 +2116,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 4: -limit 10 - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(10);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit(10);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 4: -limit 10 - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1574,14 +2157,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 4: - no limit - desc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamDesc();
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamDesc();
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 4: - no limit - desc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1595,14 +2200,36 @@ module.exports = {
                 if (limit === "five") {
                     // Quarter 4: -limit 5 - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(5);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(5);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 4: -limit 5 - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1614,14 +2241,36 @@ module.exports = {
                 if (limit === "ten") {
                     // Quarter 4: -limit 10 - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(10);
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit(10);
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 4: -limit 10 - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1633,14 +2282,36 @@ module.exports = {
                 if (limit === "all") {
                     // Quarter 4: - no limit - asc
                     try {
-                        const TableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamAsc();
-                        if (!TableBookingTotalQuarterRes) {
+                        const tableBookingTotalQuarterRes = await getTableBookingTotalOfCityByQuarterFourOrderByCaNamAsc();
+                        if (!tableBookingTotalQuarterRes) {
                             return res.status(400).json({
                                 status: "fail",
                                 message: "Cann't find table booking by Quarter 4: - no limit - asc"
                             });
                         }
-                        finalDataArray = TableBookingTotalQuarterRes;
+                        finalDataArray = tableBookingTotalQuarterRes;
+                        // Lấy danh sách đơn đặt bàn chi tiết cho từng city thuộc quý đó
+                        for (var j = 0; j < tableBookingTotalQuarterRes.length; j++) {
+                            const cityId = tableBookingTotalQuarterRes[j].city_id;
+                            try {
+                                const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCityId(quarter, cityId);
+                                if (!tableBookingOrderListRes) {
+                                    return res.status(400).json({
+                                        status: "fail",
+                                        message: "Cann't find table booking order list by quarter and city id"
+                                    });
+                                }
+                                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                                    tableBookingOrderDetailList.push(tableBookingOrder);
+                                })
+                            } catch (err) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Error when getTableBookingOrderByQuarterAndCityId!",
+                                    error: err
+                                });
+                            }
+                        }
                     } catch (err) {
                         return res.status(400).json({
                             status: "fail",
@@ -1661,7 +2332,8 @@ module.exports = {
                 sortWay: sortWay,
                 limit: limit,
                 data: finalDataArray,
-                monthArray: monthInQuarterArray
+                monthArray: monthInQuarterArray,
+                tableBookingOrderDetailList: tableBookingOrderDetailList
             }
         });
     },

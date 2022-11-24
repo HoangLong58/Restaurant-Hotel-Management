@@ -50,6 +50,7 @@ const PDFFileByDate = (props) => {
     const statisticDateArray = props.data.data;
     const dateFrom = props.data.dateFrom;
     const dateTo = props.data.dateTo;
+    const dataTable = props.dataTable;
     console.log("statisticDateArray: ", statisticDateArray);
     return (
         <Document>
@@ -73,10 +74,54 @@ const PDFFileByDate = (props) => {
                     </TableBody>
                 </Table>
                 <Image style={styles.image} src={props.image} />
-                <Text style={styles.header} fixed> Biểu đồ thống kê doanh thu Đặt tiệc từ ngày {dateFrom} đến {dateTo}</Text>
+                <Text style={styles.header}> Biểu đồ thống kê doanh thu Đặt tiệc từ ngày {dateFrom} đến {dateTo}</Text>
                 {/* <Text style={styles.text}>
                     Biểu đồ thống kê doanh thu Đặt tiệc từng Quý năm 2022
                 </Text> */}
+                <Table
+                    data={dataTable}
+                >
+                    <TableHeader>
+                        <TableCell>
+                            Họ tên
+                        </TableCell>
+                        <TableCell>
+                            Email
+                        </TableCell>
+                        <TableCell>
+                            Số điện thoại
+                        </TableCell>
+                        <TableCell>
+                            Địa chỉ
+                        </TableCell>
+                        <TableCell>
+                            Ngày Checkin
+                        </TableCell>
+                        <TableCell>
+                            Ngày Checkout
+                        </TableCell>
+                        <TableCell>
+                            Loại Tiệc
+                        </TableCell>
+                        <TableCell>
+                            Vị trí Sảnh
+                        </TableCell>
+                        <TableCell>
+                            Tổng tiền
+                        </TableCell>
+                    </TableHeader>
+                    <TableBody>
+                        <DataTableCell getContent={(r) => r.customer_first_name + " " + r.customer_last_name} />
+                        <DataTableCell getContent={(r) => r.customer_email} />
+                        <DataTableCell getContent={(r) => r.customer_phone_number} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_address + ", " + r.ward_name + ", " + r.district_name + ", " + r.city_name} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_start_date} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_finish_date} />
+                        <DataTableCell getContent={(r) => r.party_booking_type_name} />
+                        <DataTableCell getContent={(r) => r.party_hall_name + ', ' + r.floor_name} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_total} />
+                    </TableBody>
+                </Table>
                 <Text
                     style={styles.pageNumber}
                     render={({ pageNumber, totalPages }) =>

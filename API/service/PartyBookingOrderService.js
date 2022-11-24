@@ -1917,4 +1917,356 @@ module.exports = {
             );
         });
     },
+    getPartyBookingOrderByDate: (date) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbo.party_booking_order_id,
+                pbo.party_booking_order_book_date,
+                pbo.party_booking_order_start_date,
+                pbo.party_booking_order_finish_date,
+                pbo.party_booking_order_price,
+                pbo.party_booking_order_table_quantity,
+                pbo.party_booking_order_surcharge,
+                pbo.party_booking_order_total,
+                pbo.party_booking_order_state,
+                pbo.party_booking_order_note,
+                pbo.party_booking_order_identity_card,
+                pbo.party_booking_order_nation,
+                pbo.party_booking_order_address,
+                pbo.discount_id,
+                pbo.customer_id,
+                pbo.set_menu_id,
+                pbo.party_booking_type_id,
+                pbo.ward_id,
+                d.discount_percent,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                sm.set_menu_name,
+                sm.set_menu_price,
+                sm.set_menu_image,
+                sm.set_menu_state,
+                pbt.party_booking_type_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                pht.party_hall_time_name,
+                phd.party_hall_detail_name,
+                phd.party_hall_detail_date,
+                phd.party_hall_id,
+                phd.party_hall_time_id,
+                ph.party_hall_name,
+                ph.party_hall_view,
+                ph.floor_id,
+                f.floor_name
+                from party_booking_order pbo
+                join discount d on d.discount_id = pbo.discount_id
+                join customer c on c.customer_id = pbo.customer_id
+                join set_menu sm on sm.set_menu_id = pbo.set_menu_id
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join party_hall_detail phd on phd.party_booking_order_id = pbo.party_booking_order_id
+                join party_hall ph on ph.party_hall_id = phd.party_hall_id
+                join party_hall_time pht on pht.party_hall_time_id = phd.party_hall_time_id
+                join floor f on f.floor_id = ph.floor_id
+                left join ward w on w.ward_id = pbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where date(pbo.party_booking_order_finish_date) = ?
+                and pbo.party_booking_order_state = 2
+                `,
+                [date],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    getPartyBookingOrderByQuarterAndCityId: (quarter, cityId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbo.party_booking_order_id,
+                pbo.party_booking_order_book_date,
+                pbo.party_booking_order_start_date,
+                pbo.party_booking_order_finish_date,
+                pbo.party_booking_order_price,
+                pbo.party_booking_order_table_quantity,
+                pbo.party_booking_order_surcharge,
+                pbo.party_booking_order_total,
+                pbo.party_booking_order_state,
+                pbo.party_booking_order_note,
+                pbo.party_booking_order_identity_card,
+                pbo.party_booking_order_nation,
+                pbo.party_booking_order_address,
+                pbo.discount_id,
+                pbo.customer_id,
+                pbo.set_menu_id,
+                pbo.party_booking_type_id,
+                pbo.ward_id,
+                d.discount_percent,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                sm.set_menu_name,
+                sm.set_menu_price,
+                sm.set_menu_image,
+                sm.set_menu_state,
+                pbt.party_booking_type_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                pht.party_hall_time_name,
+                phd.party_hall_detail_name,
+                phd.party_hall_detail_date,
+                phd.party_hall_id,
+                phd.party_hall_time_id,
+                ph.party_hall_name,
+                ph.party_hall_view,
+                ph.floor_id,
+                f.floor_name
+                from party_booking_order pbo
+                join discount d on d.discount_id = pbo.discount_id
+                join customer c on c.customer_id = pbo.customer_id
+                join set_menu sm on sm.set_menu_id = pbo.set_menu_id
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join party_hall_detail phd on phd.party_booking_order_id = pbo.party_booking_order_id
+                join party_hall ph on ph.party_hall_id = phd.party_hall_id
+                join party_hall_time pht on pht.party_hall_time_id = phd.party_hall_time_id
+                join floor f on f.floor_id = ph.floor_id
+                left join ward w on w.ward_id = pbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where quarter(pbo.party_booking_order_finish_date) = ?
+                and ci.city_id = ?
+                and pbo.party_booking_order_state = 2
+                `,
+                [quarter, cityId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Bảng đặt phòng Chi tiết - 4 Quý
+    getPartyBookingOrderOf4Quarter: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbo.party_booking_order_id,
+                pbo.party_booking_order_book_date,
+                pbo.party_booking_order_start_date,
+                pbo.party_booking_order_finish_date,
+                pbo.party_booking_order_price,
+                pbo.party_booking_order_table_quantity,
+                pbo.party_booking_order_surcharge,
+                pbo.party_booking_order_total,
+                pbo.party_booking_order_state,
+                pbo.party_booking_order_note,
+                pbo.party_booking_order_identity_card,
+                pbo.party_booking_order_nation,
+                pbo.party_booking_order_address,
+                pbo.discount_id,
+                pbo.customer_id,
+                pbo.set_menu_id,
+                pbo.party_booking_type_id,
+                pbo.ward_id,
+                d.discount_percent,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                sm.set_menu_name,
+                sm.set_menu_price,
+                sm.set_menu_image,
+                sm.set_menu_state,
+                pbt.party_booking_type_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                pht.party_hall_time_name,
+                phd.party_hall_detail_name,
+                phd.party_hall_detail_date,
+                phd.party_hall_id,
+                phd.party_hall_time_id,
+                ph.party_hall_name,
+                ph.party_hall_view,
+                ph.floor_id,
+                f.floor_name
+                from party_booking_order pbo
+                join discount d on d.discount_id = pbo.discount_id
+                join customer c on c.customer_id = pbo.customer_id
+                join set_menu sm on sm.set_menu_id = pbo.set_menu_id
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join party_hall_detail phd on phd.party_booking_order_id = pbo.party_booking_order_id
+                join party_hall ph on ph.party_hall_id = phd.party_hall_id
+                join party_hall_time pht on pht.party_hall_time_id = phd.party_hall_time_id
+                join floor f on f.floor_id = ph.floor_id
+                left join ward w on w.ward_id = pbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where pbo.party_booking_order_state = 2
+                order by date(pbo.party_booking_order_finish_date) asc
+                `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Bảng đặt phòng Chi tiết - Quý
+    getPartyBookingOrderOfQuarter: (quarter) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbo.party_booking_order_id,
+                pbo.party_booking_order_book_date,
+                pbo.party_booking_order_start_date,
+                pbo.party_booking_order_finish_date,
+                pbo.party_booking_order_price,
+                pbo.party_booking_order_table_quantity,
+                pbo.party_booking_order_surcharge,
+                pbo.party_booking_order_total,
+                pbo.party_booking_order_state,
+                pbo.party_booking_order_note,
+                pbo.party_booking_order_identity_card,
+                pbo.party_booking_order_nation,
+                pbo.party_booking_order_address,
+                pbo.discount_id,
+                pbo.customer_id,
+                pbo.set_menu_id,
+                pbo.party_booking_type_id,
+                pbo.ward_id,
+                d.discount_percent,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                sm.set_menu_name,
+                sm.set_menu_price,
+                sm.set_menu_image,
+                sm.set_menu_state,
+                pbt.party_booking_type_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                pht.party_hall_time_name,
+                phd.party_hall_detail_name,
+                phd.party_hall_detail_date,
+                phd.party_hall_id,
+                phd.party_hall_time_id,
+                ph.party_hall_name,
+                ph.party_hall_view,
+                ph.floor_id,
+                f.floor_name
+                from party_booking_order pbo
+                join discount d on d.discount_id = pbo.discount_id
+                join customer c on c.customer_id = pbo.customer_id
+                join set_menu sm on sm.set_menu_id = pbo.set_menu_id
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join party_hall_detail phd on phd.party_booking_order_id = pbo.party_booking_order_id
+                join party_hall ph on ph.party_hall_id = phd.party_hall_id
+                join party_hall_time pht on pht.party_hall_time_id = phd.party_hall_time_id
+                join floor f on f.floor_id = ph.floor_id
+                left join ward w on w.ward_id = pbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where pbo.party_booking_order_state = 2
+                and quarter(pbo.party_booking_order_finish_date) = ?
+                order by date(pbo.party_booking_order_finish_date) asc
+                `,
+                [quarter],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Bảng đặt phòng Chi tiết - Date
+    getPartyBookingOrderFromDateToDate: (fromDate, toDate) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbo.party_booking_order_id,
+                pbo.party_booking_order_book_date,
+                pbo.party_booking_order_start_date,
+                pbo.party_booking_order_finish_date,
+                pbo.party_booking_order_price,
+                pbo.party_booking_order_table_quantity,
+                pbo.party_booking_order_surcharge,
+                pbo.party_booking_order_total,
+                pbo.party_booking_order_state,
+                pbo.party_booking_order_note,
+                pbo.party_booking_order_identity_card,
+                pbo.party_booking_order_nation,
+                pbo.party_booking_order_address,
+                pbo.discount_id,
+                pbo.customer_id,
+                pbo.set_menu_id,
+                pbo.party_booking_type_id,
+                pbo.ward_id,
+                d.discount_percent,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                sm.set_menu_name,
+                sm.set_menu_price,
+                sm.set_menu_image,
+                sm.set_menu_state,
+                pbt.party_booking_type_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                pht.party_hall_time_name,
+                phd.party_hall_detail_name,
+                phd.party_hall_detail_date,
+                phd.party_hall_id,
+                phd.party_hall_time_id,
+                ph.party_hall_name,
+                ph.party_hall_view,
+                ph.floor_id,
+                f.floor_name
+                from party_booking_order pbo
+                join discount d on d.discount_id = pbo.discount_id
+                join customer c on c.customer_id = pbo.customer_id
+                join set_menu sm on sm.set_menu_id = pbo.set_menu_id
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join party_hall_detail phd on phd.party_booking_order_id = pbo.party_booking_order_id
+                join party_hall ph on ph.party_hall_id = phd.party_hall_id
+                join party_hall_time pht on pht.party_hall_time_id = phd.party_hall_time_id
+                join floor f on f.floor_id = ph.floor_id
+                left join ward w on w.ward_id = pbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where pbo.party_booking_order_state = 2
+                and date(pbo.party_booking_order_finish_date) >= ?
+                and date(pbo.party_booking_order_finish_date) <= ?
+                order by date(pbo.party_booking_order_finish_date) asc
+                `,
+                [fromDate, toDate],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
 };

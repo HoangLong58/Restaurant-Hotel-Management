@@ -51,6 +51,7 @@ const PDFFileCityByQuarter = (props) => {
     const dataArray = props.data.data;
     const dateFrom = props.data.dateFrom;
     const dateTo = props.data.dateTo;
+    const dataTable = props.dataTable;
     return (
         <Document>
             <Page style={styles.body}>
@@ -88,6 +89,50 @@ const PDFFileCityByQuarter = (props) => {
 
                 <Image style={styles.image} src={props.image} />
                 <Text style={styles.header}> Biểu đồ thống kê doanh thu Đặt bàn của các Thành phố từ ngày {dateFrom} đến {dateTo} dựa vào doanh thu cả năm 2022</Text>
+                <Table
+                    data={dataTable}
+                >
+                    <TableHeader>
+                        <TableCell>
+                            Họ tên
+                        </TableCell>
+                        <TableCell>
+                            Email
+                        </TableCell>
+                        <TableCell>
+                            Số điện thoại
+                        </TableCell>
+                        <TableCell>
+                            Địa chỉ
+                        </TableCell>
+                        <TableCell>
+                            Ngày Checkin
+                        </TableCell>
+                        <TableCell>
+                            Ngày Checkout
+                        </TableCell>
+                        <TableCell>
+                            Bàn số
+                        </TableCell>
+                        <TableCell>
+                            Vị trí Bàn
+                        </TableCell>
+                        <TableCell>
+                            Tổng tiền
+                        </TableCell>
+                    </TableHeader>
+                    <TableBody>
+                        <DataTableCell getContent={(r) => r.customer_first_name + " " + r.customer_last_name} />
+                        <DataTableCell getContent={(r) => r.customer_email} />
+                        <DataTableCell getContent={(r) => r.customer_phone_number} />
+                        <DataTableCell getContent={(r) => r.table_booking_order_address + ", " + r.ward_name + ", " + r.district_name + ", " + r.city_name} />
+                        <DataTableCell getContent={(r) => r.table_booking_order_start_date} />
+                        <DataTableCell getContent={(r) => r.table_booking_order_finish_date} />
+                        <DataTableCell getContent={(r) => r.table_booking_name} />
+                        <DataTableCell getContent={(r) => r.table_type_name + ", " + r.floor_name} />
+                        <DataTableCell getContent={(r) => r.table_booking_order_total} />
+                    </TableBody>
+                </Table>
                 <Text
                     style={styles.pageNumber}
                     render={({ pageNumber, totalPages }) =>

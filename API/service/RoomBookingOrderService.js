@@ -1903,4 +1903,296 @@ module.exports = {
             );
         });
     },
+    getRoomBookingOrderByDate: (date) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_start_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,                
+                rbo.room_booking_order_address,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name,
+                ci.city_id,
+                ci.city_name,
+                di.district_name,
+                w.ward_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                join ward w on rbo.ward_id = w.ward_id
+                join district di on w.district_id = di.district_id
+                join city ci on di.city_id = ci.city_id
+                where date(rbo.room_booking_order_finish_date) = ?
+                and rbo.room_booking_order_state = 2
+                `,
+                [date],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    getRoomBookingOrderByQuarterAndCityId: (quarter, cityId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_start_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,                
+                rbo.room_booking_order_address,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name,
+                ci.city_id,
+                ci.city_name,
+                di.district_name,
+                w.ward_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                join ward w on rbo.ward_id = w.ward_id
+                join district di on w.district_id = di.district_id
+                join city ci on di.city_id = ci.city_id
+                where quarter(rbo.room_booking_order_finish_date) = ?
+                and ci.city_id = ?
+                and rbo.room_booking_order_state = 2
+                `,
+                [quarter, cityId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Bảng đặt phòng Chi tiết - 4 Quý
+    getRoomBookingOrderOf4Quarter: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_start_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,                
+                rbo.room_booking_order_address,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name,
+                ci.city_id,
+                ci.city_name,
+                di.district_name,
+                w.ward_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                join ward w on rbo.ward_id = w.ward_id
+                join district di on w.district_id = di.district_id
+                join city ci on di.city_id = ci.city_id
+                where rbo.room_booking_order_state = 2
+                order by date(rbo.room_booking_order_finish_date) asc
+                `,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Bảng đặt phòng Chi tiết - Quý
+    getRoomBookingOrderOfQuarter: (quarter) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_start_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,                
+                rbo.room_booking_order_address,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name,
+                ci.city_id,
+                ci.city_name,
+                di.district_name,
+                w.ward_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                join ward w on rbo.ward_id = w.ward_id
+                join district di on w.district_id = di.district_id
+                join city ci on di.city_id = ci.city_id
+                where rbo.room_booking_order_state = 2
+                and quarter(rbo.room_booking_order_finish_date) = ?
+                order by date(rbo.room_booking_order_finish_date) asc
+                `,
+                [quarter],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Bảng đặt phòng Chi tiết - Date
+    getRoomBookingOrderFromDateToDate: (fromDate, toDate) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_start_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,                
+                rbo.room_booking_order_address,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name,
+                ci.city_id,
+                ci.city_name,
+                di.district_name,
+                w.ward_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                join ward w on rbo.ward_id = w.ward_id
+                join district di on w.district_id = di.district_id
+                join city ci on di.city_id = ci.city_id
+                where rbo.room_booking_order_state = 2
+                and date(rbo.room_booking_order_finish_date) >= ?
+                and date(rbo.room_booking_order_finish_date) <= ?
+                order by date(rbo.room_booking_order_finish_date) asc
+                `,
+                [fromDate, toDate],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
 };

@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
 const PDFFileCityByQuarter = (props) => {
     const dataArray = props.data.data;
     const quarter = props.data.quarter;
+    const dataTable = props.dataTable;
     console.log("props - PDFFileCityByQuarter : ", quarter);
     return (
         <Document>
@@ -127,6 +128,50 @@ const PDFFileCityByQuarter = (props) => {
                 </Table>
                 <Image style={styles.image} src={props.image} />
                 <Text style={styles.header}> Biểu đồ thống kê doanh thu Đặt tiệc của các Thành phố trong Quý {quarter} năm 2022</Text>
+                <Table
+                    data={dataTable}
+                >
+                    <TableHeader>
+                        <TableCell>
+                            Họ tên
+                        </TableCell>
+                        <TableCell>
+                            Email
+                        </TableCell>
+                        <TableCell>
+                            Số điện thoại
+                        </TableCell>
+                        <TableCell>
+                            Địa chỉ
+                        </TableCell>
+                        <TableCell>
+                            Ngày Checkin
+                        </TableCell>
+                        <TableCell>
+                            Ngày Checkout
+                        </TableCell>
+                        <TableCell>
+                            Loại Tiệc
+                        </TableCell>
+                        <TableCell>
+                            Vị trí Sảnh
+                        </TableCell>
+                        <TableCell>
+                            Tổng tiền
+                        </TableCell>
+                    </TableHeader>
+                    <TableBody>
+                        <DataTableCell getContent={(r) => r.customer_first_name + " " + r.customer_last_name} />
+                        <DataTableCell getContent={(r) => r.customer_email} />
+                        <DataTableCell getContent={(r) => r.customer_phone_number} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_address + ", " + r.ward_name + ", " + r.district_name + ", " + r.city_name} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_start_date} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_finish_date} />
+                        <DataTableCell getContent={(r) => r.party_booking_type_name} />
+                        <DataTableCell getContent={(r) => r.party_hall_name + ', ' + r.floor_name} />
+                        <DataTableCell getContent={(r) => r.party_booking_order_total} />
+                    </TableBody>
+                </Table>
                 <Text
                     style={styles.pageNumber}
                     render={({ pageNumber, totalPages }) =>

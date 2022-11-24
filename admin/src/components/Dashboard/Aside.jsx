@@ -1,4 +1,4 @@
-import { AssignmentIndOutlined, BadgeOutlined, BakeryDiningOutlined, CakeOutlined, CategoryOutlined, ClassOutlined, ConnectedTvOutlined, DiscountOutlined, DomainAddOutlined, FastfoodOutlined, FoodBankOutlined, ForumOutlined, GridViewOutlined, InventoryOutlined, LiquorOutlined, LogoutOutlined, MeetingRoomOutlined, MenuBookOutlined, MicExternalOnOutlined, PendingActionsOutlined, PersonOutlineOutlined, RamenDiningOutlined, SpaOutlined, SportsBarOutlined, TableRestaurantOutlined, VrpanoOutlined } from "@mui/icons-material";
+import { AssignmentIndOutlined, BadgeOutlined, BakeryDiningOutlined, CakeOutlined, CategoryOutlined, ClassOutlined, ConnectedTvOutlined, DiscountOutlined, DomainAddOutlined, FastfoodOutlined, FoodBankOutlined, ForumOutlined, GridViewOutlined, InventoryOutlined, LiquorOutlined, LogoutOutlined, ManageHistoryOutlined, MeetingRoomOutlined, MenuBookOutlined, MicExternalOnOutlined, PendingActionsOutlined, PersonOutlineOutlined, RamenDiningOutlined, SpaOutlined, SportsBarOutlined, TableRestaurantOutlined, VrpanoOutlined } from "@mui/icons-material";
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -136,6 +136,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
 
     // Quản lý Thiết bị
@@ -166,6 +167,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
 
     // Quản lý Loại thiết bị
@@ -196,6 +198,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Mã giảm giá
     const [isDiscountActive, setDiscountIsActive] = useState(props.active === "manageDiscount" ? true : false);
@@ -225,6 +228,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Tầng
     const [isFloorActive, setFloorIsActive] = useState(props.active === "manageFloor" ? true : false);
@@ -254,6 +258,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Dịch vụ
     const [isServiceActive, setServiceIsActive] = useState(props.active === "manageService" ? true : false);
@@ -283,6 +288,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Loại phòng - Khách sạn
     const [isRoomTypeActive, setRoomTypeIsActive] = useState(props.active === "manageRoomType" ? true : false);
@@ -312,6 +318,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Phòng
     const [isRoomActive, setRoomIsActive] = useState(props.active === "manageRoom" ? true : false);
@@ -341,6 +348,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Khách hàng
     const [isCustomerActive, setCustomerIsActive] = useState(props.active === "manageCustomer" ? true : false);
@@ -370,6 +378,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Nhân viên
     const [isEmployeeActive, setEmployeeIsActive] = useState(props.active === "manageEmployee" ? true : false);
@@ -399,6 +408,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Chức vụ nhân viên
     const [isPositionActive, setPositionIsActive] = useState(props.active === "managePosition" ? true : false);
@@ -428,6 +438,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Đặt phòng
     const [isRoomBookingActive, setRoomBookingIsActive] = useState(props.active === "manageRoomBooking" ? true : false);
@@ -456,6 +467,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Loại món ăn
     const [isFoodTypeActive, setFoodTypeIsActive] = useState(props.active === "manageFoodType" ? true : false);
@@ -485,6 +497,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Món ăn
     const [isFoodActive, setFoodIsActive] = useState(props.active === "manageFood" ? true : false);
@@ -514,6 +527,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Bình luận - Đánh giá Món ăn - Nhà hàng
     const [isFoodVoteActive, setFoodVoteIsActive] = useState(props.active === "manageFoodVote" ? true : false);
@@ -543,6 +557,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Loại Đặt tiệc - Nhà hàng
     const [isPartyBookingTypeActive, setPartyBookingTypeIsActive] = useState(props.active === "managePartyBookingType" ? true : false);
@@ -572,6 +587,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Loại Sảnh tiệc - Nhà hàng
     const [isPartyHallTypeActive, setPartyHallTypeIsActive] = useState(props.active === "managePartyHallType" ? true : false);
@@ -601,6 +617,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Loại Dịch vụ tiệc - Nhà hàng
     const [isPartyServiceTypeActive, setPartyServiceTypeIsActive] = useState(props.active === "managePartyServiceType" ? true : false);
@@ -630,6 +647,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Loại bàn - Nhà hàng
     const [isTableTypeActive, setTableTypeIsActive] = useState(props.active === "manageTableType" ? true : false);
@@ -659,6 +677,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Set menu - Nhà hàng
     const [isSetMenuActive, setSetMenuIsActive] = useState(props.active === "manageSetMenu" ? true : false);
@@ -688,6 +707,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Dịch vụ Tiệc - Nhà hàng
     const [isPartyServiceActive, setPartyServiceIsActive] = useState(props.active === "managePartyService" ? true : false);
@@ -717,6 +737,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Sảnh Tiệc - Nhà hàng
     const [isPartyHallActive, setPartyHallIsActive] = useState(props.active === "managePartyHall" ? true : false);
@@ -746,6 +767,7 @@ const Aside = (props) => {
         setTableBookingIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Bàn ăn - Nhà hàng
     const [isTableBookingActive, setTableBookingIsActive] = useState(props.active === "manageTableBooking" ? true : false);
@@ -775,6 +797,7 @@ const Aside = (props) => {
         setPositionIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Đặt tiệc - Nhà hàng
     const [isPartyBookingActive, setPartyBookingIsActive] = useState(props.active === "managePartyBooking" ? true : false);
@@ -804,11 +827,43 @@ const Aside = (props) => {
         setServiceIsActive(false);
         setPositionIsActive(false);
         setTableBookingOrderIsActive(false);
+        setAdminLogIsActive(false);
     }
     // Quản lý Đặt bàn - Nhà hàng
     const [isTableBookingOrderActive, setTableBookingOrderIsActive] = useState(props.active === "manageTableBookingOrder" ? true : false);
     const handleClickTableBookingOrder = () => {
         setTableBookingOrderIsActive(true);
+        setPartyBookingIsActive(false);
+        setTableBookingIsActive(false);
+        setPartyHallIsActive(false);
+        setPartyServiceIsActive(false);
+        setSetMenuIsActive(false);
+        setTableTypeIsActive(false);
+        setPartyServiceTypeIsActive(false);
+        setPartyHallTypeIsActive(false);
+        setPartyBookingTypeIsActive(false);
+        setFoodVoteIsActive(false);
+        setFoodIsActive(false);
+        setFoodTypeIsActive(false);
+        setDashBoardIsActive(false);
+        setDeviceTypeIsActive(false);
+        setRoomIsActive(false);
+        setCustomerIsActive(false);
+        setEmployeeIsActive(false);
+        setRoomBookingIsActive(false);
+        setDeviceIsActive(false);
+        setDiscountIsActive(false);
+        setFloorIsActive(false);
+        setRoomTypeIsActive(false);
+        setServiceIsActive(false);
+        setPositionIsActive(false);
+        setAdminLogIsActive(false);
+    }
+    // Quản lý Nhật ký hoạt động
+    const [isAdminLogActive, setAdminLogIsActive] = useState(props.active === "manageAdminLog" ? true : false);
+    const handleClickAdminLog = () => {
+        setAdminLogIsActive(true);
+        setTableBookingOrderIsActive(false);
         setPartyBookingIsActive(false);
         setTableBookingIsActive(false);
         setPartyHallIsActive(false);
@@ -1011,7 +1066,12 @@ const Aside = (props) => {
                         </IconSpan>
                         <H3>Quản lý Đặt bàn - Nhà hàng</H3>
                     </LinkStyled>
-
+                    <LinkStyled to={"/manageAdminLog"} className={isAdminLogActive ? "active" : null} onClick={handleClickAdminLog}>
+                        <IconSpan>
+                            <ManageHistoryOutlined style={{ fontSize: "1.6rem", transition: "all 300ms ease" }} />
+                        </IconSpan>
+                        <H3>Quản lý Nhật ký hoạt động</H3>
+                    </LinkStyled>
 
 
                 </SideBarTop>

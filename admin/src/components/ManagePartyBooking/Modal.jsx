@@ -1,4 +1,4 @@
-import { Add, ClearOutlined, CloseOutlined, FilePresentOutlined, HideImageOutlined, ImageOutlined, MoreHorizOutlined, PictureAsPdfOutlined, Remove, VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { Add, ClearOutlined, CloseOutlined, FilePresentOutlined, FindInPageOutlined, HideImageOutlined, ImageOutlined, MoreHorizOutlined, PictureAsPdfOutlined, Remove, VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { Box, Checkbox, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
@@ -495,7 +495,7 @@ const FilterStatisticItem = styled.div`
     background-color: var(--color-white);
 `
 const StatisticLeftButton = styled.div`
-    width: 25%;
+    width: 35%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1341,6 +1341,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
     const [totalOfCityByDate, setTotalOfCityByDate] = useState();
     const [totalOfCityByDateData, setTotalOfCityByDateData] = useState([]);
     const [totalOfCityByDatePDFImage, setTotalOfCityByDatePDFImage] = useState();
+    const [totalOfCityByDateDataTable, setTotalOfCityByDateDataTable] = useState([]);
     const totalOfCityByDateRef = useCallback(node => {
         console.log("ref-quarter", node);
         if (node !== null) {
@@ -1364,6 +1365,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
     const [totalOfCityByQuarter, setTotalOfCityByQuarter] = useState();
     const [totalOfCityByQuarterData, setTotalOfCityByQuarterData] = useState([]);
     const [totalOfCityByQuarterPDFImage, setTotalOfCityByQuarterPDFImage] = useState();
+    const [totalOfCityByQuarterDataTable, setTotalOfCityByQuarterDataTable] = useState([]);
 
     useEffect(() => {
         const getLimitPartyBookingTotalOfCityForEachQuarter = async () => {
@@ -1462,8 +1464,17 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                     }
                     setTotalOfCityByDateData(arrayInStatistic);
                 }
-
                 console.log("statisticRes of City Date: ", statisticRes);
+
+                // Lấy data để hiện ở Bảng - Danh sách này sắp xếp theo thứ tự giảm doanh thu của tp đó
+                var arrayInTable = [];
+                for (var i = 0; i < statisticRes.data.data.data.length; i++) {
+                    const partyBookingOrderInThisDateList = statisticRes.data.data.data[i].partyBookingOrderDetailList;
+                    for (var j = 0; j < partyBookingOrderInThisDateList.length; j++) {
+                        arrayInTable.push(partyBookingOrderInThisDateList[j]);
+                    }
+                }
+                setTotalOfCityByDateDataTable(arrayInTable);
                 // Toast
                 const dataToast = { message: statisticRes.data.message, type: "success" };
                 showToastFromOut(dataToast);
@@ -1506,8 +1517,11 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                     })
                     setTotalOfCityByQuarterData(arrayInStatistic);
                 }
-
                 console.log("statisticRes of city Quarter: ", statisticRes);
+
+                // Lấy data để hiện ở Bảng 
+                setTotalOfCityByQuarterDataTable(statisticRes.data.data.partyBookingOrderDetailList);
+
                 // Toast
                 const dataToast = { message: statisticRes.data.message, type: "success" };
                 showToastFromOut(dataToast);
@@ -1573,6 +1587,95 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
 
     }
 
+    // Xuất ra file EXCEL Chi tiết
+    const handleExportExcelDetailCity = () => {
+        var dataExport = [];
+        if (isTotalOfCityByQuarter) {
+            // Thống kê theo Quý
+            dataExport = totalOfCityByQuarterDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['discount_percent'];
+                    delete val['floor_id'];
+                    delete val['party_booking_order_book_date'];
+                    delete val['discount_id'];
+                    delete val['customer_id'];
+                    delete val['party_booking_order_id'];
+                    delete val['party_booking_order_state'];
+                    delete val['party_booking_type_id'];
+                    delete val['party_hall_detail_date'];
+                    delete val['party_hall_id'];
+                    delete val['party_hall_time_id'];
+                    delete val['party_hall_time_name'];
+                    delete val['set_menu_id'];
+                    delete val['set_menu_image'];
+                    delete val['set_menu_price'];
+                    delete val['set_menu_state'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày check-in", "Ngày check-out", "Tiền đặt tiệc", "Số lượng bàn tiệc", "Tiền phụ phí", "Tổng tiền", "Ghi chú", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Menu đã chọn", "Loại tiệc", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Nội dung tiệc", "Tên sảnh", "View Sảnh", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuThanhPhoTheoTungQuyChiTiet.xlsx");
+        } else if (isTotalOfCityByDate) {
+            // Thống kê theo Ngày
+            dataExport = totalOfCityByDateDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['discount_percent'];
+                    delete val['floor_id'];
+                    delete val['party_booking_order_book_date'];
+                    delete val['discount_id'];
+                    delete val['customer_id'];
+                    delete val['party_booking_order_id'];
+                    delete val['party_booking_order_state'];
+                    delete val['party_booking_type_id'];
+                    delete val['party_hall_detail_date'];
+                    delete val['party_hall_id'];
+                    delete val['party_hall_time_id'];
+                    delete val['party_hall_time_name'];
+                    delete val['set_menu_id'];
+                    delete val['set_menu_image'];
+                    delete val['set_menu_price'];
+                    delete val['set_menu_state'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày check-in", "Ngày check-out", "Tiền đặt tiệc", "Số lượng bàn tiệc", "Tiền phụ phí", "Tổng tiền", "Ghi chú", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Menu đã chọn", "Loại tiệc", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Nội dung tiệc", "Tên sảnh", "View Sảnh", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuThanhPhoTheoTungNgayChiTiet.xlsx");
+        } else {
+            // Thống kê mặc định 4 Quý
+            dataExport = totalOfCityForEachQuarterDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['discount_percent'];
+                    delete val['floor_id'];
+                    delete val['party_booking_order_book_date'];
+                    delete val['discount_id'];
+                    delete val['customer_id'];
+                    delete val['party_booking_order_id'];
+                    delete val['party_booking_order_state'];
+                    delete val['party_booking_type_id'];
+                    delete val['party_hall_detail_date'];
+                    delete val['party_hall_id'];
+                    delete val['party_hall_time_id'];
+                    delete val['party_hall_time_name'];
+                    delete val['set_menu_id'];
+                    delete val['set_menu_image'];
+                    delete val['set_menu_price'];
+                    delete val['set_menu_state'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày check-in", "Ngày check-out", "Tiền đặt tiệc", "Số lượng bàn tiệc", "Tiền phụ phí", "Tổng tiền", "Ghi chú", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Menu đã chọn", "Loại tiệc", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Nội dung tiệc", "Tên sảnh", "View Sảnh", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuThanhPhoTheoTungQuyChiTiet.xlsx");
+        }
+    }
     console.log("totalOfCityForEachQuarterDataTable: olala", totalOfCityForEachQuarterDataTable);
     // --------------------------------------- Handle Statistic Total ---------------------------------------
     const [statisticWayTotal, setStatisticWayTotal] = useState(); //byQuarter - byDate
@@ -1589,15 +1692,18 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
     const [totalForEachMonthPDFImage, setTotalForEachMonthPDFImage] = useState();
     const [totalForEachMonthUpdateDate, setTotalForEachMonthUpdateDate] = useState();
     const [isTotalForEachMonth, setIsTotalForEachMonth] = useState(true);
+    const [totalForEachMonthDataTable, setTotalForEachMonthDataTable] = useState([]);
 
     // State khi thống kê theo ngày
     const [isStatisticPartyBookingOrderTotalByDate, setIsStatisticPartyBookingOrderTotalByDate] = useState(false);
     const [statisticPartyBookingOrderTotalByDate, setStatisticPartyBookingOrderTotalByDate] = useState();
     const [statisticByDatePDFImage, setStatisticByDatePDFImage] = useState();
+    const [statisticByDateDataTable, setStatisticByDateDataTable] = useState([]);
     // State khi thống kê theo Quý
     const [isStatisticPartyBookingOrderTotalByQuarter, setIsStatisticPartyBookingOrderTotalByQuarter] = useState(false);
     const [statisticPartyBookingOrderTotalByQuarter, setStatisticPartyBookingOrderTotalByQuarter] = useState();
     const [statisticByQuarterPDFImage, setStatisticByQuarterPDFImage] = useState();
+    const [statisticByQuarterDataTable, setStatisticByQuarterDataTable] = useState([]);
 
     const statisticImageTotalForEachMonth = useRef();
     const statisticImageByQuarter = useCallback(node => {
@@ -1628,6 +1734,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                 console.log("statisticPartyBookingForEachQuarterByYearRes: ", statisticPartyBookingForEachQuarterByYearRes);
                 setTotalForEachMonthObject(statisticPartyBookingForEachQuarterByYearRes.data.data);
                 setTotalForEachMonthUpdateDate(statisticPartyBookingForEachQuarterByYearRes.data.statisticDate);
+                setTotalForEachMonthDataTable(statisticPartyBookingForEachQuarterByYearRes.data.partyBookingOrderList);
             } catch (err) {
                 console.log("Lỗi khi lấy doanh thu theo quý: ", err.response);
             }
@@ -1716,7 +1823,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                 }
                 setIsStatisticPartyBookingOrderTotalByDate(true);
                 setStatisticPartyBookingOrderTotalByDate(statisticRes.data.data);
-
+                setStatisticByDateDataTable(statisticRes.data.data.partyBookingOrderList);
                 console.log("statisticRes: ", statisticRes);
                 // Toast
                 const dataToast = { message: statisticRes.data.message, type: "success" };
@@ -1743,6 +1850,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                 }
                 setIsStatisticPartyBookingOrderTotalByQuarter(true);
                 setStatisticPartyBookingOrderTotalByQuarter(statisticRes.data.data);
+                setStatisticByQuarterDataTable(statisticRes.data.data.partyBookingOrderList);
 
                 console.log("statisticRes: ", statisticRes);
                 // Toast
@@ -1789,6 +1897,96 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
             XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
             XLSX.utils.sheet_add_aoa(ws, [["Quý 1", "Quý 2", "Quý 3", "Quý 4", "Cả năm"]], { origin: "A1" });
             XLSX.writeFile(wb, "ThongKeDoanhThuTheoTungQuy.xlsx");
+        }
+    }
+
+    // Xuất ra file EXCEL - Chi tiết
+    const handleExportExcelDetail = () => {
+        var dataExport = [];
+        if (isStatisticPartyBookingOrderTotalByDate) {
+            // Thống kê theo Ngày
+            dataExport = statisticByDateDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['discount_percent'];
+                    delete val['floor_id'];
+                    delete val['party_booking_order_book_date'];
+                    delete val['discount_id'];
+                    delete val['customer_id'];
+                    delete val['party_booking_order_id'];
+                    delete val['party_booking_order_state'];
+                    delete val['party_booking_type_id'];
+                    delete val['party_hall_detail_date'];
+                    delete val['party_hall_id'];
+                    delete val['party_hall_time_id'];
+                    delete val['party_hall_time_name'];
+                    delete val['set_menu_id'];
+                    delete val['set_menu_image'];
+                    delete val['set_menu_price'];
+                    delete val['set_menu_state'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày check-in", "Ngày check-out", "Tiền đặt tiệc", "Số lượng bàn tiệc", "Tiền phụ phí", "Tổng tiền", "Ghi chú", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Menu đã chọn", "Loại tiệc", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Nội dung tiệc", "Tên sảnh", "View Sảnh", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuTheoTungNgayChiTiet.xlsx");
+        } else if (isStatisticPartyBookingOrderTotalByQuarter) {
+            // Thống kê theo Quý
+            dataExport = statisticByQuarterDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['discount_percent'];
+                    delete val['floor_id'];
+                    delete val['party_booking_order_book_date'];
+                    delete val['discount_id'];
+                    delete val['customer_id'];
+                    delete val['party_booking_order_id'];
+                    delete val['party_booking_order_state'];
+                    delete val['party_booking_type_id'];
+                    delete val['party_hall_detail_date'];
+                    delete val['party_hall_id'];
+                    delete val['party_hall_time_id'];
+                    delete val['party_hall_time_name'];
+                    delete val['set_menu_id'];
+                    delete val['set_menu_image'];
+                    delete val['set_menu_price'];
+                    delete val['set_menu_state'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày check-in", "Ngày check-out", "Tiền đặt tiệc", "Số lượng bàn tiệc", "Tiền phụ phí", "Tổng tiền", "Ghi chú", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Menu đã chọn", "Loại tiệc", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Nội dung tiệc", "Tên sảnh", "View Sảnh", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuTheoTungQuyChiTiet.xlsx");
+        } else {
+            // Thống kê mặc định 4 Quý
+            dataExport = totalForEachMonthDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['discount_percent'];
+                    delete val['floor_id'];
+                    delete val['party_booking_order_book_date'];
+                    delete val['discount_id'];
+                    delete val['customer_id'];
+                    delete val['party_booking_order_id'];
+                    delete val['party_booking_order_state'];
+                    delete val['party_booking_type_id'];
+                    delete val['party_hall_detail_date'];
+                    delete val['party_hall_id'];
+                    delete val['party_hall_time_id'];
+                    delete val['party_hall_time_name'];
+                    delete val['set_menu_id'];
+                    delete val['set_menu_image'];
+                    delete val['set_menu_price'];
+                    delete val['set_menu_state'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày check-in", "Ngày check-out", "Tiền đặt tiệc", "Số lượng bàn tiệc", "Tiền phụ phí", "Tổng tiền", "Ghi chú", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Menu đã chọn", "Loại tiệc", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Nội dung tiệc", "Tên sảnh", "View Sảnh", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuTheoTungQuyChiTiet.xlsx");
         }
     }
 
@@ -2612,37 +2810,79 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     // ---------------- THỐNG KÊ THEO QUÝ - BẢNG ----------------
                                                     isTotalOfCityByQuarter ? (
                                                         totalOfCityByQuarter ? (
-                                                            <Table style={{ marginBottom: "15px" }}>
-                                                                <Thead>
-                                                                    <Tr>
-                                                                        <Th colSpan={6}> Doanh thu Quý {totalOfCityByQuarter.quarter}</Th>
-                                                                    </Tr>
-                                                                    <Tr>
-                                                                        <Th>STT</Th>
-                                                                        <Th>Thành phố</Th>
-                                                                        <Th>Doanh thu tháng {totalOfCityByQuarter.quarter === 1 ? "1" : totalOfCityByQuarter.quarter === 2 ? "4" : totalOfCityByQuarter.quarter === 3 ? "7" : totalOfCityByQuarter.quarter === 4 ? "10" : null} Quý {totalOfCityByQuarter.quarter}</Th>
-                                                                        <Th>Doanh thu tháng {totalOfCityByQuarter.quarter === 1 ? "2" : totalOfCityByQuarter.quarter === 2 ? "5" : totalOfCityByQuarter.quarter === 3 ? "8" : totalOfCityByQuarter.quarter === 4 ? "11" : null} Quý {totalOfCityByQuarter.quarter}</Th>
-                                                                        <Th>Doanh thu tháng {totalOfCityByQuarter.quarter === 1 ? "1" : totalOfCityByQuarter.quarter === 2 ? "6" : totalOfCityByQuarter.quarter === 3 ? "9" : totalOfCityByQuarter.quarter === 4 ? "12" : null} Quý {totalOfCityByQuarter.quarter}</Th>
-                                                                        <Th>Doanh thu Cả năm</Th>
-                                                                    </Tr>
-                                                                </Thead>
-                                                                <Tbody>
-                                                                    {
-                                                                        totalOfCityByQuarter.data.map((city, key) => {
-                                                                            return (
-                                                                                <Tr>
-                                                                                    <Td>{key + 1}</Td>
-                                                                                    <Td>{city.city_name}</Td>
-                                                                                    <Td>{city.monthFirst}</Td>
-                                                                                    <Td>{city.monthSecond}</Td>
-                                                                                    <Td>{city.monthThird}</Td>
-                                                                                    <Td>{city.canam}</Td>
-                                                                                </Tr>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                </Tbody>
-                                                            </Table>
+                                                            <>
+                                                                <Table style={{ marginBottom: "15px" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th colSpan={6}> Doanh thu Quý {totalOfCityByQuarter.quarter}</Th>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Th>STT</Th>
+                                                                            <Th>Thành phố</Th>
+                                                                            <Th>Doanh thu tháng {totalOfCityByQuarter.quarter === 1 ? "1" : totalOfCityByQuarter.quarter === 2 ? "4" : totalOfCityByQuarter.quarter === 3 ? "7" : totalOfCityByQuarter.quarter === 4 ? "10" : null} Quý {totalOfCityByQuarter.quarter}</Th>
+                                                                            <Th>Doanh thu tháng {totalOfCityByQuarter.quarter === 1 ? "2" : totalOfCityByQuarter.quarter === 2 ? "5" : totalOfCityByQuarter.quarter === 3 ? "8" : totalOfCityByQuarter.quarter === 4 ? "11" : null} Quý {totalOfCityByQuarter.quarter}</Th>
+                                                                            <Th>Doanh thu tháng {totalOfCityByQuarter.quarter === 1 ? "1" : totalOfCityByQuarter.quarter === 2 ? "6" : totalOfCityByQuarter.quarter === 3 ? "9" : totalOfCityByQuarter.quarter === 4 ? "12" : null} Quý {totalOfCityByQuarter.quarter}</Th>
+                                                                            <Th>Doanh thu Cả năm</Th>
+                                                                        </Tr>
+                                                                    </Thead>
+                                                                    <Tbody>
+                                                                        {
+                                                                            totalOfCityByQuarter.data.map((city, key) => {
+                                                                                return (
+                                                                                    <Tr>
+                                                                                        <Td>{key + 1}</Td>
+                                                                                        <Td>{city.city_name}</Td>
+                                                                                        <Td>{city.monthFirst}</Td>
+                                                                                        <Td>{city.monthSecond}</Td>
+                                                                                        <Td>{city.monthThird}</Td>
+                                                                                        <Td>{city.canam}</Td>
+                                                                                    </Tr>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                    </Tbody>
+                                                                </Table>
+                                                                {/* Bảng chi tiết Đặt tiệc theo Quý thống kê */}
+                                                                <Table>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th colSpan={9}>Danh sách Đặt tiệc theo Quý thống kê</Th>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Th>STT</Th>
+                                                                            <Th>Họ tên</Th>
+                                                                            <Th>SĐT</Th>
+                                                                            <Th>Địa chỉ</Th>
+                                                                            <Th>Ngày Checkin</Th>
+                                                                            <Th>Ngày Checkout</Th>
+                                                                            <Th>Loại tiệc</Th>
+                                                                            <Th>Vị trí Sảnh</Th>
+                                                                            <Th>Tổng tiền</Th>
+                                                                        </Tr>
+                                                                    </Thead>
+                                                                    <Tbody>
+                                                                        {
+                                                                            totalOfCityByQuarterDataTable.length > 0 ? (
+                                                                                totalOfCityByQuarterDataTable.map((partyBookingOrder, key) => {
+                                                                                    return (
+                                                                                        <Tr>
+                                                                                            <Td>{key + 1}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_first_name + " " + partyBookingOrder.customer_last_name}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_phone_number}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_address + ", " + partyBookingOrder.ward_name + ", " + partyBookingOrder.district_name + ", " + partyBookingOrder.city_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_start_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_type_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                        </Tr>
+                                                                                    )
+                                                                                })
+                                                                            ) : null
+                                                                        }
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </>
                                                         ) : null
                                                     ) : null
                                                 }
@@ -2651,35 +2891,79 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     // ---------------- THỐNG KÊ THEO NGÀY - BẢNG ----------------
                                                     isTotalOfCityByDate ? (
                                                         totalOfCityByDate ? (
-                                                            totalOfCityByDate.data.map((date, key) => {
-                                                                return (
-                                                                    <Table style={{ marginBottom: "15px" }}>
-                                                                        <Thead>
-                                                                            <Tr>
-                                                                                <Th colSpan={3}> Doanh thu Ngày {date.date}</Th>
-                                                                            </Tr>
-                                                                            <Tr>
-                                                                                <Th>STT</Th>
-                                                                                <Th>Thành phố</Th>
-                                                                                <Th>Doanh thu</Th>
-                                                                            </Tr>
-                                                                        </Thead>
-                                                                        <Tbody>
-                                                                            {
-                                                                                date.data.map((row, key) => {
+                                                            <>
+                                                                {
+                                                                    totalOfCityByDate.data.map((date, key) => {
+                                                                        return (
+                                                                            <Table style={{ marginBottom: "15px" }}>
+                                                                                <Thead>
+                                                                                    <Tr>
+                                                                                        <Th colSpan={3}> Doanh thu Ngày {date.date}</Th>
+                                                                                    </Tr>
+                                                                                    <Tr>
+                                                                                        <Th>STT</Th>
+                                                                                        <Th>Thành phố</Th>
+                                                                                        <Th>Doanh thu</Th>
+                                                                                    </Tr>
+                                                                                </Thead>
+                                                                                <Tbody>
+                                                                                    {
+                                                                                        date.data.map((row, key) => {
+                                                                                            return (
+                                                                                                <Tr>
+                                                                                                    <Td>{key + 1}</Td>
+                                                                                                    <Td>{row.city_name}</Td>
+                                                                                                    <Td>{row.total}</Td>
+                                                                                                </Tr>
+                                                                                            )
+                                                                                        })
+                                                                                    }
+                                                                                </Tbody>
+                                                                            </Table>
+                                                                        )
+                                                                    })
+                                                                }
+                                                                {/* Bảng chi tiết Đặt tiệc theo ngày thống kê */}
+                                                                <Table>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th colSpan={9}>Danh sách Đặt tiệc theo Ngày thống kê</Th>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Th>STT</Th>
+                                                                            <Th>Họ tên</Th>
+                                                                            <Th>SĐT</Th>
+                                                                            <Th>Địa chỉ</Th>
+                                                                            <Th>Ngày Checkin</Th>
+                                                                            <Th>Ngày Checkout</Th>
+                                                                            <Th>Loại tiệc</Th>
+                                                                            <Th>Vị trí Sảnh</Th>
+                                                                            <Th>Tổng tiền</Th>
+                                                                        </Tr>
+                                                                    </Thead>
+                                                                    <Tbody>
+                                                                        {
+                                                                            totalOfCityByDateDataTable.length > 0 ? (
+                                                                                totalOfCityByDateDataTable.map((partyBookingOrder, key) => {
                                                                                     return (
                                                                                         <Tr>
                                                                                             <Td>{key + 1}</Td>
-                                                                                            <Td>{row.city_name}</Td>
-                                                                                            <Td>{row.total}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_first_name + " " + partyBookingOrder.customer_last_name}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_phone_number}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_address + ", " + partyBookingOrder.ward_name + ", " + partyBookingOrder.district_name + ", " + partyBookingOrder.city_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_start_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_type_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
-                                                                            }
-                                                                        </Tbody>
-                                                                    </Table>
-                                                                )
-                                                            })
+                                                                            ) : null
+                                                                        }
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </>
                                                         ) : null
                                                     ) : null
                                                 }
@@ -2736,6 +3020,9 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                 }
                                                                 <Table>
                                                                     <Thead>
+                                                                        <Tr>
+                                                                            <Th colSpan={9}>Danh sách Đặt tiệc của Top 5 Thành phố</Th>
+                                                                        </Tr>
                                                                         <Tr>
                                                                             <Th>STT</Th>
                                                                             <Th>Họ tên</Th>
@@ -2968,7 +3255,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     isTotalOfCityByQuarter ?
                                                         (
                                                             <div>
-                                                                <PDFDownloadLink document={<PDFFileCityByQuarter data={totalOfCityByQuarter} image={totalOfCityByQuarterPDFImage} />} fileName="BaoCaoThongKeDoanhThuThanhPhoTheoQuy.pdf">
+                                                                <PDFDownloadLink document={<PDFFileCityByQuarter dataTable={totalOfCityByQuarterDataTable} data={totalOfCityByQuarter} image={totalOfCityByQuarterPDFImage} />} fileName="BaoCaoThongKeDoanhThuThanhPhoTheoQuy.pdf">
                                                                     {({ blob, url, loading, error }) =>
                                                                         loading ? (
                                                                             <TooltipMui
@@ -3024,7 +3311,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     isTotalOfCityByDate ?
                                                         (
                                                             <div>
-                                                                <PDFDownloadLink document={<PDFFileCityByDate data={totalOfCityByDate} image={totalOfCityByDatePDFImage} />} fileName="BaoCaoThongKeDoanhThuTheoNgay.pdf">
+                                                                <PDFDownloadLink document={<PDFFileCityByDate dataTable={totalOfCityByDateDataTable} data={totalOfCityByDate} image={totalOfCityByDatePDFImage} />} fileName="BaoCaoThongKeDoanhThuTheoNgay.pdf">
                                                                     {({ blob, url, loading, error }) =>
                                                                         loading ? (
                                                                             <TooltipMui
@@ -3150,6 +3437,28 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                 >
                                                     <ButtonStatistic onClick={() => handleExportExcelCity()}>
                                                         <FilePresentOutlined />
+                                                    </ButtonStatistic>
+                                                </TooltipMui>
+
+                                                {/* ---------------- BUTTON XUẤT EXCEL CHI TIẾT ---------------- */}
+                                                <TooltipMui
+                                                    title={"Xuất ra file Excel Chi tiết - Thành phố"}
+                                                    arrow
+                                                    followCursor={true}
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                fontSize: "12px",
+                                                                fontWeight: "bold",
+                                                                letterSpacing: "1px",
+                                                                padding: "10px 20px",
+                                                                borderRadius: "20px"
+                                                            },
+                                                        },
+                                                    }}
+                                                >
+                                                    <ButtonStatistic onClick={() => handleExportExcelDetailCity()}>
+                                                        <FindInPageOutlined />
                                                     </ButtonStatistic>
                                                 </TooltipMui>
                                             </StatisticLeftButton>
@@ -3349,28 +3658,70 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     // ---------------- THỐNG KÊ THEO QUÝ - BẢNG ----------------
                                                     isStatisticPartyBookingOrderTotalByQuarter ? (
                                                         statisticPartyBookingOrderTotalByQuarter ? (
-                                                            <Table>
-                                                                <Thead>
-                                                                    <Tr>
-                                                                        <Th>STT</Th>
-                                                                        <Th>Tháng</Th>
-                                                                        <Th>Doanh thu</Th>
-                                                                    </Tr>
-                                                                </Thead>
-                                                                <Tbody>
-                                                                    {
-                                                                        statisticPartyBookingOrderTotalByQuarter.data.map((row, key) => {
-                                                                            return (
-                                                                                <Tr>
-                                                                                    <Td>{key + 1}</Td>
-                                                                                    <Td>{row.month}</Td>
-                                                                                    <Td>{row.data}</Td>
-                                                                                </Tr>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                </Tbody>
-                                                            </Table>
+                                                            <>
+                                                                <Table>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th>STT</Th>
+                                                                            <Th>Tháng</Th>
+                                                                            <Th>Doanh thu</Th>
+                                                                        </Tr>
+                                                                    </Thead>
+                                                                    <Tbody>
+                                                                        {
+                                                                            statisticPartyBookingOrderTotalByQuarter.data.map((row, key) => {
+                                                                                return (
+                                                                                    <Tr>
+                                                                                        <Td>{key + 1}</Td>
+                                                                                        <Td>{row.month}</Td>
+                                                                                        <Td>{row.data}</Td>
+                                                                                    </Tr>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                    </Tbody>
+                                                                </Table>
+                                                                {/* Bảng chi tiết Đặt tiệc theo theo Quý thống kê */}
+                                                                <Table style={{ marginTop: "20px" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th colSpan={9}>Danh sách Đặt tiệc theo Quý thống kê</Th>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Th>STT</Th>
+                                                                            <Th>Họ tên</Th>
+                                                                            <Th>SĐT</Th>
+                                                                            <Th>Địa chỉ</Th>
+                                                                            <Th>Ngày Checkin</Th>
+                                                                            <Th>Ngày Checkout</Th>
+                                                                            <Th>Loại tiệc</Th>
+                                                                            <Th>Vị trí Sảnh</Th>
+                                                                            <Th>Tổng tiền</Th>
+                                                                        </Tr>
+                                                                    </Thead>
+                                                                    <Tbody>
+                                                                        {
+                                                                            statisticByQuarterDataTable.length > 0 ? (
+                                                                                statisticByQuarterDataTable.map((partyBookingOrder, key) => {
+                                                                                    return (
+                                                                                        <Tr>
+                                                                                            <Td>{key + 1}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_first_name + " " + partyBookingOrder.customer_last_name}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_phone_number}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_address + ", " + partyBookingOrder.ward_name + ", " + partyBookingOrder.district_name + ", " + partyBookingOrder.city_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_start_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_type_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                        </Tr>
+                                                                                    )
+                                                                                })
+                                                                            ) : null
+                                                                        }
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </>
                                                         ) : null
                                                     ) : null
                                                 }
@@ -3379,28 +3730,70 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     // ---------------- THỐNG KÊ THEO NGÀY - BẢNG ----------------
                                                     isStatisticPartyBookingOrderTotalByDate ? (
                                                         statisticPartyBookingOrderTotalByDate ? (
-                                                            <Table>
-                                                                <Thead>
-                                                                    <Tr>
-                                                                        <Th>STT</Th>
-                                                                        <Th>Ngày</Th>
-                                                                        <Th>Doanh thu</Th>
-                                                                    </Tr>
-                                                                </Thead>
-                                                                <Tbody>
-                                                                    {
-                                                                        statisticPartyBookingOrderTotalByDate.data.map((row, key) => {
-                                                                            return (
-                                                                                <Tr>
-                                                                                    <Td>{key + 1}</Td>
-                                                                                    <Td>{row.date}</Td>
-                                                                                    <Td>{row.data}</Td>
-                                                                                </Tr>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                </Tbody>
-                                                            </Table>
+                                                            <>
+                                                                <Table>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th>STT</Th>
+                                                                            <Th>Ngày</Th>
+                                                                            <Th>Doanh thu</Th>
+                                                                        </Tr>
+                                                                    </Thead>
+                                                                    <Tbody>
+                                                                        {
+                                                                            statisticPartyBookingOrderTotalByDate.data.map((row, key) => {
+                                                                                return (
+                                                                                    <Tr>
+                                                                                        <Td>{key + 1}</Td>
+                                                                                        <Td>{row.date}</Td>
+                                                                                        <Td>{row.data}</Td>
+                                                                                    </Tr>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                    </Tbody>
+                                                                </Table>
+                                                                {/* Bảng chi tiết Đặt tiệc theo theo ngày thống kê */}
+                                                                <Table style={{ marginTop: "20px" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th colSpan={9}>Danh sách Đặt tiệc theo ngày thống kê</Th>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Th>STT</Th>
+                                                                            <Th>Họ tên</Th>
+                                                                            <Th>SĐT</Th>
+                                                                            <Th>Địa chỉ</Th>
+                                                                            <Th>Ngày Checkin</Th>
+                                                                            <Th>Ngày Checkout</Th>
+                                                                            <Th>Loại tiệc</Th>
+                                                                            <Th>Vị trí Sảnh</Th>
+                                                                            <Th>Tổng tiền</Th>
+                                                                        </Tr>
+                                                                    </Thead>
+                                                                    <Tbody>
+                                                                        {
+                                                                            statisticByDateDataTable.length > 0 ? (
+                                                                                statisticByDateDataTable.map((partyBookingOrder, key) => {
+                                                                                    return (
+                                                                                        <Tr>
+                                                                                            <Td>{key + 1}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_first_name + " " + partyBookingOrder.customer_last_name}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_phone_number}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_address + ", " + partyBookingOrder.ward_name + ", " + partyBookingOrder.district_name + ", " + partyBookingOrder.city_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_start_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_type_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                        </Tr>
+                                                                                    )
+                                                                                })
+                                                                            ) : null
+                                                                        }
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </>
                                                         ) : null
                                                     ) : null
                                                 }
@@ -3409,37 +3802,79 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     // ---------------- THỐNG KÊ THEO DOANH THU CÁC QUÝ - BẢNG MẶC ĐỊNH ----------------
                                                     isTotalForEachMonth ?
                                                         totalForEachMonthObject ? (
-                                                            <Table>
-                                                                <Thead>
-                                                                    <Tr>
-                                                                        <Th>STT</Th>
-                                                                        <Th>Quý</Th>
-                                                                        <Th>Doanh thu</Th>
-                                                                    </Tr>
-                                                                </Thead>
-                                                                <Tbody>
-                                                                    <Tr>
-                                                                        <Td>1</Td>
-                                                                        <Td>Quý 1</Td>
-                                                                        <Td>{totalForEachMonthObject.data.quy1}</Td>
-                                                                    </Tr>
-                                                                    <Tr>
-                                                                        <Td>2</Td>
-                                                                        <Td>Quý 2</Td>
-                                                                        <Td>{totalForEachMonthObject.data.quy2}</Td>
-                                                                    </Tr>
-                                                                    <Tr>
-                                                                        <Td>3</Td>
-                                                                        <Td>Quý 3</Td>
-                                                                        <Td>{totalForEachMonthObject.data.quy3}</Td>
-                                                                    </Tr>
-                                                                    <Tr>
-                                                                        <Td>4</Td>
-                                                                        <Td>Quý 4</Td>
-                                                                        <Td>{totalForEachMonthObject.data.quy4}</Td>
-                                                                    </Tr>
-                                                                </Tbody>
-                                                            </Table>
+                                                            <>
+                                                                <Table>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th>STT</Th>
+                                                                            <Th>Quý</Th>
+                                                                            <Th>Doanh thu</Th>
+                                                                        </Tr>
+                                                                    </Thead>
+                                                                    <Tbody>
+                                                                        <Tr>
+                                                                            <Td>1</Td>
+                                                                            <Td>Quý 1</Td>
+                                                                            <Td>{totalForEachMonthObject.data.quy1}</Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td>2</Td>
+                                                                            <Td>Quý 2</Td>
+                                                                            <Td>{totalForEachMonthObject.data.quy2}</Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td>3</Td>
+                                                                            <Td>Quý 3</Td>
+                                                                            <Td>{totalForEachMonthObject.data.quy3}</Td>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Td>4</Td>
+                                                                            <Td>Quý 4</Td>
+                                                                            <Td>{totalForEachMonthObject.data.quy4}</Td>
+                                                                        </Tr>
+                                                                    </Tbody>
+                                                                </Table>
+                                                                {/* Bảng chi tiết Đặt tiệc theo 4 quý thống kê */}
+                                                                <Table style={{ marginTop: "20px" }}>
+                                                                    <Thead>
+                                                                        <Tr>
+                                                                            <Th colSpan={9}>Danh sách Đặt tiệc theo 4 Quý thống kê</Th>
+                                                                        </Tr>
+                                                                        <Tr>
+                                                                            <Th>STT</Th>
+                                                                            <Th>Họ tên</Th>
+                                                                            <Th>SĐT</Th>
+                                                                            <Th>Địa chỉ</Th>
+                                                                            <Th>Ngày Checkin</Th>
+                                                                            <Th>Ngày Checkout</Th>
+                                                                            <Th>Loại tiệc</Th>
+                                                                            <Th>Vị trí Sảnh</Th>
+                                                                            <Th>Tổng tiền</Th>
+                                                                        </Tr>
+                                                                    </Thead>
+                                                                    <Tbody>
+                                                                        {
+                                                                            totalForEachMonthDataTable.length > 0 ? (
+                                                                                totalForEachMonthDataTable.map((partyBookingOrder, key) => {
+                                                                                    return (
+                                                                                        <Tr>
+                                                                                            <Td>{key + 1}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_first_name + " " + partyBookingOrder.customer_last_name}</Td>
+                                                                                            <Td>{partyBookingOrder.customer_phone_number}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_address + ", " + partyBookingOrder.ward_name + ", " + partyBookingOrder.district_name + ", " + partyBookingOrder.city_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_start_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_type_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
+                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                        </Tr>
+                                                                                    )
+                                                                                })
+                                                                            ) : null
+                                                                        }
+                                                                    </Tbody>
+                                                                </Table>
+                                                            </>
                                                         ) : null
                                                         : null
                                                 }
@@ -3690,7 +4125,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     isStatisticPartyBookingOrderTotalByQuarter ?
                                                         (
                                                             <div>
-                                                                <PDFDownloadLink document={<PDFFileByQuarter data={statisticPartyBookingOrderTotalByQuarter} image={statisticByQuarterPDFImage} />} fileName="BaoCaoThongKeDoanhThuTheoQuy.pdf">
+                                                                <PDFDownloadLink document={<PDFFileByQuarter data={statisticPartyBookingOrderTotalByQuarter} image={statisticByQuarterPDFImage} dataTable={statisticByQuarterDataTable} />} fileName="BaoCaoThongKeDoanhThuTheoQuy.pdf">
                                                                     {({ blob, url, loading, error }) =>
                                                                         loading ? (
                                                                             <TooltipMui
@@ -3745,7 +4180,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     isStatisticPartyBookingOrderTotalByDate ?
                                                         (
                                                             <div>
-                                                                <PDFDownloadLink document={<PDFFileByDate data={statisticPartyBookingOrderTotalByDate} image={statisticByDatePDFImage} />} fileName="BaoCaoThongKeDoanhThuTheoNgay.pdf">
+                                                                <PDFDownloadLink document={<PDFFileByDate data={statisticPartyBookingOrderTotalByDate} image={statisticByDatePDFImage} dataTable={statisticByDateDataTable} />} fileName="BaoCaoThongKeDoanhThuTheoNgay.pdf">
                                                                     {({ blob, url, loading, error }) =>
                                                                         loading ? (
                                                                             <TooltipMui
@@ -3800,7 +4235,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     isTotalForEachMonth ?
                                                         (
                                                             <div>
-                                                                <PDFDownloadLink document={<PDFFile data={totalForEachMonthObject} image={totalForEachMonthPDFImage} />} fileName="BaoCaoThongKeDoanhThu.pdf">
+                                                                <PDFDownloadLink document={<PDFFile data={totalForEachMonthObject} image={totalForEachMonthPDFImage} dataTable={totalForEachMonthDataTable} />} fileName="BaoCaoThongKeDoanhThu.pdf">
                                                                     {({ blob, url, loading, error }) =>
                                                                         loading ? (
                                                                             <TooltipMui
@@ -3870,6 +4305,28 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                 >
                                                     <ButtonStatistic onClick={() => handleExportExcel()}>
                                                         <FilePresentOutlined />
+                                                    </ButtonStatistic>
+                                                </TooltipMui>
+
+                                                {/* ---------------- BUTTON XUẤT EXCEL CHI TIẾT ---------------- */}
+                                                <TooltipMui
+                                                    title={"Xuất ra file Excel Chi tiết - Thành phố"}
+                                                    arrow
+                                                    followCursor={true}
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                fontSize: "12px",
+                                                                fontWeight: "bold",
+                                                                letterSpacing: "1px",
+                                                                padding: "10px 20px",
+                                                                borderRadius: "20px"
+                                                            },
+                                                        },
+                                                    }}
+                                                >
+                                                    <ButtonStatistic onClick={() => handleExportExcelDetail()}>
+                                                        <FindInPageOutlined />
                                                     </ButtonStatistic>
                                                 </TooltipMui>
                                             </StatisticLeftButton>
