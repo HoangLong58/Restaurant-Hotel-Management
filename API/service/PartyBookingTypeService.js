@@ -198,4 +198,27 @@ module.exports = {
             );
         });
     },
+
+    // ADMIN: THỐNG KÊ ĐẶT TIỆC - THEO LOẠI
+    findPartyBookingTypeInPartyBookingOrder: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                pbt.party_booking_type_id,
+                pbt.party_booking_type_name,
+                pbt.party_booking_type_state
+                from party_booking_type pbt
+                join party_booking_order pbo on pbo.party_booking_type_id = pbt.party_booking_type_id
+                where party_booking_order_state = 2
+                group by pbt.party_booking_type_id`,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
 };

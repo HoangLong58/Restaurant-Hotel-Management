@@ -164,6 +164,18 @@ const PartyBookingRight = ({ reRenderData, setReRenderData }) => {
                     <Add />
                     <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng</h3>
                 </Item>
+                <Item className="add-product"
+                    onClick={() => openModal({ type: "statisticPartyBookingByType" })}
+                >
+                    <Add />
+                    <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng của Loại tiệc</h3>
+                </Item>
+                <Item className="add-product"
+                    onClick={() => openModal({ type: "statisticPartyBookingByCustomer" })}
+                >
+                    <Add />
+                    <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng của Khách hàng</h3>
+                </Item>
             </SalesAnalytics>
 
             {/* ==== MODAL ==== */}

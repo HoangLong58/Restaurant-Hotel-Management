@@ -1,7 +1,7 @@
-const { getTableBookingOrders, createTableBookingOrder, findTableBookingOrder, getTableBookingsAndDetail, getQuantityTableBookings, findTableBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findTableBookingById, findTableBookingOrderByIdCheckIn, updateTableBookingOrderInfoWhenCheckInSuccess, updateTableBookingOrderState, updateTableBookingOrderFinishDateWhenCheckOutSuccess, getDistinctDateInTableBookingOrderFromDateToDate, getLimitTableBookingTotalOfCityForEachQuarter, getTableBookingTotalOfCityByDateAndLimitAsc, getTableBookingTotalOfCityByDateAndAsc, getTableBookingTotalOfCityByDateAndLimitDesc, getTableBookingTotalOfCityByDateAndDesc, getTableBookingTotalOfCityByDateByListDate, getTableBookingTotalOfCityByDateByListDateNoLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getTableBookingTotalByMonth, getTableBookingOrderByCityId, getTableBookingTotalByDate, getTableBookingOrderFromDateToDate, getTableBookingOrderOfQuarter, getTableBookingOrderByDate, getTableBookingOrderByQuarterAndCityId } = require("../service/TableBookingOrderService");
+const { getTableBookingOrders, createTableBookingOrder, findTableBookingOrder, getTableBookingsAndDetail, getQuantityTableBookings, findTableBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findTableBookingById, findTableBookingOrderByIdCheckIn, updateTableBookingOrderInfoWhenCheckInSuccess, updateTableBookingOrderState, updateTableBookingOrderFinishDateWhenCheckOutSuccess, getDistinctDateInTableBookingOrderFromDateToDate, getLimitTableBookingTotalOfCityForEachQuarter, getTableBookingTotalOfCityByDateAndLimitAsc, getTableBookingTotalOfCityByDateAndAsc, getTableBookingTotalOfCityByDateAndLimitDesc, getTableBookingTotalOfCityByDateAndDesc, getTableBookingTotalOfCityByDateByListDate, getTableBookingTotalOfCityByDateByListDateNoLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getTableBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getTableBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getTableBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getTableBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getTableBookingTotalByMonth, getTableBookingOrderByCityId, getTableBookingTotalByDate, getTableBookingOrderFromDateToDate, getTableBookingOrderOfQuarter, getTableBookingOrderByDate, getTableBookingOrderByQuarterAndCityId, getTableBookingTotalOfTypeByQuarterOneOrderByCaNam, getTableBookingOrderByQuarterAndTableTypeName, getTableBookingTotalOfTypeByQuarterTwoOrderByCaNam, getTableBookingTotalOfTypeByQuarterThreeOrderByCaNam, getTableBookingTotalOfTypeByQuarterFourOrderByCaNam, getTableBookingTotalOfTypeByDate, getTableBookingOrderByDateAndTableTypeName, getTableBookingTotalOfTypeByDateByListDate, getTableBookingTotalOfCustomerByQuarterOneOrderByCaNam, getTableBookingOrderByQuarterAndCustomerId, getTableBookingTotalOfCustomerByQuarterTwoOrderByCaNam, getTableBookingTotalOfCustomerByQuarterThreeOrderByCaNam, getTableBookingTotalOfCustomerByQuarterFourOrderByCaNam, getTableBookingOrderByDateAndCustomerId, getTableBookingTotalOfCustomerByDateByListDate, getTableBookingTotalOfCustomerByDate } = require("../service/TableBookingOrderService");
 // NODE Mailer
 var nodemailer = require('nodemailer');
-const { getCustomerByCustomerId, findCustomerByEmailOrPhoneNumber } = require("../service/CustomerService");
+const { getCustomerByCustomerId, findCustomerByEmailOrPhoneNumber, findCustomerInTableBookingOrder } = require("../service/CustomerService");
 const { getTableBookingWithTypeAndFloorByTableBookingId } = require("../service/TableBookingService");
 const { getWardByWardId } = require("../service/WardService");
 const { createLogAdmin } = require("../utils/utils");
@@ -2336,5 +2336,903 @@ module.exports = {
                 tableBookingOrderDetailList: tableBookingOrderDetailList
             }
         });
+    },
+
+
+    // -------------------------------------------- THỐNG KÊ LOẠI BÀN --------------------------------------------
+    // Admin: Quản lý đặt bàn - Thống kê doanh thu Theo Loại
+    getStatisticTableBookingTotalOfTypeByQuarter: async (req, res) => {
+        const quarter = req.body.quarter;
+        const sortWay = req.body.sortWay;
+        const tableTypeList = req.body.tableTypeList;
+        if (!quarter || !Number.isInteger(quarter) || quarter >= 5 || quarter < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Quý thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!tableTypeList) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Loại bàn không hợp lệ!"
+            });
+        }
+        let finalDataArray = [];
+        // Nếu là quý 1
+        if (quarter === 1) {
+            // Quarter 1:
+            for (var k = 0; k < tableTypeList.length; k++) {
+                const tableTypeName = tableTypeList[k];
+                // Lấy thống kê doanh thu của Loại bàn theo quý
+                try {
+                    const tableBookingTotalQuarterRes = await getTableBookingTotalOfTypeByQuarterOneOrderByCaNam(tableTypeName);
+                    if (!tableBookingTotalQuarterRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table booking by Quarter 1"
+                        });
+                    }
+                    // Lấy danh sách đơn đặt bàn chi tiết cho từng Loại bàn thuộc quý đó 
+                    try {
+                        const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndTableTypeName(quarter, tableTypeName);
+                        if (!tableBookingOrderListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find table booking order list by quarter and table type name"
+                            });
+                        }
+                        finalDataArray.push({
+                            tableTypeName: tableTypeName,
+                            totalData: tableBookingTotalQuarterRes,
+                            tableBookingOrderList: tableBookingOrderListRes
+                        });
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getTableBookingOrderByQuarterAndTableTypeName!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getTableBookingTotalOfTypeByQuarterOneOrderByCaNam!",
+                        error: err
+                    });
+                }
+            }
+        }
+        // Nếu là quý 2
+        if (quarter === 2) {
+            // Quarter 2:
+            for (var k = 0; k < tableTypeList.length; k++) {
+                const tableTypeName = tableTypeList[k];
+                // Lấy thống kê doanh thu của Loại bàn theo quý
+                try {
+                    const tableBookingTotalQuarterRes = await getTableBookingTotalOfTypeByQuarterTwoOrderByCaNam(tableTypeName);
+                    if (!tableBookingTotalQuarterRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table booking by Quarter 2"
+                        });
+                    }
+                    // Lấy danh sách đơn đặt bàn chi tiết cho từng Loại bàn thuộc quý đó 
+                    try {
+                        const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndTableTypeName(quarter, tableTypeName);
+                        if (!tableBookingOrderListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find table booking order list by quarter and table type name"
+                            });
+                        }
+                        finalDataArray.push({
+                            tableTypeName: tableTypeName,
+                            totalData: tableBookingTotalQuarterRes,
+                            tableBookingOrderList: tableBookingOrderListRes
+                        });
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getTableBookingOrderByQuarterAndTableTypeName!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getTableBookingTotalOfTypeByQuarterTwoOrderByCaNam!",
+                        error: err
+                    });
+                }
+            }
+        }
+        // Nếu là quý 3
+        if (quarter === 3) {
+            // Quarter 3:
+            for (var k = 0; k < tableTypeList.length; k++) {
+                const tableTypeName = tableTypeList[k];
+                // Lấy thống kê doanh thu của Loại bàn theo quý
+                try {
+                    const tableBookingTotalQuarterRes = await getTableBookingTotalOfTypeByQuarterThreeOrderByCaNam(tableTypeName);
+                    if (!tableBookingTotalQuarterRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table booking by Quarter 3"
+                        });
+                    }
+                    // Lấy danh sách đơn đặt bàn chi tiết cho từng Loại bàn thuộc quý đó 
+                    try {
+                        const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndTableTypeName(quarter, tableTypeName);
+                        if (!tableBookingOrderListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find table booking order list by quarter and table type name"
+                            });
+                        }
+                        finalDataArray.push({
+                            tableTypeName: tableTypeName,
+                            totalData: tableBookingTotalQuarterRes,
+                            tableBookingOrderList: tableBookingOrderListRes
+                        });
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getTableBookingOrderByQuarterAndTableTypeName!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getTableBookingTotalOfTypeByQuarterThreeOrderByCaNam!",
+                        error: err
+                    });
+                }
+            }
+        }
+        // Nếu là quý 4
+        if (quarter === 4) {
+            // Quarter 4:
+            for (var k = 0; k < tableTypeList.length; k++) {
+                const tableTypeName = tableTypeList[k];
+                // Lấy thống kê doanh thu của Loại bàn theo quý
+                try {
+                    const tableBookingTotalQuarterRes = await getTableBookingTotalOfTypeByQuarterFourOrderByCaNam(tableTypeName);
+                    if (!tableBookingTotalQuarterRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table booking by Quarter 1"
+                        });
+                    }
+                    // Lấy danh sách đơn đặt bàn chi tiết cho từng Loại bàn thuộc quý đó 
+                    try {
+                        const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndTableTypeName(quarter, tableTypeName);
+                        if (!tableBookingOrderListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find table booking order list by quarter and table type name"
+                            });
+                        }
+                        finalDataArray.push({
+                            tableTypeName: tableTypeName,
+                            totalData: tableBookingTotalQuarterRes,
+                            tableBookingOrderList: tableBookingOrderListRes
+                        });
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getTableBookingOrderByQuarterAndTableTypeName!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getTableBookingTotalOfTypeByQuarterFourOrderByCaNam!",
+                        error: err
+                    });
+                }
+            }
+        }
+
+        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+        var todayCheckIn = new Date();
+        var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+        var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+        var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+        var monthInQuarterArray = [];
+        if (quarter === 1) {
+            monthInQuarterArray = [1, 2, 3];
+        } else if (quarter === 2) {
+            monthInQuarterArray = [4, 5, 6];
+        } else if (quarter === 3) {
+            monthInQuarterArray = [7, 8, 9];
+        } else {
+            monthInQuarterArray = [10, 11, 12];
+        }
+
+        // Sort
+        if (sortWay === "asc") {
+            finalDataArray = finalDataArray.sort((a, b) => a.totalData.canam - b.totalData.canam);
+        } else {
+            finalDataArray = finalDataArray.sort((a, b) => b.totalData.canam - a.totalData.canam);
+        }
+
+        // Success
+        return res.status(200).json({
+            status: "success",
+            message: "Thống kê doanh thu theo tháng của Loại bàn thành công!",
+            data: {
+                statisticDate: statisticDate,
+                quarter: quarter,
+                sortWay: sortWay,
+                data: finalDataArray,
+                monthArray: monthInQuarterArray
+            }
+        });
+    },
+    // Admin: Quản lý đặt bàn - Thống kê doanh thu Theo Loại và Ngày thống kê
+    getStatisticTableBookingTotalOfTypeByDate: async (req, res) => {
+        const dateFrom = req.body.dateFrom;
+        const dateTo = req.body.dateTo;
+        const sortWay = req.body.sortWay;
+        const tableTypeList = req.body.tableTypeList;
+        if (!dateFrom) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày bắt đầu thống kê không hợp lệ!"
+            });
+        }
+        if (!dateTo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày kết thúc thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!tableTypeList) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Loại bàn không hợp lệ!"
+            });
+        }
+
+        // Lấy ngày trong table booking từ dateFrom đến dateTo
+        try {
+            const fromDateToDateListRes = await getDistinctDateInTableBookingOrderFromDateToDate(dateFrom, dateTo);
+            if (!fromDateToDateListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get date list"
+                });
+            }
+
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            let finalArray = [];
+            let finalTableBookingOrderList = [];
+            for (var i = 0; i < fromDateToDateListRes.length; i++) {
+                const date = fromDateToDateListRes[i].finishDate;
+                var dataArray = [];
+                for (var j = 0; j < tableTypeList.length; j++) {
+                    const tableTypeName = tableTypeList[j];
+                    try {
+                        const totalRes = await getTableBookingTotalOfTypeByDate(date, tableTypeName);
+                        const totalCaNamRes = totalRes.canam;
+                        if (!totalRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find table booking total type by date"
+                            });
+                        }
+                        // Lấy đơn đặt bàn cho từng Ngày
+                        try {
+                            const tableBookingByDateRes = await getTableBookingOrderByDateAndTableTypeName(date, tableTypeName);
+                            if (!tableBookingByDateRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find table booking by date"
+                                });
+                            }
+                            dataArray.push({
+                                totalCaNam: totalCaNamRes,
+                                totalData: totalRes,
+                                tableBookingOrderDetailList: tableBookingByDateRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when getTableBookingOrderByDate!",
+                                error: err
+                            });
+                        }
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when statist by date!",
+                            error: err
+                        });
+                    }
+                }
+                // Sort
+                if (sortWay === "asc") {
+                    dataArray = dataArray.sort((a, b) => a.totalCaNam - b.totalCaNam);
+                } else {
+                    dataArray = dataArray.sort((a, b) => b.totalCaNam - a.totalCaNam);
+                }
+                dataArray.map((data, key) => {
+                    const tableBookingListRes = data.tableBookingOrderDetailList;
+                    tableBookingListRes.map((tableBookingOrder) => {
+                        finalTableBookingOrderList.push(tableBookingOrder);
+                    })
+                })
+                // Sau khi lặp xong các room type trong 1 ngày thì cho vào mảng kết quả
+                finalArray.push({
+                    date: date,
+                    dataArray: dataArray
+                })
+            }
+
+            // Sort xong tách mảng ngày mới và mảng data sau sort
+            let dateArray = []; //Lưu Mảng ngày sau khi đã sort theo doanh thu cả năm
+            let dataTableArray = [];
+            for (var i = 0; i < finalArray.length; i++) {
+                dateArray.push(finalArray[i].date);
+                dataTableArray.push(finalArray[i].dataArray);
+            }
+            // Mảng ngày mới thì lấy để đem truy vấn lấy từng cột dữ liệu làm biểu đồ
+            let statisticArray = [];
+            for (var i = 0; i < tableTypeList.length; i++) {
+                const tableTypeName = tableTypeList[i];
+                try {
+                    const tableBookingTotalOfCityByDateRes = await getTableBookingTotalOfTypeByDateByListDate(fromDateToDateListRes, tableTypeName, sortWay);
+                    if (!tableBookingTotalOfCityByDateRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get test"
+                        });
+                    }
+                    statisticArray.push(tableBookingTotalOfCityByDateRes);
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getTableBookingTotalOfTypeByDateByListDate!",
+                        error: err
+                    });
+                }
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo ngày của Thành phố theo Loại thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    dateArray: dateArray,
+                    dataArray: finalArray,
+                    dateFrom: dateFrom,
+                    dateTo: dateTo,
+                    sortWay: sortWay,
+                    statisticArray: statisticArray,
+                    finalTableBookingOrderList: finalTableBookingOrderList
+                }
+            });
+        } catch (err) {
+            console.log(err)
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find date!",
+                error: err
+            });
+        }
+    },
+
+    // -------------------------------------------- THỐNG KÊ KHÁCH HÀNG --------------------------------------------
+    // Admin: Quản lý đặt bàn - Thống kê doanh thu Theo Khách hàng
+    getStatisticTableBookingTotalOfCustomerByQuarter: async (req, res) => {
+        const quarter = req.body.quarter;
+        const sortWay = req.body.sortWay;
+        const customerInfo = req.body.customerInfo;
+        if (!quarter || !Number.isInteger(quarter) || quarter >= 5 || quarter < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Quý thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!customerInfo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Email/ Số điện thoại của Khách hàng không hợp lệ!"
+            });
+        }
+
+        // Kiểm tra Khách hàng nào cần thống kê? Khách hàng có tồn tại hay không?
+        var customerId;
+        var customerName;
+        try {
+            const customerRes = await findCustomerByEmailOrPhoneNumber(customerInfo);
+            if (!customerRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Khách hàng không tồn tại!"
+                });
+            }
+            // Tìm được customer
+            customerId = customerRes.customer_id;
+            customerName = customerRes.customer_first_name + " " + customerRes.customer_last_name;
+
+            // Kiểm tra Khách hàng này có đặt bàn không
+            try {
+                const isCustomerBooking = await findCustomerInTableBookingOrder(customerId);
+                if (!isCustomerBooking) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Khách hàng chưa có thông tin Đặt bàn nào!"
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when findCustomerInTableBookingOrder!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when findCustomerByEmailOrPhoneNumber!",
+                error: err
+            });
+        }
+
+        let finalDataArray = [];
+        // Nếu là quý 1
+        if (quarter === 1) {
+            // Lấy thống kê doanh thu của Khách hàng theo quý
+            try {
+                const tableBookingTotalQuarterRes = await getTableBookingTotalOfCustomerByQuarterOneOrderByCaNam(customerId);
+                if (!tableBookingTotalQuarterRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find table booking by Quarter 1"
+                    });
+                }
+                // Lấy danh sách đơn đặt bàn chi tiết cho từng Khách hàng thuộc quý đó 
+                try {
+                    const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCustomerId(quarter, customerId);
+                    if (!tableBookingOrderListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table booking order list by quarter and customer id"
+                        });
+                    }
+                    var sortedListRes = tableBookingOrderListRes;
+                    // Sort
+                    if (sortWay === "asc") {
+                        sortedListRes = sortedListRes.sort((a, b) => a.table_booking_order_total - b.table_booking_order_total);
+                    } else {
+                        sortedListRes = sortedListRes.sort((a, b) => b.table_booking_order_total - a.table_booking_order_total);
+                    }
+
+                    finalDataArray.push({
+                        customerName: customerName,
+                        totalData: tableBookingTotalQuarterRes,
+                        tableBookingOrderList: sortedListRes
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getTableBookingOrderByQuarterAndCustomerId!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getTableBookingTotalOfCustomerByQuarterOneOrderByCaNam!",
+                    error: err
+                });
+            }
+        }
+        // Nếu là quý 2
+        if (quarter === 2) {
+            // Lấy thống kê doanh thu của Khách hàng theo quý
+            try {
+                const tableBookingTotalQuarterRes = await getTableBookingTotalOfCustomerByQuarterTwoOrderByCaNam(customerId);
+                if (!tableBookingTotalQuarterRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find table booking by Quarter 2"
+                    });
+                }
+                // Lấy danh sách đơn đặt bàn chi tiết cho từng Khách hàng thuộc quý đó 
+                try {
+                    const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCustomerId(quarter, customerId);
+                    if (!tableBookingOrderListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table booking order list by quarter and customer id"
+                        });
+                    }
+                    var sortedListRes = tableBookingOrderListRes;
+                    // Sort
+                    if (sortWay === "asc") {
+                        sortedListRes = sortedListRes.sort((a, b) => a.table_booking_order_total - b.table_booking_order_total);
+                    } else {
+                        sortedListRes = sortedListRes.sort((a, b) => b.table_booking_order_total - a.table_booking_order_total);
+                    }
+
+                    finalDataArray.push({
+                        customerName: customerName,
+                        totalData: tableBookingTotalQuarterRes,
+                        tableBookingOrderList: sortedListRes
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getTableBookingOrderByQuarterAndCustomerId!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getTableBookingTotalOfCustomerByQuarterTwoOrderByCaNam!",
+                    error: err
+                });
+            }
+        }
+        // Nếu là quý 3
+        if (quarter === 3) {
+            // Lấy thống kê doanh thu của Khách hàng theo quý
+            try {
+                const tableBookingTotalQuarterRes = await getTableBookingTotalOfCustomerByQuarterThreeOrderByCaNam(customerId);
+                if (!tableBookingTotalQuarterRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find table booking by Quarter 3"
+                    });
+                }
+                // Lấy danh sách đơn đặt bàn chi tiết cho từng Khách hàng thuộc quý đó 
+                try {
+                    const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCustomerId(quarter, customerId);
+                    if (!tableBookingOrderListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table booking order list by quarter and customer id"
+                        });
+                    }
+                    var sortedListRes = tableBookingOrderListRes;
+                    // Sort
+                    if (sortWay === "asc") {
+                        sortedListRes = sortedListRes.sort((a, b) => a.table_booking_order_total - b.table_booking_order_total);
+                    } else {
+                        sortedListRes = sortedListRes.sort((a, b) => b.table_booking_order_total - a.table_booking_order_total);
+                    }
+
+                    finalDataArray.push({
+                        customerName: customerName,
+                        totalData: tableBookingTotalQuarterRes,
+                        tableBookingOrderList: sortedListRes
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getTableBookingOrderByQuarterAndCustomerId!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getTableBookingTotalOfCustomerByQuarterThreeOrderByCaNam!",
+                    error: err
+                });
+            }
+        }
+        // Nếu là quý 4
+        if (quarter === 4) {
+            // Lấy thống kê doanh thu của Khách hàng theo quý
+            try {
+                const tableBookingTotalQuarterRes = await getTableBookingTotalOfCustomerByQuarterFourOrderByCaNam(customerId);
+                if (!tableBookingTotalQuarterRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find table booking by Quarter 4"
+                    });
+                }
+                // Lấy danh sách đơn đặt bàn chi tiết cho từng Khách hàng thuộc quý đó 
+                try {
+                    const tableBookingOrderListRes = await getTableBookingOrderByQuarterAndCustomerId(quarter, customerId);
+                    if (!tableBookingOrderListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table booking order list by quarter and customer id"
+                        });
+                    }
+                    var sortedListRes = tableBookingOrderListRes;
+                    // Sort
+                    if (sortWay === "asc") {
+                        sortedListRes = sortedListRes.sort((a, b) => a.table_booking_order_total - b.table_booking_order_total);
+                    } else {
+                        sortedListRes = sortedListRes.sort((a, b) => b.table_booking_order_total - a.table_booking_order_total);
+                    }
+
+                    finalDataArray.push({
+                        customerName: customerName,
+                        totalData: tableBookingTotalQuarterRes,
+                        tableBookingOrderList: sortedListRes
+                    });
+                } catch (err) {
+                    console.log(err);
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getTableBookingOrderByQuarterAndCustomerId!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getTableBookingTotalOfCustomerByQuarterFourOrderByCaNam!",
+                    error: err
+                });
+            }
+        }
+
+        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+        var todayCheckIn = new Date();
+        var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+        var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+        var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+        var monthInQuarterArray = [];
+        if (quarter === 1) {
+            monthInQuarterArray = [1, 2, 3];
+        } else if (quarter === 2) {
+            monthInQuarterArray = [4, 5, 6];
+        } else if (quarter === 3) {
+            monthInQuarterArray = [7, 8, 9];
+        } else {
+            monthInQuarterArray = [10, 11, 12];
+        }
+
+        // Success
+        return res.status(200).json({
+            status: "success",
+            message: "Thống kê doanh thu theo tháng của Khách hàng thành công!",
+            data: {
+                statisticDate: statisticDate,
+                quarter: quarter,
+                sortWay: sortWay,
+                data: finalDataArray,
+                monthArray: monthInQuarterArray
+            }
+        });
+    },
+    // Admin: Quản lý đặt bàn - Thống kê doanh thu Theo Khách hàng và Ngày thống kê
+    getStatisticTableBookingTotalOfCustomerByDate: async (req, res) => {
+        const dateFrom = req.body.dateFrom;
+        const dateTo = req.body.dateTo;
+        const sortWay = req.body.sortWay;
+        const customerInfo = req.body.customerInfo;
+        if (!dateFrom) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày bắt đầu thống kê không hợp lệ!"
+            });
+        }
+        if (!dateTo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày kết thúc thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!customerInfo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Email/ Số điện thoại của Khách hàng không hợp lệ!"
+            });
+        }
+
+        // Kiểm tra Khách hàng nào cần thống kê? Khách hàng có tồn tại hay không?
+        var customerId;
+        var customerName;
+        try {
+            const customerRes = await findCustomerByEmailOrPhoneNumber(customerInfo);
+            if (!customerRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Khách hàng không tồn tại!"
+                });
+            }
+            // Tìm được customer
+            customerId = customerRes.customer_id;
+            customerName = customerRes.customer_first_name + " " + customerRes.customer_last_name;
+
+            // Kiểm tra Khách hàng này có đặt bàn không
+            try {
+                const isCustomerBooking = await findCustomerInTableBookingOrder(customerId);
+                if (!isCustomerBooking) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Khách hàng chưa có thông tin Đặt bàn nào!"
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when findCustomerInTableBookingOrder!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when findCustomerByEmailOrPhoneNumber!",
+                error: err
+            });
+        }
+
+        // Lấy ngày trong table booking từ dateFrom đến dateTo
+        try {
+            const fromDateToDateListRes = await getDistinctDateInTableBookingOrderFromDateToDate(dateFrom, dateTo);
+            if (!fromDateToDateListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get date list"
+                });
+            }
+
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            let finalArray = [];
+            let finalTableBookingOrderList = [];
+            for (var i = 0; i < fromDateToDateListRes.length; i++) {
+                const date = fromDateToDateListRes[i].finishDate;
+                try {
+                    const totalRes = await getTableBookingTotalOfCustomerByDate(date, customerId);
+                    const totalCaNamRes = totalRes.canam;
+                    if (!totalRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table booking total type by date"
+                        });
+                    }
+                    // Lấy đơn đặt bàn cho từng Ngày
+                    try {
+                        const tableBookingByDateRes = await getTableBookingOrderByDateAndCustomerId(date, customerId);
+                        if (!tableBookingByDateRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find table booking by date"
+                            });
+                        }
+                        // Sau khi lặp xong các room type trong 1 ngày thì cho vào mảng kết quả
+                        finalArray.push({
+                            date: date,
+                            dataArray: {
+                                totalCaNam: totalCaNamRes,
+                                totalData: totalRes,
+                                tableBookingOrderDetailList: tableBookingByDateRes
+                            }
+                        })
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getTableBookingOrderByDateAndCustomerId!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when statist by date!",
+                        error: err
+                    });
+                }
+            }
+
+            // // Sort
+            // if (sortWay === "asc") {
+            //     finalArray = finalArray.sort((a, b) => a.dataArray.totalCaNam - b.dataArray.totalCaNam);
+            // } else {
+            //     finalArray = finalArray.sort((a, b) => b.dataArray.totalCaNam - a.dataArray.totalCaNam);
+            // }
+            finalArray.map((data, key) => {
+                const tableBookingListRes = data.dataArray.tableBookingOrderDetailList;
+                tableBookingListRes.map((tableBookingOrder) => {
+                    finalTableBookingOrderList.push(tableBookingOrder);
+                })
+            })
+
+            // Sort
+            if (sortWay === "asc") {
+                finalTableBookingOrderList = finalTableBookingOrderList.sort((a, b) => a.table_booking_order_total - b.table_booking_order_total);
+            } else {
+                finalTableBookingOrderList = finalTableBookingOrderList.sort((a, b) => b.table_booking_order_total - a.table_booking_order_total);
+            }
+
+            // Sort xong tách mảng ngày mới và mảng data sau sort
+            let dateArray = []; //Lưu Mảng ngày sau khi đã sort theo doanh thu cả năm
+            let dataTableArray = [];
+            for (var i = 0; i < finalArray.length; i++) {
+                dateArray.push(finalArray[i].date);
+                dataTableArray.push(finalArray[i].dataArray);
+            }
+            // Mảng ngày mới thì lấy để đem truy vấn lấy từng cột dữ liệu làm biểu đồ
+            let statisticArray;
+            try {
+                const tableBookingTotalOfCityByDateRes = await getTableBookingTotalOfCustomerByDateByListDate(fromDateToDateListRes, customerId, sortWay);
+                if (!tableBookingTotalOfCityByDateRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't get test"
+                    });
+                }
+                statisticArray = tableBookingTotalOfCityByDateRes;
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getTableBookingTotalOfCustomerByDateByListDate!",
+                    error: err
+                });
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo ngày của Thành phố theo Khách hàng thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    dateArray: dateArray,
+                    dataArray: finalArray,
+                    dateFrom: dateFrom,
+                    dateTo: dateTo,
+                    sortWay: sortWay,
+                    statisticArray: statisticArray,
+                    finalTableBookingOrderList: finalTableBookingOrderList
+                }
+            });
+        } catch (err) {
+            console.log(err)
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find date!",
+                error: err
+            });
+        }
     },
 }

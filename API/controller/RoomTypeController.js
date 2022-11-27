@@ -1,4 +1,4 @@
-const { getRoomTypes, getQuantityRoomTypes, findRoomTypeByIdOrName, findRoomTypeById, createRoomType, deleteRoomType, updateRoomTypeById } = require("../service/RoomTypeService");
+const { getRoomTypes, getQuantityRoomTypes, findRoomTypeByIdOrName, findRoomTypeById, createRoomType, deleteRoomType, updateRoomTypeById, findRoomTypeInRoomBookingOrder } = require("../service/RoomTypeService");
 const { createLogAdmin } = require("../utils/utils");
 
 module.exports = {
@@ -233,5 +233,30 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+
+    // ADMIN: QUẢN LÝ ĐẶT PHÒNG - THỐNG KÊ THEO LOẠI
+    findAllRoomTypeInRoomBookingOrder: async (req, res) => {
+        try {
+            const result = await findRoomTypeInRoomBookingOrder();
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Tìm room types trong room booking order thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi findRoomTypeInRoomBookingOrder",
+                error: err
+            });
+        }
+    },
 }

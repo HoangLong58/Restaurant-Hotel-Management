@@ -1,4 +1,4 @@
-const { getPartyBookingTypes, getAllPartyBookingTypes, getQuantityPartyBookingTypes, findPartyBookingTypeByIdOrName, findPartyBookingTypeById, createPartyBookingType, updatePartyBookingTypeById, updatePartyBookingTypeState, deletePartyBookingType } = require("../service/PartyBookingTypeService");
+const { getPartyBookingTypes, getAllPartyBookingTypes, getQuantityPartyBookingTypes, findPartyBookingTypeByIdOrName, findPartyBookingTypeById, createPartyBookingType, updatePartyBookingTypeById, updatePartyBookingTypeState, deletePartyBookingType, findPartyBookingTypeInPartyBookingOrder } = require("../service/PartyBookingTypeService");
 const { createLogAdmin } = require("../utils/utils");
 
 module.exports = {
@@ -380,5 +380,29 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+    // ADMIN: QUẢN LÝ ĐẶT PHÒNG - THỐNG KÊ THEO LOẠI
+    findAllPartyBookingTypeInPartyBookingOrder: async (req, res) => {
+        try {
+            const result = await findPartyBookingTypeInPartyBookingOrder();
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Tìm party booking types trong party booking order thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi findPartyBookingTypeInPartyBookingOrder",
+                error: err
+            });
+        }
+    },
 }

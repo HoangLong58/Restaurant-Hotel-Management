@@ -73,3 +73,30 @@ export const getStatisticPartyBookingTotalOfCityByQuarter = async (data) => {
     const res = await axios.post(`${url_PartyBookingOrder}/get-statistic-party-booking-order-total-of-city-by-quarter`, data);
     return res;
 };
+
+
+// Quản lý Đặt tiệc - Thống kê doanh thu Từng Loại tiệc theo Tháng trong Quý
+export const getStatisticPartyBookingTotalOfTypeByQuarter = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_PartyBookingOrder}/get-statistic-party-booking-order-total-by-quarter-and-type`, data);
+    return res;
+};
+// Quản lý Đặt tiệc - Thống kê doanh thu Từng Loại tiệc theo Ngày trong Quý
+export const getStatisticPartyBookingTotalOfTypeByDate = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_PartyBookingOrder}/get-statistic-party-booking-order-total-by-date-and-type`, data);
+    return res;
+};
+
+// Quản lý Đặt tiệc - Thống kê doanh thu của Khách hàng cụ thể theo Tháng trong Quý
+export const getStatisticPartyBookingTotalOfCustomerByQuarter = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_PartyBookingOrder}/get-statistic-party-booking-order-total-by-quarter-and-customer`, data);
+    return res;
+};
+// Quản lý Đặt tiệc - Thống kê doanh thu của Khách hàng cụ thể theo Ngày trong Quý
+export const getStatisticPartyBookingTotalOfCustomerByDate = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_PartyBookingOrder}/get-statistic-party-booking-order-total-by-date-and-customer`, data);
+    return res;
+};

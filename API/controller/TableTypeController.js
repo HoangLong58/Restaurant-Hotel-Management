@@ -1,4 +1,4 @@
-const { getTableTypes, getAllTableTypes, getQuantityTableTypes, findTableTypeByIdOrName, findTableTypeById, createTableType, updateTableTypeById, updateTableTypeState, deleteTableType } = require("../service/TableTypeService");
+const { getTableTypes, getAllTableTypes, getQuantityTableTypes, findTableTypeByIdOrName, findTableTypeById, createTableType, updateTableTypeById, updateTableTypeState, deleteTableType, findTableTypeInTableBookingOrder } = require("../service/TableTypeService");
 const { createLogAdmin } = require("../utils/utils");
 
 module.exports = {
@@ -380,5 +380,29 @@ module.exports = {
                 error: err
             });
         }
-    }
+    },
+    // ADMIN: QUẢN LÝ ĐẶT BÀN - THỐNG KÊ THEO LOẠI
+    findAllTableTypeInTableBookingOrder: async (req, res) => {
+        try {
+            const result = await findTableTypeInTableBookingOrder();
+            if (!result) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Record not found!",
+                    data: []
+                });
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Tìm table types trong table booking order thành công",
+                data: result
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Lỗi findTableTypeInTableBookingOrder",
+                error: err
+            });
+        }
+    },
 }

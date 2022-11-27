@@ -2195,4 +2195,745 @@ module.exports = {
             );
         });
     },
+    // -------------------------------------------- THỐNG KÊ LOẠI PHÒNG --------------------------------------------
+    // ADMIN: Quản lý đặt phòng - Thống kê theo loại phòng: Quarter 1
+    getRoomBookingTotalOfTypeByQuarterOneOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rt.room_type_name,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 1
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 2
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 3 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and rt.room_type_name = ?
+                group by rt.room_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo loại phòng: Quarter 2
+    getRoomBookingTotalOfTypeByQuarterTwoOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rt.room_type_name,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 4
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 5
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 6 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and rt.room_type_name = ?
+                group by rt.room_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo loại phòng: Quarter 3
+    getRoomBookingTotalOfTypeByQuarterThreeOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rt.room_type_name,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 7
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 8
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 9 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and rt.room_type_name = ?
+                group by rt.room_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo loại phòng: Quarter 4
+    getRoomBookingTotalOfTypeByQuarterFourOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rt.room_type_name,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 10
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 11
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 12 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and rt.room_type_name = ?
+                group by rt.room_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    // ADMIN: Quản lý đặt phòng - Thống kê theo loại phòng và Quý: Lấy danh sách đặt phòng chi tiết
+    getRoomBookingOrderByQuarterAndRoomTypeName: (quarter, roomTypeName) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_start_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,                
+                rbo.room_booking_order_address,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name,
+                ci.city_id,
+                ci.city_name,
+                di.district_name,
+                w.ward_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                join ward w on rbo.ward_id = w.ward_id
+                join district di on w.district_id = di.district_id
+                join city ci on di.city_id = ci.city_id
+                where quarter(rbo.room_booking_order_finish_date) = ?
+                and rt.room_type_name = ?
+                and rbo.room_booking_order_state = 2
+                `,
+                [quarter, roomTypeName],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo loại phòng và Ngày 
+    getRoomBookingTotalOfTypeByDate: (date, roomTypeName) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rt.room_type_name,
+                sum(
+                    case DATE(rbo.room_booking_order_finish_date) when ? 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and rt.room_type_name = ?
+                `,
+                [date, roomTypeName],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo loại phòng và Ngày: Lấy danh sách đặt phòng chi tiết
+    getRoomBookingOrderByDateAndRoomTypeName: (date, roomTypeName) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                    rbo.room_booking_order_id,
+                    rbo.room_booking_order_book_date,
+                    rbo.room_booking_order_start_date,
+                    rbo.room_booking_order_finish_date,
+                    rbo.room_booking_order_price,
+                    rbo.room_booking_order_surcharge,
+                    rbo.room_booking_order_note,
+                    rbo.room_booking_order_identity_card,
+                    rbo.room_booking_order_nation,                
+                    rbo.room_booking_order_address,
+                    rbo.room_booking_order_total,
+                    rbo.room_booking_order_state,
+                    rbo.customer_id,
+                    c.customer_first_name,
+                    c.customer_last_name,
+                    c.customer_phone_number,
+                    c.customer_email,
+                    c.customer_image,
+                    rbo.discount_id,
+                    rbd.room_booking_detail_id ,
+                    rbd.room_booking_detail_checkin_date,
+                    rbd.room_booking_detail_checkout_date,
+                    rbd.room_booking_detail_key,
+                    rbd.room_id,
+                    r.room_name,
+                    rt.room_type_name,
+                    f.floor_name,
+                    ci.city_id,
+                    ci.city_name,
+                    di.district_name,
+                    w.ward_name
+                    from room_booking_order rbo
+                    join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                    join customer c on rbo.customer_id = c.customer_id
+                    join room r on rbd.room_id = r.room_id
+                    join room_type rt on r.room_type_id = rt.room_type_id
+                    join floor f on r.floor_id = f.floor_id 
+                    join ward w on rbo.ward_id = w.ward_id
+                    join district di on w.district_id = di.district_id
+                    join city ci on di.city_id = ci.city_id
+                    where date(rbo.room_booking_order_finish_date) = ?
+                    and rt.room_type_name = ?
+                    and rbo.room_booking_order_state = 2
+                    `,
+                [date, roomTypeName],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo loại phòng và Ngày: Lấy danh sách đặt phòng để làm biểu đồ
+    getRoomBookingTotalOfTypeByDateByListDate: (listDate, roomTypeName, sort) => {
+        var query = "";
+        query += "select rt.room_type_name, "
+        for (var i = 0; i < listDate.length; i++) {
+            const date = listDate[i].finishDate;
+            query += `sum(
+                case DATE(rbo.room_booking_order_finish_date) when '` + date + `' 
+                then rbo.room_booking_order_total 
+                else 0 END
+            ) as date` + (i + 1) + `,`;
+        }
+        query += `sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and rt.room_type_name = "` + roomTypeName + `"
+                order by canam ` + sort + `;`;
+        return new Promise((resolve, reject) => {
+            con.query(query,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+
+    // -------------------------------------------- THỐNG KÊ KHÁCH HÀNG --------------------------------------------
+    // ADMIN: Quản lý đặt phòng - Thống kê theo Khách hàng: Quarter 1
+    getRoomBookingTotalOfCustomerByQuarterOneOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 1
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 2
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 3 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join customer cu on cu.customer_id = rbo.customer_id
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo Khách hàng: Quarter 2
+    getRoomBookingTotalOfCustomerByQuarterTwoOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 4
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 5
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 6 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join customer cu on cu.customer_id = rbo.customer_id
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo Khách hàng: Quarter 3
+    getRoomBookingTotalOfCustomerByQuarterThreeOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 7
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 8
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 9 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join customer cu on cu.customer_id = rbo.customer_id
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo Khách hàng: Quarter 4
+    getRoomBookingTotalOfCustomerByQuarterFourOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 10
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 11
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(rbo.room_booking_order_finish_date) when 12 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join customer cu on cu.customer_id = rbo.customer_id
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    // ADMIN: Quản lý đặt phòng - Thống kê theo Khách hàng và Quý: Lấy danh sách đặt phòng chi tiết
+    getRoomBookingOrderByQuarterAndCustomerId: (quarter, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_start_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,                
+                rbo.room_booking_order_address,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name,
+                ci.city_id,
+                ci.city_name,
+                di.district_name,
+                w.ward_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                join ward w on rbo.ward_id = w.ward_id
+                join district di on w.district_id = di.district_id
+                join city ci on di.city_id = ci.city_id
+                where quarter(rbo.room_booking_order_finish_date) = ?
+                and c.customer_id = ?
+                and rbo.room_booking_order_state = 2
+                `,
+                [quarter, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo Khách hàng và Ngày 
+    getRoomBookingTotalOfCustomerByDate: (date, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case DATE(rbo.room_booking_order_finish_date) when ? 
+                    then rbo.room_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join customer cu on cu.customer_id = rbo.customer_id
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and cu.customer_id = ?
+                `,
+                [date, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo Khách hàng và Ngày: Lấy danh sách đặt phòng chi tiết
+    getRoomBookingOrderByDateAndCustomerId: (date, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                rbo.room_booking_order_id,
+                rbo.room_booking_order_book_date,
+                rbo.room_booking_order_start_date,
+                rbo.room_booking_order_finish_date,
+                rbo.room_booking_order_price,
+                rbo.room_booking_order_surcharge,
+                rbo.room_booking_order_note,
+                rbo.room_booking_order_identity_card,
+                rbo.room_booking_order_nation,                
+                rbo.room_booking_order_address,
+                rbo.room_booking_order_total,
+                rbo.room_booking_order_state,
+                rbo.customer_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                c.customer_image,
+                rbo.discount_id,
+                rbd.room_booking_detail_id ,
+                rbd.room_booking_detail_checkin_date,
+                rbd.room_booking_detail_checkout_date,
+                rbd.room_booking_detail_key,
+                rbd.room_id,
+                r.room_name,
+                rt.room_type_name,
+                f.floor_name,
+                ci.city_id,
+                ci.city_name,
+                di.district_name,
+                w.ward_name
+                from room_booking_order rbo
+                join room_booking_detail rbd on rbo.room_booking_order_id = rbd.room_booking_order_id
+                join customer c on rbo.customer_id = c.customer_id
+                join room r on rbd.room_id = r.room_id
+                join room_type rt on r.room_type_id = rt.room_type_id
+                join floor f on r.floor_id = f.floor_id 
+                join ward w on rbo.ward_id = w.ward_id
+                join district di on w.district_id = di.district_id
+                join city ci on di.city_id = ci.city_id
+                where date(rbo.room_booking_order_finish_date) = ?
+                and c.customer_id = ?
+                and rbo.room_booking_order_state = 2
+                `,
+                [date, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt phòng - Thống kê theo Khách hàng và Ngày: Lấy danh sách đặt phòng để làm biểu đồ
+    getRoomBookingTotalOfCustomerByDateByListDate: (listDate, customerId, sort) => {
+        var query = "";
+        query += "select cu.customer_first_name, cu.customer_last_name, cu.customer_email, cu.customer_phone_number, "
+        for (var i = 0; i < listDate.length; i++) {
+            const date = listDate[i].finishDate;
+            query += `sum(
+                case DATE(rbo.room_booking_order_finish_date) when '` + date + `' 
+                then rbo.room_booking_order_total 
+                else 0 END
+            ) as date` + (i + 1) + `,`;
+        }
+        query += `sum(room_booking_order_total) as canam
+                from room_booking_order rbo 
+                join customer cu on cu.customer_id = rbo.customer_id
+                join room_booking_detail rbd on rbd.room_booking_order_id = rbo.room_booking_order_id
+                join room r on r.room_id = rbd.room_id
+                join room_type rt on rt.room_type_id = r.room_type_id
+                join ward w on rbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where rbo.room_booking_order_state = 2
+                and cu.customer_id = ` + customerId + `
+                order by canam ` + sort + `;`;
+        return new Promise((resolve, reject) => {
+            con.query(query,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
 };

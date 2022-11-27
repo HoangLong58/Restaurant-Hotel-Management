@@ -59,3 +59,9 @@ export const deletePartyBookingType = async (partyBookingTypeId) => {
     const res = await axios.delete(`${url_PartyBookingType}/${partyBookingTypeId}`);
     return res;
 };
+// Quản lý Đặt tiệc - Nhà hàng: Thống kê theo loại
+export const findAllPartyBookingTypeInPartyBookingOrder = async () => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.get(`${url_PartyBookingType}/get-party-booking-type-in-party-booking-order`);
+    return res;
+};

@@ -2056,7 +2056,7 @@ module.exports = {
             );
         });
     },
-    // ADMIN: Bảng đặt phòng Chi tiết - 4 Quý
+    // ADMIN: Bảng đặt tiệc Chi tiết - 4 Quý
     getPartyBookingOrderOf4Quarter: () => {
         return new Promise((resolve, reject) => {
             con.query(
@@ -2126,7 +2126,7 @@ module.exports = {
             );
         });
     },
-    // ADMIN: Bảng đặt phòng Chi tiết - Quý
+    // ADMIN: Bảng đặt tiệc Chi tiết - Quý
     getPartyBookingOrderOfQuarter: (quarter) => {
         return new Promise((resolve, reject) => {
             con.query(
@@ -2197,7 +2197,7 @@ module.exports = {
             );
         });
     },
-    // ADMIN: Bảng đặt phòng Chi tiết - Date
+    // ADMIN: Bảng đặt tiệc Chi tiết - Date
     getPartyBookingOrderFromDateToDate: (fromDate, toDate) => {
         return new Promise((resolve, reject) => {
             con.query(
@@ -2265,6 +2265,767 @@ module.exports = {
                         return reject(error);
                     }
                     return resolve(results);
+                }
+            );
+        });
+    },
+
+
+    // -------------------------------------------- THỐNG KÊ LOẠI TIỆC --------------------------------------------
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo loại tiệc: Quarter 1
+    getPartyBookingTotalOfTypeByQuarterOneOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbt.party_booking_type_name,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 1
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 2
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 3 
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and pbt.party_booking_type_name = ?
+                group by pbt.party_booking_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo loại tiệc: Quarter 2
+    getPartyBookingTotalOfTypeByQuarterTwoOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbt.party_booking_type_name,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 4
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 5
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 6 
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and pbt.party_booking_type_name = ?
+                group by pbt.party_booking_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo loại tiệc: Quarter 3
+    getPartyBookingTotalOfTypeByQuarterThreeOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbt.party_booking_type_name,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 7
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 8
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 9 
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and pbt.party_booking_type_name = ?
+                group by pbt.party_booking_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo loại tiệc: Quarter 4
+    getPartyBookingTotalOfTypeByQuarterFourOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbt.party_booking_type_name,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 10
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 11
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 12 
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and pbt.party_booking_type_name = ?
+                group by pbt.party_booking_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo loại tiệc và Quý: Lấy danh sách đặt tiệc chi tiết
+    getPartyBookingOrderByQuarterAndPartyBookingTypeName: (quarter, partyBookingTypeName) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbo.party_booking_order_id,
+                pbo.party_booking_order_book_date,
+                pbo.party_booking_order_start_date,
+                pbo.party_booking_order_finish_date,
+                pbo.party_booking_order_price,
+                pbo.party_booking_order_table_quantity,
+                pbo.party_booking_order_surcharge,
+                pbo.party_booking_order_total,
+                pbo.party_booking_order_state,
+                pbo.party_booking_order_note,
+                pbo.party_booking_order_identity_card,
+                pbo.party_booking_order_nation,
+                pbo.party_booking_order_address,
+                pbo.discount_id,
+                pbo.customer_id,
+                pbo.set_menu_id,
+                pbo.party_booking_type_id,
+                pbo.ward_id,
+                d.discount_percent,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                sm.set_menu_name,
+                sm.set_menu_price,
+                sm.set_menu_image,
+                sm.set_menu_state,
+                pbt.party_booking_type_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                pht.party_hall_time_name,
+                phd.party_hall_detail_name,
+                phd.party_hall_detail_date,
+                phd.party_hall_id,
+                phd.party_hall_time_id,
+                ph.party_hall_name,
+                ph.party_hall_view,
+                ph.floor_id,
+                f.floor_name
+                from party_booking_order pbo
+                join discount d on d.discount_id = pbo.discount_id
+                join customer c on c.customer_id = pbo.customer_id
+                join set_menu sm on sm.set_menu_id = pbo.set_menu_id
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join party_hall_detail phd on phd.party_booking_order_id = pbo.party_booking_order_id
+                join party_hall ph on ph.party_hall_id = phd.party_hall_id
+                join party_hall_time pht on pht.party_hall_time_id = phd.party_hall_time_id
+                join floor f on f.floor_id = ph.floor_id
+                left join ward w on w.ward_id = pbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where quarter(pbo.party_booking_order_finish_date) = ?
+                and pbt.party_booking_type_name = ?
+                and pbo.party_booking_order_state = 2
+                `,
+                [quarter, partyBookingTypeName],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo loại tiệc và Ngày 
+    getPartyBookingTotalOfTypeByDate: (date, partyBookingTypeName) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbt.party_booking_type_name,
+                sum(
+                    case DATE(pbo.party_booking_order_finish_date) when ?
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and pbt.party_booking_type_name = ?
+                `,
+                [date, partyBookingTypeName],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo loại tiệc và Ngày: Lấy danh sách đặt tiệc chi tiết
+    getPartyBookingOrderByDateAndPartyBookingTypeName: (date, partyBookingTypeName) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbo.party_booking_order_id,
+                pbo.party_booking_order_book_date,
+                pbo.party_booking_order_start_date,
+                pbo.party_booking_order_finish_date,
+                pbo.party_booking_order_price,
+                pbo.party_booking_order_table_quantity,
+                pbo.party_booking_order_surcharge,
+                pbo.party_booking_order_total,
+                pbo.party_booking_order_state,
+                pbo.party_booking_order_note,
+                pbo.party_booking_order_identity_card,
+                pbo.party_booking_order_nation,
+                pbo.party_booking_order_address,
+                pbo.discount_id,
+                pbo.customer_id,
+                pbo.set_menu_id,
+                pbo.party_booking_type_id,
+                pbo.ward_id,
+                d.discount_percent,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                sm.set_menu_name,
+                sm.set_menu_price,
+                sm.set_menu_image,
+                sm.set_menu_state,
+                pbt.party_booking_type_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                pht.party_hall_time_name,
+                phd.party_hall_detail_name,
+                phd.party_hall_detail_date,
+                phd.party_hall_id,
+                phd.party_hall_time_id,
+                ph.party_hall_name,
+                ph.party_hall_view,
+                ph.floor_id,
+                f.floor_name
+                from party_booking_order pbo
+                join discount d on d.discount_id = pbo.discount_id
+                join customer c on c.customer_id = pbo.customer_id
+                join set_menu sm on sm.set_menu_id = pbo.set_menu_id
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join party_hall_detail phd on phd.party_booking_order_id = pbo.party_booking_order_id
+                join party_hall ph on ph.party_hall_id = phd.party_hall_id
+                join party_hall_time pht on pht.party_hall_time_id = phd.party_hall_time_id
+                join floor f on f.floor_id = ph.floor_id
+                left join ward w on w.ward_id = pbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where date(pbo.party_booking_order_finish_date) = ?
+                and pbt.party_booking_type_name = ?
+                and pbo.party_booking_order_state = 2
+                `,
+                [date, partyBookingTypeName],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo loại tiệc và Ngày: Lấy danh sách đặt tiệc để làm biểu đồ
+    getPartyBookingTotalOfTypeByDateByListDate: (listDate, partyBookingTypeName, sort) => {
+        var query = "";
+        query += "select pbt.party_booking_type_name, "
+        for (var i = 0; i < listDate.length; i++) {
+            const date = listDate[i].finishDate;
+            query += `sum(
+                case DATE(pbo.party_booking_order_finish_date) when '` + date + `' 
+                then pbo.party_booking_order_total 
+                else 0 END
+            ) as date` + (i + 1) + `,`;
+        }
+        query += `sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and pbt.party_booking_type_name = "` + partyBookingTypeName + `"
+                order by canam ` + sort + `;`;
+        return new Promise((resolve, reject) => {
+            con.query(query,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // Xong tới đây rồi mai tiếp
+
+    // -------------------------------------------- THỐNG KÊ KHÁCH HÀNG --------------------------------------------
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo Khách hàng: Quarter 1
+    getPartyBookingTotalOfCustomerByQuarterOneOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 1
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 2
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 3 
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join customer cu on cu.customer_id = pbo.customer_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo Khách hàng: Quarter 2
+    getPartyBookingTotalOfCustomerByQuarterTwoOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 4
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 5
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 6 
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join customer cu on cu.customer_id = pbo.customer_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo Khách hàng: Quarter 3
+    getPartyBookingTotalOfCustomerByQuarterThreeOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 7
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 8
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 9 
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join customer cu on cu.customer_id = pbo.customer_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo Khách hàng: Quarter 4
+    getPartyBookingTotalOfCustomerByQuarterFourOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 10
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 11
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(pbo.party_booking_order_finish_date) when 12 
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join customer cu on cu.customer_id = pbo.customer_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo Khách hàng và Quý: Lấy danh sách đặt tiệc chi tiết
+    getPartyBookingOrderByQuarterAndCustomerId: (quarter, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbo.party_booking_order_id,
+                pbo.party_booking_order_book_date,
+                pbo.party_booking_order_start_date,
+                pbo.party_booking_order_finish_date,
+                pbo.party_booking_order_price,
+                pbo.party_booking_order_table_quantity,
+                pbo.party_booking_order_surcharge,
+                pbo.party_booking_order_total,
+                pbo.party_booking_order_state,
+                pbo.party_booking_order_note,
+                pbo.party_booking_order_identity_card,
+                pbo.party_booking_order_nation,
+                pbo.party_booking_order_address,
+                pbo.discount_id,
+                pbo.customer_id,
+                pbo.set_menu_id,
+                pbo.party_booking_type_id,
+                pbo.ward_id,
+                d.discount_percent,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                sm.set_menu_name,
+                sm.set_menu_price,
+                sm.set_menu_image,
+                sm.set_menu_state,
+                pbt.party_booking_type_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                pht.party_hall_time_name,
+                phd.party_hall_detail_name,
+                phd.party_hall_detail_date,
+                phd.party_hall_id,
+                phd.party_hall_time_id,
+                ph.party_hall_name,
+                ph.party_hall_view,
+                ph.floor_id,
+                f.floor_name
+                from party_booking_order pbo
+                join discount d on d.discount_id = pbo.discount_id
+                join customer c on c.customer_id = pbo.customer_id
+                join set_menu sm on sm.set_menu_id = pbo.set_menu_id
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join party_hall_detail phd on phd.party_booking_order_id = pbo.party_booking_order_id
+                join party_hall ph on ph.party_hall_id = phd.party_hall_id
+                join party_hall_time pht on pht.party_hall_time_id = phd.party_hall_time_id
+                join floor f on f.floor_id = ph.floor_id
+                left join ward w on w.ward_id = pbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where quarter(pbo.party_booking_order_finish_date) = ?
+                and c.customer_id = ?
+                and pbo.party_booking_order_state = 2
+                `,
+                [quarter, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo Khách hàng và Ngày 
+    getPartyBookingTotalOfCustomerByDate: (date, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case DATE(pbo.party_booking_order_finish_date) when ? 
+                    then pbo.party_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join customer cu on cu.customer_id = pbo.customer_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and cu.customer_id = ?
+                `,
+                [date, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo Khách hàng và Ngày: Lấy danh sách đặt tiệc chi tiết
+    getPartyBookingOrderByDateAndCustomerId: (date, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                pbo.party_booking_order_id,
+                pbo.party_booking_order_book_date,
+                pbo.party_booking_order_start_date,
+                pbo.party_booking_order_finish_date,
+                pbo.party_booking_order_price,
+                pbo.party_booking_order_table_quantity,
+                pbo.party_booking_order_surcharge,
+                pbo.party_booking_order_total,
+                pbo.party_booking_order_state,
+                pbo.party_booking_order_note,
+                pbo.party_booking_order_identity_card,
+                pbo.party_booking_order_nation,
+                pbo.party_booking_order_address,
+                pbo.discount_id,
+                pbo.customer_id,
+                pbo.set_menu_id,
+                pbo.party_booking_type_id,
+                pbo.ward_id,
+                d.discount_percent,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                sm.set_menu_name,
+                sm.set_menu_price,
+                sm.set_menu_image,
+                sm.set_menu_state,
+                pbt.party_booking_type_name,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                pht.party_hall_time_name,
+                phd.party_hall_detail_name,
+                phd.party_hall_detail_date,
+                phd.party_hall_id,
+                phd.party_hall_time_id,
+                ph.party_hall_name,
+                ph.party_hall_view,
+                ph.floor_id,
+                f.floor_name
+                from party_booking_order pbo
+                join discount d on d.discount_id = pbo.discount_id
+                join customer c on c.customer_id = pbo.customer_id
+                join set_menu sm on sm.set_menu_id = pbo.set_menu_id
+                join party_booking_type pbt on pbt.party_booking_type_id = pbo.party_booking_type_id
+                join party_hall_detail phd on phd.party_booking_order_id = pbo.party_booking_order_id
+                join party_hall ph on ph.party_hall_id = phd.party_hall_id
+                join party_hall_time pht on pht.party_hall_time_id = phd.party_hall_time_id
+                join floor f on f.floor_id = ph.floor_id
+                left join ward w on w.ward_id = pbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where date(pbo.party_booking_order_finish_date) = ?
+                and c.customer_id = ?
+                and pbo.party_booking_order_state = 2
+                `,
+                [date, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt tiệc - Thống kê theo Khách hàng và Ngày: Lấy danh sách đặt tiệc để làm biểu đồ
+    getPartyBookingTotalOfCustomerByDateByListDate: (listDate, customerId, sort) => {
+        var query = "";
+        query += "select cu.customer_first_name, cu.customer_last_name, cu.customer_email, cu.customer_phone_number, "
+        for (var i = 0; i < listDate.length; i++) {
+            const date = listDate[i].finishDate;
+            query += `sum(
+                case DATE(pbo.party_booking_order_finish_date) when '` + date + `' 
+                then pbo.party_booking_order_total 
+                else 0 END
+            ) as date` + (i + 1) + `,`;
+        }
+        query += `sum(party_booking_order_total) as canam
+                from party_booking_order pbo 
+                join customer cu on cu.customer_id = pbo.customer_id
+                join ward w on pbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where pbo.party_booking_order_state = 2
+                and cu.customer_id = ` + customerId + `
+                order by canam ` + sort + `;`;
+        return new Promise((resolve, reject) => {
+            con.query(query,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
                 }
             );
         });

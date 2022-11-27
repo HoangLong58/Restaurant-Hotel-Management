@@ -2181,4 +2181,706 @@ module.exports = {
             );
         });
     },
+
+
+    // -------------------------------------------- THỐNG KÊ LOẠI BÀN --------------------------------------------
+    // ADMIN: Quản lý đặt bàn - Thống kê theo loại bàn: Quarter 1
+    getTableBookingTotalOfTypeByQuarterOneOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tt.table_type_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 1
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 2
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 3 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and tt.table_type_name = ?
+                group by tt.table_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo loại bàn: Quarter 2
+    getTableBookingTotalOfTypeByQuarterTwoOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tt.table_type_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 4
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 5
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 6 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and tt.table_type_name = ?
+                group by tt.table_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo loại bàn: Quarter 3
+    getTableBookingTotalOfTypeByQuarterThreeOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tt.table_type_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 7
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 8
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 9
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and tt.table_type_name = ?
+                group by tt.table_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo loại bàn: Quarter 4
+    getTableBookingTotalOfTypeByQuarterFourOrderByCaNam: (type) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tt.table_type_name,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 10
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 11
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 12 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and tt.table_type_name = ?
+                group by tt.table_type_id
+                `,
+                [type],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    // ADMIN: Quản lý đặt bàn - Thống kê theo loại bàn và Quý: Lấy danh sách đặt bàn chi tiết
+    getTableBookingOrderByQuarterAndTableTypeName: (quarter, tableTypeName) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where quarter(tbo.table_booking_order_finish_date) = ?
+                and tt.table_type_name = ?
+                and tbo.table_booking_order_state = 2
+                `,
+                [quarter, tableTypeName],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo loại bàn và Ngày 
+    getTableBookingTotalOfTypeByDate: (date, tableTypeName) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tt.table_type_name,
+                sum(
+                    case DATE(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and tt.table_type_name = ?
+                `,
+                [date, tableTypeName],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo loại bàn và Ngày: Lấy danh sách đặt bàn chi tiết
+    getTableBookingOrderByDateAndTableTypeName: (date, tableTypeName) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where date(tbo.table_booking_order_finish_date) = ?
+                and tt.table_type_name = ?
+                and tbo.table_booking_order_state = 2
+                    `,
+                [date, tableTypeName],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo loại bàn và Ngày: Lấy danh sách đặt bàn để làm biểu đồ
+    getTableBookingTotalOfTypeByDateByListDate: (listDate, tableTypeName, sort) => {
+        var query = "";
+        query += "select tt.table_type_name, "
+        for (var i = 0; i < listDate.length; i++) {
+            const date = listDate[i].finishDate;
+            query += `sum(
+                case DATE(tbo.table_booking_order_finish_date) when '` + date + `' 
+                then tbo.table_booking_order_total 
+                else 0 END
+            ) as date` + (i + 1) + `,`;
+        }
+        query += `sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and tt.table_type_name = "` + tableTypeName + `"
+                order by canam ` + sort + `;`;
+        return new Promise((resolve, reject) => {
+            con.query(query,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+
+    // -------------------------------------------- THỐNG KÊ KHÁCH HÀNG --------------------------------------------
+    // ADMIN: Quản lý đặt bàn - Thống kê theo Khách hàng: Quarter 1
+    getTableBookingTotalOfCustomerByQuarterOneOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 1
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 2
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 3 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join customer cu on cu.customer_id = tbo.customer_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo Khách hàng: Quarter 2
+    getTableBookingTotalOfCustomerByQuarterTwoOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 4
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 5
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 6 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join customer cu on cu.customer_id = tbo.customer_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo Khách hàng: Quarter 3
+    getTableBookingTotalOfCustomerByQuarterThreeOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 7
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 8
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 9 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join customer cu on cu.customer_id = tbo.customer_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo Khách hàng: Quarter 4
+    getTableBookingTotalOfCustomerByQuarterFourOrderByCaNam: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 10
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthFirst,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 11
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthSecond,
+                sum(
+                    case MONTH(tbo.table_booking_order_finish_date) when 12 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as monthThird,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join customer cu on cu.customer_id = tbo.customer_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and cu.customer_id = ?
+                group by cu.customer_id
+                `,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+
+    // ADMIN: Quản lý đặt bàn - Thống kê theo Khách hàng và Quý: Lấy danh sách đặt bàn chi tiết
+    getTableBookingOrderByQuarterAndCustomerId: (quarter, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where quarter(tbo.table_booking_order_finish_date) = ?
+                and c.customer_id = ?
+                and tbo.table_booking_order_state = 2
+                `,
+                [quarter, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo Khách hàng và Ngày 
+    getTableBookingTotalOfCustomerByDate: (date, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                cu.customer_first_name,
+                cu.customer_last_name,
+                cu.customer_email,
+                cu.customer_phone_number,
+                sum(
+                    case DATE(tbo.table_booking_order_finish_date) when ? 
+                    then tbo.table_booking_order_total 
+                    else 0 END
+                ) as total,
+                sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join customer cu on cu.customer_id = tbo.customer_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and cu.customer_id = ?
+                `,
+                [date, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo Khách hàng và Ngày: Lấy danh sách đặt bàn chi tiết
+    getTableBookingOrderByDateAndCustomerId: (date, customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                tbo.table_booking_order_id,
+                tbo.table_booking_order_book_date,
+                tbo.table_booking_order_start_date,
+                tbo.table_booking_order_finish_date,
+                tbo.table_booking_order_quantity,
+                tbo.table_booking_order_total,
+                tbo.table_booking_order_state,
+                tbo.table_booking_order_note,
+                tbo.table_booking_order_checkin_date,
+                tbo.table_booking_order_identity_card,
+                tbo.table_booking_order_nation,
+                tbo.table_booking_order_address,
+                tbo.customer_id,
+                tbo.table_booking_id,
+                tbo.ward_id,
+                c.customer_first_name,
+                c.customer_last_name,
+                c.customer_phone_number,
+                c.customer_email,
+                w.ward_name,
+                di.district_name,
+                ci.city_name,
+                tb.table_booking_name,
+                tb.table_booking_state,
+                tb.table_type_id,
+                tb.floor_id,
+                tt.table_type_name,
+                f.floor_name
+                from table_booking_order tbo
+                join customer c on c.customer_id = tbo.customer_id
+                join table_booking tb on tb.table_booking_id = tbo.table_booking_id
+                join table_type tt on tt.table_type_id = tb.table_type_id
+                join floor f on f.floor_id = tb.floor_id
+                left join ward w on w.ward_id = tbo.ward_id
+                left join district di on w.district_id = di.district_id
+                left join city ci on di.city_id = ci.city_id
+                where date(tbo.table_booking_order_finish_date) = ?
+                and c.customer_id = ?
+                and tbo.table_booking_order_state = 2
+                `,
+                [date, customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // ADMIN: Quản lý đặt bàn - Thống kê theo Khách hàng và Ngày: Lấy danh sách đặt bàn để làm biểu đồ
+    getTableBookingTotalOfCustomerByDateByListDate: (listDate, customerId, sort) => {
+        var query = "";
+        query += "select cu.customer_first_name, cu.customer_last_name, cu.customer_email, cu.customer_phone_number, "
+        for (var i = 0; i < listDate.length; i++) {
+            const date = listDate[i].finishDate;
+            query += `sum(
+                case DATE(tbo.table_booking_order_finish_date) when '` + date + `' 
+                then tbo.table_booking_order_total 
+                else 0 END
+            ) as date` + (i + 1) + `,`;
+        }
+        query += `sum(table_booking_order_total) as canam
+                from table_booking_order tbo 
+                join customer cu on cu.customer_id = tbo.customer_id
+                join ward w on tbo.ward_id = w.ward_id 
+                join district d on w.district_id = d.district_id 
+                join city c on d.city_id = c.city_id
+                where tbo.table_booking_order_state = 2
+                and cu.customer_id = ` + customerId + `
+                order by canam ` + sort + `;`;
+        return new Promise((resolve, reject) => {
+            con.query(query,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
 };

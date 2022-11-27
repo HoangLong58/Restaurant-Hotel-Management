@@ -59,3 +59,9 @@ export const deleteTableType = async (tableTypeId) => {
     const res = await axios.delete(`${url_TableType}/${tableTypeId}`);
     return res;
 };
+// Quản lý Đặt bàn - Nhà hàng: Thống kê theo loại
+export const findAllTableTypeInTableBookingOrder = async () => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.get(`${url_TableType}/get-table-type-in-table-booking-order`);
+    return res;
+};

@@ -400,5 +400,69 @@ module.exports = {
                 }
             );
         });
-    }
+    },
+
+    // ADMIN: QUẢN LÝ ĐẶT PHÒNG - THỐNG KÊ THEO KHÁCH HÀNG  
+    findCustomerInRoomBookingOrder: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                * 
+                from customer c 
+                join room_booking_order rbo on rbo.customer_id = c.customer_id
+                where c.customer_id = ?
+                and rbo.room_booking_order_state = 2
+                group by c.customer_id`,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: QUẢN LÝ ĐẶT TIỆC - THỐNG KÊ THEO KHÁCH HÀNG  
+    findCustomerInPartyBookingOrder: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                * 
+                from customer c 
+                join party_booking_order pbo on pbo.customer_id = c.customer_id
+                where c.customer_id = ?
+                and pbo.party_booking_order_state = 2
+                group by c.customer_id`,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
+    // ADMIN: QUẢN LÝ ĐẶT BÀN - THỐNG KÊ THEO KHÁCH HÀNG  
+    findCustomerInTableBookingOrder: (customerId) => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select 
+                * 
+                from customer c 
+                join table_booking_order tbo on tbo.customer_id = c.customer_id
+                where c.customer_id = ?
+                and tbo.table_booking_order_state = 2
+                group by c.customer_id`,
+                [customerId],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0]);
+                }
+            );
+        });
+    },
 };

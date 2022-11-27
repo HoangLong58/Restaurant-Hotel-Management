@@ -1,9 +1,10 @@
 
-const { getTableTypes, getQuantityTableType, getAllTableTypes, findTableTypeByIdOrName, findTableTypeById, createTableType, updateTableTypeStateTo1, updateTableTypeStateTo0, updateTableType, deleteTableType } = require("../controller/TableTypeController");
+const { getTableTypes, getQuantityTableType, getAllTableTypes, findTableTypeByIdOrName, findTableTypeById, createTableType, updateTableTypeStateTo1, updateTableTypeStateTo0, updateTableType, deleteTableType, findAllTableTypeInTableBookingOrder } = require("../controller/TableTypeController");
 const router = require("express").Router();
 
 const { checkToken } = require("../auth/TokenValidation");
 
+router.get("/get-table-type-in-table-booking-order", checkToken, findAllTableTypeInTableBookingOrder);
 router.get("/quantity", checkToken, getQuantityTableType); //
 router.get("/get-all-table-types", checkToken, getAllTableTypes);    //
 router.get("/:search", checkToken, findTableTypeByIdOrName);   //

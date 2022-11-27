@@ -73,3 +73,29 @@ export const getStatisticRoomBookingTotalOfCityByQuarter = async (data) => {
     const res = await axios.post(`${url_RoomBookingOrder}/get-statistic-room-booking-order-total-of-city-by-quarter`, data);
     return res;
 };
+
+// Quản lý Đặt phòng - Thống kê doanh thu Từng Loại phòng theo Tháng trong Quý
+export const getStatisticRoomBookingTotalOfTypeByQuarter = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_RoomBookingOrder}/get-statistic-room-booking-order-total-by-quarter-and-type`, data);
+    return res;
+};
+// Quản lý Đặt phòng - Thống kê doanh thu Từng Loại phòng theo Ngày trong Quý
+export const getStatisticRoomBookingTotalOfTypeByDate = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_RoomBookingOrder}/get-statistic-room-booking-order-total-by-date-and-type`, data);
+    return res;
+};
+
+// Quản lý Đặt phòng - Thống kê doanh thu của Khách hàng cụ thể theo Tháng trong Quý
+export const getStatisticRoomBookingTotalOfCustomerByQuarter = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_RoomBookingOrder}/get-statistic-room-booking-order-total-by-quarter-and-customer`, data);
+    return res;
+};
+// Quản lý Đặt phòng - Thống kê doanh thu của Khách hàng cụ thể theo Ngày trong Quý
+export const getStatisticRoomBookingTotalOfCustomerByDate = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_RoomBookingOrder}/get-statistic-room-booking-order-total-by-date-and-customer`, data);
+    return res;
+};

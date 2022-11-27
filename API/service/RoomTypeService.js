@@ -139,4 +139,28 @@ module.exports = {
             );
         });
     },
+    // ADMIN: THỐNG KÊ ĐẶT PHÒNG - THEO LOẠI
+    findRoomTypeInRoomBookingOrder: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                rt.room_type_id,
+                rt.room_type_name,
+                rt.room_type_vote_total
+                from room_type rt
+                join room r on r.room_type_id = rt.room_type_id
+                join room_booking_detail rbd on rbd.room_id = r.room_id
+                join room_booking_order rbo on rbo.room_booking_order_id = rbd.room_booking_order_id
+                where rbo.room_booking_order_state = 2
+                group by rt.room_type_id`,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
 };

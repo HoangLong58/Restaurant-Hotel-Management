@@ -1,4 +1,4 @@
-const { createPartyBookingOrder, findPartyBookingOrder, getPartyBookingsAndDetail, getQuantityPartyBookings, findPartyBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findPartyBookingById, findPartyBookingOrderByIdCheckIn, updatePartyBookingOrderInfoWhenCheckInSuccess, updatePartyBookingOrderState, updatePartyBookingOrderFinishDateWhenCheckOutSuccess, getDistinctDateInPartyBookingOrderFromDateToDate, getPartyBookingTotalByDate, getPartyBookingTotalByMonth, getLimitPartyBookingTotalOfCityForEachQuarter, getPartyBookingOrderByCityId, getPartyBookingTotalOfCityByDateAndLimitAsc, getPartyBookingTotalOfCityByDateAndAsc, getPartyBookingTotalOfCityByDateAndLimitDesc, getPartyBookingTotalOfCityByDateAndDesc, getPartyBookingTotalOfCityByDateByListDate, getPartyBookingTotalOfCityByDateByListDateNoLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getPartyBookingOrderFromDateToDate, getPartyBookingOrderOfQuarter, getPartyBookingOrderByDate, getPartyBookingOrderByQuarterAndCityId } = require("../service/PartyBookingOrderService");
+const { createPartyBookingOrder, findPartyBookingOrder, getPartyBookingsAndDetail, getQuantityPartyBookings, findPartyBookingByIdOrCustomerEmailOrCustomerPhoneOrCustomerName, findPartyBookingById, findPartyBookingOrderByIdCheckIn, updatePartyBookingOrderInfoWhenCheckInSuccess, updatePartyBookingOrderState, updatePartyBookingOrderFinishDateWhenCheckOutSuccess, getDistinctDateInPartyBookingOrderFromDateToDate, getPartyBookingTotalByDate, getPartyBookingTotalByMonth, getLimitPartyBookingTotalOfCityForEachQuarter, getPartyBookingOrderByCityId, getPartyBookingTotalOfCityByDateAndLimitAsc, getPartyBookingTotalOfCityByDateAndAsc, getPartyBookingTotalOfCityByDateAndLimitDesc, getPartyBookingTotalOfCityByDateAndDesc, getPartyBookingTotalOfCityByDateByListDate, getPartyBookingTotalOfCityByDateByListDateNoLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterOneOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterTwoOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterThreeOrderByCaNamAsc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDescAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamDesc, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAscAndLimit, getPartyBookingTotalOfCityByQuarterFourOrderByCaNamAsc, getPartyBookingOrderFromDateToDate, getPartyBookingOrderOfQuarter, getPartyBookingOrderByDate, getPartyBookingOrderByQuarterAndCityId, getPartyBookingTotalOfTypeByQuarterOneOrderByCaNam, getPartyBookingOrderByQuarterAndPartyBookingTypeName, getPartyBookingTotalOfTypeByQuarterTwoOrderByCaNam, getPartyBookingTotalOfTypeByQuarterThreeOrderByCaNam, getPartyBookingTotalOfTypeByQuarterFourOrderByCaNam, getPartyBookingTotalOfTypeByDate, getPartyBookingOrderByDateAndPartyBookingTypeName, getPartyBookingTotalOfTypeByDateByListDate, getPartyBookingTotalOfCustomerByQuarterOneOrderByCaNam, getPartyBookingOrderByQuarterAndCustomerId, getPartyBookingTotalOfCustomerByQuarterTwoOrderByCaNam, getPartyBookingTotalOfCustomerByQuarterThreeOrderByCaNam, getPartyBookingTotalOfCustomerByQuarterFourOrderByCaNam, getPartyBookingTotalOfCustomerByDate, getPartyBookingOrderByDateAndCustomerId, getPartyBookingTotalOfCustomerByDateByListDate } = require("../service/PartyBookingOrderService");
 const { createPartyHallDetail, getPartyHallDetailByPartyBookingOrderId } = require("../service/PartyHallDetailService");
 const { getPartyHallWithTypeFloorByPartyHallId } = require("../service/PartyHallService");
 const { getSetMenuBySetMenuId } = require("../service/SetMenuService");
@@ -7,7 +7,7 @@ const { format_money, createLogAdmin } = require("../utils/utils");
 const { getPartyBookingTypeByPartyBookingTypeId } = require("../service/PartyBookingTypeService");
 const { getPartyHallTimeByPartyHallTimeId } = require("../service/PartyHallTimeService");
 const { updateDiscountState } = require("../service/DiscountService");
-const { getCustomerByCustomerId, findCustomerByEmailOrPhoneNumber } = require("../service/CustomerService");
+const { getCustomerByCustomerId, findCustomerByEmailOrPhoneNumber, findCustomerInPartyBookingOrder } = require("../service/CustomerService");
 const { createPartyBookingOrderDetailFood } = require("../service/PartyBookingOrderDetailFoodService");
 const { createPartyServiceDetail } = require("../service/PartyServiceDetailService");
 // NODE Mailer
@@ -2545,5 +2545,903 @@ module.exports = {
                 partyBookingOrderDetailList: partyBookingOrderDetailList
             }
         });
+    },
+
+
+    // -------------------------------------------- THỐNG KÊ LOẠI TIỆC --------------------------------------------
+    // Admin: Quản lý đặt tiệc - Thống kê doanh thu Theo Loại
+    getStatisticPartyBookingTotalOfTypeByQuarter: async (req, res) => {
+        const quarter = req.body.quarter;
+        const sortWay = req.body.sortWay;
+        const partyTypeList = req.body.partyTypeList;
+        if (!quarter || !Number.isInteger(quarter) || quarter >= 5 || quarter < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Quý thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!partyTypeList) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Loại tiệc không hợp lệ!"
+            });
+        }
+        let finalDataArray = [];
+        // Nếu là quý 1
+        if (quarter === 1) {
+            // Quarter 1:
+            for (var k = 0; k < partyTypeList.length; k++) {
+                const partyTypeName = partyTypeList[k];
+                // Lấy thống kê doanh thu của Loại tiệc theo quý
+                try {
+                    const partyBookingTotalQuarterRes = await getPartyBookingTotalOfTypeByQuarterOneOrderByCaNam(partyTypeName);
+                    if (!partyBookingTotalQuarterRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking by Quarter 1"
+                        });
+                    }
+                    // Lấy danh sách đơn đặt tiệc chi tiết cho từng Loại tiệc thuộc quý đó 
+                    try {
+                        const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndPartyBookingTypeName(quarter, partyTypeName);
+                        if (!partyBookingOrderListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking order list by quarter and party type name"
+                            });
+                        }
+                        finalDataArray.push({
+                            partyTypeName: partyTypeName,
+                            totalData: partyBookingTotalQuarterRes,
+                            partyBookingOrderList: partyBookingOrderListRes
+                        });
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingOrderByQuarterAndPartyBookingTypeName!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingTotalOfTypeByQuarterOneOrderByCaNam!",
+                        error: err
+                    });
+                }
+            }
+        }
+        // Nếu là quý 2
+        if (quarter === 2) {
+            // Quarter 2:
+            for (var k = 0; k < partyTypeList.length; k++) {
+                const partyTypeName = partyTypeList[k];
+                // Lấy thống kê doanh thu của Loại tiệc theo quý
+                try {
+                    const partyBookingTotalQuarterRes = await getPartyBookingTotalOfTypeByQuarterTwoOrderByCaNam(partyTypeName);
+                    if (!partyBookingTotalQuarterRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking by Quarter 2"
+                        });
+                    }
+                    // Lấy danh sách đơn đặt tiệc chi tiết cho từng Loại tiệc thuộc quý đó 
+                    try {
+                        const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndPartyBookingTypeName(quarter, partyTypeName);
+                        if (!partyBookingOrderListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking order list by quarter and party type name"
+                            });
+                        }
+                        finalDataArray.push({
+                            partyTypeName: partyTypeName,
+                            totalData: partyBookingTotalQuarterRes,
+                            partyBookingOrderList: partyBookingOrderListRes
+                        });
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingOrderByQuarterAndPartyBookingTypeName!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingTotalOfTypeByQuarterTwoOrderByCaNam!",
+                        error: err
+                    });
+                }
+            }
+        }
+        // Nếu là quý 3
+        if (quarter === 3) {
+            // Quarter 3:
+            for (var k = 0; k < partyTypeList.length; k++) {
+                const partyTypeName = partyTypeList[k];
+                // Lấy thống kê doanh thu của Loại tiệc theo quý
+                try {
+                    const partyBookingTotalQuarterRes = await getPartyBookingTotalOfTypeByQuarterThreeOrderByCaNam(partyTypeName);
+                    if (!partyBookingTotalQuarterRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking by Quarter 3"
+                        });
+                    }
+                    // Lấy danh sách đơn đặt tiệc chi tiết cho từng Loại tiệc thuộc quý đó 
+                    try {
+                        const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndPartyBookingTypeName(quarter, partyTypeName);
+                        if (!partyBookingOrderListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking order list by quarter and party type name"
+                            });
+                        }
+                        finalDataArray.push({
+                            partyTypeName: partyTypeName,
+                            totalData: partyBookingTotalQuarterRes,
+                            partyBookingOrderList: partyBookingOrderListRes
+                        });
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingOrderByQuarterAndPartyBookingTypeName!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingTotalOfTypeByQuarterThreeOrderByCaNam!",
+                        error: err
+                    });
+                }
+            }
+        }
+        // Nếu là quý 4
+        if (quarter === 4) {
+            // Quarter 4:
+            for (var k = 0; k < partyTypeList.length; k++) {
+                const partyTypeName = partyTypeList[k];
+                // Lấy thống kê doanh thu của Loại tiệc theo quý
+                try {
+                    const partyBookingTotalQuarterRes = await getPartyBookingTotalOfTypeByQuarterFourOrderByCaNam(partyTypeName);
+                    if (!partyBookingTotalQuarterRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking by Quarter 1"
+                        });
+                    }
+                    // Lấy danh sách đơn đặt tiệc chi tiết cho từng Loại tiệc thuộc quý đó 
+                    try {
+                        const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndPartyBookingTypeName(quarter, partyTypeName);
+                        if (!partyBookingOrderListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking order list by quarter and party type name"
+                            });
+                        }
+                        finalDataArray.push({
+                            partyTypeName: partyTypeName,
+                            totalData: partyBookingTotalQuarterRes,
+                            partyBookingOrderList: partyBookingOrderListRes
+                        });
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingOrderByQuarterAndPartyBookingTypeName!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingTotalOfTypeByQuarterFourOrderByCaNam!",
+                        error: err
+                    });
+                }
+            }
+        }
+
+        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+        var todayCheckIn = new Date();
+        var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+        var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+        var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+        var monthInQuarterArray = [];
+        if (quarter === 1) {
+            monthInQuarterArray = [1, 2, 3];
+        } else if (quarter === 2) {
+            monthInQuarterArray = [4, 5, 6];
+        } else if (quarter === 3) {
+            monthInQuarterArray = [7, 8, 9];
+        } else {
+            monthInQuarterArray = [10, 11, 12];
+        }
+
+        // Sort
+        if (sortWay === "asc") {
+            finalDataArray = finalDataArray.sort((a, b) => a.totalData.canam - b.totalData.canam);
+        } else {
+            finalDataArray = finalDataArray.sort((a, b) => b.totalData.canam - a.totalData.canam);
+        }
+
+        // Success
+        return res.status(200).json({
+            status: "success",
+            message: "Thống kê doanh thu theo tháng của Loại tiệc thành công!",
+            data: {
+                statisticDate: statisticDate,
+                quarter: quarter,
+                sortWay: sortWay,
+                data: finalDataArray,
+                monthArray: monthInQuarterArray
+            }
+        });
+    },
+    // Admin: Quản lý đặt tiệc - Thống kê doanh thu Theo Loại và Ngày thống kê
+    getStatisticPartyBookingTotalOfTypeByDate: async (req, res) => {
+        const dateFrom = req.body.dateFrom;
+        const dateTo = req.body.dateTo;
+        const sortWay = req.body.sortWay;
+        const partyTypeList = req.body.partyTypeList;
+        if (!dateFrom) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày bắt đầu thống kê không hợp lệ!"
+            });
+        }
+        if (!dateTo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày kết thúc thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!partyTypeList) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Loại tiệc không hợp lệ!"
+            });
+        }
+
+        // Lấy ngày trong party booking từ dateFrom đến dateTo
+        try {
+            const fromDateToDateListRes = await getDistinctDateInPartyBookingOrderFromDateToDate(dateFrom, dateTo);
+            if (!fromDateToDateListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get date list"
+                });
+            }
+
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            let finalArray = [];
+            let finalPartyBookingOrderList = [];
+            for (var i = 0; i < fromDateToDateListRes.length; i++) {
+                const date = fromDateToDateListRes[i].finishDate;
+                var dataArray = [];
+                for (var j = 0; j < partyTypeList.length; j++) {
+                    const partyTypeName = partyTypeList[j];
+                    try {
+                        const totalRes = await getPartyBookingTotalOfTypeByDate(date, partyTypeName);
+                        const totalCaNamRes = totalRes.canam;
+                        if (!totalRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking total type by date"
+                            });
+                        }
+                        // Lấy đơn đặt tiệc cho từng Ngày
+                        try {
+                            const partyBookingByDateRes = await getPartyBookingOrderByDateAndPartyBookingTypeName(date, partyTypeName);
+                            if (!partyBookingByDateRes) {
+                                return res.status(400).json({
+                                    status: "fail",
+                                    message: "Cann't find party booking by date"
+                                });
+                            }
+                            dataArray.push({
+                                totalCaNam: totalCaNamRes,
+                                totalData: totalRes,
+                                partyBookingOrderDetailList: partyBookingByDateRes
+                            });
+                        } catch (err) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Error when getPartyBookingOrderByDate!",
+                                error: err
+                            });
+                        }
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when statist by date!",
+                            error: err
+                        });
+                    }
+                }
+                // Sort
+                if (sortWay === "asc") {
+                    dataArray = dataArray.sort((a, b) => a.totalCaNam - b.totalCaNam);
+                } else {
+                    dataArray = dataArray.sort((a, b) => b.totalCaNam - a.totalCaNam);
+                }
+                dataArray.map((data, key) => {
+                    const partyBookingListRes = data.partyBookingOrderDetailList;
+                    partyBookingListRes.map((partyBookingOrder) => {
+                        finalPartyBookingOrderList.push(partyBookingOrder);
+                    })
+                })
+                // Sau khi lặp xong các room type trong 1 ngày thì cho vào mảng kết quả
+                finalArray.push({
+                    date: date,
+                    dataArray: dataArray
+                })
+            }
+
+            // Sort xong tách mảng ngày mới và mảng data sau sort
+            let dateArray = []; //Lưu Mảng ngày sau khi đã sort theo doanh thu cả năm
+            let dataTableArray = [];
+            for (var i = 0; i < finalArray.length; i++) {
+                dateArray.push(finalArray[i].date);
+                dataTableArray.push(finalArray[i].dataArray);
+            }
+            // Mảng ngày mới thì lấy để đem truy vấn lấy từng cột dữ liệu làm biểu đồ
+            let statisticArray = [];
+            for (var i = 0; i < partyTypeList.length; i++) {
+                const partyTypeName = partyTypeList[i];
+                try {
+                    const partyBookingTotalOfCityByDateRes = await getPartyBookingTotalOfTypeByDateByListDate(fromDateToDateListRes, partyTypeName, sortWay);
+                    if (!partyBookingTotalOfCityByDateRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't get test"
+                        });
+                    }
+                    statisticArray.push(partyBookingTotalOfCityByDateRes);
+                } catch (err) {
+                    console.log("ERR: ", err);
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingTotalOfTypeByDateByListDate!",
+                        error: err
+                    });
+                }
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo ngày của Thành phố theo Loại thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    dateArray: dateArray,
+                    dataArray: finalArray,
+                    dateFrom: dateFrom,
+                    dateTo: dateTo,
+                    sortWay: sortWay,
+                    statisticArray: statisticArray,
+                    finalPartyBookingOrderList: finalPartyBookingOrderList
+                }
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find date!",
+                error: err
+            });
+        }
+    },
+
+    // -------------------------------------------- THỐNG KÊ KHÁCH HÀNG --------------------------------------------
+    // Admin: Quản lý đặt tiệc - Thống kê doanh thu Theo Khách hàng
+    getStatisticPartyBookingTotalOfCustomerByQuarter: async (req, res) => {
+        const quarter = req.body.quarter;
+        const sortWay = req.body.sortWay;
+        const customerInfo = req.body.customerInfo;
+        if (!quarter || !Number.isInteger(quarter) || quarter >= 5 || quarter < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Quý thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!customerInfo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Email/ Số điện thoại của Khách hàng không hợp lệ!"
+            });
+        }
+
+        // Kiểm tra Khách hàng nào cần thống kê? Khách hàng có tồn tại hay không?
+        var customerId;
+        var customerName;
+        try {
+            const customerRes = await findCustomerByEmailOrPhoneNumber(customerInfo);
+            if (!customerRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Khách hàng không tồn tại!"
+                });
+            }
+            // Tìm được customer
+            customerId = customerRes.customer_id;
+            customerName = customerRes.customer_first_name + " " + customerRes.customer_last_name;
+
+            // Kiểm tra Khách hàng này có đặt tiệc không
+            try {
+                const isCustomerBooking = await findCustomerInPartyBookingOrder(customerId);
+                if (!isCustomerBooking) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Khách hàng chưa có thông tin Đặt tiệc nào!"
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when findCustomerInPartyBookingOrder!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when findCustomerByEmailOrPhoneNumber!",
+                error: err
+            });
+        }
+
+        let finalDataArray = [];
+        // Nếu là quý 1
+        if (quarter === 1) {
+            // Lấy thống kê doanh thu của Khách hàng theo quý
+            try {
+                const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCustomerByQuarterOneOrderByCaNam(customerId);
+                if (!partyBookingTotalQuarterRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find party booking by Quarter 1"
+                    });
+                }
+                // Lấy danh sách đơn đặt tiệc chi tiết cho từng Khách hàng thuộc quý đó 
+                try {
+                    const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCustomerId(quarter, customerId);
+                    if (!partyBookingOrderListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking order list by quarter and customer id"
+                        });
+                    }
+                    var sortedListRes = partyBookingOrderListRes;
+                    // Sort
+                    if (sortWay === "asc") {
+                        sortedListRes = sortedListRes.sort((a, b) => a.party_booking_order_total - b.party_booking_order_total);
+                    } else {
+                        sortedListRes = sortedListRes.sort((a, b) => b.party_booking_order_total - a.party_booking_order_total);
+                    }
+
+                    finalDataArray.push({
+                        customerName: customerName,
+                        totalData: partyBookingTotalQuarterRes,
+                        partyBookingOrderList: sortedListRes
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingOrderByQuarterAndCustomerId!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getPartyBookingTotalOfCustomerByQuarterOneOrderByCaNam!",
+                    error: err
+                });
+            }
+        }
+        // Nếu là quý 2
+        if (quarter === 2) {
+            // Lấy thống kê doanh thu của Khách hàng theo quý
+            try {
+                const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCustomerByQuarterTwoOrderByCaNam(customerId);
+                if (!partyBookingTotalQuarterRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find party booking by Quarter 2"
+                    });
+                }
+                // Lấy danh sách đơn đặt tiệc chi tiết cho từng Khách hàng thuộc quý đó 
+                try {
+                    const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCustomerId(quarter, customerId);
+                    if (!partyBookingOrderListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking order list by quarter and customer id"
+                        });
+                    }
+                    var sortedListRes = partyBookingOrderListRes;
+                    // Sort
+                    if (sortWay === "asc") {
+                        sortedListRes = sortedListRes.sort((a, b) => a.party_booking_order_total - b.party_booking_order_total);
+                    } else {
+                        sortedListRes = sortedListRes.sort((a, b) => b.party_booking_order_total - a.party_booking_order_total);
+                    }
+
+                    finalDataArray.push({
+                        customerName: customerName,
+                        totalData: partyBookingTotalQuarterRes,
+                        partyBookingOrderList: sortedListRes
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingOrderByQuarterAndCustomerId!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getPartyBookingTotalOfCustomerByQuarterTwoOrderByCaNam!",
+                    error: err
+                });
+            }
+        }
+        // Nếu là quý 3
+        if (quarter === 3) {
+            // Lấy thống kê doanh thu của Khách hàng theo quý
+            try {
+                const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCustomerByQuarterThreeOrderByCaNam(customerId);
+                if (!partyBookingTotalQuarterRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find party booking by Quarter 3"
+                    });
+                }
+                // Lấy danh sách đơn đặt tiệc chi tiết cho từng Khách hàng thuộc quý đó 
+                try {
+                    const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCustomerId(quarter, customerId);
+                    if (!partyBookingOrderListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking order list by quarter and customer id"
+                        });
+                    }
+                    var sortedListRes = partyBookingOrderListRes;
+                    // Sort
+                    if (sortWay === "asc") {
+                        sortedListRes = sortedListRes.sort((a, b) => a.party_booking_order_total - b.party_booking_order_total);
+                    } else {
+                        sortedListRes = sortedListRes.sort((a, b) => b.party_booking_order_total - a.party_booking_order_total);
+                    }
+
+                    finalDataArray.push({
+                        customerName: customerName,
+                        totalData: partyBookingTotalQuarterRes,
+                        partyBookingOrderList: sortedListRes
+                    });
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingOrderByQuarterAndCustomerId!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getPartyBookingTotalOfCustomerByQuarterThreeOrderByCaNam!",
+                    error: err
+                });
+            }
+        }
+        // Nếu là quý 4
+        if (quarter === 4) {
+            // Lấy thống kê doanh thu của Khách hàng theo quý
+            try {
+                const partyBookingTotalQuarterRes = await getPartyBookingTotalOfCustomerByQuarterFourOrderByCaNam(customerId);
+                if (!partyBookingTotalQuarterRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find party booking by Quarter 4"
+                    });
+                }
+                // Lấy danh sách đơn đặt tiệc chi tiết cho từng Khách hàng thuộc quý đó 
+                try {
+                    const partyBookingOrderListRes = await getPartyBookingOrderByQuarterAndCustomerId(quarter, customerId);
+                    if (!partyBookingOrderListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking order list by quarter and customer id"
+                        });
+                    }
+                    var sortedListRes = partyBookingOrderListRes;
+                    // Sort
+                    if (sortWay === "asc") {
+                        sortedListRes = sortedListRes.sort((a, b) => a.party_booking_order_total - b.party_booking_order_total);
+                    } else {
+                        sortedListRes = sortedListRes.sort((a, b) => b.party_booking_order_total - a.party_booking_order_total);
+                    }
+
+                    finalDataArray.push({
+                        customerName: customerName,
+                        totalData: partyBookingTotalQuarterRes,
+                        partyBookingOrderList: sortedListRes
+                    });
+                } catch (err) {
+                    console.log(err);
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when getPartyBookingOrderByQuarterAndCustomerId!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getPartyBookingTotalOfCustomerByQuarterFourOrderByCaNam!",
+                    error: err
+                });
+            }
+        }
+
+        // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+        var todayCheckIn = new Date();
+        var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+        var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+        var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+        var monthInQuarterArray = [];
+        if (quarter === 1) {
+            monthInQuarterArray = [1, 2, 3];
+        } else if (quarter === 2) {
+            monthInQuarterArray = [4, 5, 6];
+        } else if (quarter === 3) {
+            monthInQuarterArray = [7, 8, 9];
+        } else {
+            monthInQuarterArray = [10, 11, 12];
+        }
+
+        // Success
+        return res.status(200).json({
+            status: "success",
+            message: "Thống kê doanh thu theo tháng của Khách hàng thành công!",
+            data: {
+                statisticDate: statisticDate,
+                quarter: quarter,
+                sortWay: sortWay,
+                data: finalDataArray,
+                monthArray: monthInQuarterArray
+            }
+        });
+    },
+    // Admin: Quản lý đặt tiệc - Thống kê doanh thu Theo Khách hàng và Ngày thống kê
+    getStatisticPartyBookingTotalOfCustomerByDate: async (req, res) => {
+        const dateFrom = req.body.dateFrom;
+        const dateTo = req.body.dateTo;
+        const sortWay = req.body.sortWay;
+        const customerInfo = req.body.customerInfo;
+        if (!dateFrom) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày bắt đầu thống kê không hợp lệ!"
+            });
+        }
+        if (!dateTo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày kết thúc thống kê không hợp lệ!"
+            });
+        }
+        if (!sortWay) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Cách sắp xếp không hợp lệ!"
+            });
+        }
+        if (!customerInfo) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Email/ Số điện thoại của Khách hàng không hợp lệ!"
+            });
+        }
+
+        // Kiểm tra Khách hàng nào cần thống kê? Khách hàng có tồn tại hay không?
+        var customerId;
+        var customerName;
+        try {
+            const customerRes = await findCustomerByEmailOrPhoneNumber(customerInfo);
+            if (!customerRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Khách hàng không tồn tại!"
+                });
+            }
+            // Tìm được customer
+            customerId = customerRes.customer_id;
+            customerName = customerRes.customer_first_name + " " + customerRes.customer_last_name;
+
+            // Kiểm tra Khách hàng này có đặt tiệc không
+            try {
+                const isCustomerBooking = await findCustomerInPartyBookingOrder(customerId);
+                if (!isCustomerBooking) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Khách hàng chưa có thông tin Đặt tiệc nào!"
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when findCustomerInPartyBookingOrder!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when findCustomerByEmailOrPhoneNumber!",
+                error: err
+            });
+        }
+
+        // Lấy ngày trong party booking từ dateFrom đến dateTo
+        try {
+            const fromDateToDateListRes = await getDistinctDateInPartyBookingOrderFromDateToDate(dateFrom, dateTo);
+            if (!fromDateToDateListRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't get date list"
+                });
+            }
+
+            // Lấy ngày hiện tại FORMAT: '2022-05-05 13:48:12' giống CSDL
+            var todayCheckIn = new Date();
+            var dateCheckIn = todayCheckIn.getFullYear() + '-' + (todayCheckIn.getMonth() + 1) + '-' + todayCheckIn.getDate();
+            var timeCheckIn = todayCheckIn.getHours() + ":" + todayCheckIn.getMinutes() + ":" + todayCheckIn.getSeconds();
+            var statisticDate = dateCheckIn + ' ' + timeCheckIn;
+
+            let finalArray = [];
+            let finalPartyBookingOrderList = [];
+            for (var i = 0; i < fromDateToDateListRes.length; i++) {
+                const date = fromDateToDateListRes[i].finishDate;
+                try {
+                    const totalRes = await getPartyBookingTotalOfCustomerByDate(date, customerId);
+                    const totalCaNamRes = totalRes.canam;
+                    if (!totalRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party booking total type by date"
+                        });
+                    }
+                    // Lấy đơn đặt tiệc cho từng Ngày
+                    try {
+                        const partyBookingByDateRes = await getPartyBookingOrderByDateAndCustomerId(date, customerId);
+                        if (!partyBookingByDateRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find party booking by date"
+                            });
+                        }
+                        // Sau khi lặp xong các room type trong 1 ngày thì cho vào mảng kết quả
+                        finalArray.push({
+                            date: date,
+                            dataArray: {
+                                totalCaNam: totalCaNamRes,
+                                totalData: totalRes,
+                                partyBookingOrderDetailList: partyBookingByDateRes
+                            }
+                        })
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when getPartyBookingOrderByDateAndCustomerId!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when statist by date!",
+                        error: err
+                    });
+                }
+            }
+
+            // // Sort
+            // if (sortWay === "asc") {
+            //     finalArray = finalArray.sort((a, b) => a.dataArray.totalCaNam - b.dataArray.totalCaNam);
+            // } else {
+            //     finalArray = finalArray.sort((a, b) => b.dataArray.totalCaNam - a.dataArray.totalCaNam);
+            // }
+            finalArray.map((data, key) => {
+                const partyBookingListRes = data.dataArray.partyBookingOrderDetailList;
+                partyBookingListRes.map((partyBookingOrder) => {
+                    finalPartyBookingOrderList.push(partyBookingOrder);
+                })
+            })
+
+            // Sort
+            if (sortWay === "asc") {
+                finalPartyBookingOrderList = finalPartyBookingOrderList.sort((a, b) => a.party_booking_order_total - b.party_booking_order_total);
+            } else {
+                finalPartyBookingOrderList = finalPartyBookingOrderList.sort((a, b) => b.party_booking_order_total - a.party_booking_order_total);
+            }
+
+            // Sort xong tách mảng ngày mới và mảng data sau sort
+            let dateArray = []; //Lưu Mảng ngày sau khi đã sort theo doanh thu cả năm
+            let dataTableArray = [];
+            for (var i = 0; i < finalArray.length; i++) {
+                dateArray.push(finalArray[i].date);
+                dataTableArray.push(finalArray[i].dataArray);
+            }
+            // Mảng ngày mới thì lấy để đem truy vấn lấy từng cột dữ liệu làm biểu đồ
+            let statisticArray;
+            try {
+                const partyBookingTotalOfCityByDateRes = await getPartyBookingTotalOfCustomerByDateByListDate(fromDateToDateListRes, customerId, sortWay);
+                if (!partyBookingTotalOfCityByDateRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't get test"
+                    });
+                }
+                statisticArray = partyBookingTotalOfCityByDateRes;
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when getPartyBookingTotalOfCustomerByDateByListDate!",
+                    error: err
+                });
+            }
+
+            // Success
+            return res.status(200).json({
+                status: "success",
+                message: "Thống kê doanh thu theo ngày của Thành phố theo Khách hàng thành công!",
+                data: {
+                    statisticDate: statisticDate,
+                    dateArray: dateArray,
+                    dataArray: finalArray,
+                    dateFrom: dateFrom,
+                    dateTo: dateTo,
+                    sortWay: sortWay,
+                    statisticArray: statisticArray,
+                    finalPartyBookingOrderList: finalPartyBookingOrderList
+                }
+            });
+        } catch (err) {
+            console.log(err)
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find date!",
+                error: err
+            });
+        }
     },
 };

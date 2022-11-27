@@ -197,4 +197,28 @@ module.exports = {
             );
         });
     },
+
+    // ADMIN: THỐNG KÊ ĐẶT BÀN - THEO LOẠI
+    findTableTypeInTableBookingOrder: () => {
+        return new Promise((resolve, reject) => {
+            con.query(
+                `select
+                tt.table_type_id,
+                tt.table_type_name,
+                tt.table_type_state
+                from table_type tt
+                join table_booking tb on tb.table_type_id = tt.table_type_id
+                join table_booking_order tbo on tbo.table_booking_id = tb.table_booking_id
+                where tbo.table_booking_order_state = 2
+                group by tt.table_type_id`,
+                [],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
 };

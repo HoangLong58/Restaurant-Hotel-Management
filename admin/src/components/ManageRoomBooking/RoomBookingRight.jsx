@@ -164,6 +164,18 @@ const RoomBookingRight = ({ reRenderData, setReRenderData }) => {
                     <Add />
                     <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn</h3>
                 </Item>
+                <Item className="add-product"
+                    onClick={() => openModal({ type: "statisticRoomBookingByType" })}
+                >
+                    <Add />
+                    <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn của Loại phòng</h3>
+                </Item>
+                <Item className="add-product"
+                    onClick={() => openModal({ type: "statisticRoomBookingByCustomer" })}
+                >
+                    <Add />
+                    <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn của Khách hàng</h3>
+                </Item>
             </SalesAnalytics>
 
             {/* ==== MODAL ==== */}

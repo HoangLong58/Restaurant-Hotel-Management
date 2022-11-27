@@ -1,9 +1,10 @@
 
-const { getPartyBookingTypes, getAllPartyBookingTypes, getQuantityPartyBookingType, findPartyBookingTypeByIdOrName, findPartyBookingTypeById, createPartyBookingType, updatePartyBookingType, deletePartyBookingType, updatePartyBookingTypeState, updatePartyBookingTypeStateTo1, updatePartyBookingTypeStateTo0 } = require("../controller/PartyBookingTypeController");
+const { getPartyBookingTypes, getAllPartyBookingTypes, getQuantityPartyBookingType, findPartyBookingTypeByIdOrName, findPartyBookingTypeById, createPartyBookingType, updatePartyBookingType, deletePartyBookingType, updatePartyBookingTypeState, updatePartyBookingTypeStateTo1, updatePartyBookingTypeStateTo0, findAllPartyBookingTypeInPartyBookingOrder } = require("../controller/PartyBookingTypeController");
 const router = require("express").Router();
 
 const { checkToken } = require("../auth/TokenValidation");
 
+router.get("/get-party-booking-type-in-party-booking-order", checkToken, findAllPartyBookingTypeInPartyBookingOrder);
 router.get("/quantity", checkToken, getQuantityPartyBookingType); //
 router.get("/get-all-party-booking-types", checkToken, getAllPartyBookingTypes);    //
 router.get("/:search", checkToken, findPartyBookingTypeByIdOrName);   //

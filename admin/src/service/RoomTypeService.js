@@ -47,3 +47,9 @@ export const deleteRoomType = async (roomTypeId) => {
     const res = await axios.delete(`${url_RoomType}/${roomTypeId}`);
     return res;
 };
+// Quản lý Đặt phòng - Khách sạn: Thống kê theo loại
+export const findAllRoomTypeInRoomBookingOrder = async () => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.get(`${url_RoomType}/get-room-type-in-room-booking-order`);
+    return res;
+};

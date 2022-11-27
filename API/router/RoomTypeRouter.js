@@ -1,8 +1,9 @@
-const { getQuantityRoomType, findRoomTypeByIdOrName, getRoomTypes, findRoomTypeById, createRoomType, updateRoomType, deleteRoomType } = require("../controller/RoomTypeController");
+const { getQuantityRoomType, findRoomTypeByIdOrName, getRoomTypes, findRoomTypeById, createRoomType, updateRoomType, deleteRoomType, findAllRoomTypeInRoomBookingOrder } = require("../controller/RoomTypeController");
 const { checkToken } = require("../auth/TokenValidation");
 
 const router = require("express").Router();
 
+router.get("/get-room-type-in-room-booking-order", checkToken, findAllRoomTypeInRoomBookingOrder);
 router.get("/quantity", checkToken, getQuantityRoomType);
 router.get("/:search", checkToken, findRoomTypeByIdOrName);
 router.get("/", checkToken, getRoomTypes);

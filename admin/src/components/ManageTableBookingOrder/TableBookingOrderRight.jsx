@@ -164,6 +164,18 @@ const TableBookingRight = ({ reRenderData, setReRenderData }) => {
                     <Add />
                     <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt bàn - Nhà hàng</h3>
                 </Item>
+                <Item className="add-product"
+                    onClick={() => openModal({ type: "statisticTableBookingByType" })}
+                >
+                    <Add />
+                    <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt bàn - Nhà hàng của Loại bàn</h3>
+                </Item>
+                <Item className="add-product"
+                    onClick={() => openModal({ type: "statisticTableBookingByCustomer" })}
+                >
+                    <Add />
+                    <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt bàn - Nhà hàng của Khách hàng</h3>
+                </Item>
             </SalesAnalytics>
 
             {/* ==== MODAL ==== */}

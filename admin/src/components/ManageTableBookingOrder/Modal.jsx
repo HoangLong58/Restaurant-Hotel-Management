@@ -1,5 +1,5 @@
 import { Add, ClearOutlined, CloseOutlined, FilePresentOutlined, FindInPageOutlined, HideImageOutlined, ImageOutlined, MoreHorizOutlined, PictureAsPdfOutlined, Remove, VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
-import { Box, Checkbox, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Box, Checkbox, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select, useTheme } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 // Date picker
@@ -32,12 +32,17 @@ import * as FoodTypeService from "../../service/FoodTypeService";
 import * as FoodService from "../../service/FoodService";
 import * as StatisticService from "../../service/StatisticService";
 import * as WardService from "../../service/WardService";
+import * as TableTypeService from "../../service/TableTypeService";
 import PDFFile from "./PDFFile";
 import PDFFileByDate from "./PDFFileByDate";
 import PDFFileByQuarter from "./PDFFileByQuarter";
 import PDFFileCity from "./PDFFileCity";
 import PDFFileCityByDate from "./PDFFileCityByDate";
 import PDFFileCityByQuarter from "./PDFFileCityByQuarter";
+import PDFFileTypeByDate from "./PDFFileTypeByDate";
+import PDFFileTypeByQuarter from "./PDFFileTypeByQuarter";
+import PDFFileCustomerByDate from "./PDFFileCustomerByDate";
+import PDFFileCustomerByQuarter from "./PDFFileCustomerByQuarter";
 
 Chart.register(...registerables);
 ChartJS.register(
@@ -1346,14 +1351,14 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
     useEffect(() => {
         const getLimitTableBookingTotalOfCityForEachQuarter = async () => {
             try {
-                const roomBookingTotalOfCityForEachQuarterRes = await TableBookingOrderService.getLimitTableBookingTotalOfCityForEachQuarter();
-                console.log("roomBookingTotalOfCityForEachQuarterRessssssssssssssssss: ", roomBookingTotalOfCityForEachQuarterRes.data.data);
-                setTotalOfCityForEachQuarter(roomBookingTotalOfCityForEachQuarterRes.data.data);
+                const tableBookingTotalOfCityForEachQuarterRes = await TableBookingOrderService.getLimitTableBookingTotalOfCityForEachQuarter();
+                console.log("tableBookingTotalOfCityForEachQuarterRessssssssssssssssss: ", tableBookingTotalOfCityForEachQuarterRes.data.data);
+                setTotalOfCityForEachQuarter(tableBookingTotalOfCityForEachQuarterRes.data.data);
 
                 // Lấy data để hiện ở Biểu đồ
                 var arrayInStatistic = [];
-                if (roomBookingTotalOfCityForEachQuarterRes.data.data.data.length > 0) {
-                    roomBookingTotalOfCityForEachQuarterRes.data.data.data.map((row, key) => {
+                if (tableBookingTotalOfCityForEachQuarterRes.data.data.data.length > 0) {
+                    tableBookingTotalOfCityForEachQuarterRes.data.data.data.map((row, key) => {
                         arrayInStatistic.push({
                             data: [row.quy1, row.quy2, row.quy3, row.quy4],
                             label: row.city_name,
@@ -1368,10 +1373,10 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
 
                 // Lấy data để hiện ở Bảng - Danh sách này sắp xếp theo thứ tự giảm doanh thu của tp đó
                 var arrayInTable = [];
-                for (var i = 0; i < roomBookingTotalOfCityForEachQuarterRes.data.data.dataArray.length; i++) {
-                    const roomBookingInCity = roomBookingTotalOfCityForEachQuarterRes.data.data.dataArray[i];
-                    for (var j = 0; j < roomBookingInCity.data.length; j++) {
-                        arrayInTable.push(roomBookingInCity.data[j]);
+                for (var i = 0; i < tableBookingTotalOfCityForEachQuarterRes.data.data.dataArray.length; i++) {
+                    const tableBookingInCity = tableBookingTotalOfCityForEachQuarterRes.data.data.dataArray[i];
+                    for (var j = 0; j < tableBookingInCity.data.length; j++) {
+                        arrayInTable.push(tableBookingInCity.data[j]);
                     }
                 }
                 setTotalOfCityForEachQuarterDataTable(arrayInTable);
@@ -1918,8 +1923,634 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
             XLSX.writeFile(wb, "ThongKeDoanhThuTheoTungQuyChiTiet.xlsx");
         }
     }
-    console.log("statisticByDatePDFImage, statisticByQuarterPDFImage:", statisticByDatePDFImage, statisticByQuarterPDFImage);
-    console.log("statisticTableBookingOrderTotalByDate:", statisticTableBookingOrderTotalByDate, statisticTableBookingOrderTotalByQuarter);
+    // console.log("statisticByDatePDFImage, statisticByQuarterPDFImage:", statisticByDatePDFImage, statisticByQuarterPDFImage);
+    // console.log("statisticTableBookingOrderTotalByDate:", statisticTableBookingOrderTotalByDate, statisticTableBookingOrderTotalByQuarter);
+
+
+    // ================ Thống kê doanh thu theo Loại bàn ================
+    const [statisticWayType, setStatisticWayType] = useState(); //byQuarter - byDate
+    const [sortWayType, setSortWayType] = useState(); //byQuarter - byDate
+    const [startDateType, setStartDateType] = useState(); //Date: YYYY-MM-DD
+    const [finishDateType, setFinishDateType] = useState(); //Date: YYYY-MM-DD
+    const [quarterType, setQuarterType] = useState(); //Quarter: 1, 2, 3, 4
+    const [tableTypeList, setTableTypeList] = useState([]);
+
+    const [isShowChartType, setIsShowChartType] = useState(true);
+    const [isShowTableType, setIsShowTableType] = useState(false);
+
+    // State khi thống kê theo ngày
+    const [isStatisticTableBookingOrderTypeByDate, setIsStatisticTableBookingOrderTypeByDate] = useState(false);
+    const [statisticTableBookingOrderTypeByDate, setStatisticTableBookingOrderTypeByDate] = useState();
+    const [statisticTypeByDatePDFImage, setStatisticTypeByDatePDFImage] = useState();
+    const [statisticTypeByDateDataTable, setStatisticTypeByDateDataTable] = useState([]);
+    const [statisticTypeByDateDataChart, setStatisticTypeByDateDataChart] = useState([]);
+    // State khi thống kê theo Quý
+    const [isStatisticTableBookingOrderTypeByQuarter, setIsStatisticTableBookingOrderTypeByQuarter] = useState(false);
+    const [statisticTableBookingOrderTypeByQuarter, setStatisticTableBookingOrderTypeByQuarter] = useState();
+    const [statisticTypeByQuarterPDFImage, setStatisticTypeByQuarterPDFImage] = useState();
+    const [statisticTypeByQuarterDataTable, setStatisticTypeByQuarterDataTable] = useState([]);
+    const [statisticTypeByQuarterDataChart, setStatisticTypeByQuarterDataChart] = useState([]);
+
+    const statisticTypeImageByQuarter = useCallback(node => {
+        if (node !== null) {
+            setTimeout(() => {
+                setStatisticTypeByQuarterPDFImage(node.canvas.toDataURL('image/png', 1));
+            }, 1000);
+            console.log("ref", node);
+        }
+    }, [isShowChartType, isStatisticTableBookingOrderTypeByDate, isStatisticTableBookingOrderTypeByQuarter]);
+    const statisticTypeImageByDate = useCallback(node => {
+        if (node !== null) {
+            setTimeout(() => {
+                setStatisticTypeByDatePDFImage(node.canvas.toDataURL('image/png', 1));
+            }, 1000);
+            console.log("ref", node);
+        }
+    }, [isShowChartType, isStatisticTableBookingOrderTypeByDate, isStatisticTableBookingOrderTypeByQuarter]);
+
+    useEffect(() => {
+        const getTableTypeList = async () => {
+            const tableTypeRes = await TableTypeService.findAllTableTypeInTableBookingOrder()
+            setTableTypeList(tableTypeRes.data.data);
+        }
+        getTableTypeList();
+        // Reset state
+        setIsStatisticTableBookingOrderTypeByDate(false);
+        setIsStatisticTableBookingOrderTypeByQuarter(false);
+        setTableTypeChooseList([]);
+        setStatisticWayType();
+        setSortWayType();
+        setStartDateType();
+        setFinishDateType();
+        setQuarterType();
+    }, [showModal]);
+
+    const handleShowChartType = () => {
+        setIsShowChartType(true);
+        setIsShowTableType(false);
+    }
+    const handleHideChartType = () => {
+        setIsShowChartType(false);
+        setIsShowTableType(true);
+    }
+
+    // -- Statistic way
+    const handleCheckByQuarterType = (e) => {
+        const value = e.target.value;
+        setStatisticWayType(value);
+    }
+    const handleCheckByDateType = (e) => {
+        const value = e.target.value;
+        setStatisticWayType(value);
+    }
+    // --Sort way
+    const handleCheckAscType = (e) => {
+        const value = e.target.value;
+        setSortWayType(value);
+    }
+    const handleCheckDescType = (e) => {
+        const value = e.target.value;
+        setSortWayType(value);
+    }
+    // -- By Date
+    const handleChangeStartDateType = (newValue) => {
+        setStartDateType(moment(newValue).format("YYYY-MM-DD"));
+    };
+    const handleChangeFinishDateType = (newValue) => {
+        setFinishDateType(moment(newValue).format("YYYY-MM-DD"));
+    };
+    // -- By Quarter
+    const handleChangeQuarterType = (e) => {
+        setQuarterType(parseInt(e.target.value));
+    };
+
+    // Chip
+    const theme = useTheme();
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+        PaperProps: {
+            style: {
+                maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                width: 250,
+            },
+        },
+    };
+    function getStyles(name, tableTypeChooseList, theme) {
+        return {
+            fontWeight:
+                tableTypeChooseList.indexOf(name) === -1
+                    ? theme.typography.fontWeightRegular
+                    : theme.typography.fontWeightMedium,
+        };
+    }
+    const [tableTypeChooseList, setTableTypeChooseList] = useState([]);
+    const handleChangeTableType = (event) => {
+        const {
+            target: { value },
+        } = event;
+        setTableTypeChooseList(
+            // On autofill we get a stringified value.
+            typeof value === 'string' ? value.split(',') : value,
+        );
+    };
+    console.log("tableTypeChooseList: ", tableTypeChooseList)
+    const handleStatisticOfType = async (e, statisticWayType, startDateType, finishDateType, quarterType, sortWayType, tableTypeChooseList) => {
+        e.preventDefault();
+        if (!statisticWayType) {
+            // Toast
+            const dataToast = { message: "Bạn chưa chọn Loại thống kê", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        setIsStatisticTableBookingOrderTypeByDate(false);
+        setIsStatisticTableBookingOrderTypeByQuarter(false);
+        console.log("handleStatistic input: ", statisticWayType, startDateType, finishDateType, sortWayType)
+        if (statisticWayType === "byDate") {
+            try {
+                const statisticRes = await TableBookingOrderService.getStatisticTableBookingTotalOfTypeByDate({
+                    dateFrom: startDateType,
+                    dateTo: finishDateType,
+                    sortWay: sortWayType,
+                    tableTypeList: tableTypeChooseList
+                });
+                if (!statisticRes) {
+                    // Toast
+                    const dataToast = { message: statisticRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+                setIsStatisticTableBookingOrderTypeByDate(true);
+                setStatisticTableBookingOrderTypeByDate(statisticRes.data.data);
+                setStatisticTypeByDateDataTable(statisticRes.data.data.finalTableBookingOrderList);
+
+                // Lấy data để hiện ở Biểu đồ
+                var arrayInStatistic = [];
+                if (statisticRes.data.data.statisticArray.length > 0) {
+                    for (var i = 0; i < statisticRes.data.data.statisticArray.length; i++) {
+                        var rowValue = statisticRes.data.data.statisticArray[i];
+                        var rowOfType = [];
+                        for (var j = 0; j < statisticRes.data.data.dateArray.length; j++) {
+                            rowOfType.push(rowValue["date" + (j + 1)]);
+                        }
+                        arrayInStatistic.push({
+                            data: rowOfType,
+                            label: rowValue.table_type_name,
+                            borderColor: "#" + ((1 << 24) * Math.random() | 0).toString(16),
+                            backgroundColor: "#" + ((1 << 24) * Math.random() | 0).toString(16),
+                            borderWidth: 1,
+                            fill: false
+                        });
+                    }
+                }
+                setStatisticTypeByDateDataChart(arrayInStatistic);
+
+                console.log("statisticRes: ", statisticRes);
+                // Toast
+                const dataToast = { message: statisticRes.data.message, type: "success" };
+                showToastFromOut(dataToast);
+                return;
+            } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "danger" };
+                showToastFromOut(dataToast);
+                return;
+            }
+        } else if (statisticWayType === "byQuarter") {
+            try {
+                const statisticRes = await TableBookingOrderService.getStatisticTableBookingTotalOfTypeByQuarter({
+                    quarter: quarterType,
+                    sortWay: sortWayType,
+                    tableTypeList: tableTypeChooseList
+                });
+                if (!statisticRes) {
+                    // Toast
+                    const dataToast = { message: statisticRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+                setIsStatisticTableBookingOrderTypeByQuarter(true);
+                setStatisticTableBookingOrderTypeByQuarter(statisticRes.data.data);
+
+                // Lấy list detail room booking của các loại bàn
+                var tableBookingOrderList = [];
+                var arrayInStatistic = [];
+                for (var i = 0; i < statisticRes.data.data.data.length; i++) {
+                    const tableBookingOrderListRes = statisticRes.data.data.data[i].tableBookingOrderList;
+                    tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                        tableBookingOrderList.push(tableBookingOrder);
+                    });
+
+                    // Lấy data để hiện ở Biểu đồ
+                    const totalDataRes = statisticRes.data.data.data[i].totalData;
+                    arrayInStatistic.push({
+                        data: [totalDataRes.monthFirst, totalDataRes.monthSecond, totalDataRes.monthThird],
+                        label: totalDataRes.table_type_name,
+                        borderColor: "#" + ((1 << 24) * Math.random() | 0).toString(16),
+                        backgroundColor: "#" + ((1 << 24) * Math.random() | 0).toString(16),
+                        borderWidth: 1,
+                        fill: false
+                    });
+                }
+                setStatisticTypeByQuarterDataTable(tableBookingOrderList);
+                setStatisticTypeByQuarterDataChart(arrayInStatistic);
+
+                console.log("statisticRes: ", statisticRes);
+                // Toast
+                const dataToast = { message: statisticRes.data.message, type: "success" };
+                showToastFromOut(dataToast);
+                return;
+            } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "danger" };
+                showToastFromOut(dataToast);
+                return;
+            }
+        }
+    }
+
+    // Xuất ra file EXCEL
+    const handleExportExcelType = () => {
+        var dataExport = [];
+        if (isStatisticTableBookingOrderTypeByDate) {
+            // Khi đang thống kê theo NGÀY
+            var titleExport = [];
+            titleExport.push("Tên Loại bàn");
+            for (var i = 0; i < statisticTableBookingOrderTypeByDate.dateArray.length; i++) {
+                titleExport.push(statisticTableBookingOrderTypeByDate.dateArray[i]);
+            }
+            titleExport.push("Doanh thu cả năm");
+
+            dataExport = statisticTableBookingOrderTypeByDate.statisticArray;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport);
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [titleExport], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuLoaiBanTheoNgay.xlsx");
+        } else if (isStatisticTableBookingOrderTypeByQuarter) {
+            var quarter = statisticTableBookingOrderTypeByQuarter.quarter;
+            // Khi đang thống kê theo QUÝ
+            statisticTableBookingOrderTypeByQuarter.data.map((data, key) => {
+                dataExport.push(data.totalData);
+            })
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport);
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Tên Loại bàn", "Doanh thu đầu quý " + quarter, "Doanh thu giữa quý " + quarter, "Doanh thu cuối quý " + quarter, "Doanh thu cả năm"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuLoaiBanTheoTungThangCuaQuy.xlsx");
+        } else {
+            return;
+        }
+    }
+
+    // Xuất ra file EXCEL - Chi tiết
+    const handleExportExcelDetailType = () => {
+        var dataExport = [];
+        if (isStatisticTableBookingOrderTypeByDate) {
+            // Thống kê theo Ngày
+            dataExport = statisticTypeByDateDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['customer_id'];
+                    delete val['floor_id'];
+                    delete val['table_booking_id'];
+                    delete val['table_booking_order_book_date'];
+                    delete val['table_booking_order_id'];
+                    delete val['table_booking_order_state'];
+                    delete val['table_booking_state'];
+                    delete val['table_type_id'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày đến", "Ngày kết thúc", "Số lượng khách", "Tổng tiền", "Ghi chú", "Ngày đặt bàn", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Tên bàn", "View bàn", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuTheoLoaiBanTungNgayChiTiet.xlsx");
+        } else if (isStatisticTableBookingOrderTypeByQuarter) {
+            // Thống kê theo Quý
+            dataExport = statisticTypeByQuarterDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['customer_id'];
+                    delete val['floor_id'];
+                    delete val['table_booking_id'];
+                    delete val['table_booking_order_book_date'];
+                    delete val['table_booking_order_id'];
+                    delete val['table_booking_order_state'];
+                    delete val['table_booking_state'];
+                    delete val['table_type_id'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày đến", "Ngày kết thúc", "Số lượng khách", "Tổng tiền", "Ghi chú", "Ngày đặt bàn", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Tên bàn", "View bàn", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuTheoLoaiBanTungQuyChiTiet.xlsx");
+        } else {
+            return;
+        }
+    }
+
+
+    // ================ Thống kê doanh thu theo Khách hàng ================
+    const [statisticWayCustomer, setStatisticWayCustomer] = useState(); //byQuarter - byDate
+    const [sortWayCustomer, setSortWayCustomer] = useState(); //byQuarter - byDate
+    const [startDateCustomer, setStartDateCustomer] = useState(); //Date: YYYY-MM-DD
+    const [finishDateCustomer, setFinishDateCustomer] = useState(); //Date: YYYY-MM-DD
+    const [quarterCustomer, setQuarterCustomer] = useState(); //Quarter: 1, 2, 3, 4
+    const [customerInfo, setCustomerInfo] = useState();
+
+    const [isShowChartCustomer, setIsShowChartCustomer] = useState(true);
+    const [isShowTableCustomer, setIsShowTableCustomer] = useState(false);
+
+    // State khi thống kê theo ngày
+    const [isStatisticTableBookingOrderCustomerByDate, setIsStatisticTableBookingOrderCustomerByDate] = useState(false);
+    const [statisticTableBookingOrderCustomerByDate, setStatisticTableBookingOrderCustomerByDate] = useState();
+    const [statisticCustomerByDatePDFImage, setStatisticCustomerByDatePDFImage] = useState();
+    const [statisticCustomerByDateDataTable, setStatisticCustomerByDateDataTable] = useState([]);
+    const [statisticCustomerByDateDataChart, setStatisticCustomerByDateDataChart] = useState([]);
+    // State khi thống kê theo Quý
+    const [isStatisticTableBookingOrderCustomerByQuarter, setIsStatisticTableBookingOrderCustomerByQuarter] = useState(false);
+    const [statisticTableBookingOrderCustomerByQuarter, setStatisticTableBookingOrderCustomerByQuarter] = useState();
+    const [statisticCustomerByQuarterPDFImage, setStatisticCustomerByQuarterPDFImage] = useState();
+    const [statisticCustomerByQuarterDataTable, setStatisticCustomerByQuarterDataTable] = useState([]);
+    const [statisticCustomerByQuarterDataChart, setStatisticCustomerByQuarterDataChart] = useState([]);
+
+    const statisticCustomerImageByQuarter = useCallback(node => {
+        if (node !== null) {
+            setTimeout(() => {
+                setStatisticCustomerByQuarterPDFImage(node.canvas.toDataURL('image/png', 1));
+            }, 1000);
+            console.log("ref", node);
+        }
+    }, [isShowChartCustomer, isStatisticTableBookingOrderCustomerByDate, isStatisticTableBookingOrderCustomerByQuarter]);
+    const statisticCustomerImageByDate = useCallback(node => {
+        if (node !== null) {
+            setTimeout(() => {
+                setStatisticCustomerByDatePDFImage(node.canvas.toDataURL('image/png', 1));
+            }, 1000);
+            console.log("ref", node);
+        }
+    }, [isShowChartCustomer, isStatisticTableBookingOrderCustomerByDate, isStatisticTableBookingOrderCustomerByQuarter]);
+
+    useEffect(() => {
+        // Reset state
+        setIsStatisticTableBookingOrderCustomerByDate(false);
+        setIsStatisticTableBookingOrderCustomerByQuarter(false);
+        setCustomerInfo();
+        setStatisticWayCustomer();
+        setSortWayCustomer();
+        setStartDateCustomer();
+        setFinishDateCustomer();
+        setQuarterCustomer();
+    }, [showModal]);
+
+    const handleShowChartCustomer = () => {
+        setIsShowChartCustomer(true);
+        setIsShowTableCustomer(false);
+    }
+    const handleHideChartCustomer = () => {
+        setIsShowChartCustomer(false);
+        setIsShowTableCustomer(true);
+    }
+
+    // -- Statistic way
+    const handleCheckByQuarterCustomer = (e) => {
+        const value = e.target.value;
+        setStatisticWayCustomer(value);
+    }
+    const handleCheckByDateCustomer = (e) => {
+        const value = e.target.value;
+        setStatisticWayCustomer(value);
+    }
+    // --Sort way
+    const handleCheckAscCustomer = (e) => {
+        const value = e.target.value;
+        setSortWayCustomer(value);
+    }
+    const handleCheckDescCustomer = (e) => {
+        const value = e.target.value;
+        setSortWayCustomer(value);
+    }
+    // -- By Date
+    const handleChangeStartDateCustomer = (newValue) => {
+        setStartDateCustomer(moment(newValue).format("YYYY-MM-DD"));
+    };
+    const handleChangeFinishDateCustomer = (newValue) => {
+        setFinishDateCustomer(moment(newValue).format("YYYY-MM-DD"));
+    };
+    // -- By Quarter
+    const handleChangeQuarterCustomer = (e) => {
+        setQuarterCustomer(parseInt(e.target.value));
+    };
+
+    const handleChangeCustomerInfo = (e) => {
+        // Được nhập @ và . nhưng kí tự đb khác thì không
+        const resultCustomerInfo = e.target.value.replace(/[`~!#$%^&*()|+\-=?;:'",<>\{\}\[\]\\\/]/gi, '');
+        setCustomerInfo(resultCustomerInfo);
+    }
+
+    const handleStatisticOfCustomer = async (e, statisticWayCustomer, startDateCustomer, finishDateCustomer, quarterCustomer, sortWayCustomer, customerInfo) => {
+        e.preventDefault();
+        if (!statisticWayCustomer) {
+            // Toast
+            const dataToast = { message: "Bạn chưa chọn Loại thống kê", type: "danger" };
+            showToastFromOut(dataToast);
+            return;
+        }
+        setIsStatisticTableBookingOrderCustomerByDate(false);
+        setIsStatisticTableBookingOrderCustomerByQuarter(false);
+        console.log("handleStatistic input: ", statisticWayCustomer, startDateCustomer, finishDateCustomer, sortWayCustomer)
+        if (statisticWayCustomer === "byDate") {
+            try {
+                const statisticRes = await TableBookingOrderService.getStatisticTableBookingTotalOfCustomerByDate({
+                    dateFrom: startDateCustomer,
+                    dateTo: finishDateCustomer,
+                    sortWay: sortWayCustomer,
+                    customerInfo: customerInfo
+                });
+                if (!statisticRes) {
+                    // Toast
+                    const dataToast = { message: statisticRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+                setIsStatisticTableBookingOrderCustomerByDate(true);
+                setStatisticTableBookingOrderCustomerByDate(statisticRes.data.data);
+                setStatisticCustomerByDateDataTable(statisticRes.data.data.finalTableBookingOrderList);
+
+                // Lấy data để hiện ở Biểu đồ
+                var arrayInStatistic = [];
+                if (statisticRes.data.data.statisticArray) {
+                    var rowValue = statisticRes.data.data.statisticArray;
+                    var rowOfCustomer = [];
+                    for (var j = 0; j < statisticRes.data.data.dateArray.length; j++) {
+                        rowOfCustomer.push(rowValue["date" + (j + 1)]);
+                    }
+                    arrayInStatistic.push({
+                        data: rowOfCustomer,
+                        label: rowValue.customer_first_name + " " + rowValue.customer_last_name,
+                        borderColor: "#" + ((1 << 24) * Math.random() | 0).toString(16),
+                        backgroundColor: "#" + ((1 << 24) * Math.random() | 0).toString(16),
+                        borderWidth: 1,
+                        fill: false
+                    });
+                }
+                setStatisticCustomerByDateDataChart(arrayInStatistic);
+
+                console.log("statisticRes: ", statisticRes);
+                // Toast
+                const dataToast = { message: statisticRes.data.message, type: "success" };
+                showToastFromOut(dataToast);
+                return;
+            } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "danger" };
+                showToastFromOut(dataToast);
+                return;
+            }
+        } else if (statisticWayCustomer === "byQuarter") {
+            try {
+                const statisticRes = await TableBookingOrderService.getStatisticTableBookingTotalOfCustomerByQuarter({
+                    quarter: quarterCustomer,
+                    sortWay: sortWayCustomer,
+                    customerInfo: customerInfo
+                });
+                if (!statisticRes) {
+                    // Toast
+                    const dataToast = { message: statisticRes.data.message, type: "warning" };
+                    showToastFromOut(dataToast);
+                    return;
+                }
+                setIsStatisticTableBookingOrderCustomerByQuarter(true);
+                setStatisticTableBookingOrderCustomerByQuarter(statisticRes.data.data);
+
+                // Lấy list detail room booking của các loại bàn
+                var tableBookingOrderList = [];
+                var arrayInStatistic = [];
+                const tableBookingOrderListRes = statisticRes.data.data.data[0].tableBookingOrderList;
+                tableBookingOrderListRes.map((tableBookingOrder, key) => {
+                    tableBookingOrderList.push(tableBookingOrder);
+                });
+
+                // Lấy data để hiện ở Biểu đồ
+                const totalDataRes = statisticRes.data.data.data[0].totalData;
+                arrayInStatistic.push({
+                    data: [totalDataRes.monthFirst, totalDataRes.monthSecond, totalDataRes.monthThird],
+                    label: totalDataRes.customer_first_name + " " + totalDataRes.customer_last_name,
+                    borderColor: "#" + ((1 << 24) * Math.random() | 0).toString(16),
+                    backgroundColor: "#" + ((1 << 24) * Math.random() | 0).toString(16),
+                    borderWidth: 1,
+                    fill: false
+                });
+
+                setStatisticCustomerByQuarterDataTable(tableBookingOrderList);
+                setStatisticCustomerByQuarterDataChart(arrayInStatistic);
+
+                console.log("statisticRes: ", statisticRes);
+                // Toast
+                const dataToast = { message: statisticRes.data.message, type: "success" };
+                showToastFromOut(dataToast);
+                return;
+            } catch (err) {
+                // Toast
+                const dataToast = { message: err.response.data.message, type: "danger" };
+                showToastFromOut(dataToast);
+                return;
+            }
+        }
+    }
+
+    // Xuất ra file EXCEL
+    const handleExportExcelCustomer = () => {
+        var dataExport = [];
+        if (isStatisticTableBookingOrderCustomerByDate) {
+            // Khi đang thống kê theo NGÀY
+            var titleExport = [];
+            titleExport.push("Họ khách hàng");
+            titleExport.push("Tên khách hàng");
+            titleExport.push("Email");
+            titleExport.push("Số điện thoại");
+            for (var i = 0; i < statisticTableBookingOrderCustomerByDate.dateArray.length; i++) {
+                titleExport.push(statisticTableBookingOrderCustomerByDate.dateArray[i]);
+            }
+            titleExport.push("Doanh thu cả năm");
+
+            var exportArray = [];
+            exportArray.push(statisticTableBookingOrderCustomerByDate.statisticArray);
+            dataExport = exportArray;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport);
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [titleExport], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuKhachHangTheoNgay.xlsx");
+        } else if (isStatisticTableBookingOrderCustomerByQuarter) {
+            var quarter = statisticTableBookingOrderCustomerByQuarter.quarter;
+            // Khi đang thống kê theo QUÝ
+            statisticTableBookingOrderCustomerByQuarter.data.map((data, key) => {
+                dataExport.push(data.totalData);
+            })
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport);
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Họ khách hàng", "Tên khách hàng", "Email", "Số điện thoại", "Doanh thu đầu quý " + quarter, "Doanh thu giữa quý " + quarter, "Doanh thu cuối quý " + quarter, "Doanh thu cả năm"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuKhachHangTheoTungThangCuaQuy.xlsx");
+        } else {
+            return;
+        }
+    }
+
+    // Xuất ra file EXCEL - Chi tiết
+    const handleExportExcelDetailCustomer = () => {
+        var dataExport = [];
+        if (isStatisticTableBookingOrderCustomerByDate) {
+            // Thống kê theo Ngày
+            dataExport = statisticCustomerByDateDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['customer_id'];
+                    delete val['floor_id'];
+                    delete val['table_booking_id'];
+                    delete val['table_booking_order_book_date'];
+                    delete val['table_booking_order_id'];
+                    delete val['table_booking_order_state'];
+                    delete val['table_booking_state'];
+                    delete val['table_type_id'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày đến", "Ngày kết thúc", "Số lượng khách", "Tổng tiền", "Ghi chú", "Ngày đặt bàn", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Tên bàn", "View bàn", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuTheoKhachHangTungNgayChiTiet.xlsx");
+        } else if (isStatisticTableBookingOrderCustomerByQuarter) {
+            // Thống kê theo Quý
+            dataExport = statisticCustomerByQuarterDataTable;
+            console.log("Export: dataExport =", dataExport);
+            var wb = XLSX.utils.book_new(),
+                ws = XLSX.utils.json_to_sheet(dataExport.map((val, key) => {
+                    delete val['customer_id'];
+                    delete val['floor_id'];
+                    delete val['table_booking_id'];
+                    delete val['table_booking_order_book_date'];
+                    delete val['table_booking_order_id'];
+                    delete val['table_booking_order_state'];
+                    delete val['table_booking_state'];
+                    delete val['table_type_id'];
+                    delete val['ward_id'];
+                    return val
+                }));
+            XLSX.utils.book_append_sheet(wb, ws, "ThongKeDoanhThu");
+            XLSX.utils.sheet_add_aoa(ws, [["Ngày đến", "Ngày kết thúc", "Số lượng khách", "Tổng tiền", "Ghi chú", "Ngày đặt bàn", "Số CMND", "Quốc tịch", "Địa chỉ", "Họ của Khách hàng", "Tên của Khách hàng", "Số điện thoại", "Email", "Tên xã phường", "Tên quận huyện", "Tên thành phố", "Tên bàn", "View bàn", "Thuộc tầng"]], { origin: "A1" });
+            XLSX.writeFile(wb, "ThongKeDoanhThuTheoKhachHangTungQuyChiTiet.xlsx");
+        } else {
+            return;
+        }
+    }
     // ================================================================
     //  =============== Thêm Món ăn cho Đặt bàn ===============
     if (type === "addFoodToTable") {
@@ -4289,6 +4920,1326 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                             <FormChucNang style={{ marginTop: "0" }}>
                                                 <SignInBtn
                                                     onClick={(e) => handleStatistic(e, statisticWayTotal, startDateTotal, finishDateTotal, quarterTotal, sortWayTotal)}
+                                                >Thống kê</SignInBtn>
+                                            </FormChucNang>
+                                        </FilterStatistic>
+                                    </div>
+                                </div>
+                            </ModalForm>
+                            <ButtonUpdate>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => setShowModal(prev => !prev)}
+                                    >Đóng</ButtonClick>
+                                </ButtonContainer>
+                            </ButtonUpdate>
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </ModalWrapper>
+                    </Background>
+                ) : null}
+            </>
+        );
+    }
+    //  =============== Tìm kiếm & thống kê doanh thu theo Loại bàn ===============
+    if (type === "statisticTableBookingByType") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
+                            <LeftVoteTitle style={{ marginTop: "10px", fontSize: "1.6rem" }}>Thống kê Doanh thu Đặt bàn - Nhà hàng theo Loại bàn</LeftVoteTitle>
+                            <ModalForm style={{ padding: "0px 20px" }}>
+                                <div className="col-lg-12">
+                                    <div className="row">
+                                        {
+                                            !isStatisticTableBookingOrderTypeByDate && !isStatisticTableBookingOrderTypeByQuarter ? (
+                                                <LeftVote className="col-lg-8">
+                                                    <EmptyItem>
+                                                        <EmptyItemSvg>
+                                                            <img src="https://i.ibb.co/GdjDwGT/pie-chart.png" alt="" />
+                                                        </EmptyItemSvg>
+                                                        <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Không có kết quả thống kê phù hợp</EmptyContent>
+                                                    </EmptyItem>
+                                                </LeftVote>
+                                            ) : (
+                                                <LeftVote className="col-lg-8">
+                                                    <StatisticTable className="row" style={{ display: isShowTableType ? "block" : "none" }}>
+                                                        {
+                                                            // ---------------- THỐNG KÊ THEO QUÝ - BẢNG ----------------
+                                                            isStatisticTableBookingOrderTypeByQuarter ? (
+                                                                statisticTableBookingOrderTypeByQuarter ? (
+                                                                    <>
+                                                                        <Table>
+                                                                            <Thead>
+                                                                                <Tr>
+                                                                                    <Th>STT</Th>
+                                                                                    <Th>Tên Loại bàn</Th>
+                                                                                    <Th>Tháng đầu Quý {statisticTableBookingOrderTypeByQuarter.quarter}</Th>
+                                                                                    <Th>Tháng giữa Quý {statisticTableBookingOrderTypeByQuarter.quarter}</Th>
+                                                                                    <Th>Tháng cuối Quý {statisticTableBookingOrderTypeByQuarter.quarter}</Th>
+                                                                                    <Th>Doanh thu cả năm</Th>
+                                                                                </Tr>
+                                                                            </Thead>
+                                                                            <Tbody>
+                                                                                {
+                                                                                    statisticTableBookingOrderTypeByQuarter.data.map((row, key) => {
+                                                                                        const totalDataRes = row.totalData;
+                                                                                        return (
+                                                                                            <Tr>
+                                                                                                <Td>{key + 1}</Td>
+                                                                                                <Td>{totalDataRes.table_type_name}</Td>
+                                                                                                <Td>{totalDataRes.monthFirst}</Td>
+                                                                                                <Td>{totalDataRes.monthSecond}</Td>
+                                                                                                <Td>{totalDataRes.monthThird}</Td>
+                                                                                                <Td>{totalDataRes.canam}</Td>
+                                                                                            </Tr>
+                                                                                        )
+                                                                                    })
+                                                                                }
+                                                                            </Tbody>
+                                                                        </Table>
+                                                                        {/* Bảng chi tiết Đặt bàn theo Quý thống kê */}
+                                                                        <Table style={{ marginTop: "20px" }}>
+                                                                            <Thead>
+                                                                                <Tr>
+                                                                                    <Th colSpan={9}>Danh sách Đặt bàn theo Quý thống kê</Th>
+                                                                                </Tr>
+                                                                                <Tr>
+                                                                                    <Th>STT</Th>
+                                                                                    <Th>Họ tên</Th>
+                                                                                    <Th>SĐT</Th>
+                                                                                    <Th>Địa chỉ</Th>
+                                                                                    <Th>Ngày Checkin</Th>
+                                                                                    <Th>Ngày Checkout</Th>
+                                                                                    <Th>Bàn số</Th>
+                                                                                    <Th>Vị trí Bàn</Th>
+                                                                                    <Th>Tổng tiền</Th>
+                                                                                </Tr>
+                                                                            </Thead>
+                                                                            <Tbody>
+                                                                                {
+                                                                                    statisticTypeByQuarterDataTable.length > 0 ? (
+                                                                                        statisticTypeByQuarterDataTable.map((tableBookingOrder, key) => {
+                                                                                            return (
+                                                                                                <Tr>
+                                                                                                    <Td>{key + 1}</Td>
+                                                                                                    <Td>{tableBookingOrder.customer_first_name + " " + tableBookingOrder.customer_last_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.customer_phone_number}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_address + ", " + tableBookingOrder.ward_name + ", " + tableBookingOrder.district_name + ", " + tableBookingOrder.city_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_start_date}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                                </Tr>
+                                                                                            )
+                                                                                        })
+                                                                                    ) : null
+                                                                                }
+                                                                            </Tbody>
+                                                                        </Table>
+                                                                    </>
+                                                                ) : null
+                                                            ) : null
+                                                        }
+
+                                                        {
+                                                            // ---------------- THỐNG KÊ THEO NGÀY - BẢNG ----------------
+                                                            isStatisticTableBookingOrderTypeByDate ? (
+                                                                isStatisticTableBookingOrderTypeByDate ? (
+                                                                    <>
+                                                                        {
+                                                                            statisticTableBookingOrderTypeByDate.dataArray.map((statisticRow, key) => {
+                                                                                const date = statisticRow.date;
+                                                                                const dataArray = statisticRow.dataArray;
+                                                                                return (
+                                                                                    <Table style={{ marginBottom: "15px" }}>
+                                                                                        <Thead>
+                                                                                            <Tr>
+                                                                                                <Th colSpan={3}> Doanh thu Ngày {date}</Th>
+                                                                                            </Tr>
+                                                                                            <Tr>
+                                                                                                <Th>STT</Th>
+                                                                                                <Th>Loại bàn</Th>
+                                                                                                <Th>Doanh thu</Th>
+                                                                                            </Tr>
+                                                                                        </Thead>
+                                                                                        <Tbody>
+                                                                                            {
+                                                                                                dataArray.map((row, key) => {
+                                                                                                    return (
+                                                                                                        <Tr>
+                                                                                                            <Td>{key + 1}</Td>
+                                                                                                            <Td>{row.totalData.table_type_name}</Td>
+                                                                                                            <Td>{row.totalData.total}</Td>
+                                                                                                        </Tr>
+                                                                                                    )
+                                                                                                })
+                                                                                            }
+                                                                                        </Tbody>
+                                                                                    </Table>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                        {/* Bảng chi tiết Đặt bàn theo Ngày thống kê */}
+                                                                        <Table style={{ marginTop: "20px" }}>
+                                                                            <Thead>
+                                                                                <Tr>
+                                                                                    <Th colSpan={9}>Danh sách Đặt bàn theo Ngày thống kê</Th>
+                                                                                </Tr>
+                                                                                <Tr>
+                                                                                    <Th>STT</Th>
+                                                                                    <Th>Họ tên</Th>
+                                                                                    <Th>SĐT</Th>
+                                                                                    <Th>Địa chỉ</Th>
+                                                                                    <Th>Ngày Checkin</Th>
+                                                                                    <Th>Ngày Checkout</Th>
+                                                                                    <Th>Bàn số</Th>
+                                                                                    <Th>Vị trí Bàn</Th>
+                                                                                    <Th>Tổng tiền</Th>
+                                                                                </Tr>
+                                                                            </Thead>
+                                                                            <Tbody>
+                                                                                {
+                                                                                    statisticTypeByDateDataTable.length > 0 ? (
+                                                                                        statisticTypeByDateDataTable.map((tableBookingOrder, key) => {
+                                                                                            return (
+                                                                                                <Tr>
+                                                                                                    <Td>{key + 1}</Td>
+                                                                                                    <Td>{tableBookingOrder.customer_first_name + " " + tableBookingOrder.customer_last_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.customer_phone_number}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_address + ", " + tableBookingOrder.ward_name + ", " + tableBookingOrder.district_name + ", " + tableBookingOrder.city_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_start_date}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                                </Tr>
+                                                                                            )
+                                                                                        })
+                                                                                    ) : null
+                                                                                }
+                                                                            </Tbody>
+                                                                        </Table>
+                                                                    </>
+                                                                ) : null
+                                                            ) : null
+                                                        }
+                                                    </StatisticTable>
+                                                    {/* Biểu đồ */}
+                                                    <LeftVoteItem className="row" style={{ display: isShowChartType ? "block" : "none" }}>
+                                                        {
+                                                            // ---------------- THỐNG KÊ THEO DOANH THU - THEO QUÝ ----------------
+                                                            isStatisticTableBookingOrderTypeByQuarter ? (
+                                                                statisticTableBookingOrderTypeByQuarter ? (
+                                                                    <>
+                                                                        <TooltipMui
+                                                                            title={statisticTableBookingOrderTypeByQuarter ? "Cập nhật lúc " + statisticTableBookingOrderTypeByQuarter.statisticDate : null}
+                                                                            arrow
+                                                                            followCursor={true}
+                                                                            componentsProps={{
+                                                                                tooltip: {
+                                                                                    sx: {
+                                                                                        fontSize: "12px",
+                                                                                        fontWeight: "bold",
+                                                                                        letterSpacing: "1px",
+                                                                                        padding: "10px 20px",
+                                                                                        borderRadius: "20px"
+                                                                                    },
+                                                                                },
+                                                                            }}
+                                                                        >
+                                                                            <LeftVoteTitle>Thống kê Doanh thu Đặt bàn theo Tháng trong Quý</LeftVoteTitle>
+                                                                        </TooltipMui>
+                                                                        <Bar
+                                                                            ref={statisticTypeImageByQuarter}
+                                                                            data={{
+                                                                                labels: statisticTableBookingOrderTypeByQuarter ?
+                                                                                    statisticTableBookingOrderTypeByQuarter.monthArray : null,
+                                                                                datasets: statisticTypeByQuarterDataChart
+                                                                            }}
+                                                                            options={{
+                                                                                title: {
+                                                                                    display: true,
+                                                                                    text: "World population per region (in millions)"
+                                                                                },
+                                                                                legend: {
+                                                                                    display: true,
+                                                                                    position: "bottom"
+                                                                                }
+                                                                            }}
+                                                                        />
+                                                                    </>
+                                                                ) : null
+                                                            ) : null
+                                                        }
+
+                                                        {
+                                                            // ---------------- THỐNG KÊ THEO DOANH THU - THEO NGÀY ----------------
+                                                            isStatisticTableBookingOrderTypeByDate ? (
+                                                                statisticTableBookingOrderTypeByDate ? (
+                                                                    <>
+                                                                        <TooltipMui
+                                                                            title={statisticTableBookingOrderTypeByDate ? "Cập nhật lúc " + statisticTableBookingOrderTypeByDate.statisticDate : null}
+                                                                            arrow
+                                                                            followCursor={true}
+                                                                            componentsProps={{
+                                                                                tooltip: {
+                                                                                    sx: {
+                                                                                        fontSize: "12px",
+                                                                                        fontWeight: "bold",
+                                                                                        letterSpacing: "1px",
+                                                                                        padding: "10px 20px",
+                                                                                        borderRadius: "20px"
+                                                                                    },
+                                                                                },
+                                                                            }}
+                                                                        >
+                                                                            <LeftVoteTitle>Thống kê Doanh thu Đặt bàn theo Ngày</LeftVoteTitle>
+                                                                        </TooltipMui>
+                                                                        <Line
+                                                                            ref={statisticTypeImageByDate}
+                                                                            data={{
+                                                                                labels: statisticTableBookingOrderTypeByDate ?
+                                                                                    statisticTableBookingOrderTypeByDate.dateArray : null,
+                                                                                datasets: statisticTypeByDateDataChart
+                                                                            }}
+                                                                            options={{
+                                                                                title: {
+                                                                                    display: true,
+                                                                                    text: "World population per region (in millions)"
+                                                                                },
+                                                                                legend: {
+                                                                                    display: true,
+                                                                                    position: "bottom"
+                                                                                }
+                                                                            }}
+                                                                        />
+                                                                    </>
+                                                                ) : null
+                                                            ) : null
+                                                        }
+                                                    </LeftVoteItem>
+                                                    <StatisticLeftButton className="row">
+                                                        {
+                                                            // ---------------- BUTTON HIỆN BIỂU ĐỒ ----------------
+                                                            isShowTableType ? (
+                                                                <TooltipMui
+                                                                    title={"Hiện biểu đồ"}
+                                                                    arrow
+                                                                    followCursor={true}
+                                                                    componentsProps={{
+                                                                        tooltip: {
+                                                                            sx: {
+                                                                                fontSize: "12px",
+                                                                                fontWeight: "bold",
+                                                                                letterSpacing: "1px",
+                                                                                padding: "10px 20px",
+                                                                                borderRadius: "20px"
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <ButtonStatistic onClick={() => handleShowChartType()}>
+                                                                        <ImageOutlined />
+                                                                    </ButtonStatistic>
+                                                                </TooltipMui>
+                                                            ) : null
+                                                        }
+
+                                                        {
+                                                            // ---------------- BUTTON ẨN BIỂU ĐỒ ----------------
+                                                            isShowChartType ? (
+                                                                <TooltipMui
+                                                                    title={"Ẩn biểu đồ"}
+                                                                    arrow
+                                                                    followCursor={true}
+                                                                    componentsProps={{
+                                                                        tooltip: {
+                                                                            sx: {
+                                                                                fontSize: "12px",
+                                                                                fontWeight: "bold",
+                                                                                letterSpacing: "1px",
+                                                                                padding: "10px 20px",
+                                                                                borderRadius: "20px"
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <ButtonStatistic onClick={() => handleHideChartType()}>
+                                                                        <HideImageOutlined />
+                                                                    </ButtonStatistic>
+                                                                </TooltipMui>
+                                                            ) : null
+                                                        }
+
+                                                        {
+                                                            // Khi state isQuarter thì hiện pdf của quarter
+                                                            isStatisticTableBookingOrderTypeByQuarter ?
+                                                                (
+                                                                    <div>
+                                                                        <PDFDownloadLink document={<PDFFileTypeByQuarter data={statisticTableBookingOrderTypeByQuarter} image={statisticTypeByQuarterPDFImage} dataTable={statisticTypeByQuarterDataTable} />} fileName="BaoCaoThongKeDoanhThuLoaiBanTheoQuy.pdf">
+                                                                            {({ blob, url, loading, error }) =>
+                                                                                loading ? (
+                                                                                    <TooltipMui
+                                                                                        title={"Xuất ra file PDF - Quarter"}
+                                                                                        arrow
+                                                                                        followCursor={true}
+                                                                                        componentsProps={{
+                                                                                            tooltip: {
+                                                                                                sx: {
+                                                                                                    fontSize: "12px",
+                                                                                                    fontWeight: "bold",
+                                                                                                    letterSpacing: "1px",
+                                                                                                    padding: "10px 20px",
+                                                                                                    borderRadius: "20px"
+                                                                                                },
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        <ButtonStatistic>
+                                                                                            <MoreHorizOutlined />
+                                                                                        </ButtonStatistic>
+                                                                                    </TooltipMui>
+                                                                                ) : (
+                                                                                    <TooltipMui
+                                                                                        title={"Xuất ra file PDF theo quý"}
+                                                                                        arrow
+                                                                                        followCursor={true}
+                                                                                        componentsProps={{
+                                                                                            tooltip: {
+                                                                                                sx: {
+                                                                                                    fontSize: "12px",
+                                                                                                    fontWeight: "bold",
+                                                                                                    letterSpacing: "1px",
+                                                                                                    padding: "10px 20px",
+                                                                                                    borderRadius: "20px"
+                                                                                                },
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        <ButtonStatistic>
+                                                                                            <PictureAsPdfOutlined />
+                                                                                        </ButtonStatistic>
+                                                                                    </TooltipMui>
+                                                                                )
+                                                                            }
+                                                                        </PDFDownloadLink>
+                                                                    </div>
+                                                                ) : null
+                                                        }
+                                                        {
+                                                            // Khi state isDate thì hiện pdf của date
+                                                            isStatisticTableBookingOrderTypeByDate ?
+                                                                (
+                                                                    <div>
+                                                                        <PDFDownloadLink document={<PDFFileTypeByDate data={statisticTableBookingOrderTypeByDate} image={statisticTypeByDatePDFImage} dataTable={statisticTypeByDateDataTable} />} fileName="BaoCaoThongKeDoanhThuLoaiBanTheoNgay.pdf">
+                                                                            {({ blob, url, loading, error }) =>
+                                                                                loading ? (
+                                                                                    <TooltipMui
+                                                                                        title={"Xuất ra file PDF"}
+                                                                                        arrow
+                                                                                        followCursor={true}
+                                                                                        componentsProps={{
+                                                                                            tooltip: {
+                                                                                                sx: {
+                                                                                                    fontSize: "12px",
+                                                                                                    fontWeight: "bold",
+                                                                                                    letterSpacing: "1px",
+                                                                                                    padding: "10px 20px",
+                                                                                                    borderRadius: "20px"
+                                                                                                },
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        <ButtonStatistic>
+                                                                                            <MoreHorizOutlined />
+                                                                                        </ButtonStatistic>
+                                                                                    </TooltipMui>
+                                                                                ) : (
+                                                                                    <TooltipMui
+                                                                                        title={"Xuất ra file PDF theo ngày"}
+                                                                                        arrow
+                                                                                        followCursor={true}
+                                                                                        componentsProps={{
+                                                                                            tooltip: {
+                                                                                                sx: {
+                                                                                                    fontSize: "12px",
+                                                                                                    fontWeight: "bold",
+                                                                                                    letterSpacing: "1px",
+                                                                                                    padding: "10px 20px",
+                                                                                                    borderRadius: "20px"
+                                                                                                },
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        <ButtonStatistic>
+                                                                                            <PictureAsPdfOutlined />
+                                                                                        </ButtonStatistic>
+                                                                                    </TooltipMui>
+                                                                                )
+                                                                            }
+                                                                        </PDFDownloadLink>
+                                                                    </div>
+                                                                ) : null
+                                                        }
+
+                                                        {/* ---------------- BUTTON XUẤT EXCEL ---------------- */}
+                                                        <TooltipMui
+                                                            title={"Xuất ra file Excel"}
+                                                            arrow
+                                                            followCursor={true}
+                                                            componentsProps={{
+                                                                tooltip: {
+                                                                    sx: {
+                                                                        fontSize: "12px",
+                                                                        fontWeight: "bold",
+                                                                        letterSpacing: "1px",
+                                                                        padding: "10px 20px",
+                                                                        borderRadius: "20px"
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <ButtonStatistic
+                                                                onClick={() => handleExportExcelType()}
+                                                            >
+                                                                <FilePresentOutlined />
+                                                            </ButtonStatistic>
+                                                        </TooltipMui>
+
+                                                        {/* ---------------- BUTTON XUẤT EXCEL CHI TIẾT ---------------- */}
+                                                        <TooltipMui
+                                                            title={"Xuất ra file Excel Chi tiết - Loại bàn"}
+                                                            arrow
+                                                            followCursor={true}
+                                                            componentsProps={{
+                                                                tooltip: {
+                                                                    sx: {
+                                                                        fontSize: "12px",
+                                                                        fontWeight: "bold",
+                                                                        letterSpacing: "1px",
+                                                                        padding: "10px 20px",
+                                                                        borderRadius: "20px"
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <ButtonStatistic
+                                                                onClick={() => handleExportExcelDetailType()}
+                                                            >
+                                                                <FindInPageOutlined />
+                                                            </ButtonStatistic>
+                                                        </TooltipMui>
+                                                    </StatisticLeftButton>
+
+                                                </LeftVote>
+                                            )
+                                        }
+                                        <FilterStatistic className="col-lg-4">
+                                            <FilterStatisticItem className="row" style={{ padding: "5px 10px" }}>
+                                                <FilterStatisticTitle className="col-lg-12">Thống kê theo</FilterStatisticTitle>
+
+                                                <LabelCheckbox className="col-lg-6">
+                                                    <ServiceItem className="row" style={{ padding: "0 10px" }}>
+                                                        <div className="col-lg-4" style={{ padding: "0" }}>
+                                                            <Checkbox checked={statisticWayType === "byQuarter" ? true : false} value={"byQuarter"} onClick={(e) => handleCheckByQuarterType(e)} />
+                                                        </div>
+                                                        <ServiceName className="col-lg-8" style={{ padding: "0" }}>
+                                                            Theo quý
+                                                        </ServiceName>
+                                                    </ServiceItem>
+                                                </LabelCheckbox>
+                                                <LabelCheckbox className="col-lg-6">
+                                                    <ServiceItem className="row" style={{ padding: "0 10px" }}>
+                                                        <div className="col-lg-4" style={{ padding: "0" }}>
+                                                            <Checkbox checked={statisticWayType === "byDate" ? true : false} value={"byDate"} onClick={(e) => handleCheckByDateType(e)} />
+                                                        </div>
+                                                        <ServiceName className="col-lg-8" style={{ padding: "0" }}>
+                                                            Theo ngày
+                                                        </ServiceName>
+                                                    </ServiceItem>
+                                                </LabelCheckbox>
+                                            </FilterStatisticItem>
+
+                                            {
+                                                statisticWayType && statisticWayType === "byDate" ? (
+                                                    // ---------------- THỐNG KÊ THEO NGÀY ----------------
+                                                    <FilterStatisticItem className="row">
+                                                        <div className="col-lg-6" style={{ display: "flex", flexDirection: "column" }}>
+                                                            <FilterSpan>Từ ngày:</FilterSpan>
+                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                <Stack spacing={3}>
+                                                                    <DesktopDatePicker
+                                                                        label="Ngày bắt đầu"
+                                                                        inputFormat="dd/MM/yyyy"
+                                                                        maxDate={new Date()}
+                                                                        value={startDateType}
+                                                                        onChange={(newValue) => handleChangeStartDateType(newValue)}
+                                                                        renderInput={(params) => <TextField {...params} />}
+                                                                        InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "var(--color-dark)" } } }}
+                                                                    />
+                                                                </Stack>
+                                                            </LocalizationProvider>
+                                                        </div>
+                                                        <div className="col-lg-6" style={{ display: "flex", flexDirection: "column" }}>
+                                                            <FilterSpan>Đến ngày:</FilterSpan>
+                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                <Stack spacing={3}>
+                                                                    <DesktopDatePicker
+                                                                        label="Ngày kết thúc"
+                                                                        inputFormat="dd/MM/yyyy"
+                                                                        minDate={startDateType}
+                                                                        maxDate={new Date()}
+                                                                        value={finishDateType}
+                                                                        onChange={(newValue) => handleChangeFinishDateType(newValue)}
+                                                                        renderInput={(params) => <TextField {...params} />}
+                                                                        InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "var(--color-dark)" } } }}
+                                                                    />
+                                                                </Stack>
+                                                            </LocalizationProvider>
+                                                        </div>
+                                                    </FilterStatisticItem>
+                                                ) : (
+                                                    // ---------------- THỐNG KÊ THEO QUÝ ----------------
+                                                    <FilterStatisticItem className="row">
+                                                        <div className="col-lg-12" style={{ display: "flex", flexDirection: "column" }}>
+                                                            <FilterSpan>Chọn quý:</FilterSpan>
+                                                            <Box sx={{ minWidth: 120, margin: "5px 0" }}>
+                                                                <FormControl fullWidth>
+                                                                    <InputLabel id="demo-simple-select-label"></InputLabel>
+                                                                    <Select
+                                                                        labelId="demo-simple-select-label"
+                                                                        id="demo-simple-select"
+                                                                        label="Age"
+                                                                        sx={{
+                                                                            '& legend': { display: 'none' },
+                                                                            '& fieldset': { top: 0 }
+                                                                        }}
+                                                                        onChange={(e) => handleChangeQuarterType(e)}
+                                                                    >
+                                                                        <MenuItem value={1}>Quý 1: Từ đầu tháng 1 cho đến hết tháng 3.</MenuItem>
+                                                                        <MenuItem value={2}>Quý 2: Từ đầu tháng 4 cho đến hết tháng 6.</MenuItem>
+                                                                        <MenuItem value={3}>Quý 3: Từ đầu tháng 7 cho đến hết tháng 9.</MenuItem>
+                                                                        <MenuItem value={4}>Quý 4: Từ đầu tháng 10 cho đến hết tháng 12.</MenuItem>
+                                                                    </Select>
+                                                                </FormControl>
+                                                            </Box>
+                                                        </div>
+                                                    </FilterStatisticItem>
+                                                )
+                                            }
+
+
+                                            <FilterStatisticItem className="row" style={{ marginBottom: "10px", paddingBottom: "5px" }}>
+                                                <FilterStatisticTitle style={{ fontSize: "1.1rem", padding: "10px 0 10px 0" }} className="col-lg-12">Những loại bàn muốn thống kê</FilterStatisticTitle>
+                                                <div className="col-lg-12">
+                                                    <FormControl sx={{ m: 1, width: 380 }}>
+                                                        <InputLabel id="demo-multiple-chip-label">Loại</InputLabel>
+                                                        <Select
+                                                            labelId="demo-multiple-chip-label"
+                                                            id="demo-multiple-chip"
+                                                            multiple
+                                                            value={tableTypeChooseList}
+                                                            onChange={handleChangeTableType}
+                                                            input={<OutlinedInput id="select-multiple-chip" label="Loại" />}
+                                                            renderValue={(selected) => (
+                                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                                    {selected.map((value) => (
+                                                                        <Chip key={value} label={value} />
+                                                                    ))}
+                                                                </Box>
+                                                            )}
+                                                            MenuProps={MenuProps}
+                                                        >
+                                                            {tableTypeList.map((tableType) => (
+                                                                <MenuItem
+                                                                    key={tableType.table_type_id}
+                                                                    value={tableType.table_type_name}
+                                                                    style={getStyles(tableType.table_type_id, tableTypeChooseList, theme)}
+                                                                >
+                                                                    {tableType.table_type_name}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </div>
+                                                <FilterStatisticTitle style={{ fontSize: "1.1rem", padding: "10px 0 10px 0" }} className="col-lg-12">Hiển thị kết quả theo Doanh thu cả năm</FilterStatisticTitle>
+                                                <LabelCheckbox className="col-lg-6">
+                                                    <ServiceItem className="row" style={{ padding: "0 10px" }}>
+                                                        <div className="col-lg-4" style={{ padding: "0" }}>
+                                                            <Checkbox checked={sortWayType === "desc" ? true : false} value={"desc"} onClick={(e) => handleCheckDescType(e)} />
+                                                        </div>
+                                                        <ServiceName className="col-lg-8" style={{ padding: "0" }}>
+                                                            Giảm dần
+                                                        </ServiceName>
+                                                    </ServiceItem>
+                                                </LabelCheckbox>
+                                                <LabelCheckbox className="col-lg-6">
+                                                    <ServiceItem className="row" style={{ padding: "0 10px" }}>
+                                                        <div className="col-lg-4" style={{ padding: "0" }}>
+                                                            <Checkbox checked={sortWayType === "asc" ? true : false} value={"asc"} onClick={(e) => handleCheckAscType(e)} />
+                                                        </div>
+                                                        <ServiceName className="col-lg-8" style={{ padding: "0" }}>
+                                                            Tăng dần
+                                                        </ServiceName>
+                                                    </ServiceItem>
+                                                </LabelCheckbox>
+                                            </FilterStatisticItem>
+
+                                            <FormChucNang style={{ marginTop: "0" }}>
+                                                <SignInBtn
+                                                    onClick={(e) => handleStatisticOfType(e, statisticWayType, startDateType, finishDateType, quarterType, sortWayType, tableTypeChooseList)}
+                                                >Thống kê</SignInBtn>
+                                            </FormChucNang>
+                                        </FilterStatistic>
+                                    </div>
+                                </div>
+                            </ModalForm>
+                            <ButtonUpdate>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => setShowModal(prev => !prev)}
+                                    >Đóng</ButtonClick>
+                                </ButtonContainer>
+                            </ButtonUpdate>
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </ModalWrapper>
+                    </Background>
+                ) : null}
+            </>
+        );
+    }
+    //  =============== Tìm kiếm & thống kê doanh thu theo Khách hàng ===============
+    if (type === "statisticTableBookingByCustomer") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
+                            <LeftVoteTitle style={{ marginTop: "10px", fontSize: "1.6rem" }}>Thống kê Doanh thu Đặt bàn - Nhà hàng theo Khách hàng</LeftVoteTitle>
+                            <ModalForm style={{ padding: "0px 20px" }}>
+                                <div className="col-lg-12">
+                                    <div className="row">
+                                        {
+                                            !isStatisticTableBookingOrderCustomerByDate && !isStatisticTableBookingOrderCustomerByQuarter ? (
+                                                <LeftVote className="col-lg-8">
+                                                    <EmptyItem>
+                                                        <EmptyItemSvg>
+                                                            <img src="https://i.ibb.co/GdjDwGT/pie-chart.png" alt="" />
+                                                        </EmptyItemSvg>
+                                                        <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Không có kết quả thống kê phù hợp</EmptyContent>
+                                                    </EmptyItem>
+                                                </LeftVote>
+                                            ) : (
+                                                <LeftVote className="col-lg-8">
+                                                    <StatisticTable className="row" style={{ display: isShowTableCustomer ? "block" : "none" }}>
+                                                        {
+                                                            // ---------------- THỐNG KÊ THEO QUÝ - BẢNG ----------------
+                                                            isStatisticTableBookingOrderCustomerByQuarter ? (
+                                                                statisticTableBookingOrderCustomerByQuarter ? (
+                                                                    <>
+                                                                        <Table>
+                                                                            <Thead>
+                                                                                <Tr>
+                                                                                    <Th>STT</Th>
+                                                                                    <Th>Tên Khách hàng</Th>
+                                                                                    <Th>Tháng đầu Quý {statisticTableBookingOrderCustomerByQuarter.quarter}</Th>
+                                                                                    <Th>Tháng giữa Quý {statisticTableBookingOrderCustomerByQuarter.quarter}</Th>
+                                                                                    <Th>Tháng cuối Quý {statisticTableBookingOrderCustomerByQuarter.quarter}</Th>
+                                                                                    <Th>Doanh thu cả năm</Th>
+                                                                                </Tr>
+                                                                            </Thead>
+                                                                            <Tbody>
+                                                                                {
+                                                                                    statisticTableBookingOrderCustomerByQuarter.data.map((row, key) => {
+                                                                                        const totalDataRes = row.totalData;
+                                                                                        return (
+                                                                                            <Tr>
+                                                                                                <Td>{key + 1}</Td>
+                                                                                                <Td>{totalDataRes.customer_first_name + " " + totalDataRes.customer_last_name}</Td>
+                                                                                                <Td>{totalDataRes.monthFirst}</Td>
+                                                                                                <Td>{totalDataRes.monthSecond}</Td>
+                                                                                                <Td>{totalDataRes.monthThird}</Td>
+                                                                                                <Td>{totalDataRes.canam}</Td>
+                                                                                            </Tr>
+                                                                                        )
+                                                                                    })
+                                                                                }
+                                                                            </Tbody>
+                                                                        </Table>
+                                                                        {/* Bảng chi tiết Đặt bàn theo Quý thống kê */}
+                                                                        <Table style={{ marginTop: "20px" }}>
+                                                                            <Thead>
+                                                                                <Tr>
+                                                                                    <Th colSpan={9}>Danh sách Đặt bàn Khách hàng theo Quý thống kê</Th>
+                                                                                </Tr>
+                                                                                <Tr>
+                                                                                    <Th>STT</Th>
+                                                                                    <Th>Họ tên</Th>
+                                                                                    <Th>SĐT</Th>
+                                                                                    <Th>Địa chỉ</Th>
+                                                                                    <Th>Ngày Checkin</Th>
+                                                                                    <Th>Ngày Checkout</Th>
+                                                                                    <Th>Bàn số</Th>
+                                                                                    <Th>Vị trí Bàn</Th>
+                                                                                    <Th>Tổng tiền</Th>
+                                                                                </Tr>
+                                                                            </Thead>
+                                                                            <Tbody>
+                                                                                {
+                                                                                    statisticCustomerByQuarterDataTable.length > 0 ? (
+                                                                                        statisticCustomerByQuarterDataTable.map((tableBookingOrder, key) => {
+                                                                                            return (
+                                                                                                <Tr>
+                                                                                                    <Td>{key + 1}</Td>
+                                                                                                    <Td>{tableBookingOrder.customer_first_name + " " + tableBookingOrder.customer_last_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.customer_phone_number}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_address + ", " + tableBookingOrder.ward_name + ", " + tableBookingOrder.district_name + ", " + tableBookingOrder.city_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_start_date}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                                </Tr>
+                                                                                            )
+                                                                                        })
+                                                                                    ) : null
+                                                                                }
+                                                                            </Tbody>
+                                                                        </Table>
+                                                                    </>
+                                                                ) : null
+                                                            ) : null
+                                                        }
+
+                                                        {
+                                                            // ---------------- THỐNG KÊ THEO NGÀY - BẢNG ----------------
+                                                            isStatisticTableBookingOrderCustomerByDate ? (
+                                                                isStatisticTableBookingOrderCustomerByDate ? (
+                                                                    <>
+                                                                        {
+                                                                            statisticTableBookingOrderCustomerByDate.dataArray.map((statisticRow, key) => {
+                                                                                const date = statisticRow.date;
+                                                                                const dataArray = statisticRow.dataArray;
+                                                                                return (
+                                                                                    <Table style={{ marginBottom: "15px" }}>
+                                                                                        <Thead>
+                                                                                            <Tr>
+                                                                                                <Th colSpan={3}> Doanh thu Ngày {date}</Th>
+                                                                                            </Tr>
+                                                                                            <Tr>
+                                                                                                <Th>STT</Th>
+                                                                                                <Th>Khách hàng</Th>
+                                                                                                <Th>Doanh thu</Th>
+                                                                                            </Tr>
+                                                                                        </Thead>
+                                                                                        <Tbody>
+                                                                                            <Tr>
+                                                                                                <Td>{key + 1}</Td>
+                                                                                                <Td>{dataArray.totalData.customer_first_name + " " + dataArray.totalData.customer_last_name}</Td>
+                                                                                                <Td>{dataArray.totalData.total}</Td>
+                                                                                            </Tr>
+                                                                                        </Tbody>
+                                                                                    </Table>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                        {/* Bảng chi tiết Đặt bàn theo Ngày thống kê */}
+                                                                        <Table style={{ marginTop: "20px" }}>
+                                                                            <Thead>
+                                                                                <Tr>
+                                                                                    <Th colSpan={9}>Danh sách Đặt bàn Khách hàng theo Ngày thống kê</Th>
+                                                                                </Tr>
+                                                                                <Tr>
+                                                                                    <Th>STT</Th>
+                                                                                    <Th>Họ tên</Th>
+                                                                                    <Th>SĐT</Th>
+                                                                                    <Th>Địa chỉ</Th>
+                                                                                    <Th>Ngày Checkin</Th>
+                                                                                    <Th>Ngày Checkout</Th>
+                                                                                    <Th>Bàn số</Th>
+                                                                                    <Th>Vị trí Bàn</Th>
+                                                                                    <Th>Tổng tiền</Th>
+                                                                                </Tr>
+                                                                            </Thead>
+                                                                            <Tbody>
+                                                                                {
+                                                                                    statisticCustomerByDateDataTable.length > 0 ? (
+                                                                                        statisticCustomerByDateDataTable.map((tableBookingOrder, key) => {
+                                                                                            return (
+                                                                                                <Tr>
+                                                                                                    <Td>{key + 1}</Td>
+                                                                                                    <Td>{tableBookingOrder.customer_first_name + " " + tableBookingOrder.customer_last_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.customer_phone_number}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_address + ", " + tableBookingOrder.ward_name + ", " + tableBookingOrder.district_name + ", " + tableBookingOrder.city_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_start_date}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
+                                                                                                    <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                                </Tr>
+                                                                                            )
+                                                                                        })
+                                                                                    ) : null
+                                                                                }
+                                                                            </Tbody>
+                                                                        </Table>
+                                                                    </>
+                                                                ) : null
+                                                            ) : null
+                                                        }
+                                                    </StatisticTable>
+                                                    {/* Biểu đồ */}
+                                                    <LeftVoteItem className="row" style={{ display: isShowChartCustomer ? "block" : "none" }}>
+                                                        {
+                                                            // ---------------- THỐNG KÊ THEO DOANH THU - THEO QUÝ ----------------
+                                                            isStatisticTableBookingOrderCustomerByQuarter ? (
+                                                                statisticTableBookingOrderCustomerByQuarter ? (
+                                                                    <>
+                                                                        <TooltipMui
+                                                                            title={statisticTableBookingOrderCustomerByQuarter ? "Cập nhật lúc " + statisticTableBookingOrderCustomerByQuarter.statisticDate : null}
+                                                                            arrow
+                                                                            followCursor={true}
+                                                                            componentsProps={{
+                                                                                tooltip: {
+                                                                                    sx: {
+                                                                                        fontSize: "12px",
+                                                                                        fontWeight: "bold",
+                                                                                        letterSpacing: "1px",
+                                                                                        padding: "10px 20px",
+                                                                                        borderRadius: "20px"
+                                                                                    },
+                                                                                },
+                                                                            }}
+                                                                        >
+                                                                            <LeftVoteTitle>Thống kê Doanh thu Đặt bàn theo Tháng trong Quý</LeftVoteTitle>
+                                                                        </TooltipMui>
+                                                                        <Bar
+                                                                            ref={statisticCustomerImageByQuarter}
+                                                                            data={{
+                                                                                labels: statisticTableBookingOrderCustomerByQuarter ?
+                                                                                    statisticTableBookingOrderCustomerByQuarter.monthArray : null,
+                                                                                datasets: statisticCustomerByQuarterDataChart
+                                                                            }}
+                                                                            options={{
+                                                                                title: {
+                                                                                    display: true,
+                                                                                    text: "World population per region (in millions)"
+                                                                                },
+                                                                                legend: {
+                                                                                    display: true,
+                                                                                    position: "bottom"
+                                                                                }
+                                                                            }}
+                                                                        />
+                                                                    </>
+                                                                ) : null
+                                                            ) : null
+                                                        }
+
+                                                        {
+                                                            // ---------------- THỐNG KÊ THEO DOANH THU - THEO NGÀY ----------------
+                                                            isStatisticTableBookingOrderCustomerByDate ? (
+                                                                statisticTableBookingOrderCustomerByDate ? (
+                                                                    <>
+                                                                        <TooltipMui
+                                                                            title={statisticTableBookingOrderCustomerByDate ? "Cập nhật lúc " + statisticTableBookingOrderCustomerByDate.statisticDate : null}
+                                                                            arrow
+                                                                            followCursor={true}
+                                                                            componentsProps={{
+                                                                                tooltip: {
+                                                                                    sx: {
+                                                                                        fontSize: "12px",
+                                                                                        fontWeight: "bold",
+                                                                                        letterSpacing: "1px",
+                                                                                        padding: "10px 20px",
+                                                                                        borderRadius: "20px"
+                                                                                    },
+                                                                                },
+                                                                            }}
+                                                                        >
+                                                                            <LeftVoteTitle>Thống kê Doanh thu Đặt bàn theo Ngày</LeftVoteTitle>
+                                                                        </TooltipMui>
+                                                                        <Line
+                                                                            ref={statisticCustomerImageByDate}
+                                                                            data={{
+                                                                                labels: statisticTableBookingOrderCustomerByDate ?
+                                                                                    statisticTableBookingOrderCustomerByDate.dateArray : null,
+                                                                                datasets: statisticCustomerByDateDataChart
+                                                                            }}
+                                                                            options={{
+                                                                                title: {
+                                                                                    display: true,
+                                                                                    text: "World population per region (in millions)"
+                                                                                },
+                                                                                legend: {
+                                                                                    display: true,
+                                                                                    position: "bottom"
+                                                                                }
+                                                                            }}
+                                                                        />
+                                                                    </>
+                                                                ) : null
+                                                            ) : null
+                                                        }
+                                                    </LeftVoteItem>
+                                                    <StatisticLeftButton className="row">
+                                                        {
+                                                            // ---------------- BUTTON HIỆN BIỂU ĐỒ ----------------
+                                                            isShowTableCustomer ? (
+                                                                <TooltipMui
+                                                                    title={"Hiện biểu đồ"}
+                                                                    arrow
+                                                                    followCursor={true}
+                                                                    componentsProps={{
+                                                                        tooltip: {
+                                                                            sx: {
+                                                                                fontSize: "12px",
+                                                                                fontWeight: "bold",
+                                                                                letterSpacing: "1px",
+                                                                                padding: "10px 20px",
+                                                                                borderRadius: "20px"
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <ButtonStatistic onClick={() => handleShowChartCustomer()}>
+                                                                        <ImageOutlined />
+                                                                    </ButtonStatistic>
+                                                                </TooltipMui>
+                                                            ) : null
+                                                        }
+
+                                                        {
+                                                            // ---------------- BUTTON ẨN BIỂU ĐỒ ----------------
+                                                            isShowChartCustomer ? (
+                                                                <TooltipMui
+                                                                    title={"Ẩn biểu đồ"}
+                                                                    arrow
+                                                                    followCursor={true}
+                                                                    componentsProps={{
+                                                                        tooltip: {
+                                                                            sx: {
+                                                                                fontSize: "12px",
+                                                                                fontWeight: "bold",
+                                                                                letterSpacing: "1px",
+                                                                                padding: "10px 20px",
+                                                                                borderRadius: "20px"
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <ButtonStatistic onClick={() => handleHideChartCustomer()}>
+                                                                        <HideImageOutlined />
+                                                                    </ButtonStatistic>
+                                                                </TooltipMui>
+                                                            ) : null
+                                                        }
+
+                                                        {
+                                                            // Khi state isQuarter thì hiện pdf của quarter
+                                                            isStatisticTableBookingOrderCustomerByQuarter ?
+                                                                (
+                                                                    <div>
+                                                                        <PDFDownloadLink document={<PDFFileCustomerByQuarter data={statisticTableBookingOrderCustomerByQuarter} image={statisticCustomerByQuarterPDFImage} dataTable={statisticCustomerByQuarterDataTable} />} fileName="BaoCaoThongKeDoanhThuLoaiBanTheoQuy.pdf">
+                                                                            {({ blob, url, loading, error }) =>
+                                                                                loading ? (
+                                                                                    <TooltipMui
+                                                                                        title={"Xuất ra file PDF - Quarter"}
+                                                                                        arrow
+                                                                                        followCursor={true}
+                                                                                        componentsProps={{
+                                                                                            tooltip: {
+                                                                                                sx: {
+                                                                                                    fontSize: "12px",
+                                                                                                    fontWeight: "bold",
+                                                                                                    letterSpacing: "1px",
+                                                                                                    padding: "10px 20px",
+                                                                                                    borderRadius: "20px"
+                                                                                                },
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        <ButtonStatistic>
+                                                                                            <MoreHorizOutlined />
+                                                                                        </ButtonStatistic>
+                                                                                    </TooltipMui>
+                                                                                ) : (
+                                                                                    <TooltipMui
+                                                                                        title={"Xuất ra file PDF theo quý"}
+                                                                                        arrow
+                                                                                        followCursor={true}
+                                                                                        componentsProps={{
+                                                                                            tooltip: {
+                                                                                                sx: {
+                                                                                                    fontSize: "12px",
+                                                                                                    fontWeight: "bold",
+                                                                                                    letterSpacing: "1px",
+                                                                                                    padding: "10px 20px",
+                                                                                                    borderRadius: "20px"
+                                                                                                },
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        <ButtonStatistic>
+                                                                                            <PictureAsPdfOutlined />
+                                                                                        </ButtonStatistic>
+                                                                                    </TooltipMui>
+                                                                                )
+                                                                            }
+                                                                        </PDFDownloadLink>
+                                                                    </div>
+                                                                ) : null
+                                                        }
+                                                        {
+                                                            // Khi state isDate thì hiện pdf của date
+                                                            isStatisticTableBookingOrderCustomerByDate ?
+                                                                (
+                                                                    <div>
+                                                                        <PDFDownloadLink document={<PDFFileCustomerByDate data={statisticTableBookingOrderCustomerByDate} image={statisticCustomerByDatePDFImage} dataTable={statisticCustomerByDateDataTable} />} fileName="BaoCaoThongKeDoanhThuLoaiBanTheoNgay.pdf">
+                                                                            {({ blob, url, loading, error }) =>
+                                                                                loading ? (
+                                                                                    <TooltipMui
+                                                                                        title={"Xuất ra file PDF"}
+                                                                                        arrow
+                                                                                        followCursor={true}
+                                                                                        componentsProps={{
+                                                                                            tooltip: {
+                                                                                                sx: {
+                                                                                                    fontSize: "12px",
+                                                                                                    fontWeight: "bold",
+                                                                                                    letterSpacing: "1px",
+                                                                                                    padding: "10px 20px",
+                                                                                                    borderRadius: "20px"
+                                                                                                },
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        <ButtonStatistic>
+                                                                                            <MoreHorizOutlined />
+                                                                                        </ButtonStatistic>
+                                                                                    </TooltipMui>
+                                                                                ) : (
+                                                                                    <TooltipMui
+                                                                                        title={"Xuất ra file PDF theo ngày"}
+                                                                                        arrow
+                                                                                        followCursor={true}
+                                                                                        componentsProps={{
+                                                                                            tooltip: {
+                                                                                                sx: {
+                                                                                                    fontSize: "12px",
+                                                                                                    fontWeight: "bold",
+                                                                                                    letterSpacing: "1px",
+                                                                                                    padding: "10px 20px",
+                                                                                                    borderRadius: "20px"
+                                                                                                },
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        <ButtonStatistic>
+                                                                                            <PictureAsPdfOutlined />
+                                                                                        </ButtonStatistic>
+                                                                                    </TooltipMui>
+                                                                                )
+                                                                            }
+                                                                        </PDFDownloadLink>
+                                                                    </div>
+                                                                ) : null
+                                                        }
+
+                                                        {/* ---------------- BUTTON XUẤT EXCEL ---------------- */}
+                                                        <TooltipMui
+                                                            title={"Xuất ra file Excel"}
+                                                            arrow
+                                                            followCursor={true}
+                                                            componentsProps={{
+                                                                tooltip: {
+                                                                    sx: {
+                                                                        fontSize: "12px",
+                                                                        fontWeight: "bold",
+                                                                        letterSpacing: "1px",
+                                                                        padding: "10px 20px",
+                                                                        borderRadius: "20px"
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <ButtonStatistic
+                                                                onClick={() => handleExportExcelCustomer()}
+                                                            >
+                                                                <FilePresentOutlined />
+                                                            </ButtonStatistic>
+                                                        </TooltipMui>
+
+                                                        {/* ---------------- BUTTON XUẤT EXCEL CHI TIẾT ---------------- */}
+                                                        <TooltipMui
+                                                            title={"Xuất ra file Excel Chi tiết - Khách hàng"}
+                                                            arrow
+                                                            followCursor={true}
+                                                            componentsProps={{
+                                                                tooltip: {
+                                                                    sx: {
+                                                                        fontSize: "12px",
+                                                                        fontWeight: "bold",
+                                                                        letterSpacing: "1px",
+                                                                        padding: "10px 20px",
+                                                                        borderRadius: "20px"
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <ButtonStatistic
+                                                                onClick={() => handleExportExcelDetailCustomer()}
+                                                            >
+                                                                <FindInPageOutlined />
+                                                            </ButtonStatistic>
+                                                        </TooltipMui>
+                                                    </StatisticLeftButton>
+
+                                                </LeftVote>
+                                            )
+                                        }
+                                        <FilterStatistic className="col-lg-4">
+                                            <FilterStatisticItem className="row" style={{ padding: "5px 10px" }}>
+                                                <FilterStatisticTitle className="col-lg-12">Thống kê theo</FilterStatisticTitle>
+
+                                                <LabelCheckbox className="col-lg-6">
+                                                    <ServiceItem className="row" style={{ padding: "0 10px" }}>
+                                                        <div className="col-lg-4" style={{ padding: "0" }}>
+                                                            <Checkbox checked={statisticWayCustomer === "byQuarter" ? true : false} value={"byQuarter"} onClick={(e) => handleCheckByQuarterCustomer(e)} />
+                                                        </div>
+                                                        <ServiceName className="col-lg-8" style={{ padding: "0" }}>
+                                                            Theo quý
+                                                        </ServiceName>
+                                                    </ServiceItem>
+                                                </LabelCheckbox>
+                                                <LabelCheckbox className="col-lg-6">
+                                                    <ServiceItem className="row" style={{ padding: "0 10px" }}>
+                                                        <div className="col-lg-4" style={{ padding: "0" }}>
+                                                            <Checkbox checked={statisticWayCustomer === "byDate" ? true : false} value={"byDate"} onClick={(e) => handleCheckByDateCustomer(e)} />
+                                                        </div>
+                                                        <ServiceName className="col-lg-8" style={{ padding: "0" }}>
+                                                            Theo ngày
+                                                        </ServiceName>
+                                                    </ServiceItem>
+                                                </LabelCheckbox>
+                                            </FilterStatisticItem>
+
+                                            {
+                                                statisticWayCustomer && statisticWayCustomer === "byDate" ? (
+                                                    // ---------------- THỐNG KÊ THEO NGÀY ----------------
+                                                    <FilterStatisticItem className="row">
+                                                        <div className="col-lg-6" style={{ display: "flex", flexDirection: "column" }}>
+                                                            <FilterSpan>Từ ngày:</FilterSpan>
+                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                <Stack spacing={3}>
+                                                                    <DesktopDatePicker
+                                                                        label="Ngày bắt đầu"
+                                                                        inputFormat="dd/MM/yyyy"
+                                                                        maxDate={new Date()}
+                                                                        value={startDateCustomer}
+                                                                        onChange={(newValue) => handleChangeStartDateCustomer(newValue)}
+                                                                        renderInput={(params) => <TextField {...params} />}
+                                                                        InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "var(--color-dark)" } } }}
+                                                                    />
+                                                                </Stack>
+                                                            </LocalizationProvider>
+                                                        </div>
+                                                        <div className="col-lg-6" style={{ display: "flex", flexDirection: "column" }}>
+                                                            <FilterSpan>Đến ngày:</FilterSpan>
+                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                <Stack spacing={3}>
+                                                                    <DesktopDatePicker
+                                                                        label="Ngày kết thúc"
+                                                                        inputFormat="dd/MM/yyyy"
+                                                                        minDate={startDateCustomer}
+                                                                        maxDate={new Date()}
+                                                                        value={finishDateCustomer}
+                                                                        onChange={(newValue) => handleChangeFinishDateCustomer(newValue)}
+                                                                        renderInput={(params) => <TextField {...params} />}
+                                                                        InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "var(--color-dark)" } } }}
+                                                                    />
+                                                                </Stack>
+                                                            </LocalizationProvider>
+                                                        </div>
+                                                    </FilterStatisticItem>
+                                                ) : (
+                                                    // ---------------- THỐNG KÊ THEO QUÝ ----------------
+                                                    <FilterStatisticItem className="row">
+                                                        <div className="col-lg-12" style={{ display: "flex", flexDirection: "column" }}>
+                                                            <FilterSpan>Chọn quý:</FilterSpan>
+                                                            <Box sx={{ minWidth: 120, margin: "5px 0" }}>
+                                                                <FormControl fullWidth>
+                                                                    <InputLabel id="demo-simple-select-label"></InputLabel>
+                                                                    <Select
+                                                                        labelId="demo-simple-select-label"
+                                                                        id="demo-simple-select"
+                                                                        label="Age"
+                                                                        sx={{
+                                                                            '& legend': { display: 'none' },
+                                                                            '& fieldset': { top: 0 }
+                                                                        }}
+                                                                        onChange={(e) => handleChangeQuarterCustomer(e)}
+                                                                    >
+                                                                        <MenuItem value={1}>Quý 1: Từ đầu tháng 1 cho đến hết tháng 3.</MenuItem>
+                                                                        <MenuItem value={2}>Quý 2: Từ đầu tháng 4 cho đến hết tháng 6.</MenuItem>
+                                                                        <MenuItem value={3}>Quý 3: Từ đầu tháng 7 cho đến hết tháng 9.</MenuItem>
+                                                                        <MenuItem value={4}>Quý 4: Từ đầu tháng 10 cho đến hết tháng 12.</MenuItem>
+                                                                    </Select>
+                                                                </FormControl>
+                                                            </Box>
+                                                        </div>
+                                                    </FilterStatisticItem>
+                                                )
+                                            }
+
+
+                                            <FilterStatisticItem className="row" style={{ marginBottom: "10px", paddingBottom: "5px" }}>
+                                                <FilterStatisticTitle style={{ fontSize: "1.1rem", padding: "10px 0 10px 0" }} className="col-lg-12">Thông tin Khách hàng muốn thống kê</FilterStatisticTitle>
+                                                <div className="col-lg-12">
+                                                    <FormInput style={{ width: "100%" }} type="text"
+                                                        value={customerInfo}
+                                                        placeholder="Email/ Số điện thoại Khách hàng"
+                                                        onChange={(e) => handleChangeCustomerInfo(e)}
+                                                    />
+                                                </div>
+                                                <FilterStatisticTitle style={{ fontSize: "1.1rem", padding: "10px 0 10px 0" }} className="col-lg-12">Hiển thị kết quả theo Doanh thu cả năm</FilterStatisticTitle>
+                                                <LabelCheckbox className="col-lg-6">
+                                                    <ServiceItem className="row" style={{ padding: "0 10px" }}>
+                                                        <div className="col-lg-4" style={{ padding: "0" }}>
+                                                            <Checkbox checked={sortWayCustomer === "desc" ? true : false} value={"desc"} onClick={(e) => handleCheckDescCustomer(e)} />
+                                                        </div>
+                                                        <ServiceName className="col-lg-8" style={{ padding: "0" }}>
+                                                            Giảm dần
+                                                        </ServiceName>
+                                                    </ServiceItem>
+                                                </LabelCheckbox>
+                                                <LabelCheckbox className="col-lg-6">
+                                                    <ServiceItem className="row" style={{ padding: "0 10px" }}>
+                                                        <div className="col-lg-4" style={{ padding: "0" }}>
+                                                            <Checkbox checked={sortWayCustomer === "asc" ? true : false} value={"asc"} onClick={(e) => handleCheckAscCustomer(e)} />
+                                                        </div>
+                                                        <ServiceName className="col-lg-8" style={{ padding: "0" }}>
+                                                            Tăng dần
+                                                        </ServiceName>
+                                                    </ServiceItem>
+                                                </LabelCheckbox>
+                                            </FilterStatisticItem>
+
+                                            <FormChucNang style={{ marginTop: "0" }}>
+                                                <SignInBtn
+                                                    onClick={(e) => handleStatisticOfCustomer(e, statisticWayCustomer, startDateCustomer, finishDateCustomer, quarterCustomer, sortWayCustomer, customerInfo)}
                                                 >Thống kê</SignInBtn>
                                             </FormChucNang>
                                         </FilterStatistic>
