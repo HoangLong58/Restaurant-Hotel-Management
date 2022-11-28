@@ -15,6 +15,7 @@ import moment from 'moment';
 // SERVICES
 import * as EmployeeService from "../../service/EmployeeService";
 import * as PositionService from "../../service/PositionService";
+import { getYearWork } from "../../utils/utils";
 
 const Background = styled.div`
     width: 100%;
@@ -347,6 +348,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
     const [employeeLastNameModalNew, setEmployeeLastNameModalNew] = useState();
     const [employeeGenderModalNew, setEmployeeGenderModalNew] = useState();
     const [employeeBirthdayModalNew, setEmployeeBirthdayModalNew] = useState();
+    const [employeeStartJobModalNew, setEmployeeStartJobModalNew] = useState();
     const [employeePhoneNumberModalNew, setEmployeePhoneNumberModalNew] = useState();
     const [employeeEmailModalNew, setEmployeeEmailModalNew] = useState();
     const [employeePasswordModalNew, setEmployeePasswordModalNew] = useState();
@@ -357,6 +359,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
         setEmployeeFirstNameModalNew();
         setEmployeeLastNameModalNew();
         setEmployeeBirthdayModalNew();
+        setEmployeeStartJobModalNew();
         setEmployeeGenderModalNew();
         setEmployeePhoneNumberModalNew();
         setEmployeeEmailModalNew();
@@ -473,6 +476,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
         employeeFirstName,
         employeeLastName,
         employeeBirthday,
+        employeeStartJob,
         employeeGender,
         employeePhoneNumber,
         employeeEmail,
@@ -484,6 +488,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
         console.log(":ssssssss: ", employeeFirstName,
             employeeLastName,
             employeeBirthday,
+            employeeStartJob,
             employeeGender,
             employeePhoneNumber,
             employeeEmail,
@@ -502,6 +507,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                 employeeFirstName: employeeFirstName,
                 employeeLastName: employeeLastName,
                 employeeBirthday: employeeBirthday,
+                employeeStartJob: employeeStartJob,
                 employeeGender: employeeGender,
                 employeePhoneNumber: employeePhoneNumber,
                 employeeEmail: employeeEmail,
@@ -542,6 +548,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
     const [employeeRePasswordModal, setEmployeeRePasswordModal] = useState(null);
     const [employeeGenderModal, setEmployeeGenderModal] = useState();
     const [employeeBirthdayModal, setEmployeeBirthdayModal] = useState();
+    const [employeeStartJobModal, setEmployeeStartJobModal] = useState();
     const [employeeEmailModal, setEmployeeEmailModal] = useState();
     const [employeePhoneNumberModal, setEmployeePhoneNumberModal] = useState();
     const [employeeImageModal, setEmployeeImageModal] = useState();
@@ -559,6 +566,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                 setEmployeeLastNameModal(employeeRes.data.data.employee_last_name);
                 setEmployeeGenderModal(employeeRes.data.data.employee_gender);
                 setEmployeeBirthdayModal(employeeRes.data.data.employee_birthday);
+                setEmployeeStartJobModal(employeeRes.data.data.employee_start_job);
                 setEmployeeEmailModal(employeeRes.data.data.employee_email);
                 setEmployeePhoneNumberModal(employeeRes.data.data.employee_phone_number);
                 setEmployeeImageModal(employeeRes.data.data.employee_image);
@@ -710,6 +718,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
         employeeFirstNameModal,
         employeeLastNameModal,
         employeeBirthdayModal,
+        employeeStartJobModal,
         employeeGenderModal,
         employeePhoneNumberModal,
         employeeEmailModal,
@@ -730,6 +739,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                 employeeFirstName: employeeFirstNameModal,
                 employeeLastName: employeeLastNameModal,
                 employeeBirthday: employeeBirthdayModal,
+                employeeStartJob: employeeStartJobModal,
                 employeeGender: employeeGenderModal,
                 employeePhoneNumber: employeePhoneNumberModal,
                 employeeEmail: employeeEmailModal,
@@ -849,6 +859,20 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                                 </ModalFormItem>
                                             </div>
                                         </div>
+                                        <div className="row">
+                                            <div className="col-lg-6">
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
+                                                    <FormSpan>Ngày làm việc chính thức:</FormSpan>
+                                                    <FormInput type="text" value={employeeModal ? employeeModal.employee_start_job : null} readOnly />
+                                                </ModalFormItem>
+                                            </div>
+                                            <div className="col-lg-6">
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
+                                                    <FormSpan>Thâm niên lao động:</FormSpan>
+                                                    <FormInput type="text" value={employeeModal ? getYearWork(new Date(employeeModal.employee_start_job), new Date()) : null} readOnly />
+                                                </ModalFormItem>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </ModalForm>
@@ -882,7 +906,56 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                             <ModalForm>
                                 <div className="row">
                                     <div className="col-lg-4">
-                                        <ModalFormItem style={{ flex: "1" }}>
+                                        <ModalFormItem style={{ margin: "0px 10px 10px 10px" }}>
+                                            <FormSpan>Ngày làm việc chính thức:</FormSpan>
+                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                <Stack spacing={1}>
+                                                    <DesktopDatePicker
+                                                        label="Tên Thiết bị:"
+                                                        inputFormat="dd/MM/yyyy"
+                                                        disableFuture
+                                                        value={employeeStartJobModalNew}
+                                                        onChange={(newValue) => { setEmployeeStartJobModalNew(moment(newValue).format("YYYY-MM-DD HH:mm:ss")); }}
+                                                        renderInput={(params) => <TextField {...params} sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                '& fieldset': {
+                                                                    borderColor: 'var(--color-dark)',
+                                                                },
+                                                                '&:hover fieldset': {
+                                                                    borderColor: 'var(--color-dark)',
+                                                                },
+                                                                '&.Mui-focused fieldset': {
+                                                                    borderColor: 'var(--color-dark)',
+                                                                },
+                                                            },
+                                                            '& .MuiInputBase-input': {
+                                                                height: '10px', // Set your height here.
+                                                                padding: "15px 25px"
+                                                            },
+                                                            '& .MuiInputLabel-root': {
+                                                                color: 'var(--color-dark)',
+                                                                fontWeight: "bold"
+                                                            },
+                                                            '& .MuiOutlinedInput-root': {
+                                                                color: 'var(--color-dark)',
+                                                                letterSpacing: '2px'
+                                                            },
+                                                            '& .MuiFormLabel-root': {
+                                                                display: 'none'
+                                                            }
+                                                        }}
+                                                        />}
+                                                        InputLabelProps={{ shrink: true }}
+                                                        InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "var(--color-dark)" } } }}
+                                                    />
+                                                </Stack>
+                                            </LocalizationProvider>
+                                        </ModalFormItem>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-lg-4">
+                                        <ModalFormItem style={{ flex: "1", margin: "0px 10px" }}>
                                             <FormSpan>Chức vụ của Nhân viên:</FormSpan>
                                             <FormSelect onChange={(e) => { setPositionIdModalNew(parseInt(e.target.value)) }}>
                                                 {
@@ -896,13 +969,13 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 10px" }}>
                                             <FormSpan>Họ của Nhân viên:</FormSpan>
                                             <FormInput type="text" onChange={(e) => setEmployeeFirstNameModalNew(e.target.value)} placeholder="Nhập vào Họ của Nhân viên" />
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 10px" }}>
                                             <FormSpan>Tên của Nhân viên:</FormSpan>
                                             <FormInput type="text" onChange={(e) => setEmployeeLastNameModalNew(e.target.value)} placeholder="Nhập vào Tên của Nhân viên" />
                                         </ModalFormItem>
@@ -911,7 +984,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
 
                                 <div className="row">
                                     <div className="col-lg-4">
-                                        <ModalFormItem style={{ flex: "1" }}>
+                                        <ModalFormItem style={{ flex: "1", margin: "0px 10px" }}>
                                             <FormSpan>Giới tính:</FormSpan>
                                             <FormSelect onChange={(e) => { setEmployeeGenderModalNew(e.target.value) }}>
                                                 <FormOption value={"Nam"}>Nam</FormOption>
@@ -920,7 +993,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem style={{ marginTop: "20px" }}>
+                                        <ModalFormItem style={{ marginTop: "10px" }}>
                                             <FormSpan>Ngày sinh:</FormSpan>
                                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                 <Stack spacing={1}>
@@ -967,7 +1040,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 10px" }}>
                                             <FormSpan>Số điện thoại:</FormSpan>
                                             <FormInput style={{ marginBottom: "25px" }} type="text" placeholder="Số điện thoại của Nhân viên"
                                                 maxLength={11}
@@ -979,7 +1052,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                 </div>
                                 <div className="row">
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 10px" }}>
                                             <FormSpan>Email:</FormSpan>
                                             <FormInput style={{ marginBottom: "25px" }} type="email" placeholder="Email của Nhân viên"
                                                 value={employeeEmailModalNew}
@@ -988,7 +1061,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 30px" }}>
                                             <FormSpan>Mật khẩu:</FormSpan>
                                             <Label>
                                                 <FormInput type={passwordType} placeholder="Mật khẩu của bạn"
@@ -1008,7 +1081,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 30px" }}>
                                             <FormSpan>Xác nhận mật khẩu:</FormSpan>
                                             <Label>
                                                 <FormInput type={rePasswordType} placeholder="Nhập lại mật khẩu"
@@ -1029,7 +1102,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                     </div>
                                 </div>
 
-                                <ModalFormItem>
+                                <ModalFormItem style={{ margin: "0px 10px" }}>
                                     <FormSpan>Hình ảnh:</FormSpan>
                                     <FormInput type="file" onChange={(e) => handleShowImg(e.target.files[0])} />
                                     <FormImg src={employeeImageModalNew !== null ? employeeImageModalNew : "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1650880603321No-Image-Placeholder.svg.png?alt=media&token=2a1b17ab-f114-41c0-a00d-dd81aea80d3e"} key={employeeImageModalNew}></FormImg>
@@ -1043,6 +1116,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                             employeeFirstNameModalNew,
                                             employeeLastNameModalNew,
                                             employeeBirthdayModalNew,
+                                            employeeStartJobModalNew,
                                             employeeGenderModalNew,
                                             employeePhoneNumberModalNew,
                                             employeeEmailModalNew,
@@ -1152,11 +1226,60 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                 {showModal ? (
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column` }}>
-                            <H1>Thêm Nhân viên mới</H1>
+                            <H1>Cập nhật thông tin Nhân viên</H1>
                             <ModalForm>
                                 <div className="row">
                                     <div className="col-lg-4">
-                                        <ModalFormItem style={{ flex: "1" }}>
+                                        <ModalFormItem style={{ margin: "0px 10px 10px 10px" }}>
+                                            <FormSpan>Ngày làm việc chính thức:</FormSpan>
+                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                <Stack spacing={1}>
+                                                    <DesktopDatePicker
+                                                        label="Ngày sinh:"
+                                                        inputFormat="dd/MM/yyyy"
+                                                        disableFuture
+                                                        value={employeeStartJobModal}
+                                                        onChange={(newValue) => { setEmployeeStartJobModal(moment(newValue).format("YYYY-MM-DD HH:mm:ss")); }}
+                                                        renderInput={(params) => <TextField {...params} sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                '& fieldset': {
+                                                                    borderColor: 'var(--color-dark)',
+                                                                },
+                                                                '&:hover fieldset': {
+                                                                    borderColor: 'var(--color-dark)',
+                                                                },
+                                                                '&.Mui-focused fieldset': {
+                                                                    borderColor: 'var(--color-dark)',
+                                                                },
+                                                            },
+                                                            '& .MuiInputBase-input': {
+                                                                height: '10px', // Set your height here.
+                                                                padding: "15px 25px"
+                                                            },
+                                                            '& .MuiInputLabel-root': {
+                                                                color: 'var(--color-dark)',
+                                                                fontWeight: "bold"
+                                                            },
+                                                            '& .MuiOutlinedInput-root': {
+                                                                color: 'var(--color-dark)',
+                                                                letterSpacing: '2px'
+                                                            },
+                                                            '& .MuiFormLabel-root': {
+                                                                display: 'none'
+                                                            }
+                                                        }}
+                                                        />}
+                                                        InputLabelProps={{ shrink: true }}
+                                                        InputProps={{ sx: { '& .MuiSvgIcon-root': { color: "var(--color-dark)" } } }}
+                                                    />
+                                                </Stack>
+                                            </LocalizationProvider>
+                                        </ModalFormItem>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-lg-4">
+                                        <ModalFormItem style={{ flex: "1", margin: "0px 10px" }}>
                                             <FormSpan>Chức vụ của Nhân viên:</FormSpan>
                                             <FormSelect onChange={(e) => { setPositionIdModal(parseInt(e.target.value)) }}>
                                                 {positionList.map((position, key) => {
@@ -1174,13 +1297,13 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 10px" }}>
                                             <FormSpan>Họ của Nhân viên:</FormSpan>
                                             <FormInput type="text" onChange={(e) => setEmployeeFirstNameModal(e.target.value)} value={employeeFirstNameModal} />
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 10px" }}>
                                             <FormSpan>Tên của Nhân viên:</FormSpan>
                                             <FormInput type="text" onChange={(e) => setEmployeeLastNameModal(e.target.value)} value={employeeLastNameModal} />
                                         </ModalFormItem>
@@ -1189,7 +1312,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
 
                                 <div className="row">
                                     <div className="col-lg-4">
-                                        <ModalFormItem style={{ flex: "1" }}>
+                                        <ModalFormItem style={{ flex: "1", margin: "0px 10px" }}>
                                             <FormSpan>Giới tính:</FormSpan>
                                             <FormSelect onChange={(e) => { setEmployeeGenderModal(e.target.value) }}>
                                                 {
@@ -1218,7 +1341,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem style={{ marginTop: "20px" }}>
+                                        <ModalFormItem style={{ marginTop: "10px" }}>
                                             <FormSpan>Ngày sinh:</FormSpan>
                                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                 <Stack spacing={1}>
@@ -1265,7 +1388,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                         </ModalFormItem>
                                     </div>
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 10px" }}>
                                             <FormSpan>Số điện thoại:</FormSpan>
                                             <FormInput style={{ marginBottom: "25px" }} type="text" placeholder="Số điện thoại của Nhân viên"
                                                 maxLength={11}
@@ -1277,7 +1400,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                 </div>
                                 <div className="row">
                                     <div className="col-lg-4">
-                                        <ModalFormItem>
+                                        <ModalFormItem style={{ margin: "0px 10px" }}>
                                             <FormSpan>Email:</FormSpan>
                                             <FormInput style={{ marginBottom: "25px" }} type="email" placeholder="Email của Nhân viên"
                                                 value={employeeEmailModal}
@@ -1289,7 +1412,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                         isChangePasswordUpdate ? (
                                             <>
                                                 <div className="col-lg-4">
-                                                    <ModalFormItem>
+                                                    <ModalFormItem style={{ margin: "0px 10px" }}>
                                                         <FormSpan>Mật khẩu:</FormSpan>
                                                         <Label>
                                                             <FormInput type={passwordType} placeholder="Mật khẩu của bạn"
@@ -1309,7 +1432,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                                     </ModalFormItem>
                                                 </div>
                                                 <div className="col-lg-4">
-                                                    <ModalFormItem>
+                                                    <ModalFormItem style={{ margin: "0px 10px" }}>
                                                         <FormSpan>Xác nhận mật khẩu:</FormSpan>
                                                         <Label>
                                                             <FormInput type={rePasswordType} placeholder="Nhập lại mật khẩu"
@@ -1331,7 +1454,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                             </>
                                         ) : (
                                             <div className="col-lg-8">
-                                                <ModalFormItem>
+                                                <ModalFormItem style={{ margin: "0px 10px" }}>
                                                     <ChangePassBtn onClick={() => setIsChangePasswordUpdate(prev => !prev)}>ĐỔI MẬT KHẨU</ChangePassBtn>
                                                 </ModalFormItem>
                                             </div>
@@ -1339,7 +1462,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                     }
                                 </div>
 
-                                <ModalFormItem>
+                                <ModalFormItem style={{ margin: "0px 10px" }}>
                                     <FormSpan>Hình ảnh:</FormSpan>
                                     <FormInput type="file" onChange={(e) => handleChangeImg(e.target.files[0])} />
                                     <FormImg src={employeeImageModal !== null ? employeeImageModal : "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1650880603321No-Image-Placeholder.svg.png?alt=media&token=2a1b17ab-f114-41c0-a00d-dd81aea80d3e"} key={employeeImageModal}></FormImg>
@@ -1353,6 +1476,7 @@ const Modal = ({ showModal, setShowModal, type, employee, setReRenderData, handl
                                             employeeFirstNameModal,
                                             employeeLastNameModal,
                                             employeeBirthdayModal,
+                                            employeeStartJobModal,
                                             employeeGenderModal,
                                             employeePhoneNumberModal,
                                             employeeEmailModal,

@@ -511,6 +511,7 @@ module.exports = {
         const employeeFirstName = req.body.employeeFirstName;
         const employeeLastName = req.body.employeeLastName;
         const employeeBirthday = req.body.employeeBirthday;
+        const employeeStartJob = req.body.employeeStartJob;
         const employeeGender = req.body.employeeGender;
         const employeePhoneNumber = req.body.employeePhoneNumber;
         const employeeEmail = req.body.employeeEmail;
@@ -536,6 +537,12 @@ module.exports = {
             return res.status(400).json({
                 status: "fail",
                 message: "Ngày sinh của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeStartJob) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày làm việc chính thức của Nhân viên không hợp lệ!"
             });
         }
         if (!employeeGender) {
@@ -609,6 +616,7 @@ module.exports = {
                             employeeFirstName,
                             employeeLastName,
                             employeeBirthday,
+                            employeeStartJob,
                             employeeGender,
                             employeePhoneNumber,
                             employeeEmail,
@@ -665,6 +673,7 @@ module.exports = {
         const employeeFirstName = req.body.employeeFirstName;
         const employeeLastName = req.body.employeeLastName;
         const employeeBirthday = req.body.employeeBirthday;
+        const employeeStartJob = req.body.employeeStartJob;
         const employeeGender = req.body.employeeGender;
         const employeePhoneNumber = req.body.employeePhoneNumber;
         const employeeEmail = req.body.employeeEmail;
@@ -688,6 +697,12 @@ module.exports = {
             return res.status(400).json({
                 status: "fail",
                 message: "Ngày sinh của Nhân viên không hợp lệ!"
+            });
+        }
+        if (!employeeStartJob) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Ngày làm việc chính thức của Nhân viên không hợp lệ!"
             });
         }
         if (!employeeGender) {
@@ -775,6 +790,7 @@ module.exports = {
                                     employeeFirstName,
                                     employeeLastName,
                                     employeeBirthday,
+                                    employeeStartJob,
                                     employeeGender,
                                     employeePhoneNumber,
                                     employeeEmail,
@@ -812,6 +828,7 @@ module.exports = {
                                     employeeFirstName,
                                     employeeLastName,
                                     employeeBirthday,
+                                    employeeStartJob,
                                     employeeGender,
                                     employeePhoneNumber,
                                     employeeEmail,

@@ -114,6 +114,7 @@ module.exports = {
             e.employee_first_name,
             e.employee_last_name, 
             e.employee_birthday,
+            e.employee_start_job,
             e.employee_gender, 
             e.employee_phone_number, 
             e.employee_email, 
@@ -147,6 +148,7 @@ module.exports = {
                 employee_first_name,
                 employee_last_name, 
                 employee_birthday,
+                employee_start_job,
                 employee_gender, 
                 employee_phone_number, 
                 employee_email, 
@@ -198,6 +200,7 @@ module.exports = {
                 employee_first_name,
                 employee_last_name, 
                 employee_birthday,
+                employee_start_job,
                 employee_gender, 
                 employee_phone_number, 
                 employee_email, 
@@ -270,6 +273,7 @@ module.exports = {
                 e.employee_first_name,
                 e.employee_last_name, 
                 e.employee_birthday,
+                e.employee_start_job,
                 e.employee_gender, 
                 e.employee_phone_number, 
                 e.employee_email, 
@@ -317,6 +321,7 @@ module.exports = {
                 e.employee_first_name,
                 e.employee_last_name, 
                 e.employee_birthday,
+                e.employee_start_job,
                 e.employee_gender, 
                 e.employee_phone_number, 
                 e.employee_email, 
@@ -353,6 +358,7 @@ module.exports = {
                 e.employee_first_name,
                 e.employee_last_name, 
                 e.employee_birthday,
+                e.employee_start_job,
                 e.employee_gender, 
                 e.employee_phone_number, 
                 e.employee_email, 
@@ -377,7 +383,7 @@ module.exports = {
             );
         });
     },
-    createEmployee: (firstName, lastName, birthday, gender, phoneNumber, email, password, image, state, otp, positionId) => {
+    createEmployee: (firstName, lastName, birthday, startJob, gender, phoneNumber, email, password, image, state, otp, positionId) => {
         return new Promise((resolve, reject) => {
             con.query(
                 `insert 
@@ -386,6 +392,7 @@ module.exports = {
                     employee_first_name,
                     employee_last_name,
                     employee_birthday,
+                    employee_start_job,
                     employee_gender,
                     employee_phone_number,
                     employee_email,
@@ -396,8 +403,8 @@ module.exports = {
                     position_id 
                 )
                 values
-                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [firstName, lastName, birthday, gender, phoneNumber, email, password, image, state, otp, positionId],
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [firstName, lastName, birthday, startJob, gender, phoneNumber, email, password, image, state, otp, positionId],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);
@@ -410,7 +417,7 @@ module.exports = {
             );
         });
     },
-    updateEmployeeNoPasswordById: (firstName, lastName, birthday, gender, phoneNumber, email, image, positionId, employeeId) => {
+    updateEmployeeNoPasswordById: (firstName, lastName, birthday, startJob, gender, phoneNumber, email, image, positionId, employeeId) => {
         return new Promise((resolve, reject) => {
             con.query(
                 `update 
@@ -418,13 +425,14 @@ module.exports = {
                 set employee_first_name = ?, 
                 employee_last_name = ?,
                 employee_birthday = ?,
+                employee_start_job = ?,
                 employee_gender = ?,
                 employee_phone_number = ?,
                 employee_email = ?,
                 employee_image = ?,
                 position_id  = ?
                 where employee_id  = ?`,
-                [firstName, lastName, birthday, gender, phoneNumber, email, image, positionId, employeeId],
+                [firstName, lastName, birthday, startJob, gender, phoneNumber, email, image, positionId, employeeId],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);
@@ -438,7 +446,7 @@ module.exports = {
             );
         });
     },
-    updateEmployeeWithPasswordById: (firstName, lastName, birthday, gender, phoneNumber, email, password, image, positionId, employeeId) => {
+    updateEmployeeWithPasswordById: (firstName, lastName, birthday, startJob, gender, phoneNumber, email, password, image, positionId, employeeId) => {
         return new Promise((resolve, reject) => {
             con.query(
                 `update 
@@ -446,6 +454,7 @@ module.exports = {
                 set employee_first_name = ?, 
                 employee_last_name = ?,
                 employee_birthday = ?,
+                employee_start_job = ?,
                 employee_gender = ?,
                 employee_phone_number = ?,
                 employee_email = ?,
@@ -453,7 +462,7 @@ module.exports = {
                 employee_image = ?,
                 position_id  = ?
                 where employee_id  = ?`,
-                [firstName, lastName, birthday, gender, phoneNumber, email, password, image, positionId, employeeId],
+                [firstName, lastName, birthday, startJob, gender, phoneNumber, email, password, image, positionId, employeeId],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);
@@ -604,6 +613,7 @@ module.exports = {
                 employee_first_name,
                 employee_last_name, 
                 employee_birthday,
+                employee_start_job,
                 employee_gender, 
                 employee_phone_number, 
                 employee_email, 

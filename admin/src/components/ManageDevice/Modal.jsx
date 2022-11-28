@@ -587,25 +587,25 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
                                     <div className="col-lg-9">
                                         <div className="row">
                                             <div className="col-lg-3">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Mã thiết bị:</FormSpan>
                                                     <FormInput type="text" value={deviceModal ? deviceModal.device_id : null} readOnly />
                                                 </ModalFormItem>
                                             </div>
                                             <div className="col-lg-3">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Tên thiết bị:</FormSpan>
                                                     <FormInput type="text" value={deviceModal ? deviceModal.device_name : null} readOnly />
                                                 </ModalFormItem>
                                             </div>
                                             <div className="col-lg-3">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Phân loại:</FormSpan>
                                                     <FormInput type="text" value={deviceModal ? deviceModal.device_type_name : null} readOnly />
                                                 </ModalFormItem>
                                             </div>
                                             <div className="col-lg-3">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Ngày thêm:</FormSpan>
                                                     <FormInput type="text" value={deviceModal ? deviceModal.device_date : null} readOnly />
                                                 </ModalFormItem>
@@ -613,17 +613,21 @@ const Modal = ({ showModal, setShowModal, type, device, setReRenderData, handleC
                                         </div>
                                         <div className="row">
                                             <div className="col-lg-8">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
+                                                    <FormSpan>Nhân viên đã thêm:</FormSpan>
+                                                    <FormInput type="text" value={deviceModal ? deviceModal.device_detail_tinh_trang : null} readOnly />
+                                                </ModalFormItem>
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Mô tả chi tiết:</FormSpan>
-                                                    <FormTextArea style={{height: "140px"}} rows="2" cols="50" value={deviceModal ? deviceModal.device_description : null} readOnly />
+                                                    <FormTextArea style={{ height: "100px" }} rows="2" cols="50" value={deviceModal ? deviceModal.device_description : null} readOnly />
                                                 </ModalFormItem>
                                             </div>
                                             <div className="col-lg-4">
-                                                <ModalFormItem style={{margin: "0 10px"}}>
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Trạng thái:</FormSpan>
                                                     <FormInput type="text" value={deviceModal ? deviceModal.device_state === 0 ? "Lưu kho" : deviceModal.device_state === 1 ? "Đang sử dụng" : "Chưa có" : null} readOnly />
                                                 </ModalFormItem>
-                                                <ModalFormItem style={{margin: "0 10px"}}>
+                                                <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Vị trí:</FormSpan>
                                                     <FormInput type="text" value={deviceModal && deviceModal.room_name && deviceModal.floor_name ? deviceModal.room_name + ", " + deviceModal.floor_name : "Chưa có"} readOnly />
                                                 </ModalFormItem>

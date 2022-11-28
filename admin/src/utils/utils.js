@@ -151,3 +151,16 @@ export const traceCurrency = (moneyVND) => {
     const moneyUSA = moneyVND / TRACE_VND_USA;
     return Math.round(moneyUSA * 100) / 100;
 };
+
+// Tính thâm niên làm việc - Nhân viên
+export const getYearWork = (startJob, endJob) => {
+    let months;
+    months = (endJob.getFullYear() - startJob.getFullYear()) * 12;
+    months -= startJob.getMonth();
+    months += endJob.getMonth();
+    if ((months / 12) < 1) {
+        return months % 12 + " tháng"
+    } else {
+        return (months / 12 | 0) + " năm " + months % 12 + " tháng"
+    }
+};
