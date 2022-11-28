@@ -1,4 +1,4 @@
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined } from "@mui/icons-material";
+import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, PersonAddOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import ReactPaginate from "react-paginate";
 import styled from "styled-components";
@@ -358,11 +358,13 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
     const [partyHallModal, setPartyHallModal] = useState(null);
+    const [partyHallAddEmployeeModal, setPartyHallAddEmployeeModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
         setPartyHallModal(modal.partyHall);
+        setPartyHallAddEmployeeModal(modal.partyHallAddEmployee)
     }
 
     // ===== TOAST =====
@@ -418,6 +420,13 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                         style={{ backgroundColor: partyHall.party_hall_state === 0 ? "var(--color-info)" : partyHall.party_hall_state === 1 ? "var(--color-danger)" : null }}>
                         {partyHall.party_hall_state === 0 ? "Còn trống" : partyHall.party_hall_state === 1 ? "Đã được khóa" : null}
                     </Td>
+                    <Td className="primary">
+                        <ButtonInfo
+                            onClick={() => openModal({ type: "addEmployee", partyHallAddEmployee: partyHall })}
+                        >
+                            <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                        </ButtonInfo>
+                    </Td>
                     <Td className="warning">
                         <ButtonFix
                             onClick={() => openModal({ type: "updatePartyHall", partyHall: partyHall })}
@@ -469,6 +478,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Vị trí</Th>
                             <Th>Giá tiền</Th>
                             <Th>Trạng thái</Th>
+                            <Th>Thêm Nhân viên</Th>
                             <Th>Chỉnh sửa</Th>
                             <Th>Xóa</Th>
                         </Tr>
@@ -476,7 +486,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                     <Tbody>
                         {noResultFound ? (
                             <Tr>
-                                <Td colSpan={12}>
+                                <Td colSpan={11}>
                                     <EmptyItem>
                                         <EmptyItemSvg>
                                             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
@@ -503,7 +513,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                         )
                             : isLoading ? (
                                 <Tr>
-                                    <Td colSpan={12} style={{ width: "100%", height: "100px" }}>
+                                    <Td colSpan={11} style={{ width: "100%", height: "100px" }}>
                                         <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             <div
                                                 class="spinner-border"
@@ -538,6 +548,13 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                                                     onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}
                                                     style={{ backgroundColor: partyHall.party_hall_state === 0 ? "var(--color-info)" : partyHall.party_hall_state === 1 ? "var(--color-danger)" : null }}>
                                                     {partyHall.party_hall_state === 0 ? "Còn trống" : partyHall.party_hall_state === 1 ? "Đã được khóa" : null}
+                                                </Td>
+                                                <Td className="primary">
+                                                    <ButtonInfo
+                                                        onClick={() => openModal({ type: "addEmployee", partyHallAddEmployee: partyHall })}
+                                                    >
+                                                        <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                                                    </ButtonInfo>
                                                 </Td>
                                                 <Td className="warning">
                                                     <ButtonFix
@@ -581,6 +598,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
                 partyHall={partyHallModal}  //Dữ liệu bên trong modal
+                partyHallAddEmployee={partyHallAddEmployeeModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast

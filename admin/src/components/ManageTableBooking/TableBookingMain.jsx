@@ -1,4 +1,4 @@
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined } from "@mui/icons-material";
+import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined, PersonAddOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Toast from "../Toast";
@@ -280,6 +280,19 @@ const EmptyContent = styled.div`
     font-weight: bold;
 `
 
+const ButtonInfo = styled.button`
+    width: 40px;
+    height: 30px;
+    border: 2px solid var(--color-info);
+    border-radius: var(--border-radius-2);
+    color: var(--color-warnning);
+    background: var(--color-white);
+    padding:0px;
+    outline:none;
+    z-index: 2;
+    cursor: pointer;
+`
+
 const TableBookingMain = ({ reRenderData, setReRenderData }) => {
     const InputRef = useRef(null);
     const [isSearch, setIsSearch] = useState(false);
@@ -345,11 +358,13 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("")
     const [tableBookingModal, setTableBookingModal] = useState(null);
+    const [tableBookingAddEmployeeModal, setTableBookingAddEmployeeModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);
         setTypeModal(modal.type);
         setTableBookingModal(modal.tableBooking);
+        setTableBookingAddEmployeeModal(modal.tableBookingAddEmployee);
     }
 
     // ===== TOAST =====
@@ -397,6 +412,13 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                         onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}
                         style={{ backgroundColor: tableBooking.table_booking_state === 0 ? "var(--color-info)" : tableBooking.table_booking_state === 1 ? "var(--color-danger)" : null }}>
                         {tableBooking.table_booking_state === 0 ? "Còn trống" : tableBooking.table_booking_state === 1 ? "Đã được khóa" : null}
+                    </Td>
+                    <Td className="primary">
+                        <ButtonInfo
+                            onClick={() => openModal({ type: "addEmployee", tableBookingAddEmployee: tableBooking })}
+                        >
+                            <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                        </ButtonInfo>
                     </Td>
                     <Td className="warning">
                         <ButtonFix
@@ -447,6 +469,7 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Tên Bàn ăn</Th>
                             <Th>Thuộc Tầng</Th>
                             <Th>Trạng thái</Th>
+                            <Th>Thêm Nhân viên</Th>
                             <Th>Chỉnh sửa</Th>
                             <Th>Xóa</Th>
                         </Tr>
@@ -454,7 +477,7 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                     <Tbody>
                         {noResultFound ? (
                             <Tr>
-                                <Td colSpan={8}>
+                                <Td colSpan={9}>
                                     <EmptyItem>
                                         <EmptyItemSvg>
                                             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
@@ -481,7 +504,7 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                         )
                             : isLoading ? (
                                 <Tr>
-                                    <Td colSpan={8} style={{ width: "100%", height: "100px" }}>
+                                    <Td colSpan={9} style={{ width: "100%", height: "100px" }}>
                                         <div className="row" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             <div
                                                 class="spinner-border"
@@ -510,6 +533,13 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                                                     onClick={() => openModal({ type: "detailTableBooking", tableBooking: tableBooking })}
                                                     style={{ backgroundColor: tableBooking.table_booking_state === 0 ? "var(--color-info)" : tableBooking.table_booking_state === 1 ? "var(--color-danger)" : null }}>
                                                     {tableBooking.table_booking_state === 0 ? "Còn trống" : tableBooking.table_booking_state === 1 ? "Đã được khóa" : null}
+                                                </Td>
+                                                <Td className="primary">
+                                                    <ButtonInfo
+                                                        onClick={() => openModal({ type: "addEmployee", tableBookingAddEmployee: tableBooking })}
+                                                    >
+                                                        <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                                                    </ButtonInfo>
                                                 </Td>
                                                 <Td className="warning">
                                                     <ButtonFix
@@ -559,6 +589,7 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                 setShowModal={setShowModal} //Hàm Đóng mở modal
                 type={typeModal}    //Loại modal
                 tableBooking={tableBookingModal}  //Dữ liệu bên trong modal
+                tableBookingAddEmployee={tableBookingAddEmployeeModal}  //Dữ liệu bên trong modal
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 handleClose={handleClose}   //Đóng tìm kiếm
                 showToastFromOut={showToastFromOut} //Hàm hiện toast

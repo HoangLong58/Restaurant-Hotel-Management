@@ -14,6 +14,10 @@ const client = require('twilio')(accountSid, authToken);
 var nodemailer = require('nodemailer');
 const { findAllRoomById } = require("../service/RoomService");
 const { getAllRoomEmployeeByRoomId } = require("../service/RoomEmployeeService");
+const { findPartyHallById } = require("../service/PartyHallService");
+const { getAllPartyEmployeeByPartyHallId } = require("../service/PartyEmployeeService");
+const { findTableBookingById } = require("../service/TableBookingService");
+const { getAllTableEmployeeByTableBookingId } = require("../service/TableEmployeeService");
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -642,8 +646,8 @@ module.exports = {
                         });
 
                     } catch (err) {
-                        
-                    console.log("ERR: ", err)
+
+                        console.log("ERR: ", err)
                         return res.status(400).json({
                             status: "fail",
                             message: "Error when create employee!",
@@ -955,7 +959,7 @@ module.exports = {
             }
             // Check employee state now
             let employeeStateDb = employeeRes.employee_state;
-            if(employeeStateDb === "INACTIVE") {
+            if (employeeStateDb === "INACTIVE") {
                 return res.status(400).json({
                     status: "fail",
                     message: "Nhân viên đang bị vô hiệu hóa!"
@@ -1010,7 +1014,7 @@ module.exports = {
                     message: "Cann't find employee!"
                 });
             }
-            if(employeeRes.employee_state !== "INACTIVE") {
+            if (employeeRes.employee_state !== "INACTIVE") {
                 return res.status(400).json({
                     status: "fail",
                     message: "Nhân viên chưa bị vô hiệu hóa!"
@@ -1146,6 +1150,210 @@ module.exports = {
             return res.status(400).json({
                 status: "fail",
                 message: "Error when find room!",
+                error: err
+            });
+        }
+    },
+    // Admin: Quản lý Tiệc - Thêm Nhân viên
+    getAllEmployeeByPositionIdAndPartyHallId: async (req, res) => {
+        const partyHallId = req.body.partyHallId;
+        const positionId = req.body.positionId;
+        if (!partyHallId || !Number.isInteger(partyHallId) || partyHallId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Sảnh không hợp lệ!"
+            });
+        }
+        if (!positionId || !Number.isInteger(positionId) || positionId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Chức vụ không hợp lệ!"
+            });
+        }
+        // Kiểm tra tồn tại party hall
+        try {
+            const partyHallRes = await findPartyHallById(partyHallId);
+            if (!partyHallRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find party hall!"
+                });
+            }
+            // Kiểm tra tồn tại position 
+            try {
+                const positionRes = await findPositionById(positionId);
+                if (!positionRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find position!"
+                    });
+                }
+                // Lấy tất cả party employee của party
+                var employeeOfPartyHallList = []  // Mảng lưu những nhân viên id của room này
+                try {
+                    const partyEmployeeListRes = await getAllPartyEmployeeByPartyHallId(partyHallId);
+                    if (!partyEmployeeListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find party employee list of party hall!"
+                        });
+                    }
+                    for (var i = 0; i < partyEmployeeListRes.length; i++) {
+                        employeeOfPartyHallList.push(partyEmployeeListRes[i].employee_id);
+                    }
+                    var finalEmployeeListExceptThisPartyEmployee = []; //Mảng chứa list tất cả Nhân vien mà Party hall không có
+                    // Lấy tất cả Nhân viên và Không chứa nhân viên cùa Phòng hiện tại
+                    try {
+                        const employeeListRes = await findAllEmployeeWithStateActiveByPositionId(positionId);
+                        if (!employeeListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find employee list of room!"
+                            });
+                        }
+
+                        for (var i = 0; i < employeeListRes.length; i++) {
+                            if (employeeOfPartyHallList.includes(employeeListRes[i].employee_id)) {
+                                continue;
+                            } else {
+                                finalEmployeeListExceptThisPartyEmployee.push(employeeListRes[i]);
+                            }
+                        }
+
+                        // Success
+                        return res.status(200).json({
+                            status: "success",
+                            message: "Lấy những Nhân viên mà Sảnh chưa có thành công!",
+                            data: finalEmployeeListExceptThisPartyEmployee
+                        });
+
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when find employee list of party hall!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when find paty employee list of paty hall!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when find position!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find party hall!",
+                error: err
+            });
+        }
+    },
+    // Admin: Quản lý Bàn - Thêm Nhân viên
+    getAllEmployeeByPositionIdAndTableBookingId: async (req, res) => {
+        const tableBookingId = req.body.tableBookingId;
+        const positionId = req.body.positionId;
+        if (!tableBookingId || !Number.isInteger(tableBookingId) || tableBookingId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Bàn không hợp lệ!"
+            });
+        }
+        if (!positionId || !Number.isInteger(positionId) || positionId < 0) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mã Chức vụ không hợp lệ!"
+            });
+        }
+        // Kiểm tra tồn tại table booking
+        try {
+            const tableBookingRes = await findTableBookingById(tableBookingId);
+            if (!tableBookingRes) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Cann't find table booking!"
+                });
+            }
+            // Kiểm tra tồn tại position 
+            try {
+                const positionRes = await findPositionById(positionId);
+                if (!positionRes) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Cann't find position!"
+                    });
+                }
+                // Lấy tất cả table employee của party
+                var employeeOfTableBookingList = []  // Mảng lưu những nhân viên id của room này
+                try {
+                    const tableEmployeeListRes = await getAllTableEmployeeByTableBookingId(tableBookingId);
+                    if (!tableEmployeeListRes) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Cann't find table employee list of table booking!"
+                        });
+                    }
+                    for (var i = 0; i < tableEmployeeListRes.length; i++) {
+                        employeeOfTableBookingList.push(tableEmployeeListRes[i].employee_id);
+                    }
+                    var finalEmployeeListExceptThisTableEmployee = []; //Mảng chứa list tất cả Nhân vien mà Party hall không có
+                    // Lấy tất cả Nhân viên và Không chứa nhân viên cùa Phòng hiện tại
+                    try {
+                        const employeeListRes = await findAllEmployeeWithStateActiveByPositionId(positionId);
+                        if (!employeeListRes) {
+                            return res.status(400).json({
+                                status: "fail",
+                                message: "Cann't find employee list of table!"
+                            });
+                        }
+
+                        for (var i = 0; i < employeeListRes.length; i++) {
+                            if (employeeOfTableBookingList.includes(employeeListRes[i].employee_id)) {
+                                continue;
+                            } else {
+                                finalEmployeeListExceptThisTableEmployee.push(employeeListRes[i]);
+                            }
+                        }
+
+                        // Success
+                        return res.status(200).json({
+                            status: "success",
+                            message: "Lấy những Nhân viên mà Bàn chưa có thành công!",
+                            data: finalEmployeeListExceptThisTableEmployee
+                        });
+
+                    } catch (err) {
+                        return res.status(400).json({
+                            status: "fail",
+                            message: "Error when find employee list of party hall!",
+                            error: err
+                        });
+                    }
+                } catch (err) {
+                    return res.status(400).json({
+                        status: "fail",
+                        message: "Error when find table employee list of table!",
+                        error: err
+                    });
+                }
+            } catch (err) {
+                return res.status(400).json({
+                    status: "fail",
+                    message: "Error when find position!",
+                    error: err
+                });
+            }
+        } catch (err) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Error when find table booking!",
                 error: err
             });
         }

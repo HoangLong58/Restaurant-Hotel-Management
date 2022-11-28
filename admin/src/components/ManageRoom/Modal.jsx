@@ -1473,7 +1473,7 @@ const Modal = ({ showModal, setShowModal, type, room, roomAddEmployee, setReRend
                                                     </InfoItem>
                                                     <InfoItem className="row">
                                                         <InfoTitle className="col-lg-4">Trạng thái: </InfoTitle>
-                                                        <InfoDetail className="col-lg-8" style={{ fontWeight: "bold", color: "var(--color-primary)" }}>{roomModalAddEmployee ? roomModalAddEmployee.room_state === 0 ? "Đang trống" : roomModal.room_state === 1 ? "Đã được khóa" : null : null}</InfoDetail>
+                                                        <InfoDetail className="col-lg-8" style={{ fontWeight: "bold", color: "var(--color-primary)" }}>{roomModalAddEmployee ? roomModalAddEmployee.room_state === 0 ? "Đang trống" : roomModalAddEmployee.room_state === 1 ? "Đã được khóa" : null : null}</InfoDetail>
                                                     </InfoItem>
                                                 </InforCustomer>
                                                 <LeftImage src={roomModalAddEmployee ? roomModalAddEmployee.room_image_content : null} />
@@ -1503,7 +1503,7 @@ const Modal = ({ showModal, setShowModal, type, room, roomAddEmployee, setReRend
                                                                         </DeviceIconContainer>
                                                                         <div className="col-lg-9">
                                                                             <DeviceTitle className="row">
-                                                                                <DeviceName>{roomEmployee.employee_first_name + " " + roomEmployee.employee_last_name}</DeviceName>
+                                                                                <DeviceName>{'Nhân viên mã ' + roomEmployee.employee_id + ': ' + roomEmployee.employee_first_name + " " + roomEmployee.employee_last_name}</DeviceName>
                                                                             </DeviceTitle>
                                                                             <DeviceInfo className="row">
                                                                                 <DeviceTime>Phụ trách Phòng từ: {roomEmployee.room_employee_add_date}</DeviceTime>
@@ -1551,7 +1551,7 @@ const Modal = ({ showModal, setShowModal, type, room, roomAddEmployee, setReRend
                                             <RightVoteItem className="row">
                                                 <RightVoteTitle className="col-lg-12">Những Nhân viên khác của Khách sạn</RightVoteTitle>
 
-                                                <RightVoteTitle style={{ fontSize: "1rem", padding: "0" }} className="col-lg-12"><span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>Hãy chọn Thiết bị bạn muốn thêm vào Phòng này!</span></RightVoteTitle>
+                                                <RightVoteTitle style={{ fontSize: "1rem", padding: "0" }} className="col-lg-12"><span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>Hãy chọn Nhân viên bạn muốn thêm vào Phòng này!</span></RightVoteTitle>
                                                 <Box sx={{ minWidth: 120, width: "80%", margin: "10px auto" }}>
                                                     <FormControl fullWidth>
                                                         <InputLabel id="demo-simple-select-label"></InputLabel>

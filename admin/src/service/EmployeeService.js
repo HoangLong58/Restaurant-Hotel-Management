@@ -85,3 +85,15 @@ export const getAllEmployeeByPositionIdAndRoomId = async (data) => {
     const res = await axios.post(`${url_Employee}/get-all-employee-by-position-id-and-room-id`, data);
     return res;
 };
+// Quản lý Tiệc - Thêm Nhân viên
+export const getAllEmployeeByPositionIdAndPartyHallId = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_Employee}/get-all-employee-by-position-id-and-party-hall-id`, data);
+    return res;
+};
+// Quản lý Bàn - Thêm Nhân viên
+export const getAllEmployeeByPositionIdAndTableBookingId = async (data) => {
+    authToken(localStorage.getItem("admin_token"));
+    const res = await axios.post(`${url_Employee}/get-all-employee-by-position-id-and-table-booking-id`, data);
+    return res;
+};
