@@ -6,6 +6,7 @@ import Modal from "./Modal";
 
 // SERVICES
 import * as RoomTypeService from "../../service/RoomTypeService";
+import ReactPaginate from "react-paginate";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -387,6 +388,54 @@ const RoomTypeMain = ({ reRenderData, setReRenderData }) => {
             setIsLoading(false);
         }, 1200);
     };
+
+    // PHÂN TRANG
+    const [pageNumber, setPageNumber] = useState(0);
+
+    const roomTypePerPage = 12;
+    const pageVisited = pageNumber * roomTypePerPage;
+
+    const roomTypeListFiltered = roomTypeList
+        .slice(pageVisited, pageVisited + roomTypePerPage)
+        .map((roomType, key) => {
+            return (
+                <Tr>
+                    <Td onClick={() => openModal({ type: "detailRoomType", roomType: roomType })}>{pageNumber * roomTypePerPage + (key + 1)}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomType", roomType: roomType })}>{roomType.room_type_id}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomType", roomType: roomType })}>{roomType.room_type_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoomType", roomType: roomType })}>{roomType.room_type_vote_total}</Td>
+
+                    <Td className="primary">
+                        <ButtonInfo
+                            onClick={() => openModal({ type: "addService", roomType: roomType })}
+                        >
+                            <PostAddOutlined style={{ color: "var(--color-info)" }} />
+                        </ButtonInfo>
+                    </Td>
+                    <Td className="warning">
+                        <ButtonFix
+                            onClick={() => openModal({ type: "updateRoomType", roomType: roomType })}
+                        >
+                            <DriveFileRenameOutlineOutlined />
+                        </ButtonFix>
+                    </Td>
+                    <Td className="primary">
+                        <ButtonDelete
+                            onClick={() => openModal({ type: "deleteRoomType", roomType: roomType })}
+                        >
+                            <DeleteSweepOutlined />
+                        </ButtonDelete>
+                    </Td>
+                </Tr>
+            );
+        }
+        );
+
+
+    const pageCount = Math.ceil(roomTypeList.length / roomTypePerPage);
+    const changePage = ({ selected }) => {
+        setPageNumber(selected);
+    }
     return (
         <Container>
             <H2>Quản lý Loại phòng - Khách sạn</H2>
@@ -459,6 +508,8 @@ const RoomTypeMain = ({ reRenderData, setReRenderData }) => {
                             ) :
                                 roomTypeList.length > 0
                                     ?
+                                    roomTypeListFiltered
+                                    :
                                     (roomTypeList.map((roomType, key) => {
                                         return (
                                             <Tr>
@@ -491,11 +542,23 @@ const RoomTypeMain = ({ reRenderData, setReRenderData }) => {
                                             </Tr>
                                         );
                                     }))
-                                    :
-                                    null
                         }
                     </Tbody>
                 </Table>
+                <ReactPaginate
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
+                    pageCount={pageCount}
+                    onPageChange={changePage}
+                    containerClassName={"paginationBttns"}
+                    previousLinkClassName={"previousBttn"}
+                    nextLinkClassName={"nextBttn"}
+                    disabledClassName={"paginationDisabled"}
+                    activeClassName={"paginationActive"}
+                    nextClassName={"nextClassName"}
+                    pageLinkClassName={"pageLinkClassName"}
+                    forcePage={pageNumber}
+                />
                 <A onClick={() => {
                     window.scrollTo({
                         top: 0,

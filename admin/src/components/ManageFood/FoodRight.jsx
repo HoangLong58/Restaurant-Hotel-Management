@@ -6,6 +6,7 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
+import { useSelector } from "react-redux";
 import * as FoodService from "../../service/FoodService";
 
 const Container = styled.div`
@@ -134,11 +135,51 @@ const FoodRight = ({ reRenderData, setReRenderData }) => {
         toastRef.current.show();
     }
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdmin = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <Item className="add-product"
+                        onClick={() => openModal({ type: "createFood" })}
+                    >
+                        <Add />
+                        <h3>Thêm Món ăn</h3>
+                    </Item>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <Item className="add-product"
+                        onClick={() => openModal({ type: "createFood" })}
+                    >
+                        <Add />
+                        <h3>Thêm Món ăn</h3>
+                    </Item>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <Item className="add-product"
+                        onClick={() => openModal({ type: "createFood" })}
+                    >
+                        <Add />
+                        <h3>Thêm Món ăn</h3>
+                    </Item>
+                );
+            default: return null;
+        }
+    }
+
     return (
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Foods Analytics</H2>
+                <H2>Phân tích Món ăn</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
@@ -151,12 +192,14 @@ const FoodRight = ({ reRenderData, setReRenderData }) => {
                         <h3 className="success" style={{ fontSize: "1.2rem" }}>{quantityFood}</h3>
                     </ItemRight>
                 </Item>
-                <Item className="add-product"
+
+                {authorizationAdmin(admin)}
+                {/* <Item className="add-product"
                     onClick={() => openModal({ type: "createFood" })}
                 >
                     <Add />
                     <h3>Thêm Món ăn</h3>
-                </Item>
+                </Item> */}
             </SalesAnalytics>
 
             {/* ==== MODAL ==== */}

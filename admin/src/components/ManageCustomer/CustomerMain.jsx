@@ -1,12 +1,13 @@
-import { AccessibilityOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined, PersonOffOutlined } from "@mui/icons-material";
+import { AccessibilityOutlined, KeyboardArrowUpOutlined, PersonOffOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as CustomerService from "../../service/CustomerService";
 import ReactPaginate from "react-paginate";
+import * as CustomerService from "../../service/CustomerService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -390,6 +391,136 @@ const CustomerMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableCustomer", customer: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableCustomer", customer: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableCustomer", customer: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableCustomer", customer: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableCustomer", customer: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableCustomer", customer: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableCustomer", customer: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableCustomer", customer: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
@@ -416,7 +547,8 @@ const CustomerMain = ({ reRenderData, setReRenderData }) => {
                         {customer.customer_state}
                     </Td>
 
-                    <Td className="primary">
+                    {authorizationAdminTableData(admin, customer)}
+                    {/* <Td className="primary">
                         <ButtonDelete
                             onClick={() => openModal({ type: "disableCustomer", customer: customer })}
                         >
@@ -427,9 +559,9 @@ const CustomerMain = ({ reRenderData, setReRenderData }) => {
                         <ButtonInfo
                             onClick={() => openModal({ type: "ableCustomer", customer: customer })}
                         >
-                            <AccessibilityOutlined style={{color: "var(--color-info)"}} />
+                            <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
                         </ButtonInfo>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -467,8 +599,9 @@ const CustomerMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Số diện thoại</Th>
                             <Th>Hình đại diện</Th>
                             <Th>Trạng thái</Th>
-                            <Th>Vô hiệu hóa</Th>
-                            <Th>Mở khóa</Th>
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Vô hiệu hóa</Th>
+                            <Th>Mở khóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -536,7 +669,8 @@ const CustomerMain = ({ reRenderData, setReRenderData }) => {
                                                     {customer.customer_state}
                                                 </Td>
 
-                                                <Td className="primary">
+                                                {authorizationAdminTableData(admin, customer)}
+                                                {/* <Td className="primary">
                                                     <ButtonDelete
                                                         onClick={() => openModal({ type: "disableCustomer", customer: customer })}
                                                     >
@@ -549,7 +683,7 @@ const CustomerMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <AccessibilityOutlined />
                                                     </ButtonInfo>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         );
                                     }))
@@ -557,8 +691,8 @@ const CustomerMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

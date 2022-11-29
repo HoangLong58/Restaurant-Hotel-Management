@@ -1,9 +1,9 @@
 import { CloseOutlined, VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
-import styled from 'styled-components';
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login, register } from "../redux/callsAPI";
+import styled from 'styled-components';
 import Modal from "../components/LoginRegister/Modal";
+import { login } from "../redux/callsAPI";
 
 const SignIn = styled.div`
     width: 95%;
@@ -199,25 +199,6 @@ const Button = styled.button`
     }
 `
 
-const SignUpPage = styled.div`
-    display: none;
-    width: 100%;
-    height: 45%;
-    ${SignIn}.active-sign-up & {
-        display: flex;
-    }
-    `
-
-const BgCurcule = styled.div`
-    width: 500px;
-    height: 500px;
-    position: absolute;
-    top: -40%;
-    height: 60%;
-    transform: translateX(-60%);
-    background-color: #ecf0f3;
-    border-radius: 50%;
-`
 const Error = styled.span`
     color: red;
 `
@@ -300,8 +281,8 @@ const LoginAdmin = () => {
                     <TopBar />
                     {/* Tiêu đề */}
                     <Title>
-                        <H1>Long Pets - ADMIN</H1>
-                        <P>Chào mừng bạn đến với trang web bán thú cưng hàng đầu Việt Nam</P>
+                        <H1>Hoàng Long Hotel &amp; Restaurant - ADMIN</H1>
+                        <P>Chào mừng bạn đến với Thương hiệu nhà hàng khách sạn hàng đầu Việt Nam</P>
                     </Title>
                     {/* Các nút chức năng */}
                     <FormChucNang>
@@ -339,7 +320,7 @@ const LoginAdmin = () => {
                     {error && <Error>Something went wrong...</Error>} */}
                         <Button onClick={handleClickLogin} disabled={isFetching} >Đăng nhập</Button>
                         {error && <Error>{errorLogin}</Error>}
-                        <Link onClick={() => openModal({ type: "forgetPassword" })}>DO NOT YOU REMEMBER THE PASSWORD?</Link>
+                        <Link onClick={() => openModal({ type: "forgetPassword" })}>BẠN ĐÃ QUÊN MẬT KHẨU CỦA MÌNH?</Link>
                     </Form>
                 </SignInPage>
             </SignIn>

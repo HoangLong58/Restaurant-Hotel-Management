@@ -138,7 +138,7 @@ const FoodTypeRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Food Types Analytics</H2>
+                <H2>Phân tích Loại món ăn</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />

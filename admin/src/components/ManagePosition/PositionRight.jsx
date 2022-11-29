@@ -138,7 +138,7 @@ const PositionRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Positions Analytics</H2>
+                <H2>Phân tích Chức vụ nhân viên</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />

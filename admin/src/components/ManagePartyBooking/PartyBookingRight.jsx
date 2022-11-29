@@ -135,11 +135,111 @@ const PartyBookingRight = ({ reRenderData, setReRenderData }) => {
         toastRef.current.show();
     }
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdmin = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBooking" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Đặt tiệc Từng thành phố dựa vào Doanh thu cả năm</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBookingTotal" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBookingByType" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng của Loại tiệc</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBookingByCustomer" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng của Khách hàng</h3>
+                        </Item>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBooking" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Đặt tiệc Từng thành phố dựa vào Doanh thu cả năm</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBookingTotal" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBookingByType" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng của Loại tiệc</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBookingByCustomer" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng của Khách hàng</h3>
+                        </Item>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBooking" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Đặt tiệc Từng thành phố dựa vào Doanh thu cả năm</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBookingTotal" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBookingByType" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng của Loại tiệc</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticPartyBookingByCustomer" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng của Khách hàng</h3>
+                        </Item>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     return (
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Party Booking Orders Analytics</H2>
+                <H2>Phân tích Đặt tiệc</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
@@ -152,7 +252,9 @@ const PartyBookingRight = ({ reRenderData, setReRenderData }) => {
                         <h3 className="success" style={{ fontSize: "1.2rem" }}>{partyBookingOrderQuantity}</h3>
                     </ItemRight>
                 </Item>
-                <Item className="add-product"
+
+                {authorizationAdmin(admin)}
+                {/* <Item className="add-product"
                     onClick={() => openModal({ type: "statisticPartyBooking" })}
                 >
                     <Add />
@@ -175,7 +277,7 @@ const PartyBookingRight = ({ reRenderData, setReRenderData }) => {
                 >
                     <Add />
                     <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt tiệc - Nhà hàng của Khách hàng</h3>
-                </Item>
+                </Item> */}
             </SalesAnalytics>
 
             {/* ==== MODAL ==== */}

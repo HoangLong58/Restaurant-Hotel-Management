@@ -9,3 +9,8 @@ export const getSetMenuWithFoodTypeAndFoods = async () => {
     const res = await axios.get(`${url_SetMenu}/get-set-menu-with-food-and-type`);
     return res;
 };
+export const getSetMenus = async () => {
+    authToken(localStorage.getItem("customer_token"));
+    const res = await axios.get(`${url_SetMenu}/`);
+    return res;
+};

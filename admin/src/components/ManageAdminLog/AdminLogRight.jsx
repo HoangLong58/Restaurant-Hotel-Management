@@ -138,7 +138,7 @@ const AdminLogRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Admin Logs Analytics</H2>
+                <H2>Phân tích Nhật ký hoạt động</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />

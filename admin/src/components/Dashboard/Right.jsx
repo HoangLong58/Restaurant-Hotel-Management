@@ -1,12 +1,16 @@
-import { LightMode, DarkMode, ShoppingCart, LocalMall, Person, Add } from "@mui/icons-material";
+import { LightMode, DarkMode, ShoppingCart, LocalMall, Person, Add, PeopleOutlineOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import RightTop from "./RightTop";
 import axios from "axios";
-import {format_money} from "../../utils/utils";
+import { format_money } from "../../utils/utils";
 
 // SERVICES
 import * as AdminLogService from "../../service/AdminLogService";
+import * as TableBookingService from "../../service/TableBookingService";
+import * as RoomService from "../../service/RoomService";
+import * as PartyHallService from "../../service/PartyHallService";
+import * as EmployeeService from "../../service/EmployeeService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -131,7 +135,12 @@ const Right = () => {
     const [soDonHang, setSoDonHang] = useState("");
     const [doanhThuHomNay, setDoanhThuHomNay] = useState("");
     const [donCanDuyetHomNay, setDonCanDuyetHomNay] = useState("");
-   
+
+    const [roomQuantity, setRoomQuantity] = useState();
+    const [partyHallQuantity, setPartyHallQuantity] = useState();
+    const [quantityTableBooking, setQuantityTableBooking] = useState();
+    const [employeeQuantity, setEmployeeQuantity] = useState();
+
     useEffect(() => {
         const getAdminLogs = async () => {
             try {
@@ -141,43 +150,45 @@ const Right = () => {
                 console.log("Lỗi khi lấy Adminlog: ", err.response);
             }
         }
-        // // SỐ ĐƠN HÀNG HÔM NAY
-        // const getSoDonHangHomNay = async () => {
-        //     try {
-        //         const sodonhanghomnayres = await axios.post("http://localhost:3001/api/products/getSoDonHangHomNay", {});
-        //         console.log("sodonhanghomnayres: ", sodonhanghomnayres);
-        //         setSoDonHang(sodonhanghomnayres.data[0].soluongdathang);
-        //     } catch (err) {
-        //         console.log("Lỗi khi lấy sodonhanghomnayres");
-        //     }
-        // }
-        // // SỐ ĐƠN HÀNG HÔM NAY
-        // const getDoanhThuHomNay = async () => {
-        //     try {
-        //         const doanhthuhomnayres = await axios.post("http://localhost:3001/api/products/getDoanhThuHomNay", {});
-        //         console.log("doanhthuhomnayres: ", doanhthuhomnayres);
-        //         setDoanhThuHomNay(format_money((doanhthuhomnayres.data[0].tongtien).toString()));
-        //     } catch (err) {
-        //         console.log("Lỗi khi lấy doanhthuhomnayres");
-        //     }
-        // }
-        // // SỐ ĐƠN HÀNG HÔM NAY
-        // const getDonCanDuyetuHomNay = async () => {
-        //     try {
-        //         const doncanduyetres = await axios.post("http://localhost:3001/api/products/getDonCanDuyetuHomNay", {});
-        //         console.log("doncanduyetres: ", doncanduyetres);
-        //         setDonCanDuyetHomNay(doncanduyetres.data[0].sodonchoduyet);
-        //     } catch (err) {
-        //         console.log("Lỗi khi lấy doncanduyetres");
-        //     }
-        // }
+        const getRoomQuantity = async () => {
+            try {
+                const roomQuantityRes = await RoomService.getQuantityRooms();
+                setRoomQuantity(roomQuantityRes.data.data.quantityRoom);
+            } catch (err) {
+                console.log("Lỗi: ", err.response);
+            }
+        }
+        const getPartyHallQuantity = async () => {
+            try {
+                const partyHallQuantityRes = await PartyHallService.getQuantityPartyHall();
+                setPartyHallQuantity(partyHallQuantityRes.data.data.quantityPartyHall);
+            } catch (err) {
+                console.log("Lỗi: ", err.response);
+            }
+        }
+        const getQuantityTableBooking = async () => {
+            try {
+                const quantityTableBookingRes = await TableBookingService.getQuantityTableBooking();
+                setQuantityTableBooking(quantityTableBookingRes.data.data.quantityTableBooking);
+            } catch (err) {
+                console.log("Lỗi: ", err);
+            }
+        }
+        const getEmployeeQuantity = async () => {
+            try {
+                const employeeQuantityRes = await EmployeeService.getQuantityEmployee();
+                setEmployeeQuantity(employeeQuantityRes.data.data.quantityEmployee);
+            } catch (err) {
+                console.log("Lỗi: ", err.response);
+            }
+        }
+        getEmployeeQuantity();
+        getQuantityTableBooking();
+        getRoomQuantity();
+        getPartyHallQuantity();
         getAdminLogs();
-        // getSoDonHangHomNay();
-        // getDoanhThuHomNay();
-        // getDonCanDuyetuHomNay();
         return () => {
             setSoDonHang("");
-
         }
     }, [])
     return (
@@ -186,44 +197,44 @@ const Right = () => {
             {/* END OF TOP */}
 
             <RecentUpdates>
-                <H2>Recent Updates</H2>
+                <H2>Nhật ký Hoạt động</H2>
                 <Updates>
-                    {   
+                    {
                         adminLogList
-                        ?
-                        adminLogList.map((adminLog, key) => {
-                            return (
-                                <Update>
-                                    <ProfilePhoto>
-                                        <Img src={adminLog.employee_image} />
-                                    </ProfilePhoto>
-                                    <Message>
-                                        {/* <p><b>Monkey D Luffy</b> received his order of Hoàng Long tech GPS drone</p> */}
-                                        <p>{adminLog.employee_first_name + " " + adminLog.employee_last_name + adminLog.admin_log_content}</p>
-                                        <Small class="text-muted">{adminLog.admin_log_date}</Small>
-                                    </Message>
-                                </Update>
-                            );
-                        })
-                        : null
+                            ?
+                            adminLogList.map((adminLog, key) => {
+                                return (
+                                    <Update>
+                                        <ProfilePhoto>
+                                            <Img src={adminLog.employee_image} />
+                                        </ProfilePhoto>
+                                        <Message>
+                                            {/* <p><b>Monkey D Luffy</b> received his order of Hoàng Long tech GPS drone</p> */}
+                                            <p>{adminLog.employee_first_name + " " + adminLog.employee_last_name + adminLog.admin_log_content}</p>
+                                            <Small class="text-muted">{adminLog.admin_log_date}</Small>
+                                        </Message>
+                                    </Update>
+                                );
+                            })
+                            : null
                     }
                 </Updates>
             </RecentUpdates>
             {/* END OF RECENT UPDATES */}
 
             <SalesAnalytics>
-                <H2>Sales Analytics</H2>
+                <H2>Quy mô Nhà hàng Khách sạn</H2>
                 <Item className="online">
                     <Icon>
                         <ShoppingCart />
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>TODAY ORDERS</h3>
-                            <small class="text-muted">Last 24 Hours</small>
+                            <h3>SỐ PHÒNG - KHÁCH SẠN</h3>
+                            <small class="text-muted">24 giờ trước</small>
                         </Info>
                         <h5 className="success">+39%</h5>
-                        <h3>{soDonHang === "" ? "Chưa có" : soDonHang}</h3>
+                        <h3><span style={{ textDecoration: "underline" }}><b>{roomQuantity ? roomQuantity : "Chưa có"}</b></span></h3>
                     </ItemRight>
                 </Item>
                 <Item className="offline">
@@ -232,11 +243,11 @@ const Right = () => {
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>TODAY SALES</h3>
-                            <small class="text-muted">Last 24 Hours</small>
+                            <h3>SỐ SẢNH - NHÀ HÀNG</h3>
+                            <small class="text-muted">24 giờ trước</small>
                         </Info>
                         <h5 className="danger">-17%</h5>
-                        <h3>{doanhThuHomNay === "" ? "Chưa có" : doanhThuHomNay} <span style={{ textDecoration: "underline" }}><b>đ</b></span></h3>
+                        <h3><span style={{ textDecoration: "underline" }}><b>{partyHallQuantity ? partyHallQuantity : "Chưa có"}</b></span></h3>
                     </ItemRight>
                 </Item>
                 <Item className="customers">
@@ -245,16 +256,16 @@ const Right = () => {
                     </Icon>
                     <ItemRight>
                         <Info>
-                            <h3>ĐƠN CẦN DUYỆT</h3>
-                            <small class="text-muted">Last 24 Hours</small>
+                            <h3>SỐ BÀN ĂN - NHÀ HÀNG</h3>
+                            <small class="text-muted">24 giờ trước</small>
                         </Info>
                         <h5 className="success">+25%</h5>
-                        <h3>{ donCanDuyetHomNay === "" ? "Chưa có" : donCanDuyetHomNay }</h3>
+                        <h3><h3><span style={{ textDecoration: "underline" }}><b>{quantityTableBooking ? quantityTableBooking : "Chưa có"}</b></span></h3></h3>
                     </ItemRight>
                 </Item>
                 <Item className="add-product">
-                    <Add />
-                    <h3>Thêm thú cưng</h3>
+                    <PeopleOutlineOutlined />
+                    <h3>Cùng với tập thể gồm: {employeeQuantity ? employeeQuantity : ""} Nhân viên</h3>
                 </Item>
             </SalesAnalytics>
 

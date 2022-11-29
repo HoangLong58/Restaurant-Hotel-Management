@@ -138,7 +138,7 @@ const RoomTypeRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Room Types Analytics</H2>
+                <H2>Phân tích Loại phòng</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />

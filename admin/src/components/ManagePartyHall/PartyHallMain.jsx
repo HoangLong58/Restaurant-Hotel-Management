@@ -7,6 +7,7 @@ import Modal from "./Modal";
 
 // SERVICES
 import * as PartyHallService from "../../service/PartyHallService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -392,8 +393,153 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
-    // PHÂN TRANG
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", partyHallAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updatePartyHall", partyHall: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deletePartyHall", partyHall: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", partyHallAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updatePartyHall", partyHall: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deletePartyHall", partyHall: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", partyHallAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updatePartyHall", partyHall: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deletePartyHall", partyHall: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 10:
+                // Phục vụ Bàn
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", partyHallAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
 
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 10:
+                // Phục vụ Bàn
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
     const partyHallPerPage = 12;
@@ -420,7 +566,9 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                         style={{ backgroundColor: partyHall.party_hall_state === 0 ? "var(--color-info)" : partyHall.party_hall_state === 1 ? "var(--color-danger)" : null }}>
                         {partyHall.party_hall_state === 0 ? "Còn trống" : partyHall.party_hall_state === 1 ? "Đã được khóa" : null}
                     </Td>
-                    <Td className="primary">
+
+                    {authorizationAdminTableData(admin, partyHall)}
+                    {/* <Td className="primary">
                         <ButtonInfo
                             onClick={() => openModal({ type: "addEmployee", partyHallAddEmployee: partyHall })}
                         >
@@ -440,7 +588,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -478,9 +626,11 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Vị trí</Th>
                             <Th>Giá tiền</Th>
                             <Th>Trạng thái</Th>
-                            <Th>Thêm Nhân viên</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Thêm Nhân viên</Th>
                             <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+                            <Th>Xóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -549,7 +699,9 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                                                     style={{ backgroundColor: partyHall.party_hall_state === 0 ? "var(--color-info)" : partyHall.party_hall_state === 1 ? "var(--color-danger)" : null }}>
                                                     {partyHall.party_hall_state === 0 ? "Còn trống" : partyHall.party_hall_state === 1 ? "Đã được khóa" : null}
                                                 </Td>
-                                                <Td className="primary">
+
+                                                {authorizationAdminTableData(admin, partyHall)}
+                                                {/* <Td className="primary">
                                                     <ButtonInfo
                                                         onClick={() => openModal({ type: "addEmployee", partyHallAddEmployee: partyHall })}
                                                     >
@@ -569,7 +721,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         )
                                     }
@@ -578,8 +730,8 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

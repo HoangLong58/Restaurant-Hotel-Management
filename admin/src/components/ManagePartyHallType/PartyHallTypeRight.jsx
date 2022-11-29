@@ -138,7 +138,7 @@ const PartyHallTypeRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Party Hall Types Analytics</H2>
+                <H2>Phân tích Loại Sảnh tiệc</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />

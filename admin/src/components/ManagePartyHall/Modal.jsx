@@ -12,6 +12,7 @@ import * as PartyHallTypeService from "../../service/PartyHallTypeService";
 import * as PositionService from "../../service/PositionService";
 import * as PartyEmployeeService from "../../service/PartyEmployeeService";
 import * as EmployeeService from "../../service/EmployeeService";
+import { useSelector } from "react-redux";
 
 const Background = styled.div`
     width: 100%;
@@ -681,6 +682,8 @@ const DeviceItem = styled.div`
 `;
 
 const Modal = ({ showModal, setShowModal, type, partyHall, partyHallAddEmployee, setReRenderData, handleClose, showToastFromOut }) => {
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
     // Modal
     const modalRef = useRef();
     const closeModal = (e) => {
@@ -1298,188 +1301,279 @@ const Modal = ({ showModal, setShowModal, type, partyHall, partyHallAddEmployee,
                     <Background ref={modalRef} onClick={closeModal}>
                         <ModalWrapper showModal={showModal} style={{ flexDirection: `column`, width: "90%" }}>
                             <LeftVoteTitle style={{ marginTop: "10px", fontSize: "1.6rem" }}>Thêm Nhân viên cho Sảnh - Nhà hàng</LeftVoteTitle>
-                            <ModalForm style={{ padding: "0px 20px" }}>
-                                <div className="col-lg-12">
-                                    <div className="row">
-                                        <LeftVote className="col-lg-6">
-                                            <LeftVoteItem className="row">
-                                                <LeftVoteTitle>Thông tin Sảnh - Nhà hàng</LeftVoteTitle>
-                                                <InforCustomer className="col-lg-12">
-                                                    <InfoItem className="row">
-                                                        <InfoTitle className="col-lg-4">Mã Sảnh: </InfoTitle>
-                                                        <InfoDetail className="col-lg-8">{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_id : null}</InfoDetail>
-                                                    </InfoItem>
-                                                    <InfoItem className="row">
-                                                        <InfoTitle className="col-lg-4">Trạng thái: </InfoTitle>
-                                                        <InfoDetail className="col-lg-8" style={{ fontWeight: "bold", color: "var(--color-primary)" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_state === 0 ? "Đang trống" : partyHallModalAddEmployee.party_hall_state === 1 ? "Đã được khóa" : null : null}</InfoDetail>
-                                                    </InfoItem>
-                                                </InforCustomer>
-                                                <LeftImage src={partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_image_content : null} />
-                                                <CartItem style={{ position: "absolute", bottom: "12px", left: "12px", width: "96%", borderRadius: "20px" }}>
-                                                    <Circle />
-                                                    <Course>
-                                                        <Content>
-                                                            <span style={{ width: "320px", fontWeight: "bold" }}> {partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_name : null} </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_price : null} VNĐ</span>
-                                                        </Content>
-                                                        <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_type_name : null}</span></span>
-                                                    </Course>
-                                                </CartItem>
-                                            </LeftVoteItem>
-                                            <LeftVoteItem2 className="row">
-                                                <LeftVoteTitle>Những Nhân viên phụ trách Sảnh này</LeftVoteTitle>
+                            {
+                                admin
+                                    ?
+                                    admin.position_id === 10
+                                        // Nếu là Phục vụ Bàn
+                                        ? (
+                                            <ModalForm style={{ padding: "0px 20px" }}>
+                                                <LeftVote className="col-lg-12">
+                                                    <LeftVoteItem className="row">
+                                                        <LeftVoteTitle>Thông tin Sảnh - Nhà hàng</LeftVoteTitle>
+                                                        <InforCustomer className="col-lg-12">
+                                                            <InfoItem className="row">
+                                                                <InfoTitle className="col-lg-4">Mã Sảnh: </InfoTitle>
+                                                                <InfoDetail className="col-lg-8">{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_id : null}</InfoDetail>
+                                                            </InfoItem>
+                                                            <InfoItem className="row">
+                                                                <InfoTitle className="col-lg-4">Trạng thái: </InfoTitle>
+                                                                <InfoDetail className="col-lg-8" style={{ fontWeight: "bold", color: "var(--color-primary)" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_state === 0 ? "Đang trống" : partyHallModalAddEmployee.party_hall_state === 1 ? "Đã được khóa" : null : null}</InfoDetail>
+                                                            </InfoItem>
+                                                        </InforCustomer>
+                                                        <LeftImage src={partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_image_content : null} />
+                                                        <CartItem style={{ position: "absolute", bottom: "12px", left: "12px", width: "96%", borderRadius: "20px" }}>
+                                                            <Circle />
+                                                            <Course>
+                                                                <Content>
+                                                                    <span style={{ width: "320px", fontWeight: "bold" }}> {partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_name : null} </span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_price : null} VNĐ</span>
+                                                                </Content>
+                                                                <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_type_name : null}</span></span>
+                                                            </Course>
+                                                        </CartItem>
+                                                    </LeftVoteItem>
+                                                    <LeftVoteItem2 className="row">
+                                                        <LeftVoteTitle>Những Nhân viên phụ trách Sảnh này</LeftVoteTitle>
 
-                                                <DeviceList className="col-lg-12">
-                                                    {
-                                                        partyEmployeeListAddEmployee.length > 0
-                                                            ?
-                                                            partyEmployeeListAddEmployee.map((roomEmployee, key) => {
-                                                                return (
-                                                                    <DeviceItem className="row">
-                                                                        <DeviceIconContainer className="col-lg-3">
-                                                                            <DeviceIcon src={roomEmployee.employee_gender === "Nam" ? "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1667675091004employee%20(2).png?alt=media&token=9171617a-2e61-4539-ab8d-4a6ae5337394" : roomEmployee.employee_gender === "Nữ" ? "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1667675091006employee%20(1).png?alt=media&token=b0e97bfd-5180-4c1b-827c-23c1808a2222" : null} />
-                                                                        </DeviceIconContainer>
-                                                                        <div className="col-lg-9">
-                                                                            <DeviceTitle className="row">
-                                                                                <DeviceName>{'Nhân viên mã ' + roomEmployee.employee_id + ': ' + roomEmployee.employee_first_name + " " + roomEmployee.employee_last_name}</DeviceName>
-                                                                            </DeviceTitle>
-                                                                            <DeviceInfo className="row">
-                                                                                <DeviceTime>Phụ trách Sảnh từ: {roomEmployee.party_employee_add_date}</DeviceTime>
-                                                                            </DeviceInfo>
-                                                                        </div>
-                                                                        <DeviceDetailContainer>
-                                                                            <DeviceDetailImage src={roomEmployee.employee_image} />
-                                                                        </DeviceDetailContainer>
-                                                                        <DeleteService
-                                                                            onClick={() => handleDeletePartyEmployee(roomEmployee.party_employee_id)}
-                                                                        >
-                                                                            <ClearOutlined />
-                                                                        </DeleteService>
-                                                                    </DeviceItem>
-                                                                )
-                                                            }) : (
-                                                                <EmptyItem>
-                                                                    <EmptyItemSvg>
-                                                                        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
-                                                                            <path d="M186 63V140H43V177H200V63H186Z" fill="#D6DADC"></path>
-                                                                            <path d="M170.5 45H13.5V159H170.5V45Z" fill="white"></path>
-                                                                            <path d="M29.5 26V45H170.5V140H186.5V26H29.5Z" fill="#1952B3"></path>
-                                                                            <path d="M175 155V42H167H121.5V44H15H11V84H15V64H161V60H15V48H121.5V50H167V155H31V163H175V155Z" fill="#232729"></path>
-                                                                            <path d="M28 52H24V56H28V52Z" fill="#232729"></path>
-                                                                            <path d="M35 52H31V56H35V52Z" fill="#232729"></path>
-                                                                            <path d="M42 52H38V56H42V52Z" fill="#232729"></path>
-                                                                            <path d="M120 76H30V106H120V76Z" fill="#F3F4F6"></path>
-                                                                            <path d="M153.5 76H126.5V142H153.5V76Z" fill="#F3F4F6"></path>
-                                                                            <path d="M120 112H30V142H120V112Z" fill="#F3F4F6"></path>
-                                                                            <path d="M44 120.77H26.23V103H17.77V120.77H0V129.23H17.77V147H26.23V129.23H44V120.77Z" fill="#FF5100"></path>
-                                                                            <path d="M60.0711 146.314L62.1924 144.192L55.1213 137.121L53 139.243L60.0711 146.314Z" fill="#232729"></path>
-                                                                            <path d="M53.0711 105.071L55.1924 107.192L62.2634 100.121L60.1421 98L53.0711 105.071Z" fill="#232729"></path>
-                                                                            <path d="M70.1924 124.192V121.192H59.1924V124.192H70.1924Z" fill="#232729"></path>
-                                                                        </svg>
-                                                                    </EmptyItemSvg>
-                                                                    <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Hiện tại Sảnh này chưa có Nhân viên nào!</EmptyContent>
-                                                                </EmptyItem>
-                                                            )
-                                                    }
-                                                </DeviceList>
-                                            </LeftVoteItem2>
-                                        </LeftVote>
-
-                                        <RightVote className="col-lg-6">
-                                            <RightVoteItem className="row">
-                                                <RightVoteTitle className="col-lg-12">Những Nhân viên khác của Nhà hàng</RightVoteTitle>
-
-                                                <RightVoteTitle style={{ fontSize: "1rem", padding: "0" }} className="col-lg-12"><span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>Hãy chọn Nhân viên bạn muốn thêm vào Sảnh này!</span></RightVoteTitle>
-                                                <Box sx={{ minWidth: 120, width: "80%", margin: "10px auto" }}>
-                                                    <FormControl fullWidth>
-                                                        <InputLabel id="demo-simple-select-label"></InputLabel>
-                                                        <Select
-                                                            labelId="demo-simple-select-label"
-                                                            id="demo-simple-select"
-                                                            value={positionIdModalAddEmployee}
-                                                            label="Age"
-                                                            sx={{
-                                                                '& legend': { display: 'none' },
-                                                                '& fieldset': { top: 0 }
-                                                            }}
-                                                            onChange={(e) => setPositionIdModalAddEmployee(parseInt(e.target.value))}
-                                                        >
+                                                        <DeviceList className="col-lg-12">
                                                             {
-                                                                positionList.length > 0
+                                                                partyEmployeeListAddEmployee.length > 0
                                                                     ?
-                                                                    positionList.map((position, key) => {
+                                                                    partyEmployeeListAddEmployee.map((roomEmployee, key) => {
                                                                         return (
-                                                                            <MenuItem value={position.position_id}>{position.position_name}</MenuItem>
+                                                                            <DeviceItem className="row">
+                                                                                <DeviceIconContainer className="col-lg-3">
+                                                                                    <DeviceIcon src={roomEmployee.employee_gender === "Nam" ? "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1667675091004employee%20(2).png?alt=media&token=9171617a-2e61-4539-ab8d-4a6ae5337394" : roomEmployee.employee_gender === "Nữ" ? "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1667675091006employee%20(1).png?alt=media&token=b0e97bfd-5180-4c1b-827c-23c1808a2222" : null} />
+                                                                                </DeviceIconContainer>
+                                                                                <div className="col-lg-9">
+                                                                                    <DeviceTitle className="row">
+                                                                                        <DeviceName>{'Nhân viên mã ' + roomEmployee.employee_id + ': ' + roomEmployee.employee_first_name + " " + roomEmployee.employee_last_name}</DeviceName>
+                                                                                    </DeviceTitle>
+                                                                                    <DeviceInfo className="row">
+                                                                                        <DeviceTime>Phụ trách Sảnh từ: {roomEmployee.party_employee_add_date}</DeviceTime>
+                                                                                    </DeviceInfo>
+                                                                                </div>
+                                                                                <DeviceDetailContainer>
+                                                                                    <DeviceDetailImage src={roomEmployee.employee_image} />
+                                                                                </DeviceDetailContainer>
+                                                                            </DeviceItem>
                                                                         )
-                                                                    }) : null
+                                                                    }) : (
+                                                                        <EmptyItem>
+                                                                            <EmptyItemSvg>
+                                                                                <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
+                                                                                    <path d="M186 63V140H43V177H200V63H186Z" fill="#D6DADC"></path>
+                                                                                    <path d="M170.5 45H13.5V159H170.5V45Z" fill="white"></path>
+                                                                                    <path d="M29.5 26V45H170.5V140H186.5V26H29.5Z" fill="#1952B3"></path>
+                                                                                    <path d="M175 155V42H167H121.5V44H15H11V84H15V64H161V60H15V48H121.5V50H167V155H31V163H175V155Z" fill="#232729"></path>
+                                                                                    <path d="M28 52H24V56H28V52Z" fill="#232729"></path>
+                                                                                    <path d="M35 52H31V56H35V52Z" fill="#232729"></path>
+                                                                                    <path d="M42 52H38V56H42V52Z" fill="#232729"></path>
+                                                                                    <path d="M120 76H30V106H120V76Z" fill="#F3F4F6"></path>
+                                                                                    <path d="M153.5 76H126.5V142H153.5V76Z" fill="#F3F4F6"></path>
+                                                                                    <path d="M120 112H30V142H120V112Z" fill="#F3F4F6"></path>
+                                                                                    <path d="M44 120.77H26.23V103H17.77V120.77H0V129.23H17.77V147H26.23V129.23H44V120.77Z" fill="#FF5100"></path>
+                                                                                    <path d="M60.0711 146.314L62.1924 144.192L55.1213 137.121L53 139.243L60.0711 146.314Z" fill="#232729"></path>
+                                                                                    <path d="M53.0711 105.071L55.1924 107.192L62.2634 100.121L60.1421 98L53.0711 105.071Z" fill="#232729"></path>
+                                                                                    <path d="M70.1924 124.192V121.192H59.1924V124.192H70.1924Z" fill="#232729"></path>
+                                                                                </svg>
+                                                                            </EmptyItemSvg>
+                                                                            <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Hiện tại Sảnh này chưa có Nhân viên nào!</EmptyContent>
+                                                                        </EmptyItem>
+                                                                    )
                                                             }
-                                                        </Select>
-                                                    </FormControl>
-                                                </Box>
+                                                        </DeviceList>
+                                                    </LeftVoteItem2>
+                                                </LeftVote>
+                                            </ModalForm>
+                                        ) : (
+                                            <ModalForm style={{ padding: "0px 20px" }}>
+                                                <div className="col-lg-12">
+                                                    <div className="row">
+                                                        <LeftVote className="col-lg-6">
+                                                            <LeftVoteItem className="row">
+                                                                <LeftVoteTitle>Thông tin Sảnh - Nhà hàng</LeftVoteTitle>
+                                                                <InforCustomer className="col-lg-12">
+                                                                    <InfoItem className="row">
+                                                                        <InfoTitle className="col-lg-4">Mã Sảnh: </InfoTitle>
+                                                                        <InfoDetail className="col-lg-8">{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_id : null}</InfoDetail>
+                                                                    </InfoItem>
+                                                                    <InfoItem className="row">
+                                                                        <InfoTitle className="col-lg-4">Trạng thái: </InfoTitle>
+                                                                        <InfoDetail className="col-lg-8" style={{ fontWeight: "bold", color: "var(--color-primary)" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_state === 0 ? "Đang trống" : partyHallModalAddEmployee.party_hall_state === 1 ? "Đã được khóa" : null : null}</InfoDetail>
+                                                                    </InfoItem>
+                                                                </InforCustomer>
+                                                                <LeftImage src={partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_image_content : null} />
+                                                                <CartItem style={{ position: "absolute", bottom: "12px", left: "12px", width: "96%", borderRadius: "20px" }}>
+                                                                    <Circle />
+                                                                    <Course>
+                                                                        <Content>
+                                                                            <span style={{ width: "320px", fontWeight: "bold" }}> {partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_name : null} </span>
+                                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_price : null} VNĐ</span>
+                                                                        </Content>
+                                                                        <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_type_name : null}</span></span>
+                                                                    </Course>
+                                                                </CartItem>
+                                                            </LeftVoteItem>
+                                                            <LeftVoteItem2 className="row">
+                                                                <LeftVoteTitle>Những Nhân viên phụ trách Sảnh này</LeftVoteTitle>
 
-                                                <Surcharge className="col-lg-12" style={{ height: "355px", maxHeight: "355px" }}>
-                                                    {
-                                                        employeeListAddEmployee.length > 0
-                                                            ?
-                                                            employeeListAddEmployee.map((employee, key) => {
-                                                                return (
-                                                                    <LabelCheckbox>
-                                                                        <ServiceItem className="row">
-                                                                            <div className="col-lg-2">
-                                                                                <Checkbox checked={!employeeChooseList.includes(employee.employee_id) ? false : true} value={employee.employee_id} onChange={(e) => handleCheckEmployee(e)} />
-                                                                            </div>
-                                                                            <ServiceIconContainer className="col-lg-3">
-                                                                                <ServiceIcon style={{ width: "40px", height: "40px", objectFix: "cover" }} src={employee.employee_image} />
-                                                                            </ServiceIconContainer>
-                                                                            <div className="col-lg-7">
-                                                                                <ServiceTitle className="row">
-                                                                                    <ServiceName>{employee.employee_first_name + " " + employee.employee_last_name}</ServiceName>
-                                                                                </ServiceTitle>
-                                                                                <ServiceInfo className="row">
-                                                                                    <ServiceTime>{employee.employee_email + " - " + employee.employee_phone_number}</ServiceTime>
-                                                                                </ServiceInfo>
-                                                                            </div>
-                                                                        </ServiceItem>
-                                                                    </LabelCheckbox>
-                                                                )
-                                                            }) : (
-                                                                <EmptyItem>
-                                                                    <EmptyItemSvg>
-                                                                        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
-                                                                            <path d="M186 63V140H43V177H200V63H186Z" fill="#D6DADC"></path>
-                                                                            <path d="M170.5 45H13.5V159H170.5V45Z" fill="white"></path>
-                                                                            <path d="M29.5 26V45H170.5V140H186.5V26H29.5Z" fill="#1952B3"></path>
-                                                                            <path d="M175 155V42H167H121.5V44H15H11V84H15V64H161V60H15V48H121.5V50H167V155H31V163H175V155Z" fill="#232729"></path>
-                                                                            <path d="M28 52H24V56H28V52Z" fill="#232729"></path>
-                                                                            <path d="M35 52H31V56H35V52Z" fill="#232729"></path>
-                                                                            <path d="M42 52H38V56H42V52Z" fill="#232729"></path>
-                                                                            <path d="M120 76H30V106H120V76Z" fill="#F3F4F6"></path>
-                                                                            <path d="M153.5 76H126.5V142H153.5V76Z" fill="#F3F4F6"></path>
-                                                                            <path d="M120 112H30V142H120V112Z" fill="#F3F4F6"></path>
-                                                                            <path d="M44 120.77H26.23V103H17.77V120.77H0V129.23H17.77V147H26.23V129.23H44V120.77Z" fill="#FF5100"></path>
-                                                                            <path d="M60.0711 146.314L62.1924 144.192L55.1213 137.121L53 139.243L60.0711 146.314Z" fill="#232729"></path>
-                                                                            <path d="M53.0711 105.071L55.1924 107.192L62.2634 100.121L60.1421 98L53.0711 105.071Z" fill="#232729"></path>
-                                                                            <path d="M70.1924 124.192V121.192H59.1924V124.192H70.1924Z" fill="#232729"></path>
-                                                                        </svg>
-                                                                    </EmptyItemSvg>
-                                                                    <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Không có Nhân viên khác hoặc tất cả Nhân viên của Chức vụ này đã được thêm vào Sảnh!</EmptyContent>
-                                                                </EmptyItem>
-                                                            )
-                                                    }
-                                                </Surcharge>
-                                                <FormChucNang style={{ marginTop: "20px" }}>
-                                                    <SignInBtn
-                                                        onClick={(e) => handleCreatePartyEmployee(e, employeeChooseList, partyHallIdModalAddEmployee)}
-                                                    >Thêm Nhân viên</SignInBtn>
-                                                    <SignUpBtn
-                                                        onClick={(e) => handleCancleCreatePartyEmployee(e, employeeChooseList)}
-                                                    >Hủy chọn</SignUpBtn>
-                                                </FormChucNang>
-                                            </RightVoteItem>
-                                        </RightVote>
-                                    </div>
-                                </div>
-                            </ModalForm>
+                                                                <DeviceList className="col-lg-12">
+                                                                    {
+                                                                        partyEmployeeListAddEmployee.length > 0
+                                                                            ?
+                                                                            partyEmployeeListAddEmployee.map((roomEmployee, key) => {
+                                                                                return (
+                                                                                    <DeviceItem className="row">
+                                                                                        <DeviceIconContainer className="col-lg-3">
+                                                                                            <DeviceIcon src={roomEmployee.employee_gender === "Nam" ? "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1667675091004employee%20(2).png?alt=media&token=9171617a-2e61-4539-ab8d-4a6ae5337394" : roomEmployee.employee_gender === "Nữ" ? "https://firebasestorage.googleapis.com/v0/b/longpets-50c17.appspot.com/o/1667675091006employee%20(1).png?alt=media&token=b0e97bfd-5180-4c1b-827c-23c1808a2222" : null} />
+                                                                                        </DeviceIconContainer>
+                                                                                        <div className="col-lg-9">
+                                                                                            <DeviceTitle className="row">
+                                                                                                <DeviceName>{'Nhân viên mã ' + roomEmployee.employee_id + ': ' + roomEmployee.employee_first_name + " " + roomEmployee.employee_last_name}</DeviceName>
+                                                                                            </DeviceTitle>
+                                                                                            <DeviceInfo className="row">
+                                                                                                <DeviceTime>Phụ trách Sảnh từ: {roomEmployee.party_employee_add_date}</DeviceTime>
+                                                                                            </DeviceInfo>
+                                                                                        </div>
+                                                                                        <DeviceDetailContainer>
+                                                                                            <DeviceDetailImage src={roomEmployee.employee_image} />
+                                                                                        </DeviceDetailContainer>
+                                                                                        <DeleteService
+                                                                                            onClick={() => handleDeletePartyEmployee(roomEmployee.party_employee_id)}
+                                                                                        >
+                                                                                            <ClearOutlined />
+                                                                                        </DeleteService>
+                                                                                    </DeviceItem>
+                                                                                )
+                                                                            }) : (
+                                                                                <EmptyItem>
+                                                                                    <EmptyItemSvg>
+                                                                                        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
+                                                                                            <path d="M186 63V140H43V177H200V63H186Z" fill="#D6DADC"></path>
+                                                                                            <path d="M170.5 45H13.5V159H170.5V45Z" fill="white"></path>
+                                                                                            <path d="M29.5 26V45H170.5V140H186.5V26H29.5Z" fill="#1952B3"></path>
+                                                                                            <path d="M175 155V42H167H121.5V44H15H11V84H15V64H161V60H15V48H121.5V50H167V155H31V163H175V155Z" fill="#232729"></path>
+                                                                                            <path d="M28 52H24V56H28V52Z" fill="#232729"></path>
+                                                                                            <path d="M35 52H31V56H35V52Z" fill="#232729"></path>
+                                                                                            <path d="M42 52H38V56H42V52Z" fill="#232729"></path>
+                                                                                            <path d="M120 76H30V106H120V76Z" fill="#F3F4F6"></path>
+                                                                                            <path d="M153.5 76H126.5V142H153.5V76Z" fill="#F3F4F6"></path>
+                                                                                            <path d="M120 112H30V142H120V112Z" fill="#F3F4F6"></path>
+                                                                                            <path d="M44 120.77H26.23V103H17.77V120.77H0V129.23H17.77V147H26.23V129.23H44V120.77Z" fill="#FF5100"></path>
+                                                                                            <path d="M60.0711 146.314L62.1924 144.192L55.1213 137.121L53 139.243L60.0711 146.314Z" fill="#232729"></path>
+                                                                                            <path d="M53.0711 105.071L55.1924 107.192L62.2634 100.121L60.1421 98L53.0711 105.071Z" fill="#232729"></path>
+                                                                                            <path d="M70.1924 124.192V121.192H59.1924V124.192H70.1924Z" fill="#232729"></path>
+                                                                                        </svg>
+                                                                                    </EmptyItemSvg>
+                                                                                    <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Hiện tại Sảnh này chưa có Nhân viên nào!</EmptyContent>
+                                                                                </EmptyItem>
+                                                                            )
+                                                                    }
+                                                                </DeviceList>
+                                                            </LeftVoteItem2>
+                                                        </LeftVote>
+
+                                                        <RightVote className="col-lg-6">
+                                                            <RightVoteItem className="row">
+                                                                <RightVoteTitle className="col-lg-12">Những Nhân viên khác của Nhà hàng</RightVoteTitle>
+
+                                                                <RightVoteTitle style={{ fontSize: "1rem", padding: "0" }} className="col-lg-12"><span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>Hãy chọn Nhân viên bạn muốn thêm vào Sảnh này!</span></RightVoteTitle>
+                                                                <Box sx={{ minWidth: 120, width: "80%", margin: "10px auto" }}>
+                                                                    <FormControl fullWidth>
+                                                                        <InputLabel id="demo-simple-select-label"></InputLabel>
+                                                                        <Select
+                                                                            labelId="demo-simple-select-label"
+                                                                            id="demo-simple-select"
+                                                                            value={positionIdModalAddEmployee}
+                                                                            label="Age"
+                                                                            sx={{
+                                                                                '& legend': { display: 'none' },
+                                                                                '& fieldset': { top: 0 }
+                                                                            }}
+                                                                            onChange={(e) => setPositionIdModalAddEmployee(parseInt(e.target.value))}
+                                                                        >
+                                                                            {
+                                                                                positionList.length > 0
+                                                                                    ?
+                                                                                    positionList.map((position, key) => {
+                                                                                        return (
+                                                                                            <MenuItem value={position.position_id}>{position.position_name}</MenuItem>
+                                                                                        )
+                                                                                    }) : null
+                                                                            }
+                                                                        </Select>
+                                                                    </FormControl>
+                                                                </Box>
+
+                                                                <Surcharge className="col-lg-12" style={{ height: "355px", maxHeight: "355px" }}>
+                                                                    {
+                                                                        employeeListAddEmployee.length > 0
+                                                                            ?
+                                                                            employeeListAddEmployee.map((employee, key) => {
+                                                                                return (
+                                                                                    <LabelCheckbox>
+                                                                                        <ServiceItem className="row">
+                                                                                            <div className="col-lg-2">
+                                                                                                <Checkbox checked={!employeeChooseList.includes(employee.employee_id) ? false : true} value={employee.employee_id} onChange={(e) => handleCheckEmployee(e)} />
+                                                                                            </div>
+                                                                                            <ServiceIconContainer className="col-lg-3">
+                                                                                                <ServiceIcon style={{ width: "40px", height: "40px", objectFix: "cover" }} src={employee.employee_image} />
+                                                                                            </ServiceIconContainer>
+                                                                                            <div className="col-lg-7">
+                                                                                                <ServiceTitle className="row">
+                                                                                                    <ServiceName>{employee.employee_first_name + " " + employee.employee_last_name}</ServiceName>
+                                                                                                </ServiceTitle>
+                                                                                                <ServiceInfo className="row">
+                                                                                                    <ServiceTime>{employee.employee_email + " - " + employee.employee_phone_number}</ServiceTime>
+                                                                                                </ServiceInfo>
+                                                                                            </div>
+                                                                                        </ServiceItem>
+                                                                                    </LabelCheckbox>
+                                                                                )
+                                                                            }) : (
+                                                                                <EmptyItem>
+                                                                                    <EmptyItemSvg>
+                                                                                        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="EmptyStatestyles__StyledSvg-sc-qsuc29-0 cHfQrS">
+                                                                                            <path d="M186 63V140H43V177H200V63H186Z" fill="#D6DADC"></path>
+                                                                                            <path d="M170.5 45H13.5V159H170.5V45Z" fill="white"></path>
+                                                                                            <path d="M29.5 26V45H170.5V140H186.5V26H29.5Z" fill="#1952B3"></path>
+                                                                                            <path d="M175 155V42H167H121.5V44H15H11V84H15V64H161V60H15V48H121.5V50H167V155H31V163H175V155Z" fill="#232729"></path>
+                                                                                            <path d="M28 52H24V56H28V52Z" fill="#232729"></path>
+                                                                                            <path d="M35 52H31V56H35V52Z" fill="#232729"></path>
+                                                                                            <path d="M42 52H38V56H42V52Z" fill="#232729"></path>
+                                                                                            <path d="M120 76H30V106H120V76Z" fill="#F3F4F6"></path>
+                                                                                            <path d="M153.5 76H126.5V142H153.5V76Z" fill="#F3F4F6"></path>
+                                                                                            <path d="M120 112H30V142H120V112Z" fill="#F3F4F6"></path>
+                                                                                            <path d="M44 120.77H26.23V103H17.77V120.77H0V129.23H17.77V147H26.23V129.23H44V120.77Z" fill="#FF5100"></path>
+                                                                                            <path d="M60.0711 146.314L62.1924 144.192L55.1213 137.121L53 139.243L60.0711 146.314Z" fill="#232729"></path>
+                                                                                            <path d="M53.0711 105.071L55.1924 107.192L62.2634 100.121L60.1421 98L53.0711 105.071Z" fill="#232729"></path>
+                                                                                            <path d="M70.1924 124.192V121.192H59.1924V124.192H70.1924Z" fill="#232729"></path>
+                                                                                        </svg>
+                                                                                    </EmptyItemSvg>
+                                                                                    <EmptyContent class="EmptyStatestyles__StyledTitle-sc-qsuc29-2 gAMClh">Không có Nhân viên khác hoặc tất cả Nhân viên của Chức vụ này đã được thêm vào Sảnh!</EmptyContent>
+                                                                                </EmptyItem>
+                                                                            )
+                                                                    }
+                                                                </Surcharge>
+                                                                <FormChucNang style={{ marginTop: "20px" }}>
+                                                                    <SignInBtn
+                                                                        onClick={(e) => handleCreatePartyEmployee(e, employeeChooseList, partyHallIdModalAddEmployee)}
+                                                                    >Thêm Nhân viên</SignInBtn>
+                                                                    <SignUpBtn
+                                                                        onClick={(e) => handleCancleCreatePartyEmployee(e, employeeChooseList)}
+                                                                    >Hủy chọn</SignUpBtn>
+                                                                </FormChucNang>
+                                                            </RightVoteItem>
+                                                        </RightVote>
+                                                    </div>
+                                                </div>
+                                            </ModalForm>
+                                        )
+                                    : null
+                            }
+
                             <ButtonUpdate>
                                 <ButtonContainer>
                                     <ButtonClick

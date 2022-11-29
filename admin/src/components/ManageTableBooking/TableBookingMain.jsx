@@ -7,6 +7,7 @@ import Modal from "./Modal";
 // SERVICES
 import ReactPaginate from "react-paginate";
 import * as TableBookingService from "../../service/TableBookingService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -392,6 +393,152 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", tableBookingAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateTableBooking", tableBooking: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteTableBooking", tableBooking: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", tableBookingAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateTableBooking", tableBooking: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteTableBooking", tableBooking: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", tableBookingAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateTableBooking", tableBooking: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteTableBooking", tableBooking: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 10:
+                // Phục vụ Bàn
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", tableBookingAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 10:
+                // Phục vụ Bàn
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
@@ -413,7 +560,9 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                         style={{ backgroundColor: tableBooking.table_booking_state === 0 ? "var(--color-info)" : tableBooking.table_booking_state === 1 ? "var(--color-danger)" : null }}>
                         {tableBooking.table_booking_state === 0 ? "Còn trống" : tableBooking.table_booking_state === 1 ? "Đã được khóa" : null}
                     </Td>
-                    <Td className="primary">
+
+                    {authorizationAdminTableData(admin, tableBooking)}
+                    {/* <Td className="primary">
                         <ButtonInfo
                             onClick={() => openModal({ type: "addEmployee", tableBookingAddEmployee: tableBooking })}
                         >
@@ -433,7 +582,7 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -469,9 +618,11 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Tên Bàn ăn</Th>
                             <Th>Thuộc Tầng</Th>
                             <Th>Trạng thái</Th>
-                            <Th>Thêm Nhân viên</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Thêm Nhân viên</Th>
                             <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+                            <Th>Xóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -534,7 +685,9 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                                                     style={{ backgroundColor: tableBooking.table_booking_state === 0 ? "var(--color-info)" : tableBooking.table_booking_state === 1 ? "var(--color-danger)" : null }}>
                                                     {tableBooking.table_booking_state === 0 ? "Còn trống" : tableBooking.table_booking_state === 1 ? "Đã được khóa" : null}
                                                 </Td>
-                                                <Td className="primary">
+
+                                                {authorizationAdminTableData(admin, tableBooking)}
+                                                {/* <Td className="primary">
                                                     <ButtonInfo
                                                         onClick={() => openModal({ type: "addEmployee", tableBookingAddEmployee: tableBooking })}
                                                     >
@@ -554,7 +707,7 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         );
                                     }))
@@ -562,8 +715,8 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

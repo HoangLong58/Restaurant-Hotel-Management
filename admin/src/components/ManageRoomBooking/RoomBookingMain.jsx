@@ -7,6 +7,7 @@ import Modal from "./Modal";
 
 // SERVICES
 import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -390,6 +391,136 @@ const RoomBookingMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "checkin", roomBookingOrder: data })}
+                            >
+                                <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "checkout", roomBookingOrder: data })}
+                            >
+                                <AssignmentTurnedInOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "checkin", roomBookingOrder: data })}
+                            >
+                                <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "checkout", roomBookingOrder: data })}
+                            >
+                                <AssignmentTurnedInOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "checkin", roomBookingOrder: data })}
+                            >
+                                <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "checkout", roomBookingOrder: data })}
+                            >
+                                <AssignmentTurnedInOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 9:
+                // Lễ tân Khách sạn
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "checkin", roomBookingOrder: data })}
+                            >
+                                <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "checkout", roomBookingOrder: data })}
+                            >
+                                <AssignmentTurnedInOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Checkin</Th>
+                        <Th>Checkout</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Checkin</Th>
+                        <Th>Checkout</Th>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Th>Checkin</Th>
+                        <Th>Checkout</Th>
+                    </>
+                );
+            case 9:
+                // Lễ tân Khách sạn
+                return (
+                    <>
+                        <Th>Checkin</Th>
+                        <Th>Checkout</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
@@ -414,7 +545,9 @@ const RoomBookingMain = ({ reRenderData, setReRenderData }) => {
                         style={{ backgroundColor: roomBookingOrder.room_booking_order_state === 0 ? "var(--color-info)" : roomBookingOrder.room_booking_order_state === 1 ? "var(--color-success)" : roomBookingOrder.room_booking_order_state === 2 ? "var(--color-danger)" : null }}>
                         {roomBookingOrder.room_booking_order_state === 0 ? "Đã đặt" : roomBookingOrder.room_booking_order_state === 1 ? "Đã nhận phòng" : roomBookingOrder.room_booking_order_state === 2 ? "Hoàn thành" : null}
                     </Td>
-                    <Td className="primary">
+
+                    {authorizationAdminTableData(admin, roomBookingOrder)}
+                    {/* <Td className="primary">
                         <ButtonInfo
                             onClick={() => openModal({ type: "checkin", roomBookingOrder: roomBookingOrder })}
                         >
@@ -427,7 +560,7 @@ const RoomBookingMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <AssignmentTurnedInOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -466,8 +599,10 @@ const RoomBookingMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Ngày Checkout</Th>
                             <Th>Tổng tiền</Th>
                             <Th>Trạng thái</Th>
-                            <Th>Checkin</Th>
-                            <Th>Checkout</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Checkin</Th>
+                            <Th>Checkout</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -533,7 +668,9 @@ const RoomBookingMain = ({ reRenderData, setReRenderData }) => {
                                                     style={{ backgroundColor: roomBookingOrder.room_booking_order_state === 0 ? "var(--color-info)" : roomBookingOrder.room_booking_order_state === 1 ? "var(--color-success)" : roomBookingOrder.room_booking_order_state === 2 ? "var(--color-danger)" : null }}>
                                                     {roomBookingOrder.room_booking_order_state === 0 ? "Đã đặt" : roomBookingOrder.room_booking_order_state === 1 ? "Đã nhận phòng" : roomBookingOrder.room_booking_order_state === 2 ? "Hoàn thành" : null}
                                                 </Td>
-                                                <Td className="primary">
+
+                                                {authorizationAdminTableData(admin, roomBookingOrder)}
+                                                {/* <Td className="primary">
                                                     <ButtonInfo
                                                         onClick={() => openModal({ type: "checkin", roomBookingOrder: roomBookingOrder })}
                                                     >
@@ -546,7 +683,7 @@ const RoomBookingMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <AssignmentTurnedInOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         )
                                     }
@@ -555,8 +692,8 @@ const RoomBookingMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

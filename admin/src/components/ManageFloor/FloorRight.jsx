@@ -138,7 +138,7 @@ const FloorRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Floors Analytics</H2>
+                <H2>Phân tích Tầng</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />

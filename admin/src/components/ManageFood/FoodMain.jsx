@@ -7,6 +7,7 @@ import Modal from "./Modal";
 
 // SERVICES
 import * as FoodService from "../../service/FoodService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -377,6 +378,108 @@ const FoodMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateFood", food: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteFood", food: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateFood", food: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteFood", food: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateFood", food: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteFood", food: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
@@ -399,7 +502,9 @@ const FoodMain = ({ reRenderData, setReRenderData }) => {
                     <Td onClick={() => openModal({ type: "detailFood", food: food })} style={{ backgroundColor: food.food_type_state === 0 ? "var(--color-info)" : food.food_type_state === 1 ? "var(--color-success)" : null }}>
                         {food.food_type_state === 0 ? "Đang hoạt động" : food.food_type_state === 1 ? "Ngưng hoạt động" : null}
                     </Td>
-                    <Td className="warning">
+
+                    {authorizationAdminTableData(admin, food)}
+                    {/* <Td className="warning">
                         <ButtonFix
                             onClick={() => openModal({ type: "updateFood", food: food })}
                         >
@@ -412,7 +517,7 @@ const FoodMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -448,8 +553,10 @@ const FoodMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Hình ảnh</Th>
                             <Th>Giá tiền</Th>
                             <Th>Trạng thái</Th>
-                            <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Chỉnh sửa</Th>
+                            <Th>Xóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -513,7 +620,9 @@ const FoodMain = ({ reRenderData, setReRenderData }) => {
                                                 <Td onClick={() => openModal({ type: "detailFood", food: food })} style={{ backgroundColor: food.food_type_state === 0 ? "var(--color-info)" : food.food_type_state === 1 ? "var(--color-success)" : null }}>
                                                     {food.food_type_state === 0 ? "Đang hoạt động" : food.food_type_state === 1 ? "Ngưng hoạt động" : null}
                                                 </Td>
-                                                <Td className="warning">
+
+                                                {authorizationAdminTableData(admin, food)}
+                                                {/* <Td className="warning">
                                                     <ButtonFix
                                                         onClick={() => openModal({ type: "updateFood", food: food })}
                                                     >
@@ -526,7 +635,7 @@ const FoodMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         );
                                     }))
@@ -534,8 +643,8 @@ const FoodMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

@@ -7,6 +7,7 @@ import Modal from "./Modal";
 
 // SERVICES
 import * as RoomService from "../../service/RoomService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -392,6 +393,184 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", roomAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addDevice", room: data })}
+                            >
+                                <AddToQueueOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateRoom", room: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteRoom", room: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", roomAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addDevice", room: data })}
+                            >
+                                <AddToQueueOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateRoom", room: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteRoom", room: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", roomAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addDevice", room: data })}
+                            >
+                                <AddToQueueOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateRoom", room: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteRoom", room: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 2:
+                // Phục vụ Phòng
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addEmployee", roomAddEmployee: data })}
+                            >
+                                <PersonAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addDevice", room: data })}
+                            >
+                                <AddToQueueOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Thêm Thiết bị</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Thêm Thiết bị</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Thêm Thiết bị</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 2:
+                // Phục vụ Phòng
+                return (
+                    <>
+                        <Th>Thêm Nhân viên</Th>
+                        <Th>Thêm Thiết bị</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
 
     const [pageNumber, setPageNumber] = useState(0);
@@ -420,7 +599,9 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                         style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
                         {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được khóa" : null}
                     </Td>
-                    <Td className="primary">
+
+                    {authorizationAdminTableData(admin, room)}
+                    {/* <Td className="primary">
                         <ButtonInfo
                             onClick={() => openModal({ type: "addEmployee", roomAddEmployee: room })}
                         >
@@ -447,7 +628,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -485,10 +666,12 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Vị trí</Th>
                             <Th>Giá phòng</Th>
                             <Th>Trạng thái</Th>
-                            <Th>Thêm Nhân viên</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Thêm Nhân viên</Th>
                             <Th>Thêm Thiết bị</Th>
                             <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+                            <Th>Xóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -557,7 +740,9 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                                                     style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
                                                     {room.room_state === 0 ? "Còn trống" : room.room_state === 1 ? "Đã được đặt" : null}
                                                 </Td>
-                                                <Td className="primary">
+
+                                                {authorizationAdminTableData(admin, room)}
+                                                {/* <Td className="primary">
                                                     <ButtonInfo
                                                         onClick={() => openModal({ type: "addEmployee", roomAddEmployee: room })}
                                                     >
@@ -584,7 +769,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         )
                                     }
@@ -593,8 +778,8 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

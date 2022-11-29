@@ -138,7 +138,7 @@ const PartyServiceTypeRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Party Service Types Analytics</H2>
+                <H2>Phân tích Loại dịch vụ tiệc</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />

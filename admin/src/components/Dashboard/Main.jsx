@@ -1,4 +1,4 @@
-import { AutoGraphOutlined, BarChartOutlined, Close, InsertChart } from "@mui/icons-material";
+import { AutoGraphOutlined, BarChartOutlined, Close, InsertChart, KeyboardArrowUpOutlined } from "@mui/icons-material";
 import { Tooltip as TooltipMui } from '@mui/material';
 import axios from "axios";
 import {
@@ -199,9 +199,15 @@ const Td = styled.td`
 
 const A = styled.a`
     text-align: center;
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
     margin: 1rem auto;
     color: var(--color-primary);
+    cursor: pointer;
+    font-weight: bold;
+    letter-spacing: 2px;
 `
 
 const CloseDate = styled.div` 
@@ -229,73 +235,6 @@ const CloseDate = styled.div`
 `
 
 const Main = () => {
-    const [ngayThangNam, setNgayThangNam] = useState();
-    const [nam, setNam] = useState("");
-    const [thang, setThang] = useState("");
-    const [ngay, setNgay] = useState("");
-
-    const [tongDoanhThu, setTongDoanhThu] = useState();
-    const [doanhThuCho, setDoanhThuCho] = useState();
-    const [hienThiDoanhThuCho, setHienThiDoanhThuCho] = useState();
-    const [doanhThuMeo, setDoanhThuMeo] = useState();
-    const [hienThiDoanhThuMeo, setHienThiDoanhThuMeo] = useState();
-    const [doanhThuKhac, setDoanhThuKhac] = useState();
-    const [hienThiDoanhThuKhac, setHienThiDoanhThuKhac] = useState();
-    // Thống kê doanh thu theo tháng từng danh mục
-    const [doanhThuTheoThang, setDoanhThuTheoThang] = useState([]);
-
-
-    useEffect(() => {
-        console.log("Ngày, tháng, năm: ", ngay, thang, nam, ngayThangNam);
-
-        // const getThongKeTheoDanhMuc = async () => {
-        //     const thongketheodanhmucres = await axios.post("http://localhost:3001/api/products/getThongKeTheoDanhMuc", {});
-        //     setThongKeTheoDanhMuc(thongketheodanhmucres.data);
-        //     thongKeTheoDanhMuc.map((danhmuc, key) => {
-        //         setTongDoanhThu(prev => prev + danhmuc.tongtiengiaodich);
-        //     })
-        // }
-        const getDoanhThuCho = async () => {
-            const doanhthuchores = await axios.post("http://localhost:3001/api/products/getDoanhThuCho", { ngay: ngay, thang: thang, nam: nam });
-            setDoanhThuCho(doanhthuchores.data[0].tongtiengiaodich);
-            // setHienThiDoanhThuCho(format_money((doanhthuchores.data[0].tongtiengiaodich).toString()))
-        }
-        const getDoanhThuMeo = async () => {
-            const doanhthumeores = await axios.post("http://localhost:3001/api/products/getDoanhThuMeo", { ngay: ngay, thang: thang, nam: nam });
-            setDoanhThuMeo(doanhthumeores.data[0].tongtiengiaodich);
-            // setHienThiDoanhThuMeo(format_money((doanhthumeores.data[0].tongtiengiaodich).toString()))
-        }
-        const getDoanhThuKhac = async () => {
-            const doanhthukhacres = await axios.post("http://localhost:3001/api/products/getDoanhThuKhac", { ngay: ngay, thang: thang, nam: nam });
-            setDoanhThuKhac(doanhthukhacres.data[0].tongtiengiaodich);
-            // setHienThiDoanhThuKhac(format_money((doanhthukhacres.data[0].tongtiengiaodich).toString()))
-        }
-        const getTongDoanhThu = async () => {
-            const tongdoanhthures = await axios.post("http://localhost:3001/api/products/getTongDoanhThu", { ngay: ngay, thang: thang, nam: nam });
-            setTongDoanhThu(tongdoanhthures.data[0].tongtiengiaodich);
-        }
-        // getThongKeTheoDanhMuc();
-        getDoanhThuCho();
-        getDoanhThuMeo();
-        getDoanhThuKhac();
-        getTongDoanhThu();
-        return () => {
-            setHienThiDoanhThuCho("");
-            setHienThiDoanhThuMeo("");
-            setHienThiDoanhThuKhac("");
-        }
-
-    }, [ngayThangNam])
-    console.log(tongDoanhThu, doanhThuCho);
-    const handleChangeNgay = (ngaythangnam) => {
-        setNgayThangNam(ngaythangnam);
-        setNam(ngaythangnam.substring(0, 4));
-        setThang(ngaythangnam.substring(5, 7));
-        setNgay(ngaythangnam.substring(8, 10));
-    }
-
-
-
     // -----------------------------------TEST-----------------------------------
     // console.log("Ngày, tháng, năm: ", ngay, thang, nam, ngayThangNam);
     console.log("DATASET: ", dataset);
@@ -404,7 +343,7 @@ const Main = () => {
     console.log("statistic: ", statistic, totalForEachMonthArray);
     return (
         <Container>
-            <H1>Dashboard</H1>
+            <H1>Trang chủ</H1>
 
             <Date>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -588,7 +527,13 @@ const Main = () => {
                         }
                     }}
                 />
-                <A href="#">Show all</A>
+                <A onClick={() => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                }}>
+                    <KeyboardArrowUpOutlined /> Lên trên</A>
             </RecentOrders>
         </Container>
     );

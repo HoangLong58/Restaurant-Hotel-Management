@@ -27,6 +27,8 @@ import view1 from '../../img/sanvuon1.jpg';
 
 // SERVICES
 import * as FoodTypeService from "../../service/FoodTypeService";
+import * as PartyHallService from "../../service/PartyHallService";
+import * as SetMenuService from "../../service/SetMenuService";
 import { Link } from 'react-router-dom';
 import { format_money } from '../../utils/utils';
 
@@ -280,6 +282,8 @@ const RestaurantMeals = () => {
         }
     };
     const [foodTypeAndFoodList, setFoodTypeAndFoodList] = useState([]);
+    const [partyHallList, setPartyHallList] = useState([]);
+    const [setMenuList, setSetMenuList] = useState([]);
     useEffect(() => {
         const getFoodTypeAndFoodList = async () => {
             try {
@@ -290,6 +294,26 @@ const RestaurantMeals = () => {
                 console.log("Lỗi lấy food type và list food");
             }
         }
+        const getPartyHalls = async () => {
+            try {
+                const partyHallListRes = await PartyHallService.getPartyHalls();
+                setPartyHallList(partyHallListRes.data.data);
+                console.log("partyHallListRes: ", partyHallListRes);
+            } catch (err) {
+                console.log("Lỗi lấy party hall");
+            }
+        }
+        const getSetMenus = async () => {
+            try {
+                const setMenuRes = await SetMenuService.getSetMenus();
+                setSetMenuList(setMenuRes.data.data);
+                console.log("setMenuRes: ", setMenuRes);
+            } catch (err) {
+                console.log("Lỗi lấy set menu");
+            }
+        }
+        getSetMenus();
+        getPartyHalls();
         getFoodTypeAndFoodList();
     }, []);
     return (
@@ -318,78 +342,21 @@ const RestaurantMeals = () => {
                             arrows={true}
                             rewindWithAnimation={true}
                         >
-                            <MenuItem>
-                                <MenuImage src={menu1} />
-                                <MenuInfo>
-                                    <MenuTitle>MENU 4.950.000</MenuTitle>
-                                    <MenuDescription>
-                                        Bàn tiệc tiêu chuẩn với đầy đủ các món ngon, đảm bảo đầy đủ khẩu phần và sự sang trọng.
-                                    </MenuDescription>
-                                </MenuInfo>
-                            </MenuItem>
-                            <MenuItem>
-                                <MenuImage src={menu2} />
-                                <MenuInfo>
-                                    <MenuTitle>MENU 5.950.000</MenuTitle>
-                                    <MenuDescription>
-                                        Bàn tiệc nâng cấp cho bữa tiệc sang trọng với các món ngon đa dạng và thịnh soạn hơn.
-                                    </MenuDescription>
-                                </MenuInfo>
-                            </MenuItem>
-                            <MenuItem>
-                                <MenuImage src={menu3} />
-                                <MenuInfo>
-                                    <MenuTitle>MENU 6.250.000</MenuTitle>
-                                    <MenuDescription>
-                                        Bàn tiệc với những món ăn phong phú và sang trọng đem đến cho quý khách.
-                                    </MenuDescription>
-                                </MenuInfo>
-                            </MenuItem>
-                            <MenuItem>
-                                <MenuImage src={menu4} />
-                                <MenuInfo>
-                                    <MenuTitle>Menu 6.950.000</MenuTitle>
-                                    <MenuDescription>
-                                        Bàn tiệc thịnh soạn, đầy đủ món ngon, hợp khẩu vị người châu Á sẽ là chọn lựa hoàn hảo...
-                                    </MenuDescription>
-                                </MenuInfo>
-                            </MenuItem>
-                            <MenuItem>
-                                <MenuImage src={menu5} />
-                                <MenuInfo>
-                                    <MenuTitle>Menu 7.550.000</MenuTitle>
-                                    <MenuDescription>
-                                        Bàn tiệc sang trọng, giá trị nhất với những món ngon phong phú và giá trị dinh dưỡng cao nhất.
-                                    </MenuDescription>
-                                </MenuInfo>
-                            </MenuItem>
-                            <MenuItem>
-                                <MenuImage src={menu6} />
-                                <MenuInfo>
-                                    <MenuTitle>Menu thức uống</MenuTitle>
-                                    <MenuDescription>
-                                        Những thức uống đa dạng, mức giá hợp lý tạo thêm điểm nhấn quan trọng cho bữa tiệc.
-                                    </MenuDescription>
-                                </MenuInfo>
-                            </MenuItem>
-                            <MenuItem>
-                                <MenuImage src={menu7} />
-                                <MenuInfo>
-                                    <MenuTitle>Bảng giá dịch vụ</MenuTitle>
-                                    <MenuDescription>
-                                        Những dịch vụ trang trí, nghi thức lễ với phiên bản nâng cấp làm tăng giá trị của bữa tiệc.
-                                    </MenuDescription>
-                                </MenuInfo>
-                            </MenuItem>
-                            <MenuItem>
-                                <MenuImage src={menu8} />
-                                <MenuInfo>
-                                    <MenuTitle>BẢNG GIÁ DỊCH VỤ</MenuTitle>
-                                    <MenuDescription>
-                                        Những hạng mục chương trình giải trí và dịch vụ phụ trợ giúp bữa tiệc hoàn hảo hơn.
-                                    </MenuDescription>
-                                </MenuInfo>
-                            </MenuItem>
+                            {
+                                setMenuList.map((setMenu, key) => {
+                                    return (
+                                        <MenuItem>
+                                            <MenuImage src={setMenu.set_menu_image} />
+                                            <MenuInfo>
+                                                <MenuTitle>{setMenu.set_menu_name}</MenuTitle>
+                                                <MenuDescription>
+                                                    {setMenu.set_menu_description}
+                                                </MenuDescription>
+                                            </MenuInfo>
+                                        </MenuItem>
+                                    )
+                                })
+                            }
                         </Carousel>
                     </div>
                 </div>
@@ -422,51 +389,21 @@ const RestaurantMeals = () => {
                             arrows={true}
                             rewindWithAnimation={true}
                         >
-                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                <ViewImage src={view1} />
-                                <ViewInfo>
-                                    <ViewTitle>SẢNH IRIS &#8211; SÂN VƯỜN</ViewTitle>
-                                    <ViewDescription>
-                                        Không gian tiệc ngoài trời thoáng đãng, tươi mát, rộng rãi, sức chứa khoảng 130-280 khách.
-                                    </ViewDescription>
-                                </ViewInfo>
-                            </ViewItem>
-                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                <ViewImage src={view2} />
-                                <ViewInfo>
-                                    <ViewTitle>SẢNH DAISY &#8211; LOBBY</ViewTitle>
-                                    <ViewDescription>
-                                        Không gian tiệc trong nhà phong cách Rustic lãng mạn, duyên dáng, ấm cúng, sức chứa khoảng 120 khách.
-                                    </ViewDescription>
-                                </ViewInfo>
-                            </ViewItem>
-                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                <ViewImage src={view3} />
-                                <ViewInfo>
-                                    <ViewTitle>SẢNH PEONY &#8211; HỒ BƠI</ViewTitle>
-                                    <ViewDescription>
-                                        Không gian tiệc ngoài trời độc đáo, ấn tượng, xanh mát, sức chứa đẹp nhất khoảng 120 khách.
-                                    </ViewDescription>
-                                </ViewInfo>
-                            </ViewItem>
-                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                <ViewImage src={view4} />
-                                <ViewInfo>
-                                    <ViewTitle>SẢNH PANSEE &#8211; SÂN THƯỢNG</ViewTitle>
-                                    <ViewDescription>
-                                        Không gian tiệc ngoài trời trên tầng cao, thoáng mát, mới lạ, sức chứa tối đa khoảng 70 khách.
-                                    </ViewDescription>
-                                </ViewInfo>
-                            </ViewItem>
-                            <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
-                                <ViewImage src={view5} />
-                                <ViewInfo>
-                                    <ViewTitle>SẢNH LAVENDER &#8211; ÁP MÁI</ViewTitle>
-                                    <ViewDescription>
-                                        Không gian tiệc trong nhà nhỏ xinh, ấm áp, thanh lịch, sức chứa khoảng 50 khách.
-                                    </ViewDescription>
-                                </ViewInfo>
-                            </ViewItem>
+                            {
+                                partyHallList.map((partyHall, key) => {
+                                    return (
+                                        <ViewItem style={{ justifyContent: "flex-start", paddingTop: "15px", height: "100%", backgroundColor: "#333" }}>
+                                            <ViewImage src={partyHall.party_hall_image_content} />
+                                            <ViewInfo>
+                                                <ViewTitle>{partyHall.party_hall_name + " - " + partyHall.party_hall_view}</ViewTitle>
+                                                <ViewDescription>
+                                                    {partyHall.party_hall_description}
+                                                </ViewDescription>
+                                            </ViewInfo>
+                                        </ViewItem>
+                                    )
+                                })
+                            }
                         </Carousel>
                     </div>
                 </div>
@@ -481,7 +418,7 @@ const RestaurantMeals = () => {
                                     const foodType = foodTypeAndFoodListItem.foodType;
                                     const foodList = foodTypeAndFoodListItem.foodList;
                                     return (
-                                        <div class="row justify-content-center" style={{marginBottom: "50px"}}>
+                                        <div class="row justify-content-center" style={{ marginBottom: "50px" }}>
                                             <div class="col-md-8 align-self-center">
                                                 <div class="subtitle with-line text-center mb-4">Hoàng Long Restaurant</div>
                                                 <h3 class="text-center padding-bottom-small">{foodType.food_type_name}</h3>

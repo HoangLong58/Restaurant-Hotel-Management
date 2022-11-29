@@ -7,6 +7,7 @@ import ReactPaginate from "react-paginate";
 
 // SERVICES
 import * as PartyServiceService from "../../service/PartyServiceService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -377,6 +378,108 @@ const PartyServiceMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updatePartyService", partyService: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deletePartyService", partyService: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updatePartyService", partyService: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deletePartyService", partyService: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updatePartyService", partyService: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deletePartyService", partyService: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
@@ -393,7 +496,9 @@ const PartyServiceMain = ({ reRenderData, setReRenderData }) => {
                     <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_type_name}</Td>
                     <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_name}</Td>
                     <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_price}</Td>
-                    <Td className="warning">
+
+                    {authorizationAdminTableData(admin, partyService)}
+                    {/* <Td className="warning">
                         <ButtonFix
                             onClick={() => openModal({ type: "updatePartyService", partyService: partyService })}
                         >
@@ -406,7 +511,7 @@ const PartyServiceMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -440,8 +545,10 @@ const PartyServiceMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Loại Dịch vụ Tiệc</Th>
                             <Th>Tên Dịch vụ Tiệc</Th>
                             <Th>Giá tiền</Th>
-                            <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Chỉnh sửa</Th>
+                            <Th>Xóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -499,7 +606,9 @@ const PartyServiceMain = ({ reRenderData, setReRenderData }) => {
                                                 <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_type_name}</Td>
                                                 <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_name}</Td>
                                                 <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_price}</Td>
-                                                <Td className="warning">
+
+                                                {authorizationAdminTableData(admin, partyService)}
+                                                {/* <Td className="warning">
                                                     <ButtonFix
                                                         onClick={() => openModal({ type: "updatePartyService", partyService: partyService })}
                                                     >
@@ -512,7 +621,7 @@ const PartyServiceMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         );
                                     }))
@@ -520,8 +629,8 @@ const PartyServiceMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

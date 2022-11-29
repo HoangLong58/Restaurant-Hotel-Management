@@ -138,7 +138,7 @@ const TableTypeRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Table Types Analytics</H2>
+                <H2>Phân tích Loại bàn</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />

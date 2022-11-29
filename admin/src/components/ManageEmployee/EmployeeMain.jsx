@@ -295,8 +295,6 @@ const ButtonInfo = styled.button`
 `
 
 const EmployeeMain = ({ reRenderData, setReRenderData }) => {
-    // Lấy admin từ redux
-    const admin = useSelector((state) => state.admin.currentAdmin);
     // Search
     const InputRef = useRef(null);
     const [isSearch, setIsSearch] = useState(false);
@@ -394,6 +392,168 @@ const EmployeeMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableEmployee", employee: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableEmployee", employee: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateEmployee", employee: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteEmployee", employee: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableEmployee", employee: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableEmployee", employee: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateEmployee", employee: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteEmployee", employee: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableEmployee", employee: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableEmployee", employee: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableEmployee", employee: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableEmployee", employee: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                        <Th>Cập nhật</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                        <Th>Cập nhật</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
@@ -419,7 +579,9 @@ const EmployeeMain = ({ reRenderData, setReRenderData }) => {
                         style={{ backgroundColor: employee.employee_state === 'ACTIVE' ? "var(--color-info)" : employee.employee_state === 'INACTIVE' ? "var(--color-danger)" : null }}>
                         {employee.employee_state}
                     </Td>
-                    <Td className="primary">
+
+                    {authorizationAdminTableData(admin, employee)}
+                    {/* <Td className="primary">
                         <ButtonDelete
                             onClick={() => openModal({ type: "disableEmployee", employee: employee })}
                         >
@@ -446,7 +608,7 @@ const EmployeeMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -483,10 +645,12 @@ const EmployeeMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Số điện thoại</Th>
                             <Th>Hình ảnh</Th>
                             <Th>Trạng thái</Th>
-                            <Th>Vô hiệu hóa</Th>
-                            <Th>Mờ khóa</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Vô hiệu hóa</Th>
+                            <Th>Mở khóa</Th>
                             <Th>Cập nhật</Th>
-                            <Th>Xóa</Th>
+                            <Th>Xóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -553,7 +717,9 @@ const EmployeeMain = ({ reRenderData, setReRenderData }) => {
                                                     style={{ backgroundColor: employee.employee_state === 'ACTIVE' ? "var(--color-info)" : employee.employee_state === 'INACTIVE' ? "var(--color-danger)" : null }}>
                                                     {employee.employee_state}
                                                 </Td>
-                                                <Td className="primary">
+
+                                                {authorizationAdminTableData(admin, employee)}
+                                                {/* <Td className="primary">
                                                     <ButtonDelete
                                                         onClick={() => openModal({ type: "disableEmployee", employee: employee })}
                                                     >
@@ -580,7 +746,7 @@ const EmployeeMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         );
                                     }))
@@ -588,8 +754,8 @@ const EmployeeMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

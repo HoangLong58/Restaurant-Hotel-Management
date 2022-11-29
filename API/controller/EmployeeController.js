@@ -63,6 +63,18 @@ module.exports = {
     },
     login: (req, res) => {
         const body = req.body;
+        if(!body.email) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Email không hợp lệ"
+            });
+        }
+        if(!body.password) {
+            return res.status(400).json({
+                status: "fail",
+                message: "Mật khẩu không hợp lệ"
+            });
+        }
         getEmployeeByEmailOrPhoneNumber(body.email, (err, results) => {
             if (err) {
                 console.log("Lỗi login: ", err);

@@ -135,11 +135,111 @@ const RoomBookingRight = ({ reRenderData, setReRenderData }) => {
         toastRef.current.show();
     }
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdmin = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBooking" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Đặt phòng Từng thành phố dựa vào Doanh thu cả năm</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBookingTotal" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBookingByType" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn của Loại phòng</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBookingByCustomer" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn của Khách hàng</h3>
+                        </Item>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBooking" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Đặt phòng Từng thành phố dựa vào Doanh thu cả năm</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBookingTotal" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBookingByType" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn của Loại phòng</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBookingByCustomer" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn của Khách hàng</h3>
+                        </Item>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBooking" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Đặt phòng Từng thành phố dựa vào Doanh thu cả năm</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBookingTotal" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBookingByType" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn của Loại phòng</h3>
+                        </Item>
+                        <Item className="add-product"
+                            onClick={() => openModal({ type: "statisticRoomBookingByCustomer" })}
+                        >
+                            <Add />
+                            <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn của Khách hàng</h3>
+                        </Item>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     return (
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Room Booking Orders Analytics</H2>
+                <H2>Phân tích Đặt phòng</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />
@@ -152,7 +252,9 @@ const RoomBookingRight = ({ reRenderData, setReRenderData }) => {
                         <h3 className="success" style={{ fontSize: "1.2rem" }}>{roomBookingOrderQuantity}</h3>
                     </ItemRight>
                 </Item>
-                <Item className="add-product"
+
+                {authorizationAdmin(admin)}
+                {/* <Item className="add-product"
                     onClick={() => openModal({ type: "statisticRoomBooking" })}
                 >
                     <Add />
@@ -175,7 +277,7 @@ const RoomBookingRight = ({ reRenderData, setReRenderData }) => {
                 >
                     <Add />
                     <h3>Tìm kiếm &amp; Thống kê Doanh thu Đặt phòng - Khách sạn của Khách hàng</h3>
-                </Item>
+                </Item> */}
             </SalesAnalytics>
 
             {/* ==== MODAL ==== */}

@@ -7,6 +7,7 @@ import ReactPaginate from "react-paginate";
 
 // SERVICES
 import * as DeviceService from "../../service/DeviceService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -377,6 +378,108 @@ const DeviceMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateDevice", device: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteDevice", device: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateDevice", device: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteDevice", device: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateDevice", device: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteDevice", device: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
@@ -399,7 +502,9 @@ const DeviceMain = ({ reRenderData, setReRenderData }) => {
                         {device.device_state === 0 ? "Lưu kho" : device.device_state === 1 ? "Đang sử dụng" : null}
                     </Td>
                     <Td onClick={() => openModal({ type: "detailDevice", device: device })}>{device.room_name && device.floor_name ? device.room_name + ", " + device.floor_name : "Chưa có"}</Td>
-                    <Td className="warning">
+
+                    {authorizationAdminTableData(admin, device)}
+                    {/* <Td className="warning">
                         <ButtonFix
                             onClick={() => openModal({ type: "updateDevice", device: device })}
                         >
@@ -412,7 +517,7 @@ const DeviceMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -448,8 +553,10 @@ const DeviceMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Hình ảnh</Th>
                             <Th>Trạng thái</Th>
                             <Th>Vị trí</Th>
-                            <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Chỉnh sửa</Th>
+                            <Th>Xóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -513,7 +620,9 @@ const DeviceMain = ({ reRenderData, setReRenderData }) => {
                                                     {device.device_state === 0 ? "Lưu kho" : device.device_state === 1 ? "Đang sử dụng" : null}
                                                 </Td>
                                                 <Td onClick={() => openModal({ type: "detailDevice", device: device })}>{device.room_name && device.floor_name ? device.room_name + ", " + device.floor_name : "Chưa có"}</Td>
-                                                <Td className="warning">
+
+                                                {authorizationAdminTableData(admin, device)}
+                                                {/* <Td className="warning">
                                                     <ButtonFix
                                                         onClick={() => openModal({ type: "updateDevice", device: device })}
                                                     >
@@ -526,7 +635,7 @@ const DeviceMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         );
                                     }))
@@ -534,8 +643,8 @@ const DeviceMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

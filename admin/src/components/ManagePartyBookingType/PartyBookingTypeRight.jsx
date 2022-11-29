@@ -138,7 +138,7 @@ const PartyBookingTypeRight = ({ reRenderData, setReRenderData }) => {
         <Container>
             <RightTop />
             <SalesAnalytics>
-                <H2>Party Booking Types Analytics</H2>
+                <H2>Phân tích Loại đặt tiệc</H2>
                 <Item className="online">
                     <Icon>
                         <CategoryOutlined />

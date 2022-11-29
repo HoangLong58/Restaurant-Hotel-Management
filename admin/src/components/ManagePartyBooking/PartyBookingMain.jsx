@@ -7,6 +7,7 @@ import Modal from "./Modal";
 
 // SERVICES
 import * as PartyBookingOrderService from "../../service/PartyBookingOrderService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -392,6 +393,168 @@ const PartyBookingMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "checkin", partyBookingOrder: data })}
+                            >
+                                <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addServiceToParty", partyBookingOrder: data })}
+                            >
+                                <PostAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "checkout", partyBookingOrder: data })}
+                            >
+                                <AssignmentTurnedInOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "checkin", partyBookingOrder: data })}
+                            >
+                                <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addServiceToParty", partyBookingOrder: data })}
+                            >
+                                <PostAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "checkout", partyBookingOrder: data })}
+                            >
+                                <AssignmentTurnedInOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "checkin", partyBookingOrder: data })}
+                            >
+                                <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addServiceToParty", partyBookingOrder: data })}
+                            >
+                                <PostAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "checkout", partyBookingOrder: data })}
+                            >
+                                <AssignmentTurnedInOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 8:
+                // Lễ tân Nhà hàng
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "checkin", partyBookingOrder: data })}
+                            >
+                                <AssignmentOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addServiceToParty", partyBookingOrder: data })}
+                            >
+                                <PostAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "checkout", partyBookingOrder: data })}
+                            >
+                                <AssignmentTurnedInOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Checkin</Th>
+                        <Th>Thêm Dịch vụ</Th>
+                        <Th>Checkout</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Checkin</Th>
+                        <Th>Thêm Dịch vụ</Th>
+                        <Th>Checkout</Th>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Th>Checkin</Th>
+                        <Th>Thêm Dịch vụ</Th>
+                        <Th>Checkout</Th>
+                    </>
+                );
+            case 8:
+                // Lễ tân Nhà hàng
+                return (
+                    <>
+                        <Th>Checkin</Th>
+                        <Th>Thêm Dịch vụ</Th>
+                        <Th>Checkout</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
@@ -414,7 +577,9 @@ const PartyBookingMain = ({ reRenderData, setReRenderData }) => {
                         style={{ backgroundColor: partyBookingOrder.party_booking_order_state === 0 ? "var(--color-info)" : partyBookingOrder.party_booking_order_state === 1 ? "var(--color-success)" : partyBookingOrder.party_booking_order_state === 2 ? "var(--color-danger)" : null }}>
                         {partyBookingOrder.party_booking_order_state === 0 ? "Đã đặt" : partyBookingOrder.party_booking_order_state === 1 ? "Đã xác nhận" : partyBookingOrder.party_booking_order_state === 2 ? "Hoàn thành" : null}
                     </Td>
-                    <Td className="primary">
+
+                    {authorizationAdminTableData(admin, partyBookingOrder)}
+                    {/* <Td className="primary">
                         <ButtonInfo
                             onClick={() => openModal({ type: "checkin", partyBookingOrder: partyBookingOrder })}
                         >
@@ -434,7 +599,7 @@ const PartyBookingMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <AssignmentTurnedInOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -471,9 +636,11 @@ const PartyBookingMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Ngày Checkout</Th>
                             <Th>Tổng tiền</Th>
                             <Th>Trạng thái</Th>
-                            <Th>Checkin</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Checkin</Th>
                             <Th>Thêm Dịch vụ</Th>
-                            <Th>Checkout</Th>
+                            <Th>Checkout</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -537,7 +704,9 @@ const PartyBookingMain = ({ reRenderData, setReRenderData }) => {
                                                     style={{ backgroundColor: partyBookingOrder.party_booking_order_state === 0 ? "var(--color-info)" : partyBookingOrder.party_booking_order_state === 1 ? "var(--color-success)" : partyBookingOrder.party_booking_order_state === 2 ? "var(--color-danger)" : null }}>
                                                     {partyBookingOrder.party_booking_order_state === 0 ? "Đã đặt" : partyBookingOrder.party_booking_order_state === 1 ? "Đã xác nhận" : partyBookingOrder.party_booking_order_state === 2 ? "Hoàn thành" : null}
                                                 </Td>
-                                                <Td className="primary">
+
+                                                {authorizationAdminTableData(admin, partyBookingOrder)}
+                                                {/* <Td className="primary">
                                                     <ButtonInfo
                                                         onClick={() => openModal({ type: "checkin", partyBookingOrder: partyBookingOrder })}
                                                     >
@@ -557,7 +726,7 @@ const PartyBookingMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <AssignmentTurnedInOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         )
                                     }
@@ -566,8 +735,8 @@ const PartyBookingMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}

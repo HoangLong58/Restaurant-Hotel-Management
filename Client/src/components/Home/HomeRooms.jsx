@@ -50,7 +50,7 @@ const HomeRooms = () => {
 												<p className="mt-3" style={{ overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: "3" }}>{room.room_description}</p>
 												<Link to="/hotel">
 													<a className="mt-1 btn btn-primary" style={{ color: "white" }}>
-														Đặt ngay {format_money(room.room_price)}$
+														Đặt ngay {format_money(room.room_price)} VNĐ
 													</a>
 												</Link>
 												<div className="room-icons mt-4 pt-4">

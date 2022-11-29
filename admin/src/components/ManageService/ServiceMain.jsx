@@ -6,6 +6,8 @@ import Modal from "./Modal";
 
 // SERVICES
 import * as ServiceService from "../../service/ServiceService";
+import ReactPaginate from "react-paginate";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -375,6 +377,156 @@ const ServiceMain = ({ reRenderData, setReRenderData }) => {
             setIsLoading(false);
         }, 1200);
     };
+
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateService", service: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteService", service: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateService", service: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteService", service: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateService", service: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteService", service: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 7:
+                // Quản lý Khách sạn
+                return (
+                    <>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    // PHÂN TRANG
+    const [pageNumber, setPageNumber] = useState(0);
+
+    const servicePerPage = 12;
+    const pageVisited = pageNumber * servicePerPage;
+
+    const serviceFiltered = serviceList
+        .slice(pageVisited, pageVisited + servicePerPage)
+        .map((service, key) => {
+            return (
+                <Tr>
+                    <Td onClick={() => openModal({ type: "detailService", service: service })}>{pageNumber * servicePerPage + (key + 1)}</Td>
+                    <Td onClick={() => openModal({ type: "detailService", service: service })}>{service.service_id}</Td>
+                    <Td onClick={() => openModal({ type: "detailService", service: service })}>{service.service_name}</Td>
+                    <Td onClick={() => openModal({ type: "detailService", service: service })}>{service.service_time}</Td>
+                    <Td
+                        onClick={() => openModal({ type: "detailService", service: service })}
+                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <ImgDanhMuc src={service.service_image} />
+                    </Td>
+
+                    {authorizationAdminTableData(admin, service)}
+                    {/* <Td className="warning">
+                        <ButtonFix
+                            onClick={() => openModal({ type: "updateService", service: service })}
+                        >
+                            <DriveFileRenameOutlineOutlined />
+                        </ButtonFix>
+                    </Td>
+                    <Td className="primary">
+                        <ButtonDelete
+                            onClick={() => openModal({ type: "deleteService", service: service })}
+                        >
+                            <DeleteSweepOutlined />
+                        </ButtonDelete>
+                    </Td> */}
+                </Tr>
+            );
+        }
+        );
+
+
+    const pageCount = Math.ceil(serviceList.length / servicePerPage);
+    const changePage = ({ selected }) => {
+        setPageNumber(selected);
+    }
+
     return (
         <Container>
             <H2>Quản lý Dịch vụ - Khách sạn</H2>
@@ -398,8 +550,10 @@ const ServiceMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Tên Dịch vụ</Th>
                             <Th>Thời gian</Th>
                             <Th>Hình ảnh</Th>
-                            <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Chỉnh sửa</Th>
+                            <Th>Xóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -447,19 +601,23 @@ const ServiceMain = ({ reRenderData, setReRenderData }) => {
                             ) :
                                 serviceList.length > 0
                                     ?
-                                    (serviceList.map((service, key) => {
+                                    serviceFiltered
+                                    :
+                                    (serviceList.slice(0, 12).map((service, key) => {
                                         return (
                                             <Tr>
                                                 <Td onClick={() => openModal({ type: "detailService", service: service })}>{key + 1}</Td>
                                                 <Td onClick={() => openModal({ type: "detailService", service: service })}>{service.service_id}</Td>
                                                 <Td onClick={() => openModal({ type: "detailService", service: service })}>{service.service_name}</Td>
                                                 <Td onClick={() => openModal({ type: "detailService", service: service })}>{service.service_time}</Td>
-                                                <Td 
-                                                 onClick={() => openModal({ type: "detailService", service: service })}
-                                                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                <Td
+                                                    onClick={() => openModal({ type: "detailService", service: service })}
+                                                    style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                     <ImgDanhMuc src={service.service_image} />
                                                 </Td>
-                                                <Td className="warning">
+
+                                                {authorizationAdminTableData(admin, service)}
+                                                {/* <Td className="warning">
                                                     <ButtonFix
                                                         onClick={() => openModal({ type: "updateService", service: service })}
                                                     >
@@ -472,15 +630,27 @@ const ServiceMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         );
                                     }))
-                                    :
-                                    null
                         }
                     </Tbody>
                 </Table>
+                <ReactPaginate
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
+                    pageCount={pageCount}
+                    onPageChange={changePage}
+                    containerClassName={"paginationBttns"}
+                    previousLinkClassName={"previousBttn"}
+                    nextLinkClassName={"nextBttn"}
+                    disabledClassName={"paginationDisabled"}
+                    activeClassName={"paginationActive"}
+                    nextClassName={"nextClassName"}
+                    pageLinkClassName={"pageLinkClassName"}
+                    forcePage={pageNumber}
+                />
                 <A onClick={() => {
                     window.scrollTo({
                         top: 0,

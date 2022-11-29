@@ -7,6 +7,7 @@ import Modal from "./Modal";
 
 // SERVICES
 import * as SetMenuService from "../../service/SetMenuService";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -391,6 +392,180 @@ const SetMenuMain = ({ reRenderData, setReRenderData }) => {
         }, 1200);
     };
 
+    // PHÂN QUYỀN
+    const admin = useSelector((state) => state.admin.currentAdmin);
+    const authorizationAdminTableData = (admin, data) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addFoodToSetMenu", setMenu: data })}
+                            >
+                                <PostAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableSetMenu", setMenu: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableSetMenu", setMenu: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateSetMenu", setMenu: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteSetMenu", setMenu: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addFoodToSetMenu", setMenu: data })}
+                            >
+                                <PostAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableSetMenu", setMenu: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableSetMenu", setMenu: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateSetMenu", setMenu: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteSetMenu", setMenu: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "addFoodToSetMenu", setMenu: data })}
+                            >
+                                <PostAddOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "disableSetMenu", setMenu: data })}
+                            >
+                                <PersonOffOutlined />
+                            </ButtonDelete>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonInfo
+                                onClick={() => openModal({ type: "ableSetMenu", setMenu: data })}
+                            >
+                                <AccessibilityOutlined style={{ color: "var(--color-info)" }} />
+                            </ButtonInfo>
+                        </Td>
+                        <Td className="warning">
+                            <ButtonFix
+                                onClick={() => openModal({ type: "updateSetMenu", setMenu: data })}
+                            >
+                                <DriveFileRenameOutlineOutlined />
+                            </ButtonFix>
+                        </Td>
+                        <Td className="primary">
+                            <ButtonDelete
+                                onClick={() => openModal({ type: "deleteSetMenu", setMenu: data })}
+                            >
+                                <DeleteSweepOutlined />
+                            </ButtonDelete>
+                        </Td>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
+    const authorizationAdminTableHeader = (admin) => {
+        if (!admin) return;
+        const positionId = admin.position_id;
+        switch (positionId) {
+            case 1:
+                // Quản trị viên
+                return (
+                    <>
+                        <Th>Thêm món ăn</Th>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 11:
+                // Giám đốc
+                return (
+                    <>
+                        <Th>Thêm món ăn</Th>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            case 6:
+                // Quản lý Nhà hàng
+                return (
+                    <>
+                        <Th>Thêm món ăn</Th>
+                        <Th>Vô hiệu hóa</Th>
+                        <Th>Mở khóa</Th>
+                        <Th>Chỉnh sửa</Th>
+                        <Th>Xóa</Th>
+                    </>
+                );
+            default: return null;
+        }
+    }
+
     // PHÂN TRANG
     const [pageNumber, setPageNumber] = useState(0);
 
@@ -414,7 +589,9 @@ const SetMenuMain = ({ reRenderData, setReRenderData }) => {
                         style={{ backgroundColor: setMenu.set_menu_state === 0 ? "var(--color-info)" : setMenu.set_menu_state === 1 ? "var(--color-danger)" : null }}>
                         {setMenu.set_menu_state === 0 ? "Đang hoạt động" : setMenu.set_menu_state === 1 ? "Ngưng hoạt động" : null}
                     </Td>
-                    <Td className="primary">
+
+                    {authorizationAdminTableData(admin, setMenu)}
+                    {/* <Td className="primary">
                         <ButtonInfo
                             onClick={() => openModal({ type: "addFoodToSetMenu", setMenu: setMenu })}
                         >
@@ -448,7 +625,7 @@ const SetMenuMain = ({ reRenderData, setReRenderData }) => {
                         >
                             <DeleteSweepOutlined />
                         </ButtonDelete>
-                    </Td>
+                    </Td> */}
                 </Tr>
             );
         }
@@ -483,11 +660,13 @@ const SetMenuMain = ({ reRenderData, setReRenderData }) => {
                             <Th>Giá tiền</Th>
                             <Th>Hình ảnh</Th>
                             <Th>Trạng thái</Th>
-                            <Th>Thêm món ăn</Th>
+
+                            {authorizationAdminTableHeader(admin)}
+                            {/* <Th>Thêm món ăn</Th>
                             <Th>Vô hiệu hóa</Th>
                             <Th>Mở khóa</Th>
                             <Th>Chỉnh sửa</Th>
-                            <Th>Xóa</Th>
+                            <Th>Xóa</Th> */}
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -552,7 +731,9 @@ const SetMenuMain = ({ reRenderData, setReRenderData }) => {
                                                     style={{ backgroundColor: setMenu.set_menu_state === 0 ? "var(--color-info)" : setMenu.set_menu_state === 1 ? "var(--color-danger)" : null }}>
                                                     {setMenu.set_menu_state === 0 ? "Đang hoạt động" : setMenu.set_menu_state === 1 ? "Ngưng hoạt động" : null}
                                                 </Td>
-                                                <Td className="primary">
+
+                                                {authorizationAdminTableData(admin, setMenu)}
+                                                {/* <Td className="primary">
                                                     <ButtonInfo
                                                         onClick={() => openModal({ type: "addFoodToSetMenu", setMenu: setMenu })}
                                                     >
@@ -586,7 +767,7 @@ const SetMenuMain = ({ reRenderData, setReRenderData }) => {
                                                     >
                                                         <DeleteSweepOutlined />
                                                     </ButtonDelete>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         );
                                     }))
@@ -594,8 +775,8 @@ const SetMenuMain = ({ reRenderData, setReRenderData }) => {
                     </Tbody>
                 </Table>
                 <ReactPaginate
-                    previousLabel={"PREVIOUS"}
-                    nextLabel={"NEXT"}
+                    previousLabel={"Trang trước"}
+                    nextLabel={"Trang sau"}
                     pageCount={pageCount}
                     onPageChange={changePage}
                     containerClassName={"paginationBttns"}
