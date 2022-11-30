@@ -27,19 +27,20 @@ import * as CityService from "../../service/CityService";
 import * as DistrictService from "../../service/DistrictService";
 import * as RoomBookingFoodDetailService from "../../service/RoomBookingFoodDetailService";
 import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
+import * as RoomTypeService from "../../service/RoomTypeService";
 import * as StatisticService from "../../service/StatisticService";
 import * as WardService from "../../service/WardService";
-import * as RoomTypeService from "../../service/RoomTypeService";
+import { format_money } from "../../utils/utils";
 import PDFFile from "./PDFFile";
 import PDFFileByDate from "./PDFFileByDate";
 import PDFFileByQuarter from "./PDFFileByQuarter";
 import PDFFileCity from "./PDFFileCity";
 import PDFFileCityByDate from "./PDFFileCityByDate";
 import PDFFileCityByQuarter from "./PDFFileCityByQuarter";
-import PDFFileTypeByDate from "./PDFFileTypeByDate";
-import PDFFileTypeByQuarter from "./PDFFileTypeByQuarter";
 import PDFFileCustomerByDate from "./PDFFileCustomerByDate";
 import PDFFileCustomerByQuarter from "./PDFFileCustomerByQuarter";
+import PDFFileTypeByDate from "./PDFFileTypeByDate";
+import PDFFileTypeByQuarter from "./PDFFileTypeByQuarter";
 
 Chart.register(...registerables);
 ChartJS.register(
@@ -320,7 +321,6 @@ const LeftVoteTitle = styled.span`
     color: var(--color-dark);
 `
 const LeftVoteItemRating = styled.div`
-    /* position: relative; */
     margin: auto;
     display: flex;
     justify-content: center;
@@ -536,11 +536,6 @@ const ServiceName = styled.div`
     justify-content: center;
     align-items: center;
 `;
-const ServiceTitle = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-`;
 
 const LabelCheckbox = styled.label`
     cursor: pointer;
@@ -562,10 +557,6 @@ const FormChucNang = styled.div`
     width: 100%;
     display: flex;
     flex-direction: row;
-    /* position: absolute;
-    left: 50%;
-    bottom: 50%; */
-    /* transform: translateX(-50%); */
     text-align: center;
     justify-content: space-around;
 `
@@ -594,32 +585,6 @@ const SignInBtn = styled.button`
     &:active {
         transform: scale(1.05);
     }
-`
-
-const SignUpBtn = styled.button`
-    padding: 0px 35px;
-    width: auto;
-    height: 42px;
-    margin: 5px 0px;
-    border: none;
-    outline: none;
-    border-radius: 20px;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-    font-weight: 700;
-    box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    color: var(--color-dark);
-    background-color: var(--color-light);
-    transition: all 0.3s ease;
-    &:hover {
-        color: var(--color-white);
-        background-color: var(--color-primary);
-    }
-    &:active {
-        transform: scale(1.05);
-    }   
 `
 
 const ButtonStatistic = styled.div`
@@ -2550,7 +2515,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                     <Course>
                                                         <Content>
                                                             <span style={{ width: "320px", fontWeight: "bold" }}> {roomBookingOrderModal ? roomBookingOrderModal.room_name + ", " + roomBookingOrderModal.floor_name : null} </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomBookingOrderModal ? roomBookingOrderModal.room_booking_order_price : null} VNĐ</span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomBookingOrderModal ? format_money(roomBookingOrderModal.room_booking_order_price) : null} VNĐ</span>
                                                         </Content>
                                                         <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>1</span> x {roomBookingOrderModal ? roomBookingOrderModal.room_type_name : null}</span>
                                                     </Course>
@@ -2600,7 +2565,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                 const total = roomBookingFoodDetail.total;
                                                                 return (
                                                                     <>
-                                                                        <RightVoteTitle style={{ fontSize: "1.1rem" }} className="col-lg-12">Ngày {bookDate}: Đã đặt <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}> {total}VNĐ</span></RightVoteTitle>
+                                                                        <RightVoteTitle style={{ fontSize: "1.1rem" }} className="col-lg-12">Ngày {bookDate}: Đã đặt <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}> {format_money(total)}VNĐ</span></RightVoteTitle>
                                                                         {
                                                                             foodArray.map((food, key) => {
                                                                                 return (
@@ -2609,7 +2574,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                         <Course>
                                                                                             <Content>
                                                                                                 <span style={{ width: "320px", fontWeight: "bold" }}> {food.food_name} </span>
-                                                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{food.room_booking_food_detail_price} VNĐ</span>
+                                                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(food.room_booking_food_detail_price)} VNĐ</span>
                                                                                             </Content>
                                                                                             <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{food.room_booking_food_detail_quantity}</span> x {food.food_type_name}</span>
                                                                                         </Course>
@@ -2651,15 +2616,15 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                 <InforTotal className="col-lg-12">
                                                     <InfoTotalItem className="row">
                                                         <InfoTotalTitle className="col-lg-8">Tiền đặt phòng: (Đã thanh toán) </InfoTotalTitle>
-                                                        <InfoTotalDetail className="col-lg-4">{roomBookingOrderModal ? roomBookingOrderModal.room_booking_order_price : null} VNĐ</InfoTotalDetail>
+                                                        <InfoTotalDetail className="col-lg-4">{roomBookingOrderModal ? format_money(roomBookingOrderModal.room_booking_order_price) : null} VNĐ</InfoTotalDetail>
                                                     </InfoTotalItem>
                                                     <InfoTotalItem className="row">
                                                         <InfoTotalTitle className="col-lg-8">Phụ phí: </InfoTotalTitle>
-                                                        <InfoTotalDetail className="col-lg-4">{roomBookingOrderModal ? roomBookingOrderModal.room_booking_order_surcharge : null} VNĐ</InfoTotalDetail>
+                                                        <InfoTotalDetail className="col-lg-4">{roomBookingOrderModal ? format_money(roomBookingOrderModal.room_booking_order_surcharge) : null} VNĐ</InfoTotalDetail>
                                                     </InfoTotalItem>
                                                     <InfoTotalItem className="row">
                                                         <InfoTotalTitle className="col-lg-8">Tổng tiền thanh toán khi Check out: </InfoTotalTitle>
-                                                        <InfoTotalDetail className="col-lg-4">{roomBookingOrderModal ? roomBookingOrderModal.room_booking_order_surcharge : null} VNĐ</InfoTotalDetail>
+                                                        <InfoTotalDetail className="col-lg-4">{roomBookingOrderModal ? format_money(roomBookingOrderModal.room_booking_order_surcharge) : null} VNĐ</InfoTotalDetail>
                                                     </InfoTotalItem>
                                                 </InforTotal>
                                             </RightVoteItem2>
@@ -2725,10 +2690,10 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                     <Tr>
                                                                                         <Td>{key + 1}</Td>
                                                                                         <Td>{city.city_name}</Td>
-                                                                                        <Td>{city.monthFirst}</Td>
-                                                                                        <Td>{city.monthSecond}</Td>
-                                                                                        <Td>{city.monthThird}</Td>
-                                                                                        <Td>{city.canam}</Td>
+                                                                                        <Td>{format_money(city.monthFirst)}đ</Td>
+                                                                                        <Td>{format_money(city.monthSecond)}đ</Td>
+                                                                                        <Td>{format_money(city.monthThird)}đ</Td>
+                                                                                        <Td>{format_money(city.canam)}đ</Td>
                                                                                     </Tr>
                                                                                 )
                                                                             })
@@ -2767,7 +2732,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                             <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                             <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                             <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                            <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                            <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -2806,7 +2771,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                                 <Tr>
                                                                                                     <Td>{key + 1}</Td>
                                                                                                     <Td>{row.city_name}</Td>
-                                                                                                    <Td>{row.total}</Td>
+                                                                                                    <Td>{format_money(row.total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -2848,7 +2813,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                             <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                             <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                             <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                            <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                            <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -2884,27 +2849,27 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                     <Tr>
                                                                                         <Td>1</Td>
                                                                                         <Td>Quý 1</Td>
-                                                                                        <Td>{city.quy1}</Td>
+                                                                                        <Td>{format_money(city.quy1)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>2</Td>
                                                                                         <Td>Quý 2</Td>
-                                                                                        <Td>{city.quy2}</Td>
+                                                                                        <Td>{format_money(city.quy2)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>3</Td>
                                                                                         <Td>Quý 3</Td>
-                                                                                        <Td>{city.quy3}</Td>
+                                                                                        <Td>{format_money(city.quy3)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>4</Td>
                                                                                         <Td>Quý 4</Td>
-                                                                                        <Td>{city.quy4}</Td>
+                                                                                        <Td>{format_money(city.quy4)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>5</Td>
                                                                                         <Td>Cả năm</Td>
-                                                                                        <Td>{city.canam}</Td>
+                                                                                        <Td>{format_money(city.canam)}đ</Td>
                                                                                     </Tr>
                                                                                 </Tbody>
                                                                             </Table>
@@ -2942,7 +2907,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                             <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                             <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                             <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                            <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                            <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -3568,7 +3533,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                     <Tr>
                                                                                         <Td>{key + 1}</Td>
                                                                                         <Td>{row.month}</Td>
-                                                                                        <Td>{row.data}</Td>
+                                                                                        <Td>{format_money(row.data)}đ</Td>
                                                                                     </Tr>
                                                                                 )
                                                                             })
@@ -3607,7 +3572,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                             <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                             <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                             <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                            <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                            <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -3640,7 +3605,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                     <Tr>
                                                                                         <Td>{key + 1}</Td>
                                                                                         <Td>{row.date}</Td>
-                                                                                        <Td>{row.data}</Td>
+                                                                                        <Td>{format_money(row.data)}đ</Td>
                                                                                     </Tr>
                                                                                 )
                                                                             })
@@ -3679,7 +3644,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                             <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                             <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                             <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                            <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                            <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -3709,22 +3674,22 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                         <Tr>
                                                                             <Td>1</Td>
                                                                             <Td>Quý 1</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy1}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy1)}đ</Td>
                                                                         </Tr>
                                                                         <Tr>
                                                                             <Td>2</Td>
                                                                             <Td>Quý 2</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy2}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy2)}đ</Td>
                                                                         </Tr>
                                                                         <Tr>
                                                                             <Td>3</Td>
                                                                             <Td>Quý 3</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy3}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy3)}đ</Td>
                                                                         </Tr>
                                                                         <Tr>
                                                                             <Td>4</Td>
                                                                             <Td>Quý 4</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy4}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy4)}đ</Td>
                                                                         </Tr>
                                                                     </Tbody>
                                                                 </Table>
@@ -3760,7 +3725,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                             <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                             <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                             <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                            <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                            <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -4421,10 +4386,10 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                             <Tr>
                                                                                                 <Td>{key + 1}</Td>
                                                                                                 <Td>{totalDataRes.room_type_name}</Td>
-                                                                                                <Td>{totalDataRes.monthFirst}</Td>
-                                                                                                <Td>{totalDataRes.monthSecond}</Td>
-                                                                                                <Td>{totalDataRes.monthThird}</Td>
-                                                                                                <Td>{totalDataRes.canam}</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthFirst)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthSecond)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthThird)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.canam)}đ</Td>
                                                                                             </Tr>
                                                                                         )
                                                                                     })
@@ -4463,7 +4428,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                                     <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                                     <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                                     <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                                    <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -4504,7 +4469,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                                         <Tr>
                                                                                                             <Td>{key + 1}</Td>
                                                                                                             <Td>{row.totalData.room_type_name}</Td>
-                                                                                                            <Td>{row.totalData.total}</Td>
+                                                                                                            <Td>{format_money(row.totalData.total)}đ</Td>
                                                                                                         </Tr>
                                                                                                     )
                                                                                                 })
@@ -4546,7 +4511,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                                     <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                                     <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                                     <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                                    <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -5096,10 +5061,10 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                             <Tr>
                                                                                                 <Td>{key + 1}</Td>
                                                                                                 <Td>{totalDataRes.customer_first_name + " " + totalDataRes.customer_last_name}</Td>
-                                                                                                <Td>{totalDataRes.monthFirst}</Td>
-                                                                                                <Td>{totalDataRes.monthSecond}</Td>
-                                                                                                <Td>{totalDataRes.monthThird}</Td>
-                                                                                                <Td>{totalDataRes.canam}</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthFirst)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthSecond)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthThird)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.canam)}đ</Td>
                                                                                             </Tr>
                                                                                         )
                                                                                     })
@@ -5138,7 +5103,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                                     <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                                     <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                                     <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                                    <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -5176,7 +5141,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                             <Tr>
                                                                                                 <Td>{key + 1}</Td>
                                                                                                 <Td>{dataArray.totalData.customer_first_name + " " + dataArray.totalData.customer_last_name}</Td>
-                                                                                                <Td>{dataArray.totalData.total}</Td>
+                                                                                                <Td>{format_money(dataArray.totalData.total)}đ</Td>
                                                                                             </Tr>
                                                                                         </Tbody>
                                                                                     </Table>
@@ -5215,7 +5180,7 @@ const Modal = ({ showModal, setShowModal, type, roomBookingOrder, setReRenderDat
                                                                                                     <Td>{roomBookingOrder.room_booking_order_finish_date}</Td>
                                                                                                     <Td>{roomBookingOrder.room_type_name}</Td>
                                                                                                     <Td>{roomBookingOrder.floor_name + ", " + roomBookingOrder.room_name}</Td>
-                                                                                                    <Td>{roomBookingOrder.room_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(roomBookingOrder.room_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })

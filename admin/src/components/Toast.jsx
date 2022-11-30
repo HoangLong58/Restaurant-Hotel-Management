@@ -23,6 +23,7 @@ const Message = styled.div`
     font-weight: bold;
     color: white;
 `
+
 const Toast = forwardRef((props, ref) => {
     const [showToast, setShowToast] = useState(false);
 

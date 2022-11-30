@@ -178,11 +178,6 @@ const FormImg = styled.img`
     height: 100px;
 `
 
-const ModalChiTietItem = styled.div`
-margin: 2px 30px;
-display: flex;
-flex-direction: column;
-`
 const FormSelect = styled.select`
     background-color: var(--color-white);
     color: var(--color-dark);
@@ -203,22 +198,6 @@ const FormOption = styled.option`
     margin: auto;
 `
 
-const FormTextArea = styled.textarea`
-    background-color: var(--color-white);
-    color: var(--color-dark);
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    resize: none;
-    &:focus {
-        border: 1px solid var(--color-success);
-        box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-    }
-`
 // Chi tiết
 const ChiTietHinhAnh = styled.img`
     width: 100%;
@@ -226,13 +205,7 @@ const ChiTietHinhAnh = styled.img`
     object-fit: cover;
     margin: auto;
 `
-const ImageWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    &img {
-        margin: 0px 20px;
-    }
-`
+
 const ChiTietWrapper = styled.div`
     width: 70%;
     height: auto;

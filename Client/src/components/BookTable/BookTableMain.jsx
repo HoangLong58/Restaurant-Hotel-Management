@@ -12,15 +12,15 @@ import moment from 'moment';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { AccessAlarmsOutlined, ArrowRightAltOutlined, CheckCircleRounded, ReplayOutlined, RestaurantMenuOutlined } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../img/logos/logo.png';
 import Toast from '../Toast';
-import { useSelector } from 'react-redux';
 
 // SERVICES
-import * as TableTypeService from "../../service/TableTypeService";
-import * as TableBookingService from "../../service/TableBookingService";
 import * as TableBookingOrderService from "../../service/TableBookingOrderService";
+import * as TableBookingService from "../../service/TableBookingService";
+import * as TableTypeService from "../../service/TableTypeService";
 
 const Box2 = styled.div`
 width: 100%;

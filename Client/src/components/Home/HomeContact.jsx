@@ -1,5 +1,6 @@
-import React from 'react'
+import React from 'react';
 import pictureGallery1 from '../../img/gallery/1-s.jpg';
+import pictureGallery10 from '../../img/gallery/10-s.jpg';
 import pictureGallery2 from '../../img/gallery/2-s.jpg';
 import pictureGallery3 from '../../img/gallery/3-s.jpg';
 import pictureGallery4 from '../../img/gallery/4-s.jpg';
@@ -8,7 +9,6 @@ import pictureGallery6 from '../../img/gallery/6-s.jpg';
 import pictureGallery7 from '../../img/gallery/7-s.jpg';
 import pictureGallery8 from '../../img/gallery/8-s.jpg';
 import pictureGallery9 from '../../img/gallery/9-s.jpg';
-import pictureGallery10 from '../../img/gallery/10-s.jpg';
 // Multi carousel
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';

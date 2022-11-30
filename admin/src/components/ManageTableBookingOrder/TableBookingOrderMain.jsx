@@ -1,4 +1,4 @@
-import { AssignmentOutlined, AssignmentTurnedInOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, PostAddOutlined } from "@mui/icons-material";
+import { AssignmentOutlined, AssignmentTurnedInOutlined, PostAddOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import ReactPaginate from "react-paginate";
 import styled from "styled-components";
@@ -6,8 +6,9 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as TableBookingOrderService from "../../service/TableBookingOrderService";
 import { useSelector } from "react-redux";
+import * as TableBookingOrderService from "../../service/TableBookingOrderService";
+import { format_money } from '../../utils/utils';
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -192,7 +193,6 @@ const Span = styled.span`
     }
 
 `
-
 
 const CloseSpan = styled.span`
     position: absolute;
@@ -573,7 +573,7 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                     <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_checkin_date}</Td>
                     <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_start_date ? tableBookingOrder.table_booking_order_start_date : "Chưa check in"}</Td>
                     <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_finish_date ? tableBookingOrder.table_booking_order_finish_date : "Chưa check out"}</Td>
-                    <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_total !== 0 ? tableBookingOrder.table_booking_order_total : "Chưa gọi món"}</Td>
+                    <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_total !== 0 ? format_money(tableBookingOrder.table_booking_order_total) + "đ" : "Chưa gọi món"}</Td>
                     <Td
                         onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}
                         style={{ backgroundColor: tableBookingOrder.table_booking_order_state === 0 ? "var(--color-info)" : tableBookingOrder.table_booking_order_state === 1 ? "var(--color-success)" : tableBookingOrder.table_booking_order_state === 2 ? "var(--color-danger)" : null }}>
@@ -704,7 +704,7 @@ const TableBookingMain = ({ reRenderData, setReRenderData }) => {
                                                 <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_checkin_date}</Td>
                                                 <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_start_date ? tableBookingOrder.table_booking_order_start_date : "Chưa check in"}</Td>
                                                 <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_finish_date ? tableBookingOrder.table_booking_order_finish_date : "Chưa check out"}</Td>
-                                                <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_total !== 0 ? tableBookingOrder.table_booking_order_total : "Chưa gọi món"}</Td>
+                                                <Td onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}>{tableBookingOrder.table_booking_order_total !== 0 ? format_money(tableBookingOrder.table_booking_order_total) + "đ" : "Chưa gọi món"}</Td>
                                                 <Td
                                                     onClick={() => openModal({ type: "detailTableBookingOrder", tableBookingOrder: tableBookingOrder })}
                                                     style={{ backgroundColor: tableBookingOrder.table_booking_order_state === 0 ? "var(--color-info)" : tableBookingOrder.table_booking_order_state === 1 ? "var(--color-success)" : tableBookingOrder.table_booking_order_state === 2 ? "var(--color-danger)" : null }}>

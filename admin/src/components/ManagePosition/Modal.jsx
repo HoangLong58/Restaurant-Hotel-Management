@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 // SERVICES
 import * as PositionService from "../../service/PositionService";
+import { format_money } from "../../utils/utils";
 
 const Background = styled.div`
     width: 100%;
@@ -157,13 +158,6 @@ const ButtonClick = styled.button`
         transform: translate(5px, 5px);
         transition: transform 0.25s;
     }
-`
-
-const FormImg = styled.img`
-    margin: auto;
-    width: 50%;
-    object-fit: cover;
-    height: 200px;
 `
 
 const Modal = ({ showModal, setShowModal, type, position, setReRenderData, handleClose, showToastFromOut }) => {
@@ -337,11 +331,11 @@ const Modal = ({ showModal, setShowModal, type, position, setReRenderData, handl
                                 </ModalFormItem>
                                 <ModalFormItem>
                                     <FormSpan>Lương cơ bản:</FormSpan>
-                                    <FormInput type="text" value={positionModal ? positionModal.position_salary : null} readOnly />
+                                    <FormInput type="text" value={positionModal ? format_money(positionModal.position_salary) + " VNĐ" : null} readOnly />
                                 </ModalFormItem>
                                 <ModalFormItem>
                                     <FormSpan>Lương thưởng:</FormSpan>
-                                    <FormInput type="text" value={positionModal ? positionModal.position_bonus_salary : null} readOnly />
+                                    <FormInput type="text" value={positionModal ? format_money(positionModal.position_bonus_salary) + " VNĐ" : null} readOnly />
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>

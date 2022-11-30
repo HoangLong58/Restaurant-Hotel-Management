@@ -1,4 +1,4 @@
-import { Add, ArrowRightAltOutlined, CheckCircleRounded, Close, CloseOutlined, Remove, MoreHorizOutlined } from "@mui/icons-material";
+import { Add, ArrowRightAltOutlined, CheckCircleRounded, Close, CloseOutlined, MoreHorizOutlined, Remove } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Carousel, ProgressBar } from 'react-bootstrap';
 import { useDispatch, useSelector } from "react-redux";
@@ -11,10 +11,10 @@ import MiniImage from "./MiniImage";
 import MiniImagePayment from "./MiniImagePayment";
 
 // SERVICES
-import * as RoomBookingFoodOrderService from "../../service/RoomBookingFoodOrderService";
-import * as FoodVoteService from "../../service/FoodVoteService";
-import * as FoodService from "../../service/FoodService";
 import { Rating, Stack } from "@mui/material";
+import * as FoodService from "../../service/FoodService";
+import * as FoodVoteService from "../../service/FoodVoteService";
+import * as RoomBookingFoodOrderService from "../../service/RoomBookingFoodOrderService";
 
 const Background = styled.div`
     width: 100%;
@@ -497,7 +497,6 @@ const LeftVoteTitle = styled.span`
     color: var(--color-dark);
 `
 const LeftVoteItemRating = styled.div`
-    /* position: relative; */
     margin: auto;
     display: flex;
     justify-content: center;
@@ -694,13 +693,6 @@ const CommentTitle = styled.div`
     align-items: flex-start;
     flex-direction: row;
 `
-const CommentTitleLeft = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    flex-direction: row;
-`
-const CommentTitleRight = styled.div``
 const AvatarComment = styled.div`
     display: flex;
     justify-content: center;

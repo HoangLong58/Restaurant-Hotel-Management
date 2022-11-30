@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import Carousel from 'react-bootstrap/Carousel';
-import picture5 from '../../img/5.jpg';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState } from 'react';
+import Carousel from 'react-bootstrap/Carousel';
 import Fade from 'react-reveal/Fade';
+import picture5 from '../../img/5.jpg';
 
 const HomeComment = () => {
     const [index, setIndex] = useState(0);

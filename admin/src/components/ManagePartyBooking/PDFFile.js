@@ -1,6 +1,7 @@
+import { DataTableCell, Table, TableBody, TableCell, TableHeader } from '@david.kucsai/react-pdf-table';
+import { Document, Font, Image, Page, StyleSheet, Text } from '@react-pdf/renderer';
 import React from 'react';
-import { Page, Text, Image, Document, StyleSheet, Font } from '@react-pdf/renderer';
-import { Table, TableHeader, TableCell, TableBody, DataTableCell } from '@david.kucsai/react-pdf-table';
+import { format_money } from '../../utils/utils';
 
 // Register Font
 Font.register({
@@ -97,7 +98,7 @@ const PDFFile = (props) => {
                     <TableBody>
                         <DataTableCell getContent={(r) => r.stt} />
                         <DataTableCell getContent={(r) => r.name} />
-                        <DataTableCell getContent={(r) => r.total} />
+                        <DataTableCell getContent={(r) => format_money(r.total) + "đ"} />
                     </TableBody>
                 </Table>
                 <Image style={styles.image} src={props.image} />
@@ -146,7 +147,7 @@ const PDFFile = (props) => {
                         <DataTableCell getContent={(r) => r.party_booking_order_finish_date} />
                         <DataTableCell getContent={(r) => r.party_booking_type_name} />
                         <DataTableCell getContent={(r) => r.party_hall_name + ', ' + r.floor_name} />
-                        <DataTableCell getContent={(r) => r.party_booking_order_total} />
+                        <DataTableCell getContent={(r) => format_money(r.party_booking_order_total) + "đ"} />
                     </TableBody>
                 </Table>
                 <Text

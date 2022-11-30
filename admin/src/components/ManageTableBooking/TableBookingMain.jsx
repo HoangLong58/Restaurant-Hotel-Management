@@ -6,8 +6,8 @@ import Modal from "./Modal";
 
 // SERVICES
 import ReactPaginate from "react-paginate";
-import * as TableBookingService from "../../service/TableBookingService";
 import { useSelector } from "react-redux";
+import * as TableBookingService from "../../service/TableBookingService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -194,7 +194,6 @@ const Span = styled.span`
 
 `
 
-
 const CloseSpan = styled.span`
     position: absolute;
     z-index: 1;
@@ -258,12 +257,6 @@ const ButtonDelete = styled.button`
     outline:none;
     z-index: 2;
     cursor: pointer;
-`
-
-const ImgDanhMuc = styled.img`
-    width: auto;
-    height: 100%;
-    object-fit: contain;
 `
 
 // Empty item

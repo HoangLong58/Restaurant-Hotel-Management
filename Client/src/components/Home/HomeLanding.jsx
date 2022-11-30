@@ -9,10 +9,10 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import moment from 'moment';
 // Image slider
+import { Link } from 'react-router-dom';
 import background1 from "../../img/1.jpg";
 import background2 from "../../img/2.jpg";
 import background3 from "../../img/3.jpg";
-import { Link } from 'react-router-dom';
 
 const Section = styled.div``
 const CenterSection = styled.div``

@@ -159,13 +159,6 @@ const ButtonClick = styled.button`
     }
 `
 
-const FormImg = styled.img`
-    margin: auto;
-    width: 50%;
-    object-fit: cover;
-    height: 200px;
-`
-
 const FormSelect = styled.select`
     background-color: var(--color-white);
     color: var(--color-dark);

@@ -6,8 +6,8 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as SetMenuService from "../../service/SetMenuService";
 import { useSelector } from "react-redux";
+import * as SetMenuService from "../../service/SetMenuService";
 
 const Container = styled.div`
 margin-top: 1.4rem;
@@ -73,7 +73,6 @@ const Item = styled.div`
         }
     }
 `
-
 
 const ItemRight = styled.div`
     display: flex;

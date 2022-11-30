@@ -26,24 +26,25 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import * as CityService from "../../service/CityService";
 import * as DistrictService from "../../service/DistrictService";
 // import * as PartyBookingFoodDetailService from "../../service/PartyBookingFoodDetailService";
-import * as PartyBookingOrderService from "../../service/PartyBookingOrderService";
-import * as PartyServiceDetailService from "../../service/PartyServiceDetailService";
 import * as PartyBookingOrderDetailFoodService from "../../service/PartyBookingOrderDetailFoodService";
-import * as PartyServiceTypeService from "../../service/PartyServiceTypeService";
+import * as PartyBookingOrderService from "../../service/PartyBookingOrderService";
+import * as PartyBookingTypeService from "../../service/PartyBookingTypeService";
+import * as PartyServiceDetailService from "../../service/PartyServiceDetailService";
 import * as PartyServiceService from "../../service/PartyServiceService";
+import * as PartyServiceTypeService from "../../service/PartyServiceTypeService";
 import * as StatisticService from "../../service/StatisticService";
 import * as WardService from "../../service/WardService";
-import * as PartyBookingTypeService from "../../service/PartyBookingTypeService";
+import { format_money } from "../../utils/utils";
 import PDFFile from "./PDFFile";
 import PDFFileByDate from "./PDFFileByDate";
 import PDFFileByQuarter from "./PDFFileByQuarter";
 import PDFFileCity from "./PDFFileCity";
 import PDFFileCityByDate from "./PDFFileCityByDate";
 import PDFFileCityByQuarter from "./PDFFileCityByQuarter";
-import PDFFileTypeByDate from "./PDFFileTypeByDate";
-import PDFFileTypeByQuarter from "./PDFFileTypeByQuarter";
 import PDFFileCustomerByDate from "./PDFFileCustomerByDate";
 import PDFFileCustomerByQuarter from "./PDFFileCustomerByQuarter";
+import PDFFileTypeByDate from "./PDFFileTypeByDate";
+import PDFFileTypeByQuarter from "./PDFFileTypeByQuarter";
 
 Chart.register(...registerables);
 ChartJS.register(
@@ -91,19 +92,6 @@ const ModalWrapper = styled.div`
     animation: growth linear 0.1s;
 `
 
-const ModalContent = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    line-height: 1.8;
-    color: #141414;
-
-    p {
-        margin-bottom: 1rem;
-    }
-`
-
 const CloseModalButton = styled.span`
     cursor: pointer;
     position: absolute;
@@ -113,14 +101,6 @@ const CloseModalButton = styled.span`
     height: 32px;
     padding: 0;
     z-index: 10;
-`
-
-const Button = styled.div`
-    margin-top: 30px;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    flex-direction: row;
 `
 
 const H1 = styled.h1`
@@ -210,91 +190,6 @@ const ButtonClick = styled.button`
     }
 `
 
-const FormImg = styled.img`
-    margin: auto;
-    width: 100px;
-    object-fit: contain;
-    height: 100px;
-`
-
-const ModalChiTietItem = styled.div`
-margin: 2px 30px;
-display: flex;
-flex-direction: column;
-`
-const FormSelect = styled.select`
-    background-color: var(--color-white);
-    color: var(--color-dark);
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    &:focus {
-        border: 1px solid var(--color-success);
-        box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-    }
-`
-
-const FormOption = styled.option`
-    margin: auto;
-`
-
-const FormTextArea = styled.textarea`
-    background-color: var(--color-white);
-    color: var(--color-dark);
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    resize: none;
-    &:focus {
-        border: 1px solid var(--color-success);
-        box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-    }
-`
-// Chi tiết
-const ChiTietHinhAnh = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    margin: auto;
-`
-const ImageWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    &img {
-        margin: 0px 20px;
-    }
-`
-const ChiTietWrapper = styled.div`
-    width: 70%;
-    height: auto;
-    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-    background: var(--color-white);
-    color: var(--color-dark);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    position: relative;
-    z-index: 10;
-    border-radius: 10px;
-    --growth-from: 0.7;
-    --growth-to: 1;
-    animation: growth linear 0.1s;
-`
-
-const H1Delete = styled.h1` 
-    width: "90%";
-    text-align: center;
-`
-
 // Left
 const LeftVote = styled.div``
 const LeftVoteItem = styled.div`
@@ -323,19 +218,7 @@ const LeftVoteTitle = styled.span`
     padding: 10px 0px 15px 0px;
     color: var(--color-dark);
 `
-const LeftVoteItemRating = styled.div`
-    /* position: relative; */
-    margin: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    width: 95%;
-    height: auto;
-    box-shadow: 6px 6px 30px #d1d9e6;
-    border-radius: 20px;
-    background-color: var(--color-white);
-`
+
 const CartItem = styled.div`
 display: flex;
 width: 100%;
@@ -566,10 +449,6 @@ const FormChucNang = styled.div`
     width: 100%;
     display: flex;
     flex-direction: row;
-    /* position: absolute;
-    left: 50%;
-    bottom: 50%; */
-    /* transform: translateX(-50%); */
     text-align: center;
     justify-content: space-around;
 `
@@ -697,10 +576,6 @@ const DeviceList = styled.div`
     max-height: 200px;
     overflow-y: scroll;
 `;
-const DeviceIcon = styled.img`
-    width: 40px;
-    height: auto;
-`;
 const DeviceName = styled.div`
     font-size: 1rem;
     font-weight: bold;
@@ -730,9 +605,6 @@ const DeviceIconContainer = styled.div`
 const DeviceDetailContainer = styled.div`
     border-radius: 5px;
     padding: 12px;
-    /* position: absolute;
-    bottom: calc(100% + 20px);
-    right: -100px; */
     position: fixed;
     bottom: 400px;
     left: 650px;
@@ -757,10 +629,6 @@ const DeviceDetailContainer = styled.div`
         border-style: solid;
         border-color: #f5f5f5 transparent transparent transparent;
     }
-`;
-const DeviceDetailImage = styled.img`
-    border-radius: 5px;
-    width: 100%;
 `;
 
 const DeviceItem = styled.div`
@@ -816,11 +684,6 @@ const DeleteService = styled.span`
     }
 `
 
-const ServiceIcon = styled.img`
-    width: 40px;
-    height: auto;
-`;
-
 const ServiceTime = styled.div`
     font-size: 0.9rem;
     font-weight: 300;
@@ -857,11 +720,6 @@ const ProductAmount = styled.div`
     font-size: 1.4rem;
     margin: 5px;
     padding: 0px 10px;
-`
-
-const ProductPrice = styled.div`
-    font-size: 30px;
-    font-weight: 200;
 `
 
 const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingOrderAddService, setReRenderData, handleClose, showToastFromOut }) => {
@@ -2686,7 +2544,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     <Course>
                                                         <Content>
                                                             <span style={{ width: "320px", fontWeight: "bold" }}> {partyBookingOrderAddServiceModal ? partyBookingOrderAddServiceModal.party_hall_name + ", " + partyBookingOrderAddServiceModal.floor_name : null} </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyBookingOrderAddServiceModal ? partyBookingOrderAddServiceModal.party_booking_order_total : null} VNĐ</span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyBookingOrderAddServiceModal ? format_money(partyBookingOrderAddServiceModal.party_booking_order_total) : null} VNĐ</span>
                                                         </Content>
                                                     </Course>
                                                 </CartItem>
@@ -2718,7 +2576,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                 <DeviceName style={{ marginLeft: "10px" }}>{partyServiceDetail.party_service_name}</DeviceName>
                                                                             </DeviceTitle>
                                                                             <DeviceInfo className="row">
-                                                                                <DeviceTime style={{ margin: "5px 10px 0px 10px" }}>Tổng tiền: <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>{partyServiceDetail.party_service_detail_total}</span></DeviceTime>
+                                                                                <DeviceTime style={{ margin: "5px 10px 0px 10px" }}>Tổng tiền: <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>{format_money(partyServiceDetail.party_service_detail_total) + "đ"}</span></DeviceTime>
                                                                             </DeviceInfo>
                                                                         </div>
                                                                         <DeleteService onClick={() => handleUpdatePartyServiceDetailQuantity(0, partyServiceDetail.party_service_detail_id)}>
@@ -2832,7 +2690,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                 <ServiceName>{service.party_service_name}</ServiceName>
                                                                             </ServiceTitle>
                                                                             <ServiceInfo className="row">
-                                                                                <ServiceTime style={{ margin: "5px 10px 0px 0px" }}>Tổng tiền: <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>{service.party_service_price * service.serviceChooseQuantity}</span></ServiceTime>
+                                                                                <ServiceTime style={{ margin: "5px 10px 0px 0px" }}>Tổng tiền: <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>{format_money(service.party_service_price * service.serviceChooseQuantity) + "đ"}</span></ServiceTime>
                                                                             </ServiceInfo>
                                                                         </div>
                                                                     </ServiceItem>
@@ -3209,7 +3067,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                     <Course>
                                                         <Content>
                                                             <span style={{ width: "320px", fontWeight: "bold" }}> {partyBookingOrderModal ? partyBookingOrderModal.party_hall_name + ", " + partyBookingOrderModal.floor_name : null} </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyBookingOrderModal ? partyBookingOrderModal.party_booking_order_total : null} VNĐ</span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyBookingOrderModal ? format_money(partyBookingOrderModal.party_booking_order_total) : null} VNĐ</span>
                                                         </Content>
                                                     </Course>
                                                 </CartItem>
@@ -3339,7 +3197,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                         <Course>
                                                                             <Content>
                                                                                 <span style={{ width: "320px", fontWeight: "bold" }}> {partyServiceDetail.party_service_name} </span>
-                                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyServiceDetail.party_service_price} VNĐ</span>
+                                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(partyServiceDetail.party_service_price)} VNĐ</span>
                                                                             </Content>
                                                                             <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{partyServiceDetail.party_service_detail_quantity}</span> x {partyServiceDetail.party_service_type_name}</span>
                                                                         </Course>
@@ -3383,7 +3241,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                         <Course>
                                                                             <Content>
                                                                                 <span style={{ width: "320px", fontWeight: "bold" }}> {partyServiceDetail.party_service_name} </span>
-                                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyServiceDetail.party_service_price} VNĐ</span>
+                                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(partyServiceDetail.party_service_price)} VNĐ</span>
                                                                             </Content>
                                                                             <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{partyServiceDetail.party_service_detail_quantity}</span> x {partyServiceDetail.party_service_type_name}</span>
                                                                         </Course>
@@ -3421,15 +3279,15 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                 <InforTotal className="col-lg-12">
                                                     <InfoTotalItem className="row">
                                                         <InfoTotalTitle className="col-lg-8">Tiền đặt Tiệc: (Đã thanh toán) </InfoTotalTitle>
-                                                        <InfoTotalDetail className="col-lg-4">{partyBookingOrderModal ? partyBookingOrderModal.party_booking_order_price : null} VNĐ</InfoTotalDetail>
+                                                        <InfoTotalDetail className="col-lg-4">{partyBookingOrderModal ? format_money(partyBookingOrderModal.party_booking_order_price) : null} VNĐ</InfoTotalDetail>
                                                     </InfoTotalItem>
                                                     <InfoTotalItem className="row">
                                                         <InfoTotalTitle className="col-lg-8">Phụ phí: </InfoTotalTitle>
-                                                        <InfoTotalDetail className="col-lg-4">{partyBookingOrderModal ? partyBookingOrderModal.party_booking_order_surcharge : null} VNĐ</InfoTotalDetail>
+                                                        <InfoTotalDetail className="col-lg-4">{partyBookingOrderModal ? format_money(partyBookingOrderModal.party_booking_order_surcharge) : null} VNĐ</InfoTotalDetail>
                                                     </InfoTotalItem>
                                                     <InfoTotalItem className="row">
                                                         <InfoTotalTitle className="col-lg-8">Tổng tiền thanh toán khi Check out: </InfoTotalTitle>
-                                                        <InfoTotalDetail className="col-lg-4">{partyBookingOrderModal ? partyBookingOrderModal.party_booking_order_surcharge : null} VNĐ</InfoTotalDetail>
+                                                        <InfoTotalDetail className="col-lg-4">{partyBookingOrderModal ? format_money(partyBookingOrderModal.party_booking_order_surcharge) : null} VNĐ</InfoTotalDetail>
                                                     </InfoTotalItem>
                                                 </InforTotal>
                                             </RightVoteItem2>
@@ -3495,10 +3353,10 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                     <Tr>
                                                                                         <Td>{key + 1}</Td>
                                                                                         <Td>{city.city_name}</Td>
-                                                                                        <Td>{city.monthFirst}</Td>
-                                                                                        <Td>{city.monthSecond}</Td>
-                                                                                        <Td>{city.monthThird}</Td>
-                                                                                        <Td>{city.canam}</Td>
+                                                                                        <Td>{format_money(city.monthFirst)}đ</Td>
+                                                                                        <Td>{format_money(city.monthSecond)}đ</Td>
+                                                                                        <Td>{format_money(city.monthThird)}đ</Td>
+                                                                                        <Td>{format_money(city.canam)}đ</Td>
                                                                                     </Tr>
                                                                                 )
                                                                             })
@@ -3537,7 +3395,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                             <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                             <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                             <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                            <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -3576,7 +3434,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                                 <Tr>
                                                                                                     <Td>{key + 1}</Td>
                                                                                                     <Td>{row.city_name}</Td>
-                                                                                                    <Td>{row.total}</Td>
+                                                                                                    <Td>{format_money(row.total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -3618,7 +3476,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                             <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                             <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                             <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                            <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -3654,27 +3512,27 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                     <Tr>
                                                                                         <Td>1</Td>
                                                                                         <Td>Quý 1</Td>
-                                                                                        <Td>{city.quy1}</Td>
+                                                                                        <Td>{format_money(city.quy1)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>2</Td>
                                                                                         <Td>Quý 2</Td>
-                                                                                        <Td>{city.quy2}</Td>
+                                                                                        <Td>{format_money(city.quy2)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>3</Td>
                                                                                         <Td>Quý 3</Td>
-                                                                                        <Td>{city.quy3}</Td>
+                                                                                        <Td>{format_money(city.quy3)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>4</Td>
                                                                                         <Td>Quý 4</Td>
-                                                                                        <Td>{city.quy4}</Td>
+                                                                                        <Td>{format_money(city.quy4)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>5</Td>
                                                                                         <Td>Cả năm</Td>
-                                                                                        <Td>{city.canam}</Td>
+                                                                                        <Td>{format_money(city.canam)}đ</Td>
                                                                                     </Tr>
                                                                                 </Tbody>
                                                                             </Table>
@@ -3712,7 +3570,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                             <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                             <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                             <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                            <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -4337,7 +4195,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                     <Tr>
                                                                                         <Td>{key + 1}</Td>
                                                                                         <Td>{row.month}</Td>
-                                                                                        <Td>{row.data}</Td>
+                                                                                        <Td>{format_money(row.data)}đ</Td>
                                                                                     </Tr>
                                                                                 )
                                                                             })
@@ -4376,7 +4234,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                             <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                             <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                             <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                            <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -4409,7 +4267,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                     <Tr>
                                                                                         <Td>{key + 1}</Td>
                                                                                         <Td>{row.date}</Td>
-                                                                                        <Td>{row.data}</Td>
+                                                                                        <Td>{format_money(row.data)}đ</Td>
                                                                                     </Tr>
                                                                                 )
                                                                             })
@@ -4448,7 +4306,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                             <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                             <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                             <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                            <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -4478,22 +4336,22 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                         <Tr>
                                                                             <Td>1</Td>
                                                                             <Td>Quý 1</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy1}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy1)}đ</Td>
                                                                         </Tr>
                                                                         <Tr>
                                                                             <Td>2</Td>
                                                                             <Td>Quý 2</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy2}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy2)}đ</Td>
                                                                         </Tr>
                                                                         <Tr>
                                                                             <Td>3</Td>
                                                                             <Td>Quý 3</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy3}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy3)}đ</Td>
                                                                         </Tr>
                                                                         <Tr>
                                                                             <Td>4</Td>
                                                                             <Td>Quý 4</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy4}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy4)}đ</Td>
                                                                         </Tr>
                                                                     </Tbody>
                                                                 </Table>
@@ -4529,7 +4387,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                             <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                             <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                             <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                            <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                            <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -5189,10 +5047,10 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                             <Tr>
                                                                                                 <Td>{key + 1}</Td>
                                                                                                 <Td>{totalDataRes.party_booking_type_name}</Td>
-                                                                                                <Td>{totalDataRes.monthFirst}</Td>
-                                                                                                <Td>{totalDataRes.monthSecond}</Td>
-                                                                                                <Td>{totalDataRes.monthThird}</Td>
-                                                                                                <Td>{totalDataRes.canam}</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthFirst)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthSecond)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthThird)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.canam)}đ</Td>
                                                                                             </Tr>
                                                                                         )
                                                                                     })
@@ -5231,7 +5089,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                                     <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                                     <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                                     <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                                    <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -5272,7 +5130,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                                         <Tr>
                                                                                                             <Td>{key + 1}</Td>
                                                                                                             <Td>{row.totalData.party_booking_type_name}</Td>
-                                                                                                            <Td>{row.totalData.total}</Td>
+                                                                                                            <Td>{format_money(row.totalData.total)}đ</Td>
                                                                                                         </Tr>
                                                                                                     )
                                                                                                 })
@@ -5314,7 +5172,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                                     <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                                     <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                                     <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                                    <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -5864,10 +5722,10 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                             <Tr>
                                                                                                 <Td>{key + 1}</Td>
                                                                                                 <Td>{totalDataRes.customer_first_name + " " + totalDataRes.customer_last_name}</Td>
-                                                                                                <Td>{totalDataRes.monthFirst}</Td>
-                                                                                                <Td>{totalDataRes.monthSecond}</Td>
-                                                                                                <Td>{totalDataRes.monthThird}</Td>
-                                                                                                <Td>{totalDataRes.canam}</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthFirst)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthSecond)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthThird)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.canam)}đ</Td>
                                                                                             </Tr>
                                                                                         )
                                                                                     })
@@ -5906,7 +5764,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                                     <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                                     <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                                     <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                                    <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -5944,7 +5802,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                             <Tr>
                                                                                                 <Td>{key + 1}</Td>
                                                                                                 <Td>{dataArray.totalData.customer_first_name + " " + dataArray.totalData.customer_last_name}</Td>
-                                                                                                <Td>{dataArray.totalData.total}</Td>
+                                                                                                <Td>{format_money(dataArray.totalData.total)}đ</Td>
                                                                                             </Tr>
                                                                                         </Tbody>
                                                                                     </Table>
@@ -5983,7 +5841,7 @@ const Modal = ({ showModal, setShowModal, type, partyBookingOrder, partyBookingO
                                                                                                     <Td>{partyBookingOrder.party_booking_order_finish_date}</Td>
                                                                                                     <Td>{partyBookingOrder.party_booking_type_name}</Td>
                                                                                                     <Td>{partyBookingOrder.party_hall_name + ', ' + partyBookingOrder.floor_name}</Td>
-                                                                                                    <Td>{partyBookingOrder.party_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })

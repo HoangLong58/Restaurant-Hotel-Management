@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 // Date picker
-import { Star, StarBorder, StarHalf } from '@mui/icons-material';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -11,22 +10,13 @@ import moment from 'moment';
 import Fade from 'react-reveal/Fade';
 
 import { useNavigate } from 'react-router-dom';
-import svg2 from '../../img/2.svg';
-import svg3 from '../../img/3.svg';
-import svg4 from '../../img/4.svg';
-import svg5 from '../../img/5.svg';
-import svg6 from '../../img/6.svg';
-import picture3 from '../../img/room3.jpg';
-import picture4 from '../../img/room4.jpg';
-import picture5 from '../../img/room5.jpg';
-import picture6 from '../../img/room6.jpg';
 import HotelProgress from './HotelProgress';
 
 // Service
-import * as ServiceService from "../../service/ServiceService";
 import * as RoomService from "../../service/RoomService";
-import Toast from '../Toast';
+import * as ServiceService from "../../service/ServiceService";
 import { format_money, handleShowStar } from '../../utils/utils';
+import Toast from '../Toast';
 
 const InputDateRangeFormItem = styled.div``
 const BookingNumberNiceSelect = styled.div``

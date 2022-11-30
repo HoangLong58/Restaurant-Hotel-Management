@@ -1,8 +1,6 @@
 import { CloseOutlined } from "@mui/icons-material";
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import app from "../../firebase";
 
 // SERVICES
 import * as FoodVoteService from "../../service/FoodVoteService";
@@ -159,13 +157,6 @@ const ButtonClick = styled.button`
         transform: translate(5px, 5px);
         transition: transform 0.25s;
     }
-`
-
-const FormImg = styled.img`
-    margin: auto;
-    width: 50%;
-    object-fit: cover;
-    height: 200px;
 `
 
 // Chi tiết

@@ -1,6 +1,7 @@
+import { DataTableCell, Table, TableBody, TableCell, TableHeader } from '@david.kucsai/react-pdf-table';
+import { Document, Font, Image, Page, StyleSheet, Text } from '@react-pdf/renderer';
 import React from 'react';
-import { Page, Text, Image, Document, StyleSheet, Font } from '@react-pdf/renderer';
-import { Table, TableHeader, TableCell, TableBody, DataTableCell } from '@david.kucsai/react-pdf-table';
+import { format_money } from '../../utils/utils';
 
 // Register Font
 Font.register({
@@ -80,11 +81,11 @@ const PDFFileCity = (props) => {
                     </TableHeader>
                     <TableBody>
                         <DataTableCell getContent={(r) => r.city_name} />
-                        <DataTableCell getContent={(r) => r.quy1} />
-                        <DataTableCell getContent={(r) => r.quy2} />
-                        <DataTableCell getContent={(r) => r.quy3} />
-                        <DataTableCell getContent={(r) => r.quy4} />
-                        <DataTableCell getContent={(r) => r.canam} />
+                        <DataTableCell getContent={(r) => format_money(r.quy1) + "đ"} />
+                        <DataTableCell getContent={(r) => format_money(r.quy2) + "đ"} />
+                        <DataTableCell getContent={(r) => format_money(r.quy3) + "đ"} />
+                        <DataTableCell getContent={(r) => format_money(r.quy4) + "đ"} />
+                        <DataTableCell getContent={(r) => format_money(r.canam) + "đ"} />
                     </TableBody>
                 </Table>
                 <Image style={styles.image} src={props.image} />
@@ -133,7 +134,7 @@ const PDFFileCity = (props) => {
                         <DataTableCell getContent={(r) => r.table_booking_order_finish_date} />
                         <DataTableCell getContent={(r) => r.table_booking_name} />
                         <DataTableCell getContent={(r) => r.table_type_name + ", " + r.floor_name} />
-                        <DataTableCell getContent={(r) => r.table_booking_order_total} />
+                        <DataTableCell getContent={(r) => format_money(r.table_booking_order_total) + "đ"} />
                     </TableBody>
                 </Table>
                 <Text

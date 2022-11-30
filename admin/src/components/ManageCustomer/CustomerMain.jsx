@@ -6,8 +6,8 @@ import Modal from "./Modal";
 
 // SERVICES
 import ReactPaginate from "react-paginate";
-import * as CustomerService from "../../service/CustomerService";
 import { useSelector } from "react-redux";
+import * as CustomerService from "../../service/CustomerService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -232,19 +232,6 @@ const CloseSpan = styled.span`
         transition: all .6s cubic-bezier(0.000, 0.105, 0.035, 1.570);
         transition-delay: 0.5s;
     }
-`
-
-const ButtonFix = styled.button`
-    width: 40px;
-    height: 30px;
-    border: 2px solid var(--color-warning);
-    border-radius: var(--border-radius-2);
-    color: var(--color-warnning);
-    background: var(--color-white);
-    padding:0px;
-    outline:none;
-    z-index: 2;
-    cursor: pointer;
 `
 
 const ButtonDelete = styled.button`

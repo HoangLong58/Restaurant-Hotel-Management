@@ -15,7 +15,7 @@ const Container = styled.div`
 const Home = () => {
     return (
         <Container>
-            <Aside active="dashboard"/>
+            <Aside active="dashboard" />
             <Main />
             <Right />
         </Container>

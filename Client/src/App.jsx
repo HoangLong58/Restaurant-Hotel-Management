@@ -1,16 +1,16 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Home from "./pages/Home";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import PrivateRoute from "../src/handle/PrivateRoute";
 import NotFound from "./handle/NotFound";
-import LoginRegister from "./pages/LoginRegister";
+import BookParty from "./pages/BookParty";
+import BookTable from "./pages/BookTable";
+import Home from "./pages/Home";
 import Hotel from "./pages/Hotel";
-import Restaurant from "./pages/Restaurant";
-import RoomDetail from "./pages/RoomDetail";
 import HotelPayment from "./pages/HotelPayment";
 import HotelSuccess from "./pages/HotelSuccess";
+import LoginRegister from "./pages/LoginRegister";
 import OrderFood from "./pages/OrderFood";
-import BookTable from "./pages/BookTable";
-import BookParty from "./pages/BookParty";
+import Restaurant from "./pages/Restaurant";
+import RoomDetail from "./pages/RoomDetail";
 
 import { useSelector } from "react-redux";
 

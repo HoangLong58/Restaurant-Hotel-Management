@@ -22,37 +22,6 @@ const Background = styled.div`
     animation: fadeIn linear 0.1s;
 `
 
-const ModalWrapper = styled.div`
-    width: 500px;
-    height: auto;
-    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-    background: var(--color-white);
-    color: var(--color-dark);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    position: relative;
-    z-index: 10;
-    border-radius: 10px;
-    --growth-from: 0.7;
-    --growth-to: 1;
-    animation: growth linear 0.1s;
-`
-
-const ModalContent = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    line-height: 1.8;
-    color: #141414;
-
-    p {
-        margin-bottom: 1rem;
-    }
-`
-
 const CloseModalButton = styled.span`
     cursor: pointer;
     position: absolute;
@@ -62,14 +31,6 @@ const CloseModalButton = styled.span`
     height: 32px;
     padding: 0;
     z-index: 10;
-`
-
-const Button = styled.div`
-    margin-top: 30px;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    flex-direction: row;
 `
 
 const H1 = styled.h1`
@@ -159,12 +120,6 @@ const ButtonClick = styled.button`
     }
 `
 
-const FormImg = styled.img`
-    margin: auto;
-    width: 50%;
-    object-fit: cover;
-    height: 200px;
-`
 
 // Chi tiết
 const ChiTietHinhAnh = styled.img`
@@ -173,13 +128,7 @@ const ChiTietHinhAnh = styled.img`
     object-fit: cover;
     margin: auto;
 `
-const ImageWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    &img {
-        margin: 0px 20px;
-    }
-`
+
 const ChiTietWrapper = styled.div`
     width: 70%;
     height: auto;
@@ -414,7 +363,7 @@ const Modal = ({ showModal, setShowModal, type, customer, setReRenderData, handl
                             <ModalForm>
                                 <ModalFormItem>
                                     <h1>Bạn muốn Vô hiệu hóa Khách hàng <span style={{ color: `var(--color-primary)` }}>{customerModal ? customerModal.customer_first_name + " " + customerModal.customer_last_name : null}</span> này?</h1>
-                                    <p style={{marginTop: "10px"}}>Tài khoản Email và Số điện thoại của người dùng sẽ không thể đăng nhập nữa!</p>
+                                    <p style={{ marginTop: "10px" }}>Tài khoản Email và Số điện thoại của người dùng sẽ không thể đăng nhập nữa!</p>
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>
@@ -451,7 +400,7 @@ const Modal = ({ showModal, setShowModal, type, customer, setReRenderData, handl
                             <ModalForm>
                                 <ModalFormItem>
                                     <h1>Bạn muốn Mở khóa Khách hàng <span style={{ color: `var(--color-primary)` }}>{customerModal ? customerModal.customer_first_name + " " + customerModal.customer_last_name : null}</span> này?</h1>
-                                    <p style={{marginTop: "10px"}}>Tài khoản Email và Số điện thoại của người dùng sẽ có thể đăng nhập lại như trước!</p>
+                                    <p style={{ marginTop: "10px" }}>Tài khoản Email và Số điện thoại của người dùng sẽ có thể đăng nhập lại như trước!</p>
                                 </ModalFormItem>
                             </ModalForm>
                             <ButtonUpdate>

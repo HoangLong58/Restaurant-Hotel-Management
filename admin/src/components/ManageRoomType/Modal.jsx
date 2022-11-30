@@ -1,7 +1,7 @@
 import { ClearOutlined, CloseOutlined } from "@mui/icons-material";
+import { Checkbox } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { Checkbox } from "@mui/material";
 
 // SERVICES
 import * as RoomTypeService from "../../service/RoomTypeService";
@@ -187,7 +187,6 @@ const ChiTietWrapper = styled.div`
     animation: growth linear 0.1s;
 `
 
-
 // Left
 const LeftVote = styled.div``
 const LeftVoteItem = styled.div`
@@ -217,7 +216,6 @@ const LeftVoteTitle = styled.span`
     color: var(--color-dark);
 `
 const LeftVoteItemRating = styled.div`
-    /* position: relative; */
     margin: auto;
     display: flex;
     justify-content: center;
@@ -431,10 +429,6 @@ const FormChucNang = styled.div`
     width: 100%;
     display: flex;
     flex-direction: row;
-    /* position: absolute;
-    left: 50%;
-    bottom: 50%; */
-    /* transform: translateX(-50%); */
     text-align: center;
     justify-content: space-around;
 `

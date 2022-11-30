@@ -4,17 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import app from "../../firebase";
 
-// Date picker
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import moment from 'moment';
-
 // SERVICES
 import * as FoodService from "../../service/FoodService";
 import * as FoodTypeService from "../../service/FoodTypeService";
+import { format_money } from "../../utils/utils";
 
 const Background = styled.div`
     width: 100%;
@@ -177,11 +170,6 @@ const FormImg = styled.img`
     height: 200px;
 `
 
-const ModalChiTietItem = styled.div`
-margin: 2px 30px;
-display: flex;
-flex-direction: column;
-`
 const FormSelect = styled.select`
     background-color: var(--color-white);
     color: var(--color-dark);
@@ -202,22 +190,6 @@ const FormOption = styled.option`
     margin: auto;
 `
 
-const FormTextArea = styled.textarea`
-    background-color: var(--color-white);
-    color: var(--color-dark);
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    resize: none;
-    &:focus {
-        border: 1px solid var(--color-success);
-        box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-    }
-`
 // Chi tiết
 const ChiTietHinhAnh = styled.img`
     width: 100%;
@@ -225,13 +197,7 @@ const ChiTietHinhAnh = styled.img`
     object-fit: cover;
     margin: auto;
 `
-const ImageWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    &img {
-        margin: 0px 20px;
-    }
-`
+
 const ChiTietWrapper = styled.div`
     width: 70%;
     height: auto;
@@ -624,7 +590,7 @@ const Modal = ({ showModal, setShowModal, type, food, setReRenderData, handleClo
                                             <div className="col-lg-4">
                                                 <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Giá tiền:</FormSpan>
-                                                    <FormInput type="text" value={foodModal ? foodModal.food_price : null} readOnly />
+                                                    <FormInput type="text" value={foodModal ? format_money(foodModal.food_price) + "đ" : null} readOnly />
                                                 </ModalFormItem>
                                             </div>
                                         </div>

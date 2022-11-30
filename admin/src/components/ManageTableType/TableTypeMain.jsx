@@ -5,8 +5,8 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as TableTypeService from "../../service/TableTypeService";
 import ReactPaginate from "react-paginate";
+import * as TableTypeService from "../../service/TableTypeService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -192,7 +192,6 @@ const Span = styled.span`
     }
 
 `
-
 
 const CloseSpan = styled.span`
     position: absolute;

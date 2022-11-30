@@ -259,12 +259,6 @@ const ButtonDelete = styled.button`
     cursor: pointer;
 `
 
-const ImgDanhMuc = styled.img`
-    width: auto;
-    height: 100%;
-    object-fit: contain;
-`
-
 // Empty item
 const EmptyItem = styled.div`
     display: flex;

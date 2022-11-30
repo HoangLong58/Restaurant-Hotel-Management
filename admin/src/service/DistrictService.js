@@ -10,4 +10,3 @@ export const getAllDistrictsByCityId = async (cityId) => {
     const res = await axios.get(`${url_District}/get-all-districts-by-city-id/${cityId}`);
     return res;
 };
-

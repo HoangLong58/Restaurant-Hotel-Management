@@ -6,8 +6,9 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as SetMenuService from "../../service/SetMenuService";
 import { useSelector } from "react-redux";
+import * as SetMenuService from "../../service/SetMenuService";
+import { format_money } from "../../utils/utils";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -193,7 +194,6 @@ const Span = styled.span`
     }
 
 `
-
 
 const CloseSpan = styled.span`
     position: absolute;
@@ -580,7 +580,7 @@ const SetMenuMain = ({ reRenderData, setReRenderData }) => {
                     <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{pageNumber * setMenuPerPage + (key + 1)}</Td>
                     <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{setMenu.set_menu_id}</Td>
                     <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{setMenu.set_menu_name}</Td>
-                    <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{setMenu.set_menu_price}</Td>
+                    <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{format_money(setMenu.set_menu_price)}đ</Td>
                     <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <ImgDanhMuc src={setMenu.set_menu_image} />
                     </Td>
@@ -722,7 +722,7 @@ const SetMenuMain = ({ reRenderData, setReRenderData }) => {
                                                 <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{(key + 1)}</Td>
                                                 <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{setMenu.set_menu_id}</Td>
                                                 <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{setMenu.set_menu_name}</Td>
-                                                <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{setMenu.set_menu_price}</Td>
+                                                <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })}>{format_money(setMenu.set_menu_price)}đ</Td>
                                                 <Td onClick={() => openModal({ type: "detailSetMenu", setMenu: setMenu })} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                     <ImgDanhMuc src={setMenu.set_menu_image} />
                                                 </Td>

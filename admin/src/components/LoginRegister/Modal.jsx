@@ -1,7 +1,5 @@
 import { ArrowRightAltOutlined, CheckCircleRounded, CloseOutlined, VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Toast from "../Toast";
 import ChangePasswordProgress from "./ChangePasswordProgress";
@@ -72,12 +70,6 @@ const CloseModalButton = styled.span`
     }
 `
 
-// Cart Components
-const Wrapper = styled.div`
-  padding: 20px;
-  width: 100%;
-`
-
 const Title = styled.h1`
     width: 100%;
     margin-bottom: 25px;
@@ -89,221 +81,6 @@ const Title = styled.h1`
     letter-spacing: 2px;
 `
 
-// TOP
-const Top = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-`
-
-const TopTexts = styled.div`
-`
-
-const TopText = styled.span`
-  text-decoration: underline;
-  cursor: pointer;
-  margin: 0px 10px;
-`
-
-// BOTTOM
-const Bottom = styled.div`
-    display: flex;
-    justify-content: space-between;
-`
-// Thông tin
-const Info = styled.div`
-    flex: 3;
-    max-height: 380px;
-    overflow-y: scroll;
-`
-
-// Thông tin - Thông tin sản phẩm
-const Product = styled.div`
-    width: 100%;
-    display: flex;
-    border: 1px solid white;
-    justify-content: space-between;
-    position: relative;
-    &:hover {
-      border: 1px solid #333;
-    }
-`
-
-const ProductDetail = styled.div`
-    flex: 2;
-    display: flex;
-`
-
-const Details = styled.div`
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-`
-
-const ProductName = styled.span``
-
-const ProductId = styled.span``
-const PriceDetail = styled.div`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-`
-// Thông tin - Thông tin giá
-const ProductAmountContainer = styled.div`
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-`
-
-const ProductAmount = styled.div`
-    font-size: 24px;
-    margin: 5px;
-`
-
-const ProductPrice = styled.div`
-    font-size: 30px;
-    font-weight: 200;
-`
-
-const Hr = styled.hr`
-    background-color: #adb5bd;
-    border: none;
-    height: 1px;
-`
-
-// Tóm tắt
-const Summary = styled.div`
-    flex: 1;
-    border: 0.5px solid lightgray;
-    border-radius: 10px;
-    padding: 20px;
-    height: 50vh;
-`
-
-const SummaryTitle = styled.h1`
-    font-weight: 500;
-    font-size: 2rem;
-`
-
-const SummaryItem = styled.div`
-    margin: 30px 0px;
-    display: flex;
-    justify-content: space-between;
-    font-weight: ${props => props.type === "total" && "500"};
-    font-size: ${props => props.type === "total" && "24px"};
-`
-
-const SummaryItemText = styled.span``
-const SummaryItemPrice = styled.span``
-const Button = styled.button`
-    width: 100%;
-    padding: 10px;
-    background-color: black;
-    color: white;
-    font-weight: 600;
-    letter-spacing: 2px;
-    transition: all 0.3s ease;
-    &:hover {
-        background-color: var(--color-primary);
-    }
-`
-
-const RemoveProduct = styled.div`
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    &:hover .remove-product{
-      color: #878788;
-      cursor: pointer;
-    }
-`
-
-// Payment
-const PaymentWrapper = styled.div`
-width: 100%;
-margin: 20px auto;
-overflow: hidden;
-background-color: #f8f9fa;
-box-shadow: 0 2px 3px #e0e0e0;
-display: flex;
-`
-
-const Box1 = styled.div`
-max-width: 600px;
-padding: 10px 40px;
-user-select: none;
-`
-
-const Box2 = styled.div`
-width: 100%;
-padding: 10px 40px;
-`
-
-const Title1 = styled.div`
-display: flex;
-justify-content: space-between;
-`
-
-const CartItem = styled.div`
-display: flex;
-width: 100%;
-font-size: 1.1rem;
-background: #ddd;
-margin-top: 10px;
-padding: 10px 12px;
-border-radius: 5px;
-cursor: pointer;
-border: 1px solid transparent;
-`
-
-const Circle = styled.span`
-height: 12px;
-width: 12px;
-background: #ccc;
-border-radius: 50%;
-margin-right: 15px;
-border: 4px solid transparent;
-display: inline-block;
-`
-
-const Course = styled.div`
-width: 100%;
-`
-
-const Content = styled.div`
-display: flex;
-align-items: center;
-justify-content: space-between;
-`
-
-const InfomationTitle = styled.div`
-    font-size: 1.2rem;
-`
-
-const InfomationForm = styled.div`
-
-`
-
-const ModalChiTietItem = styled.div`
-margin: 2px 0px;
-display: flex;
-flex-direction: column;
-`
-
-const FormSpan = styled.span`
-font-size: 1.1rem;
-font-weight: 700;
-color: var(--color-dark-light);
-margin-bottom: 3px;
-`
 const FormInput = styled.input`
     width: 220px;
     height: 40px;
@@ -325,79 +102,6 @@ const FormInput = styled.input`
     }
 `
 
-const FormTextArea = styled.textarea`
-background-color: var(--color-white);
-color: var(--color-dark);
-width: auto;
-padding: 8px 20px;
-margin: 5px 0;
-display: inline-block;
-outline: 0;
-border: 1px solid #ccc;
-border-radius: 4px;
-box-sizing: border-box;
-&:focus {
-    border: 1px solid var(--color-success);
-    box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-}
-`
-const Total = styled.div`
-display: flex;
-flex-direction: column;
-`
-
-const TotalItem = styled.div`
-display: flex;
-align-items: center;
-justify-content: space-between;
-`
-
-const ButtonContainer = styled.div`
-    justify-content: center;
-    position: relative;
-    float: right;
-    margin: 10px 22px 22px 0;
-    display: flex;
-    &::after {
-        content: "";
-        border: 2px solid black;
-        position: absolute;
-        top: 5px;
-        right: -5px;
-        background-color: transperent;
-        width: 150px;
-        height: 100%;
-        z-index: 5;
-    }
-`
-
-const PaymentButton = styled.button`
-    padding: 10px;
-    width: 150px;
-    border: 2px solid black;
-    background-color: black;
-    color: white;
-    cursor: pointer;
-    font-weight: 500;
-    z-index: 10;
-    &:hover {
-        background-color: var(--color-primary);
-    }
-    &:active {
-        background-color: #333;
-        transform: translate(5px, 5px);
-        transition: transform 0.25s;
-    }
-`
-
-const H2 = styled.h2`
-font-size: 1.8rem;
-margin-top: 20px;
-`
-const Small = styled.small`
-margin-top: 15px;
-font-size: 1.3rem;
-`
 const SuccessButtonContainer = styled.div`
     justify-content: center;
     position: relative;
@@ -435,33 +139,9 @@ const SuccessButton = styled.button`
     }
 `
 
-// Empty item
-const EmptyItem = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-`
-const EmptyItemSvg = styled.div``
-const EmptyContent = styled.div`
-    letter-spacing: 2px;
-    font-size: 1.2rem;
-    color: var(--color-primary);
-    font-weight: bold;
-`
-
-const CartItemDiv = styled.div`
-    height: 41vh;
-    overflow-y: scroll;
-`
-
 const FormChucNang = styled.div`
     display: flex;
     flex-direction: column;
-    /* position: absolute;
-    left: 50%;
-    bottom: 50%; */
-    /* transform: translateX(-50%); */
     text-align: center;
 `
 
@@ -543,8 +223,6 @@ const Label = styled.label`
     position: relative;
 `
 const Modal = ({ showModal, setShowModal, type }) => {
-    const dispatch = useDispatch();
-    const admin = useSelector((state) => state.admin.currentAdmin);
     // STATE
     const [isSuccess, setIsSuccess] = useState(false);
     const [isEmailWay, setIsEmailWay] = useState(false);

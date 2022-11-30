@@ -2,10 +2,9 @@ import { AssignmentIndOutlined, BadgeOutlined, BakeryDiningOutlined, CakeOutline
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { logout } from '../../redux/callsAPI';
-import { useNavigate } from 'react-router-dom';
 
 const Container = styled.aside`
     height: 100vh;
@@ -61,11 +60,6 @@ const LinkStyled = styled(Link)`
     position: relative;
     height: 3.7rem;
     transition: all 300ms ease;
-    /* &:last-child {
-        position: absolute;
-        bottom: 2rem;
-        width: 100%;
-    } */
     &.active {
         background: var(--color-light);
         color: var(--color-primary);
@@ -98,7 +92,6 @@ const SideBarTop = styled.div`
     height: 70vh;
     overflow-y: scroll;
     &::-webkit-scrollbar {
-    /* display: none; */
     width: 2px;
 }
 `;

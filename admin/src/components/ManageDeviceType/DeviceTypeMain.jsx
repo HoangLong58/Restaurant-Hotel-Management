@@ -5,8 +5,8 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as DeviceTypeService from "../../service/DeviceTypeService";
 import ReactPaginate from "react-paginate";
+import * as DeviceTypeService from "../../service/DeviceTypeService";
 
 const Container = styled.div`
     margin-top: 1.4rem;

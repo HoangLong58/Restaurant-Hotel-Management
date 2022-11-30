@@ -10,4 +10,3 @@ export const findAllPartyBookingOrderDetailFoodByPartyBookingOrderId = async (pa
     const res = await axios.get(`${url_PartyBookingOrderDetailFood}/get-all-party-booking-order-detail-food-by-party-booking-order-id/${partyBookingOrderId}`);
     return res;
 };
-

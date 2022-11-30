@@ -5,9 +5,9 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as ServiceService from "../../service/ServiceService";
 import ReactPaginate from "react-paginate";
 import { useSelector } from "react-redux";
+import * as ServiceService from "../../service/ServiceService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -193,7 +193,6 @@ const Span = styled.span`
     }
 
 `
-
 
 const CloseSpan = styled.span`
     position: absolute;

@@ -6,10 +6,10 @@ import SliderImage from "./SliderImage";
 import { format_money } from '../../utils/utils';
 
 //SERVICES
-import * as PartyServiceTypeService from "../../service/PartyServiceTypeService";
-import * as PartyHallService from "../../service/PartyHallService";
 import { useDispatch } from "react-redux";
 import { addFoodListBookingParty, addPartyHallBookingParty, addPartyServiceBookingParty, addSetMenuBookingParty } from "../../redux/partyBookingRedux";
+import * as PartyHallService from "../../service/PartyHallService";
+import * as PartyServiceTypeService from "../../service/PartyServiceTypeService";
 
 const Background = styled.div`
     width: 100%;
@@ -92,7 +92,6 @@ const Box = styled.div`
     justify-content: space-between;
     border: 1px solid #c9c9c9;
     border-radius: 10px;
-    /* margin: 5px 20px 15px 20px; */
     padding: 0px 10px;
     position: relative;
     color: var(--color-dark);
@@ -470,79 +469,12 @@ const Modal = ({ showModal, setShowModal, type, setMenuModal, partyHallModal, sh
         [keyPress]
     );
 
-    // // Box 1
-    // const openSelectBox1 = () => {
-    //     var checkList = document.getElementById('Box1');
-    //     checkList.classList.add('active');
-    // }
-    // const closeSelectBox1 = (e) => {
-    //     e.preventDefault();
-    //     var checkList = document.getElementById('Box1');
-    //     checkList.classList.remove('active');
-    // }
-    // // Box 2
-    // const openSelectBox2 = () => {
-
-    //     var checkList = document.getElementById('Box2');
-    //     checkList.classList.add('active');
-    // }
-    // const closeSelectBox2 = (e) => {
-    //     e.preventDefault();
-    //     var checkList = document.getElementById('Box2');
-    //     checkList.classList.remove('active');
-    // }
-    // // Box 3
-    // const openSelectBox3 = () => {
-
-    //     var checkList = document.getElementById('Box3');
-    //     checkList.classList.add('active');
-    // }
-    // const closeSelectBox3 = (e) => {
-    //     e.preventDefault();
-    //     var checkList = document.getElementById('Box3');
-    //     checkList.classList.remove('active');
-    // }
-    // // Box 4
-    // const openSelectBox4 = () => {
-
-    //     var checkList = document.getElementById('Box4');
-    //     checkList.classList.add('active');
-    // }
-    // const closeSelectBox4 = (e) => {
-    //     e.preventDefault();
-    //     var checkList = document.getElementById('Box4');
-    //     checkList.classList.remove('active');
-    // }
-    // // Box 5
-    // const openSelectBox5 = () => {
-
-    //     var checkList = document.getElementById('Box5');
-    //     checkList.classList.add('active');
-    // }
-    // const closeSelectBox5 = (e) => {
-    //     e.preventDefault();
-    //     var checkList = document.getElementById('Box5');
-    //     checkList.classList.remove('active');
-    // }
-    // // Box 6
-    // const openSelectBox6 = () => {
-
-    //     var checkList = document.getElementById('Box6');
-    //     checkList.classList.add('active');
-    // }
-    // const closeSelectBox6 = (e) => {
-    //     e.preventDefault();
-    //     var checkList = document.getElementById('Box6');
-    //     checkList.classList.remove('active');
-    // }
-
     // Box
     const openSelectBox = (boxId) => {
         var checkList = document.getElementById(boxId);
         checkList.classList.add('active');
     }
     const closeSelectBox = (boxId) => {
-        // e.preventDefault();
         var checkList = document.getElementById(boxId);
         checkList.classList.remove('active');
         setSearch("");

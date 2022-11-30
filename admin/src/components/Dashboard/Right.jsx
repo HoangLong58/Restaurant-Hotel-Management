@@ -1,16 +1,14 @@
-import { LightMode, DarkMode, ShoppingCart, LocalMall, Person, Add, PeopleOutlineOutlined } from "@mui/icons-material";
-import { useEffect, useRef, useState } from 'react';
+import { LocalMall, PeopleOutlineOutlined, Person, ShoppingCart } from "@mui/icons-material";
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RightTop from "./RightTop";
-import axios from "axios";
-import { format_money } from "../../utils/utils";
 
 // SERVICES
 import * as AdminLogService from "../../service/AdminLogService";
-import * as TableBookingService from "../../service/TableBookingService";
-import * as RoomService from "../../service/RoomService";
-import * as PartyHallService from "../../service/PartyHallService";
 import * as EmployeeService from "../../service/EmployeeService";
+import * as PartyHallService from "../../service/PartyHallService";
+import * as RoomService from "../../service/RoomService";
+import * as TableBookingService from "../../service/TableBookingService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -132,9 +130,6 @@ const ItemRight = styled.div`
 const Right = () => {
     // Các state cần thiết
     const [adminLogList, setAdminLogList] = useState([]);
-    const [soDonHang, setSoDonHang] = useState("");
-    const [doanhThuHomNay, setDoanhThuHomNay] = useState("");
-    const [donCanDuyetHomNay, setDonCanDuyetHomNay] = useState("");
 
     const [roomQuantity, setRoomQuantity] = useState();
     const [partyHallQuantity, setPartyHallQuantity] = useState();
@@ -187,9 +182,6 @@ const Right = () => {
         getRoomQuantity();
         getPartyHallQuantity();
         getAdminLogs();
-        return () => {
-            setSoDonHang("");
-        }
     }, [])
     return (
         <Container>

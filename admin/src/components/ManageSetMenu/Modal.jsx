@@ -6,10 +6,11 @@ import app from "../../firebase";
 
 import { Box, Checkbox, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 // SERVICES
-import * as SetMenuService from "../../service/SetMenuService";
-import * as FoodTypeService from "../../service/FoodTypeService";
 import * as FoodService from "../../service/FoodService";
+import * as FoodTypeService from "../../service/FoodTypeService";
 import * as MenuDetailFoodService from "../../service/MenuDetailFoodService";
+import * as SetMenuService from "../../service/SetMenuService";
+import { format_money } from "../../utils/utils";
 
 const Background = styled.div`
     width: 100%;
@@ -172,31 +173,6 @@ const FormImg = styled.img`
     height: 200px;
 `
 
-const ModalChiTietItem = styled.div`
-margin: 2px 30px;
-display: flex;
-flex-direction: column;
-`
-const FormSelect = styled.select`
-    background-color: var(--color-white);
-    color: var(--color-dark);
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    &:focus {
-        border: 1px solid var(--color-success);
-        box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-    }
-`
-
-const FormOption = styled.option`
-    margin: auto;
-`
-
 const FormTextArea = styled.textarea`
     background-color: var(--color-white);
     color: var(--color-dark);
@@ -220,13 +196,7 @@ const ChiTietHinhAnh = styled.img`
     object-fit: cover;
     margin: auto;
 `
-const ImageWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    &img {
-        margin: 0px 20px;
-    }
-`
+
 const ChiTietWrapper = styled.div`
     width: 70%;
     height: auto;
@@ -297,19 +267,7 @@ const LeftVoteTitle = styled.span`
     padding: 10px 0px 15px 0px;
     color: var(--color-dark);
 `
-const LeftVoteItemRating = styled.div`
-    /* position: relative; */
-    margin: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    width: 95%;
-    height: auto;
-    box-shadow: 6px 6px 30px #d1d9e6;
-    border-radius: 20px;
-    background-color: var(--color-white);
-`
+
 const CartItem = styled.div`
 display: flex;
 width: 100%;
@@ -399,33 +357,6 @@ const Surcharge = styled.div`
     max-height: 310px;
     overflow-y: scroll;
 `
-const RightVoteItem2 = styled.div`
-    position: relative;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-    box-shadow: 6px 6px 30px #d1d9e6;
-    border-radius: 20px;
-    background-color: var(--color-white);
-    display: flex;
-    flex-direction: column;
-`
-
-const InforTotal = styled.div``
-const InfoTotalItem = styled.div``
-const InfoTotalTitle = styled.div`
-    font-size: 1.1rem;
-    font-weight: 400;
-    letter-spacing: 1px;
-    padding: 10px 0px 10px 50px;
-    color: var(--color-dark);
-`
-const InfoTotalDetail = styled.div`
-    font-size: 1.1rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    padding: 10px 20px;
-    color: var(--color-primary);
-`
 
 // Empty item
 const EmptyItem = styled.div`
@@ -479,11 +410,6 @@ const ServiceIconContainer = styled.div`
     justify-content: center;
     align-items: center;
 `;
-const ServiceList = styled.div`
-    min-height: 200px;
-    max-height: 200px;
-    overflow-y: scroll;
-`;
 
 // Checkbox
 const LabelCheckbox = styled.label`
@@ -493,10 +419,6 @@ const FormChucNang = styled.div`
     width: 100%;
     display: flex;
     flex-direction: row;
-    /* position: absolute;
-    left: 50%;
-    bottom: 50%; */
-    /* transform: translateX(-50%); */
     text-align: center;
     justify-content: space-around;
 `
@@ -570,7 +492,6 @@ const DeleteService = styled.span`
     }
 `
 
-
 // Device Item
 const DeviceList = styled.div`
     min-height: 200px;
@@ -610,9 +531,6 @@ const DeviceIconContainer = styled.div`
 const DeviceDetailContainer = styled.div`
     border-radius: 5px;
     padding: 12px;
-    /* position: absolute;
-    bottom: calc(100% + 20px);
-    right: -100px; */
     position: fixed;
     bottom: 400px;
     left: 650px;
@@ -626,7 +544,6 @@ const DeviceDetailContainer = styled.div`
     cursor: default;
     z-index: 10;
     display: none;
-    /* opacity: 0; */
     &::after {
         content: "";
         position: absolute;
@@ -655,7 +572,6 @@ const DeviceItem = styled.div`
     &:hover {
         background-color: #f5f5f5;
         ${DeviceDetailContainer} {
-            /* opacity: 1; */
             display: block;
         }
         &::after {
@@ -677,6 +593,7 @@ const DeviceItem = styled.div`
         opacity: 0;
     }
 `;
+
 const Modal = ({ showModal, setShowModal, type, setMenu, setMenuAddFood, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal
     const modalRef = useRef();
@@ -1219,7 +1136,7 @@ const Modal = ({ showModal, setShowModal, type, setMenu, setMenuAddFood, setReRe
                                                     <Course>
                                                         <Content>
                                                             <span style={{ width: "320px", fontWeight: "bold" }}> {setMenuAddFood ? setMenuAddFood.set_menu_name : null} </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{setMenuAddFood ? setMenuAddFood.set_menu_price : null} VNĐ</span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{setMenuAddFood ? format_money(setMenuAddFood.set_menu_price) : null} VNĐ</span>
                                                         </Content>
                                                         {/* <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{setMenuAddFood ? setMenuAddFood.set_menu_type_name : null}</span></span> */}
                                                     </Course>
@@ -1335,7 +1252,7 @@ const Modal = ({ showModal, setShowModal, type, setMenu, setMenuAddFood, setReRe
                                                                                     <ServiceName>{food.food_name}</ServiceName>
                                                                                 </ServiceTitle>
                                                                                 <ServiceInfo className="row">
-                                                                                    <ServiceTime>Giá tiền: {food.food_price} VNĐ</ServiceTime>
+                                                                                    <ServiceTime>Giá tiền: {format_money(food.food_price)} VNĐ</ServiceTime>
                                                                                 </ServiceInfo>
                                                                             </div>
                                                                         </ServiceItem>
@@ -1439,7 +1356,7 @@ const Modal = ({ showModal, setShowModal, type, setMenu, setMenuAddFood, setReRe
                                                 </ModalFormItem>
                                                 <ModalFormItem style={{ margin: "0 10px" }}>
                                                     <FormSpan>Giá tiền:</FormSpan>
-                                                    <FormInput type="text" value={setMenuModal ? setMenuModal.set_menu_price : null} readOnly />
+                                                    <FormInput type="text" value={setMenuModal ? format_money(setMenuModal.set_menu_price) + "đ" : null} readOnly />
                                                 </ModalFormItem>
                                             </div>
                                         </div>

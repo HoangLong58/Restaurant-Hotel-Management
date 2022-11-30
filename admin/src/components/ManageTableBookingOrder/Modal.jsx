@@ -17,7 +17,6 @@ import {
 } from 'chart.js';
 import { Bar, Line } from "react-chartjs-2";
 
-
 // Export excel
 import * as XLSX from "xlsx";
 
@@ -26,23 +25,24 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import * as CityService from "../../service/CityService";
 import * as DistrictService from "../../service/DistrictService";
 // import * as PartyBookingFoodDetailService from "../../service/PartyBookingFoodDetailService";
+import * as FoodService from "../../service/FoodService";
+import * as FoodTypeService from "../../service/FoodTypeService";
+import * as StatisticService from "../../service/StatisticService";
 import * as TableBookingOrderService from "../../service/TableBookingOrderService";
 import * as TableDetailService from "../../service/TableDetailService";
-import * as FoodTypeService from "../../service/FoodTypeService";
-import * as FoodService from "../../service/FoodService";
-import * as StatisticService from "../../service/StatisticService";
-import * as WardService from "../../service/WardService";
 import * as TableTypeService from "../../service/TableTypeService";
+import * as WardService from "../../service/WardService";
+import { format_money } from "../../utils/utils";
 import PDFFile from "./PDFFile";
 import PDFFileByDate from "./PDFFileByDate";
 import PDFFileByQuarter from "./PDFFileByQuarter";
 import PDFFileCity from "./PDFFileCity";
 import PDFFileCityByDate from "./PDFFileCityByDate";
 import PDFFileCityByQuarter from "./PDFFileCityByQuarter";
-import PDFFileTypeByDate from "./PDFFileTypeByDate";
-import PDFFileTypeByQuarter from "./PDFFileTypeByQuarter";
 import PDFFileCustomerByDate from "./PDFFileCustomerByDate";
 import PDFFileCustomerByQuarter from "./PDFFileCustomerByQuarter";
+import PDFFileTypeByDate from "./PDFFileTypeByDate";
+import PDFFileTypeByQuarter from "./PDFFileTypeByQuarter";
 
 Chart.register(...registerables);
 ChartJS.register(
@@ -209,91 +209,6 @@ const ButtonClick = styled.button`
     }
 `
 
-const FormImg = styled.img`
-    margin: auto;
-    width: 100px;
-    object-fit: contain;
-    height: 100px;
-`
-
-const ModalChiTietItem = styled.div`
-margin: 2px 30px;
-display: flex;
-flex-direction: column;
-`
-const FormSelect = styled.select`
-    background-color: var(--color-white);
-    color: var(--color-dark);
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    &:focus {
-        border: 1px solid var(--color-success);
-        box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-    }
-`
-
-const FormOption = styled.option`
-    margin: auto;
-`
-
-const FormTextArea = styled.textarea`
-    background-color: var(--color-white);
-    color: var(--color-dark);
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    resize: none;
-    &:focus {
-        border: 1px solid var(--color-success);
-        box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-    }
-`
-// Chi tiết
-const ChiTietHinhAnh = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    margin: auto;
-`
-const ImageWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    &img {
-        margin: 0px 20px;
-    }
-`
-const ChiTietWrapper = styled.div`
-    width: 70%;
-    height: auto;
-    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-    background: var(--color-white);
-    color: var(--color-dark);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    position: relative;
-    z-index: 10;
-    border-radius: 10px;
-    --growth-from: 0.7;
-    --growth-to: 1;
-    animation: growth linear 0.1s;
-`
-
-const H1Delete = styled.h1` 
-    width: "90%";
-    text-align: center;
-`
-
 // Left
 const LeftVote = styled.div``
 const LeftVoteItem = styled.div`
@@ -322,19 +237,7 @@ const LeftVoteTitle = styled.span`
     padding: 10px 0px 15px 0px;
     color: var(--color-dark);
 `
-const LeftVoteItemRating = styled.div`
-    /* position: relative; */
-    margin: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    width: 95%;
-    height: auto;
-    box-shadow: 6px 6px 30px #d1d9e6;
-    border-radius: 20px;
-    background-color: var(--color-white);
-`
+
 const CartItem = styled.div`
 display: flex;
 width: 100%;
@@ -565,10 +468,6 @@ const FormChucNang = styled.div`
     width: 100%;
     display: flex;
     flex-direction: row;
-    /* position: absolute;
-    left: 50%;
-    bottom: 50%; */
-    /* transform: translateX(-50%); */
     text-align: center;
     justify-content: space-around;
 `
@@ -730,9 +629,6 @@ const DeviceIconContainer = styled.div`
 const DeviceDetailContainer = styled.div`
     border-radius: 5px;
     padding: 12px;
-    /* position: absolute;
-    bottom: calc(100% + 20px);
-    right: -100px; */
     position: fixed;
     bottom: 400px;
     left: 650px;
@@ -746,7 +642,6 @@ const DeviceDetailContainer = styled.div`
     cursor: default;
     z-index: 10;
     display: none;
-    /* opacity: 0; */
     &::after {
         content: "";
         position: absolute;
@@ -757,10 +652,6 @@ const DeviceDetailContainer = styled.div`
         border-style: solid;
         border-color: #f5f5f5 transparent transparent transparent;
     }
-`;
-const DeviceDetailImage = styled.img`
-    border-radius: 5px;
-    width: 100%;
 `;
 
 const DeviceItem = styled.div`
@@ -775,7 +666,6 @@ const DeviceItem = styled.div`
     &:hover {
         background-color: #f5f5f5;
         ${DeviceDetailContainer} {
-            /* opacity: 1; */
             display: block;
         }
         &::after {
@@ -816,11 +706,6 @@ const DeleteService = styled.span`
     }
 `
 
-const ServiceIcon = styled.img`
-    width: 40px;
-    height: auto;
-`;
-
 const ServiceTime = styled.div`
     font-size: 0.9rem;
     font-weight: 300;
@@ -857,11 +742,6 @@ const ProductAmount = styled.div`
     font-size: 1.4rem;
     margin: 5px;
     padding: 0px 10px;
-`
-
-const ProductPrice = styled.div`
-    font-size: 30px;
-    font-weight: 200;
 `
 
 const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingOrderAddFood, setReRenderData, handleClose, showToastFromOut }) => {
@@ -2582,7 +2462,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                     <Course>
                                                         <Content>
                                                             <span style={{ width: "320px", fontWeight: "bold" }}> {tableBookingOrderAddFoodModal ? tableBookingOrderAddFoodModal.table_booking_name + " - " + tableBookingOrderAddFoodModal.table_type_name + ", " + tableBookingOrderAddFoodModal.floor_name : null} </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{tableBookingOrderAddFoodModal ? tableBookingOrderAddFoodModal.table_booking_order_total : null} VNĐ</span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{tableBookingOrderAddFoodModal ? format_money(tableBookingOrderAddFoodModal.table_booking_order_total) : null} VNĐ</span>
                                                         </Content>
                                                     </Course>
                                                 </CartItem>
@@ -2617,7 +2497,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                 <DeviceName style={{ marginLeft: "10px" }}>{tableDetail.food_name}</DeviceName>
                                                                             </DeviceTitle>
                                                                             <DeviceInfo className="row">
-                                                                                <DeviceTime style={{ margin: "5px 10px 0px 10px" }}>Tổng tiền: <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>{tableDetail.table_detail_total}</span></DeviceTime>
+                                                                                <DeviceTime style={{ margin: "5px 10px 0px 10px" }}>Tổng tiền: <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>{format_money(tableDetail.table_detail_total)}đ</span></DeviceTime>
                                                                             </DeviceInfo>
                                                                         </div>
                                                                         <DeleteService onClick={() => handleUpdateTableDetailQuantity(0, tableDetail.table_detail_id)}>
@@ -2734,7 +2614,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                 <ServiceName>{food.food_name}</ServiceName>
                                                                             </ServiceTitle>
                                                                             <ServiceInfo className="row">
-                                                                                <ServiceTime style={{ margin: "5px 10px 0px 0px" }}>Tổng tiền: <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>{food.food_price * food.foodChooseQuantity}</span></ServiceTime>
+                                                                                <ServiceTime style={{ margin: "5px 10px 0px 0px" }}>Tổng tiền: <span style={{ color: "var(--color-primary)", marginLeft: "5px" }}>{format_money(food.food_price * food.foodChooseQuantity)}đ</span></ServiceTime>
                                                                             </ServiceInfo>
                                                                         </div>
                                                                     </ServiceItem>
@@ -3111,7 +2991,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                     <Course>
                                                         <Content>
                                                             <span style={{ width: "320px", fontWeight: "bold" }}> {tableBookingOrderModal ? tableBookingOrderModal.table_booking_name + " - " + tableBookingOrderModal.table_type_name + ", " + tableBookingOrderModal.floor_name : null} </span>
-                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{tableBookingOrderModal ? tableBookingOrderModal.table_booking_order_total : null} VNĐ</span>
+                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{tableBookingOrderModal ? format_money(tableBookingOrderModal.table_booking_order_total) : null} VNĐ</span>
                                                         </Content>
                                                     </Course>
                                                 </CartItem>
@@ -3185,7 +3065,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                         <Course>
                                                                             <Content>
                                                                                 <span style={{ width: "320px", fontWeight: "bold" }}> {tableDetail.food_name} </span>
-                                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{tableDetail.table_detail_price} VNĐ</span>
+                                                                                <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{format_money(tableDetail.table_detail_price)} VNĐ</span>
                                                                             </Content>
                                                                             <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{tableDetail.table_detail_quantity}</span> x {tableDetail.food_type_name}</span>
                                                                         </Course>
@@ -3223,7 +3103,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                 <InforTotal className="col-lg-12">
                                                     <InfoTotalItem className="row">
                                                         <InfoTotalTitle className="col-lg-8">Tiền đặt bàn: </InfoTotalTitle>
-                                                        <InfoTotalDetail className="col-lg-4">{tableBookingOrderModal ? tableBookingOrderModal.table_booking_order_total : null} VNĐ</InfoTotalDetail>
+                                                        <InfoTotalDetail className="col-lg-4">{tableBookingOrderModal ? format_money(tableBookingOrderModal.table_booking_order_total) : null} VNĐ</InfoTotalDetail>
                                                     </InfoTotalItem>
                                                     <InfoTotalItem className="row">
                                                         <InfoTotalTitle className="col-lg-8">Phụ phí: </InfoTotalTitle>
@@ -3231,7 +3111,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                     </InfoTotalItem>
                                                     <InfoTotalItem className="row">
                                                         <InfoTotalTitle className="col-lg-8">Tổng tiền thanh toán khi Check out: </InfoTotalTitle>
-                                                        <InfoTotalDetail className="col-lg-4">{tableBookingOrderModal ? tableBookingOrderModal.table_booking_order_total : null} VNĐ</InfoTotalDetail>
+                                                        <InfoTotalDetail className="col-lg-4">{tableBookingOrderModal ? format_money(tableBookingOrderModal.table_booking_order_total) : null} VNĐ</InfoTotalDetail>
                                                     </InfoTotalItem>
                                                 </InforTotal>
                                             </RightVoteItem2>
@@ -3297,10 +3177,10 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                     <Tr>
                                                                                         <Td>{key + 1}</Td>
                                                                                         <Td>{city.city_name}</Td>
-                                                                                        <Td>{city.monthFirst}</Td>
-                                                                                        <Td>{city.monthSecond}</Td>
-                                                                                        <Td>{city.monthThird}</Td>
-                                                                                        <Td>{city.canam}</Td>
+                                                                                        <Td>{format_money(city.monthFirst)}đ</Td>
+                                                                                        <Td>{format_money(city.monthSecond)}đ</Td>
+                                                                                        <Td>{format_money(city.monthThird)}đ</Td>
+                                                                                        <Td>{format_money(city.canam)}đ</Td>
                                                                                     </Tr>
                                                                                 )
                                                                             })
@@ -3339,7 +3219,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                             <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                             <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                             <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                            <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                            <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -3380,7 +3260,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                                 <Tr>
                                                                                                     <Td>{key + 1}</Td>
                                                                                                     <Td>{row.city_name}</Td>
-                                                                                                    <Td>{row.total}</Td>
+                                                                                                    <Td>{format_money(row.total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -3422,7 +3302,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                             <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                             <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                             <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                            <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                            <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -3458,27 +3338,27 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                     <Tr>
                                                                                         <Td>1</Td>
                                                                                         <Td>Quý 1</Td>
-                                                                                        <Td>{city.quy1}</Td>
+                                                                                        <Td>{format_money(city.quy1)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>2</Td>
                                                                                         <Td>Quý 2</Td>
-                                                                                        <Td>{city.quy2}</Td>
+                                                                                        <Td>{format_money(city.quy2)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>3</Td>
                                                                                         <Td>Quý 3</Td>
-                                                                                        <Td>{city.quy3}</Td>
+                                                                                        <Td>{format_money(city.quy3)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>4</Td>
                                                                                         <Td>Quý 4</Td>
-                                                                                        <Td>{city.quy4}</Td>
+                                                                                        <Td>{format_money(city.quy4)}đ</Td>
                                                                                     </Tr>
                                                                                     <Tr>
                                                                                         <Td>5</Td>
                                                                                         <Td>Cả năm</Td>
-                                                                                        <Td>{city.canam}</Td>
+                                                                                        <Td>{format_money(city.canam)}đ</Td>
                                                                                     </Tr>
                                                                                 </Tbody>
                                                                             </Table>
@@ -3516,7 +3396,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                             <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                             <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                             <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                            <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                            <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -4141,7 +4021,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                     <Tr>
                                                                                         <Td>{key + 1}</Td>
                                                                                         <Td>{row.month}</Td>
-                                                                                        <Td>{row.data}</Td>
+                                                                                        <Td>{format_money(row.data)}đ</Td>
                                                                                     </Tr>
                                                                                 )
                                                                             })
@@ -4180,7 +4060,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                             <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                             <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                             <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                            <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                            <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -4213,7 +4093,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                     <Tr>
                                                                                         <Td>{key + 1}</Td>
                                                                                         <Td>{row.date}</Td>
-                                                                                        <Td>{row.data}</Td>
+                                                                                        <Td>{format_money(row.data)}đ</Td>
                                                                                     </Tr>
                                                                                 )
                                                                             })
@@ -4252,7 +4132,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                             <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                             <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                             <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                            <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                            <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -4282,22 +4162,22 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                         <Tr>
                                                                             <Td>1</Td>
                                                                             <Td>Quý 1</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy1}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy1)}đ</Td>
                                                                         </Tr>
                                                                         <Tr>
                                                                             <Td>2</Td>
                                                                             <Td>Quý 2</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy2}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy2)}đ</Td>
                                                                         </Tr>
                                                                         <Tr>
                                                                             <Td>3</Td>
                                                                             <Td>Quý 3</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy3}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy3)}đ</Td>
                                                                         </Tr>
                                                                         <Tr>
                                                                             <Td>4</Td>
                                                                             <Td>Quý 4</Td>
-                                                                            <Td>{totalForEachMonthObject.data.quy4}</Td>
+                                                                            <Td>{format_money(totalForEachMonthObject.data.quy4)}đ</Td>
                                                                         </Tr>
                                                                     </Tbody>
                                                                 </Table>
@@ -4333,7 +4213,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                             <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                             <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                             <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                            <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                            <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                         </Tr>
                                                                                     )
                                                                                 })
@@ -4993,10 +4873,10 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                             <Tr>
                                                                                                 <Td>{key + 1}</Td>
                                                                                                 <Td>{totalDataRes.table_type_name}</Td>
-                                                                                                <Td>{totalDataRes.monthFirst}</Td>
-                                                                                                <Td>{totalDataRes.monthSecond}</Td>
-                                                                                                <Td>{totalDataRes.monthThird}</Td>
-                                                                                                <Td>{totalDataRes.canam}</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthFirst)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthSecond)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthThird)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.canam)}đ</Td>
                                                                                             </Tr>
                                                                                         )
                                                                                     })
@@ -5035,7 +4915,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                                     <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                                     <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                                     <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                                    <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -5076,7 +4956,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                                         <Tr>
                                                                                                             <Td>{key + 1}</Td>
                                                                                                             <Td>{row.totalData.table_type_name}</Td>
-                                                                                                            <Td>{row.totalData.total}</Td>
+                                                                                                            <Td>{format_money(row.totalData.total)}đ</Td>
                                                                                                         </Tr>
                                                                                                     )
                                                                                                 })
@@ -5118,7 +4998,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                                     <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                                     <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                                     <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                                    <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -5668,10 +5548,10 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                             <Tr>
                                                                                                 <Td>{key + 1}</Td>
                                                                                                 <Td>{totalDataRes.customer_first_name + " " + totalDataRes.customer_last_name}</Td>
-                                                                                                <Td>{totalDataRes.monthFirst}</Td>
-                                                                                                <Td>{totalDataRes.monthSecond}</Td>
-                                                                                                <Td>{totalDataRes.monthThird}</Td>
-                                                                                                <Td>{totalDataRes.canam}</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthFirst)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthSecond)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.monthThird)}đ</Td>
+                                                                                                <Td>{format_money(totalDataRes.canam)}đ</Td>
                                                                                             </Tr>
                                                                                         )
                                                                                     })
@@ -5710,7 +5590,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                                     <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                                     <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                                     <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                                    <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })
@@ -5748,7 +5628,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                             <Tr>
                                                                                                 <Td>{key + 1}</Td>
                                                                                                 <Td>{dataArray.totalData.customer_first_name + " " + dataArray.totalData.customer_last_name}</Td>
-                                                                                                <Td>{dataArray.totalData.total}</Td>
+                                                                                                <Td>{format_money(dataArray.totalData.total)}đ</Td>
                                                                                             </Tr>
                                                                                         </Tbody>
                                                                                     </Table>
@@ -5787,7 +5667,7 @@ const Modal = ({ showModal, setShowModal, type, tableBookingOrder, tableBookingO
                                                                                                     <Td>{tableBookingOrder.table_booking_order_finish_date}</Td>
                                                                                                     <Td>{tableBookingOrder.table_booking_name}</Td>
                                                                                                     <Td>{tableBookingOrder.table_type_name + ", " + tableBookingOrder.floor_name}</Td>
-                                                                                                    <Td>{tableBookingOrder.table_booking_order_total}</Td>
+                                                                                                    <Td>{format_money(tableBookingOrder.table_booking_order_total)}đ</Td>
                                                                                                 </Tr>
                                                                                             )
                                                                                         })

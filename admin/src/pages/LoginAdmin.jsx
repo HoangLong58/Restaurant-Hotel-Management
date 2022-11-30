@@ -225,7 +225,6 @@ const LoginAdmin = () => {
     // Modal
     const [showModal, setShowModal] = useState(false);
     const [typeModal, setTypeModal] = useState("");
-    const [danhMucModal, setDanhMucModal] = useState(null);
 
     const openModal = (modal) => {
         setShowModal(prev => !prev);

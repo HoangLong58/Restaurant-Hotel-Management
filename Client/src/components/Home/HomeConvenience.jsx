@@ -1,11 +1,11 @@
-import React from 'react'
+import React from 'react';
+import { Link } from 'react-router-dom';
 import picture1 from '../../img/1.svg';
 import picture2 from '../../img/2.svg';
-import picture3 from '../../img/spa.svg';
 import picture4 from '../../img/4.svg';
 import picture5 from '../../img/5.svg';
 import picture6 from '../../img/6.svg';
-import { Link } from 'react-router-dom';
+import picture3 from '../../img/spa.svg';
 
 const HomeConvenience = () => {
 	return (

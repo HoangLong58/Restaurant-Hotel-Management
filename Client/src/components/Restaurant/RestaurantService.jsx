@@ -1,8 +1,8 @@
-import React from 'react'
-import picture1 from '../../img/res-1.png'
-import picture2 from '../../img/res-2.png'
-import picture3 from '../../img/res-3.png'
+import React from 'react';
 import { Link } from "react-router-dom";
+import picture1 from '../../img/res-1.png';
+import picture2 from '../../img/res-2.png';
+import picture3 from '../../img/res-3.png';
 
 const RestaurantService = () => {
     return (

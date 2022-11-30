@@ -159,13 +159,6 @@ const ButtonClick = styled.button`
     }
 `
 
-const FormImg = styled.img`
-    margin: auto;
-    width: 50%;
-    object-fit: cover;
-    height: 200px;
-`
-
 const AlertWrapper = styled.div`
     width: 50%;
     height: auto;
@@ -184,7 +177,6 @@ const AlertWrapper = styled.div`
     --growth-to: 1;
     animation: growth linear 0.1s;
 `
-
 
 const Modal = ({ showModal, setShowModal, type, partyServiceType, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal
@@ -517,80 +509,80 @@ const Modal = ({ showModal, setShowModal, type, partyServiceType, setReRenderDat
             </>
         );
     }
-        // =============== Disable PartyServiceType ===============
-        if (type === "disablePartyServiceType") {
-            return (
-                <>
-                    {showModal ? (
-                        <Background ref={modalRef} onClick={closeModal}>
-                            <AlertWrapper showModal={showModal}>
-                                <ModalForm>
-                                    <ModalFormItem>
-                                        <h1>Bạn muốn Vô hiệu hóa Loại Dịch vụ tiệc <span style={{ color: `var(--color-primary)` }}>{partyServiceTypeModal ? partyServiceTypeModal.party_service_type_name : null}</span> này?</h1>
-                                        <p style={{ marginTop: "10px" }}>Loại Dịch vụ tiệc này sẽ ngưng hoạt động và Khách hàng không thể đặt được nữa!</p>
-                                    </ModalFormItem>
-                                </ModalForm>
-                                <ButtonUpdate>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => handleDisablePartyServiceType(partyServiceTypeIdModal)}
-                                        >Đồng ý</ButtonClick>
-                                    </ButtonContainer>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => setShowModal(prev => !prev)}
-                                        >Hủy bỏ</ButtonClick>
-                                    </ButtonContainer>
-                                </ButtonUpdate>
-                                <CloseModalButton
-                                    aria-label="Close modal"
-                                    onClick={() => setShowModal(prev => !prev)}
-                                >
-                                    <CloseOutlined />
-                                </CloseModalButton>
-                            </AlertWrapper>
-                        </Background>
-                    ) : null}
-                </>
-            );
-        }
-        // =============== able PartyServiceType ===============
-        if (type === "ablePartyServiceType") {
-            return (
-                <>
-                    {showModal ? (
-                        <Background ref={modalRef} onClick={closeModal}>
-                            <AlertWrapper showModal={showModal}>
-                                <ModalForm>
-                                    <ModalFormItem>
-                                        <h1>Bạn muốn Mở khóa Loại Dịch vụ tiệc <span style={{ color: `var(--color-primary)` }}>{partyServiceTypeModal ? partyServiceTypeModal.party_service_type_name : null}</span> này?</h1>
-                                        <p style={{ marginTop: "10px" }}>Khách hàng lại có thể Đặt loại tiệc này như trước!</p>
-                                    </ModalFormItem>
-                                </ModalForm>
-                                <ButtonUpdate>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => handleAblePartyServiceType(partyServiceTypeIdModal)}
-                                        >Đồng ý</ButtonClick>
-                                    </ButtonContainer>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => setShowModal(prev => !prev)}
-                                        >Hủy bỏ</ButtonClick>
-                                    </ButtonContainer>
-                                </ButtonUpdate>
-                                <CloseModalButton
-                                    aria-label="Close modal"
-                                    onClick={() => setShowModal(prev => !prev)}
-                                >
-                                    <CloseOutlined />
-                                </CloseModalButton>
-                            </AlertWrapper>
-                        </Background>
-                    ) : null}
-                </>
-            );
-        }
+    // =============== Disable PartyServiceType ===============
+    if (type === "disablePartyServiceType") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <AlertWrapper showModal={showModal}>
+                            <ModalForm>
+                                <ModalFormItem>
+                                    <h1>Bạn muốn Vô hiệu hóa Loại Dịch vụ tiệc <span style={{ color: `var(--color-primary)` }}>{partyServiceTypeModal ? partyServiceTypeModal.party_service_type_name : null}</span> này?</h1>
+                                    <p style={{ marginTop: "10px" }}>Loại Dịch vụ tiệc này sẽ ngưng hoạt động và Khách hàng không thể đặt được nữa!</p>
+                                </ModalFormItem>
+                            </ModalForm>
+                            <ButtonUpdate>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => handleDisablePartyServiceType(partyServiceTypeIdModal)}
+                                    >Đồng ý</ButtonClick>
+                                </ButtonContainer>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => setShowModal(prev => !prev)}
+                                    >Hủy bỏ</ButtonClick>
+                                </ButtonContainer>
+                            </ButtonUpdate>
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </AlertWrapper>
+                    </Background>
+                ) : null}
+            </>
+        );
+    }
+    // =============== able PartyServiceType ===============
+    if (type === "ablePartyServiceType") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <AlertWrapper showModal={showModal}>
+                            <ModalForm>
+                                <ModalFormItem>
+                                    <h1>Bạn muốn Mở khóa Loại Dịch vụ tiệc <span style={{ color: `var(--color-primary)` }}>{partyServiceTypeModal ? partyServiceTypeModal.party_service_type_name : null}</span> này?</h1>
+                                    <p style={{ marginTop: "10px" }}>Khách hàng lại có thể Đặt loại tiệc này như trước!</p>
+                                </ModalFormItem>
+                            </ModalForm>
+                            <ButtonUpdate>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => handleAblePartyServiceType(partyServiceTypeIdModal)}
+                                    >Đồng ý</ButtonClick>
+                                </ButtonContainer>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => setShowModal(prev => !prev)}
+                                    >Hủy bỏ</ButtonClick>
+                                </ButtonContainer>
+                            </ButtonUpdate>
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </AlertWrapper>
+                    </Background>
+                ) : null}
+            </>
+        );
+    }
     // =============== Xóa danh mục ===============
     if (type === "deletePartyServiceType") {
         return (

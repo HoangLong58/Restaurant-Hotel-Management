@@ -5,8 +5,8 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as FloorService from "../../service/FloorService";
 import ReactPaginate from "react-paginate";
+import * as FloorService from "../../service/FloorService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -193,7 +193,6 @@ const Span = styled.span`
 
 `
 
-
 const CloseSpan = styled.span`
     position: absolute;
     z-index: 1;
@@ -257,12 +256,6 @@ const ButtonDelete = styled.button`
     outline:none;
     z-index: 2;
     cursor: pointer;
-`
-
-const ImgDanhMuc = styled.img`
-    width: auto;
-    height: 100%;
-    object-fit: contain;
 `
 
 // Empty item

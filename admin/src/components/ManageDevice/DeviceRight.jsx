@@ -6,8 +6,8 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as DeviceService from "../../service/DeviceService";
 import { useSelector } from "react-redux";
+import * as DeviceService from "../../service/DeviceService";
 
 const Container = styled.div`
 margin-top: 1.4rem;

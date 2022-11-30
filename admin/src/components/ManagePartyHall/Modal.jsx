@@ -1,18 +1,19 @@
-import { CloseOutlined, ClearOutlined } from "@mui/icons-material";
+import { ClearOutlined, CloseOutlined } from "@mui/icons-material";
+import { Box, Checkbox, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import app from "../../firebase";
-import { Box, Checkbox, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 // SERVICES
+import { useSelector } from "react-redux";
+import * as EmployeeService from "../../service/EmployeeService";
 import * as FloorService from "../../service/FloorService";
+import * as PartyEmployeeService from "../../service/PartyEmployeeService";
 import * as PartyHallImageService from "../../service/PartyHallImageService";
 import * as PartyHallService from "../../service/PartyHallService";
 import * as PartyHallTypeService from "../../service/PartyHallTypeService";
 import * as PositionService from "../../service/PositionService";
-import * as PartyEmployeeService from "../../service/PartyEmployeeService";
-import * as EmployeeService from "../../service/EmployeeService";
-import { useSelector } from "react-redux";
+import { format_money } from "../../utils/utils";
 
 const Background = styled.div`
     width: 100%;
@@ -216,36 +217,13 @@ const FormTextArea = styled.textarea`
         box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
     }
 `
-// Chi tiết
-const ChiTietHinhAnh = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    margin: auto;
-`
+
 const ImageWrapper = styled.div`
     display: flex;
     flex-direction: row;
     &img {
         margin: 0px 20px;
     }
-`
-const ChiTietWrapper = styled.div`
-    width: 70%;
-    height: auto;
-    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-    background: var(--color-white);
-    color: var(--color-dark);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    position: relative;
-    z-index: 10;
-    border-radius: 10px;
-    --growth-from: 0.7;
-    --growth-to: 1;
-    animation: growth linear 0.1s;
 `
 
 const H1Delete = styled.h1` 
@@ -281,19 +259,7 @@ const LeftVoteTitle = styled.span`
     padding: 10px 0px 15px 0px;
     color: var(--color-dark);
 `
-const LeftVoteItemRating = styled.div`
-    /* position: relative; */
-    margin: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    width: 95%;
-    height: auto;
-    box-shadow: 6px 6px 30px #d1d9e6;
-    border-radius: 20px;
-    background-color: var(--color-white);
-`
+
 const CartItem = styled.div`
 display: flex;
 width: 100%;
@@ -383,52 +349,6 @@ const Surcharge = styled.div`
     max-height: 310px;
     overflow-y: scroll;
 `
-const RightVoteItem2 = styled.div`
-    position: relative;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-    box-shadow: 6px 6px 30px #d1d9e6;
-    border-radius: 20px;
-    background-color: var(--color-white);
-    display: flex;
-    flex-direction: column;
-`
-
-const InforTotal = styled.div``
-const InfoTotalItem = styled.div``
-const InfoTotalTitle = styled.div`
-    font-size: 1.1rem;
-    font-weight: 400;
-    letter-spacing: 1px;
-    padding: 10px 0px 10px 50px;
-    color: var(--color-dark);
-`
-const InfoTotalDetail = styled.div`
-    font-size: 1.1rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    padding: 10px 20px;
-    color: var(--color-primary);
-`
-
-const AlertWrapper = styled.div`
-    width: 50%;
-    height: auto;
-    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-    background: var(--color-white);
-    color: var(--color-dark);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-
-    position: relative;
-    z-index: 10;
-    border-radius: 10px;
-    --growth-from: 0.7;
-    --growth-to: 1;
-    animation: growth linear 0.1s;
-`
 
 // Empty item
 const EmptyItem = styled.div`
@@ -482,11 +402,6 @@ const ServiceIconContainer = styled.div`
     justify-content: center;
     align-items: center;
 `;
-const ServiceList = styled.div`
-    min-height: 200px;
-    max-height: 200px;
-    overflow-y: scroll;
-`;
 
 // Checkbox
 const LabelCheckbox = styled.label`
@@ -496,10 +411,6 @@ const FormChucNang = styled.div`
     width: 100%;
     display: flex;
     flex-direction: row;
-    /* position: absolute;
-    left: 50%;
-    bottom: 50%; */
-    /* transform: translateX(-50%); */
     text-align: center;
     justify-content: space-around;
 `
@@ -573,7 +484,6 @@ const DeleteService = styled.span`
     }
 `
 
-
 // Device Item
 const DeviceList = styled.div`
     min-height: 200px;
@@ -613,9 +523,6 @@ const DeviceIconContainer = styled.div`
 const DeviceDetailContainer = styled.div`
     border-radius: 5px;
     padding: 12px;
-    /* position: absolute;
-    bottom: calc(100% + 20px);
-    right: -100px; */
     position: fixed;
     bottom: 400px;
     left: 650px;
@@ -629,7 +536,6 @@ const DeviceDetailContainer = styled.div`
     cursor: default;
     z-index: 10;
     display: none;
-    /* opacity: 0; */
     &::after {
         content: "";
         position: absolute;
@@ -1327,7 +1233,7 @@ const Modal = ({ showModal, setShowModal, type, partyHall, partyHallAddEmployee,
                                                             <Course>
                                                                 <Content>
                                                                     <span style={{ width: "320px", fontWeight: "bold" }}> {partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_name : null} </span>
-                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_price : null} VNĐ</span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyHallModalAddEmployee ? format_money(partyHallModalAddEmployee.party_hall_price) : null} VNĐ</span>
                                                                 </Content>
                                                                 <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_type_name : null}</span></span>
                                                             </Course>
@@ -1410,7 +1316,7 @@ const Modal = ({ showModal, setShowModal, type, partyHall, partyHallAddEmployee,
                                                                     <Course>
                                                                         <Content>
                                                                             <span style={{ width: "320px", fontWeight: "bold" }}> {partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_name : null} </span>
-                                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_price : null} VNĐ</span>
+                                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{partyHallModalAddEmployee ? format_money(partyHallModalAddEmployee.party_hall_price) : null} VNĐ</span>
                                                                         </Content>
                                                                         <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{partyHallModalAddEmployee ? partyHallModalAddEmployee.party_hall_type_name : null}</span></span>
                                                                     </Course>
@@ -1664,7 +1570,7 @@ const Modal = ({ showModal, setShowModal, type, partyHall, partyHallAddEmployee,
                                     <div className="col-lg-6">
                                         <ModalFormItem>
                                             <FormSpan>Giá Sảnh:</FormSpan>
-                                            <FormInput type="text" value={partyHallModal ? partyHallModal.party_hall_price : null} readOnly />
+                                            <FormInput type="text" value={partyHallModal ? format_money(partyHallModal.party_hall_price) + "đ" : null} readOnly />
                                         </ModalFormItem>
                                     </div>
                                 </div>

@@ -1,13 +1,14 @@
 import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
+import ReactPaginate from "react-paginate";
 import styled from "styled-components";
 import Toast from "../Toast";
 import Modal from "./Modal";
-import ReactPaginate from "react-paginate";
 
 // SERVICES
-import * as PartyServiceService from "../../service/PartyServiceService";
 import { useSelector } from "react-redux";
+import * as PartyServiceService from "../../service/PartyServiceService";
+import { format_money } from "../../utils/utils";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -260,12 +261,6 @@ const ButtonDelete = styled.button`
     cursor: pointer;
 `
 
-const ImgDanhMuc = styled.img`
-    width: auto;
-    height: 100%;
-    object-fit: contain;
-`
-
 // Empty item
 const EmptyItem = styled.div`
     display: flex;
@@ -495,7 +490,7 @@ const PartyServiceMain = ({ reRenderData, setReRenderData }) => {
                     <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_id}</Td>
                     <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_type_name}</Td>
                     <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_name}</Td>
-                    <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_price}</Td>
+                    <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{format_money(partyService.party_service_price)}đ</Td>
 
                     {authorizationAdminTableData(admin, partyService)}
                     {/* <Td className="warning">
@@ -605,7 +600,7 @@ const PartyServiceMain = ({ reRenderData, setReRenderData }) => {
                                                 <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_id}</Td>
                                                 <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_type_name}</Td>
                                                 <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_name}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{partyService.party_service_price}</Td>
+                                                <Td onClick={() => openModal({ type: "detailPartyService", partyService: partyService })}>{format_money(partyService.party_service_price)}đ</Td>
 
                                                 {authorizationAdminTableData(admin, partyService)}
                                                 {/* <Td className="warning">

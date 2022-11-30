@@ -159,13 +159,6 @@ const ButtonClick = styled.button`
     }
 `
 
-const FormImg = styled.img`
-    margin: auto;
-    width: 50%;
-    object-fit: cover;
-    height: 200px;
-`
-
 const AlertWrapper = styled.div`
     width: 50%;
     height: auto;
@@ -184,7 +177,6 @@ const AlertWrapper = styled.div`
     --growth-to: 1;
     animation: growth linear 0.1s;
 `
-
 
 const Modal = ({ showModal, setShowModal, type, tableType, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal

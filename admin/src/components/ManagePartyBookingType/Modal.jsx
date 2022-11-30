@@ -159,13 +159,6 @@ const ButtonClick = styled.button`
     }
 `
 
-const FormImg = styled.img`
-    margin: auto;
-    width: 50%;
-    object-fit: cover;
-    height: 200px;
-`
-
 const AlertWrapper = styled.div`
     width: 50%;
     height: auto;
@@ -184,7 +177,6 @@ const AlertWrapper = styled.div`
     --growth-to: 1;
     animation: growth linear 0.1s;
 `
-
 
 const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderData, handleClose, showToastFromOut }) => {
     // Modal
@@ -517,80 +509,80 @@ const Modal = ({ showModal, setShowModal, type, partyBookingType, setReRenderDat
             </>
         );
     }
-        // =============== Disable PartyBookingType ===============
-        if (type === "disablePartyBookingType") {
-            return (
-                <>
-                    {showModal ? (
-                        <Background ref={modalRef} onClick={closeModal}>
-                            <AlertWrapper showModal={showModal}>
-                                <ModalForm>
-                                    <ModalFormItem>
-                                        <h1>Bạn muốn Vô hiệu hóa Loại đặt tiệc <span style={{ color: `var(--color-primary)` }}>{partyBookingTypeModal ? partyBookingTypeModal.party_booking_type_name : null}</span> này?</h1>
-                                        <p style={{ marginTop: "10px" }}>Loại đặt tiệc này sẽ ngưng hoạt động và Khách hàng không thể đặt được nữa!</p>
-                                    </ModalFormItem>
-                                </ModalForm>
-                                <ButtonUpdate>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => handleDisablePartyBookingType(partyBookingTypeIdModal)}
-                                        >Đồng ý</ButtonClick>
-                                    </ButtonContainer>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => setShowModal(prev => !prev)}
-                                        >Hủy bỏ</ButtonClick>
-                                    </ButtonContainer>
-                                </ButtonUpdate>
-                                <CloseModalButton
-                                    aria-label="Close modal"
-                                    onClick={() => setShowModal(prev => !prev)}
-                                >
-                                    <CloseOutlined />
-                                </CloseModalButton>
-                            </AlertWrapper>
-                        </Background>
-                    ) : null}
-                </>
-            );
-        }
-        // =============== able PartyBookingType ===============
-        if (type === "ablePartyBookingType") {
-            return (
-                <>
-                    {showModal ? (
-                        <Background ref={modalRef} onClick={closeModal}>
-                            <AlertWrapper showModal={showModal}>
-                                <ModalForm>
-                                    <ModalFormItem>
-                                        <h1>Bạn muốn Mở khóa Loại đặt tiệc <span style={{ color: `var(--color-primary)` }}>{partyBookingTypeModal ? partyBookingTypeModal.party_booking_type_name : null}</span> này?</h1>
-                                        <p style={{ marginTop: "10px" }}>Khách hàng lại có thể Đặt loại tiệc này như trước!</p>
-                                    </ModalFormItem>
-                                </ModalForm>
-                                <ButtonUpdate>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => handleAblePartyBookingType(partyBookingTypeIdModal)}
-                                        >Đồng ý</ButtonClick>
-                                    </ButtonContainer>
-                                    <ButtonContainer>
-                                        <ButtonClick
-                                            onClick={() => setShowModal(prev => !prev)}
-                                        >Hủy bỏ</ButtonClick>
-                                    </ButtonContainer>
-                                </ButtonUpdate>
-                                <CloseModalButton
-                                    aria-label="Close modal"
-                                    onClick={() => setShowModal(prev => !prev)}
-                                >
-                                    <CloseOutlined />
-                                </CloseModalButton>
-                            </AlertWrapper>
-                        </Background>
-                    ) : null}
-                </>
-            );
-        }
+    // =============== Disable PartyBookingType ===============
+    if (type === "disablePartyBookingType") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <AlertWrapper showModal={showModal}>
+                            <ModalForm>
+                                <ModalFormItem>
+                                    <h1>Bạn muốn Vô hiệu hóa Loại đặt tiệc <span style={{ color: `var(--color-primary)` }}>{partyBookingTypeModal ? partyBookingTypeModal.party_booking_type_name : null}</span> này?</h1>
+                                    <p style={{ marginTop: "10px" }}>Loại đặt tiệc này sẽ ngưng hoạt động và Khách hàng không thể đặt được nữa!</p>
+                                </ModalFormItem>
+                            </ModalForm>
+                            <ButtonUpdate>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => handleDisablePartyBookingType(partyBookingTypeIdModal)}
+                                    >Đồng ý</ButtonClick>
+                                </ButtonContainer>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => setShowModal(prev => !prev)}
+                                    >Hủy bỏ</ButtonClick>
+                                </ButtonContainer>
+                            </ButtonUpdate>
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </AlertWrapper>
+                    </Background>
+                ) : null}
+            </>
+        );
+    }
+    // =============== able PartyBookingType ===============
+    if (type === "ablePartyBookingType") {
+        return (
+            <>
+                {showModal ? (
+                    <Background ref={modalRef} onClick={closeModal}>
+                        <AlertWrapper showModal={showModal}>
+                            <ModalForm>
+                                <ModalFormItem>
+                                    <h1>Bạn muốn Mở khóa Loại đặt tiệc <span style={{ color: `var(--color-primary)` }}>{partyBookingTypeModal ? partyBookingTypeModal.party_booking_type_name : null}</span> này?</h1>
+                                    <p style={{ marginTop: "10px" }}>Khách hàng lại có thể Đặt loại tiệc này như trước!</p>
+                                </ModalFormItem>
+                            </ModalForm>
+                            <ButtonUpdate>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => handleAblePartyBookingType(partyBookingTypeIdModal)}
+                                    >Đồng ý</ButtonClick>
+                                </ButtonContainer>
+                                <ButtonContainer>
+                                    <ButtonClick
+                                        onClick={() => setShowModal(prev => !prev)}
+                                    >Hủy bỏ</ButtonClick>
+                                </ButtonContainer>
+                            </ButtonUpdate>
+                            <CloseModalButton
+                                aria-label="Close modal"
+                                onClick={() => setShowModal(prev => !prev)}
+                            >
+                                <CloseOutlined />
+                            </CloseModalButton>
+                        </AlertWrapper>
+                    </Background>
+                ) : null}
+            </>
+        );
+    }
     // =============== Xóa danh mục ===============
     if (type === "deletePartyBookingType") {
         return (

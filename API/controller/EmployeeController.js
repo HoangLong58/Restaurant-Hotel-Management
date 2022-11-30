@@ -63,13 +63,13 @@ module.exports = {
     },
     login: (req, res) => {
         const body = req.body;
-        if(!body.email) {
+        if (!body.email) {
             return res.status(400).json({
                 status: "fail",
                 message: "Email không hợp lệ"
             });
         }
-        if(!body.password) {
+        if (!body.password) {
             return res.status(400).json({
                 status: "fail",
                 message: "Mật khẩu không hợp lệ"

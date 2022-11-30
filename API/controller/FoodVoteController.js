@@ -714,7 +714,7 @@ module.exports = {
                                 message: "Cann't update avegare food vote!"
                             });
                         }
-                        
+
                         createLogAdmin(req, res, " vừa xóa Bình luận có mã: " + foodVoteId, "DELETE").then(() => {
                             // Success
                             return res.status(200).json({

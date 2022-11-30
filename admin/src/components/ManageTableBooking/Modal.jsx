@@ -4,13 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 // SERVICES
-import * as FloorService from "../../service/FloorService";
-import * as TableBookingService from "../../service/TableBookingService";
-import * as TableTypeService from "../../service/TableTypeService";
-import * as EmployeeService from "../../service/EmployeeService";
-import * as TableEmployeeService from "../../service/TableEmployeeService";
-import * as PositionService from "../../service/PositionService";
 import { useSelector } from "react-redux";
+import * as EmployeeService from "../../service/EmployeeService";
+import * as FloorService from "../../service/FloorService";
+import * as PositionService from "../../service/PositionService";
+import * as TableBookingService from "../../service/TableBookingService";
+import * as TableEmployeeService from "../../service/TableEmployeeService";
+import * as TableTypeService from "../../service/TableTypeService";
 
 const Background = styled.div`
     width: 100%;
@@ -322,9 +322,6 @@ const DeviceIconContainer = styled.div`
 const DeviceDetailContainer = styled.div`
     border-radius: 5px;
     padding: 12px;
-    /* position: absolute;
-    bottom: calc(100% + 20px);
-    right: -100px; */
     position: fixed;
     bottom: 400px;
     left: 650px;
@@ -338,7 +335,6 @@ const DeviceDetailContainer = styled.div`
     cursor: default;
     z-index: 10;
     display: none;
-    /* opacity: 0; */
     &::after {
         content: "";
         position: absolute;
@@ -367,7 +363,6 @@ const DeviceItem = styled.div`
     &:hover {
         background-color: #f5f5f5;
         ${DeviceDetailContainer} {
-            /* opacity: 1; */
             display: block;
         }
         &::after {
@@ -465,10 +460,6 @@ const FormChucNang = styled.div`
     width: 100%;
     display: flex;
     flex-direction: row;
-    /* position: absolute;
-    left: 50%;
-    bottom: 50%; */
-    /* transform: translateX(-50%); */
     text-align: center;
     justify-content: space-around;
 `
@@ -566,6 +557,7 @@ const ServiceIconContainer = styled.div`
     justify-content: center;
     align-items: center;
 `;
+
 const Modal = ({ showModal, setShowModal, type, tableBooking, tableBookingAddEmployee, setReRenderData, handleClose, showToastFromOut }) => {
     // PHÂN QUYỀN
     const admin = useSelector((state) => state.admin.currentAdmin);

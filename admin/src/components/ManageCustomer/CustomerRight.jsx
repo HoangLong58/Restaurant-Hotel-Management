@@ -1,10 +1,9 @@
-import styled from "styled-components";
-import { Add, CategoryOutlined } from "@mui/icons-material";
-import RightTop from "../Dashboard/RightTop";
+import { CategoryOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
-import Modal from "./Modal";
+import styled from "styled-components";
+import RightTop from "../Dashboard/RightTop";
 import Toast from "../Toast";
+import Modal from "./Modal";
 
 // SERVICES
 import * as CustomerService from "../../service/CustomerService";
@@ -162,7 +161,7 @@ const CustomerRight = ({ reRenderData, setReRenderData }) => {
                 setReRenderData={setReRenderData}   //Hàm rerender khi dữ liệu thay đổi
                 showToastFromOut={showToastFromOut} //Hàm Hiện toast
             />
-            
+
             {/* ==== TOAST ==== */}
             <Toast
                 ref={toastRef}

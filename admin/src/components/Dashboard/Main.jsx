@@ -1,6 +1,5 @@
 import { AutoGraphOutlined, BarChartOutlined, Close, InsertChart, KeyboardArrowUpOutlined } from "@mui/icons-material";
 import { Tooltip as TooltipMui } from '@mui/material';
-import axios from "axios";
 import {
     CategoryScale, Chart as ChartJS, Legend, LinearScale, LineElement, PointElement, Title,
     Tooltip
@@ -48,11 +47,6 @@ const Date = styled.div`
     margin-top: 1rem;
     padding: 0.5rem 1.6rem;
     position: relative;
-`
-
-const InputDate = styled.input`
-    background: transparent;
-    color: var(--color-dark);
 `
 
 const Insights = styled.div`
@@ -159,42 +153,6 @@ const RecentOrders = styled.div`
 
 const H2 = styled.h2`
     margin-bottom: 0.8rem;
-`
-
-const Table = styled.table`
-    background: var(--color-white);
-    width: 100%;
-    border-radius: var(--card-border-radius);
-    padding: var(--card-padding);
-    text-align: center;
-    box-shadow: var(--box-shadow);
-    transition: all 300ms ease;
-    &:hover {
-        box-shadow: none;
-    }
-`
-
-const Thead = styled.thead`
-
-`
-
-const Tr = styled.tr`
-    &:last-child td {
-        border: none;
-    }
-`
-
-const Th = styled.th`
-
-`
-
-const Tbody = styled.tbody`
-
-`
-
-const Td = styled.td`
-    height: 2.8rem;
-    border-bottom: 1px solid var(--color-light);
 `
 
 const A = styled.a`

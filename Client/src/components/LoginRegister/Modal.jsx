@@ -1,7 +1,6 @@
 import { ArrowRightAltOutlined, CheckCircleRounded, CloseOutlined, VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Toast from "../Toast";
 import ChangePasswordProgress from "./ChangePasswordProgress";
@@ -371,33 +370,6 @@ const ButtonContainer = styled.div`
     }
 `
 
-const PaymentButton = styled.button`
-    padding: 10px;
-    width: 150px;
-    border: 2px solid black;
-    background-color: black;
-    color: white;
-    cursor: pointer;
-    font-weight: 500;
-    z-index: 10;
-    &:hover {
-        background-color: var(--color-primary);
-    }
-    &:active {
-        background-color: #333;
-        transform: translate(5px, 5px);
-        transition: transform 0.25s;
-    }
-`
-
-const H2 = styled.h2`
-font-size: 1.8rem;
-margin-top: 20px;
-`
-const Small = styled.small`
-margin-top: 15px;
-font-size: 1.3rem;
-`
 const SuccessButtonContainer = styled.div`
     justify-content: center;
     position: relative;
@@ -433,26 +405,6 @@ const SuccessButton = styled.button`
         transform: translate(5px, 5px);
         transition: transform 0.25s;
     }
-`
-
-// Empty item
-const EmptyItem = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-`
-const EmptyItemSvg = styled.div``
-const EmptyContent = styled.div`
-    letter-spacing: 2px;
-    font-size: 1.2rem;
-    color: var(--color-primary);
-    font-weight: bold;
-`
-
-const CartItemDiv = styled.div`
-    height: 41vh;
-    overflow-y: scroll;
 `
 
 const FormChucNang = styled.div`

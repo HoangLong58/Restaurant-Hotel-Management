@@ -1,9 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import pictureService1 from '../../img/ser-1.jpg';
 import pictureService2 from '../../img/ser-2.jpg';
 import pictureService3 from '../../img/ser-3.jpg';
 import pictureService4 from '../../img/ser-4.jpg';
-import { Link } from 'react-router-dom';
 
 const HomeServices = () => {
 	return (

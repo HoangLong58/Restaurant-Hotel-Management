@@ -1,6 +1,7 @@
+import { DataTableCell, Table, TableBody, TableCell, TableHeader } from '@david.kucsai/react-pdf-table';
+import { Document, Font, Image, Page, StyleSheet, Text } from '@react-pdf/renderer';
 import React from 'react';
-import { Page, Text, Image, Document, StyleSheet, Font } from '@react-pdf/renderer';
-import { Table, TableHeader, TableCell, TableBody, DataTableCell } from '@david.kucsai/react-pdf-table';
+import { format_money } from '../../utils/utils';
 
 // Register Font
 Font.register({
@@ -81,8 +82,8 @@ const PDFFileTypeByQuarter = (props) => {
                                     </TableHeader>
                                     <TableBody>
                                         <DataTableCell getContent={(r) => r.totalData.customer_first_name + " " + r.totalData.customer_last_name} />
-                                        <DataTableCell getContent={(r) => r.totalData.total} />
-                                        <DataTableCell getContent={(r) => r.totalData.canam} />
+                                        <DataTableCell getContent={(r) => format_money(r.totalData.total) + "đ"} />
+                                        <DataTableCell getContent={(r) => format_money(r.totalData.canam) + "đ"} />
                                     </TableBody>
                                 </Table>
                             </>
@@ -133,7 +134,7 @@ const PDFFileTypeByQuarter = (props) => {
                         <DataTableCell getContent={(r) => r.party_booking_order_finish_date} />
                         <DataTableCell getContent={(r) => r.party_booking_type_name} />
                         <DataTableCell getContent={(r) => r.party_hall_name + ', ' + r.floor_name} />
-                        <DataTableCell getContent={(r) => r.party_booking_order_total} />
+                        <DataTableCell getContent={(r) => format_money(r.party_booking_order_total) + "đ"} />
                     </TableBody>
                 </Table>
                 <Text

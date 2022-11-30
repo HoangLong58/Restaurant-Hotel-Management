@@ -1,14 +1,13 @@
-import styled from "styled-components";
 import { Add, CategoryOutlined } from "@mui/icons-material";
-import RightTop from "../Dashboard/RightTop";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
-import Modal from "./Modal";
+import styled from "styled-components";
+import RightTop from "../Dashboard/RightTop";
 import Toast from "../Toast";
+import Modal from "./Modal";
 
 // SERVICES
-import * as EmployeeService from "../../service/EmployeeService";
 import { useSelector } from "react-redux";
+import * as EmployeeService from "../../service/EmployeeService";
 
 const Container = styled.div`
 margin-top: 1.4rem;

@@ -1,7 +1,7 @@
-import styled from "styled-components";
-import { LightMode, DarkMode } from "@mui/icons-material";
+import { DarkMode, LightMode } from "@mui/icons-material";
 import { useRef } from 'react';
 import { useSelector } from 'react-redux';
+import styled from "styled-components";
 
 const Top = styled.div`
     display: flex;

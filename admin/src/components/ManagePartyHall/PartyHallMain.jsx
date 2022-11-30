@@ -6,8 +6,9 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as PartyHallService from "../../service/PartyHallService";
 import { useSelector } from "react-redux";
+import * as PartyHallService from "../../service/PartyHallService";
+import { format_money } from '../../utils/utils';
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -59,13 +60,6 @@ const Tbody = styled.tbody`
 const Td = styled.td`
     height: 2.8rem;
     border-bottom: 1px solid var(--color-light);
-`
-
-const A = styled.a`
-    text-align: center;
-    display: block;
-    margin: 1rem auto;
-    color: var(--color-primary);
 `
 
 // Tìm kiếm
@@ -120,11 +114,6 @@ const Input = styled.input`
         transform: translate(0, 10px);
     }
 `
-
-const Label = styled.label`
-
-`
-
 
 const Button = styled.button`
     width: 50px;
@@ -560,7 +549,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                     </Td>
                     <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_view}</Td>
                     <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.floor_name}</Td>
-                    <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_price}</Td>
+                    <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{format_money(partyHall.party_hall_price)}đ</Td>
                     <Td
                         onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}
                         style={{ backgroundColor: partyHall.party_hall_state === 0 ? "var(--color-info)" : partyHall.party_hall_state === 1 ? "var(--color-danger)" : null }}>
@@ -693,7 +682,7 @@ const PartyHallMain = ({ reRenderData, setReRenderData }) => {
                                                 </Td>
                                                 <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_view}</Td>
                                                 <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.floor_name}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{partyHall.party_hall_price}</Td>
+                                                <Td onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}>{format_money(partyHall.party_hall_price)}đ</Td>
                                                 <Td
                                                     onClick={() => openModal({ type: "detailPartyHall", partyHall: partyHall })}
                                                     style={{ backgroundColor: partyHall.party_hall_state === 0 ? "var(--color-info)" : partyHall.party_hall_state === 1 ? "var(--color-danger)" : null }}>

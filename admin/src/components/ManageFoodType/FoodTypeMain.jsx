@@ -5,8 +5,8 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as FoodTypeService from "../../service/FoodTypeService";
 import ReactPaginate from "react-paginate";
+import * as FoodTypeService from "../../service/FoodTypeService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -257,12 +257,6 @@ const ButtonDelete = styled.button`
     outline:none;
     z-index: 2;
     cursor: pointer;
-`
-
-const ImgDanhMuc = styled.img`
-    width: auto;
-    height: 100%;
-    object-fit: contain;
 `
 
 // Empty item

@@ -5,6 +5,7 @@ import styled from "styled-components";
 // SERVICES
 import * as PartyServiceService from "../../service/PartyServiceService";
 import * as PartyServiceTypeService from "../../service/PartyServiceTypeService";
+import { format_money } from "../../utils/utils";
 
 const Background = styled.div`
     width: 100%;
@@ -160,18 +161,6 @@ const ButtonClick = styled.button`
     }
 `
 
-const FormImg = styled.img`
-    margin: auto;
-    width: 50%;
-    object-fit: contain;
-    height: 200px;
-`
-
-const ModalChiTietItem = styled.div`
-margin: 2px 30px;
-display: flex;
-flex-direction: column;
-`
 const FormSelect = styled.select`
     background-color: var(--color-white);
     color: var(--color-dark);
@@ -192,36 +181,6 @@ const FormOption = styled.option`
     margin: auto;
 `
 
-const FormTextArea = styled.textarea`
-    background-color: var(--color-white);
-    color: var(--color-dark);
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    resize: none;
-    &:focus {
-        border: 1px solid var(--color-success);
-        box-shadow: var(--color-success) 0px 1px 4px, var(--color-success) 0px 0px 0px 3px;
-    }
-`
-// Chi tiết
-const ChiTietHinhAnh = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    margin: auto;
-`
-const ImageWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    &img {
-        margin: 0px 20px;
-    }
-`
 const ChiTietWrapper = styled.div`
     width: 70%;
     height: auto;
@@ -468,7 +427,7 @@ const Modal = ({ showModal, setShowModal, type, partyService, setReRenderData, h
                                     <div className="col-lg-12">
                                         <ModalFormItem style={{ margin: "0 10px" }}>
                                             <FormSpan>Giá tiền:</FormSpan>
-                                            <FormInput type="text" value={partyServiceModal ? partyServiceModal.party_service_price : null} readOnly />
+                                            <FormInput type="text" value={partyServiceModal ? format_money(partyServiceModal.party_service_price) + "đ" : null} readOnly />
                                         </ModalFormItem>
                                     </div>
                                 </div>

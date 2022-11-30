@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import app from "../../firebase";
-
+import { format_money } from '../../utils/utils';
 // SERVICES
 import * as DeviceDetailService from "../../service/DeviceDetailService";
 import * as DeviceService from "../../service/DeviceService";
@@ -287,7 +287,6 @@ const LeftVoteTitle = styled.span`
     color: var(--color-dark);
 `
 const LeftVoteItemRating = styled.div`
-    /* position: relative; */
     margin: auto;
     display: flex;
     justify-content: center;
@@ -501,10 +500,6 @@ const FormChucNang = styled.div`
     width: 100%;
     display: flex;
     flex-direction: row;
-    /* position: absolute;
-    left: 50%;
-    bottom: 50%; */
-    /* transform: translateX(-50%); */
     text-align: center;
     justify-content: space-around;
 `
@@ -618,9 +613,6 @@ const DeviceIconContainer = styled.div`
 const DeviceDetailContainer = styled.div`
     border-radius: 5px;
     padding: 12px;
-    /* position: absolute;
-    bottom: calc(100% + 20px);
-    right: -100px; */
     position: fixed;
     bottom: 400px;
     left: 650px;
@@ -634,7 +626,6 @@ const DeviceDetailContainer = styled.div`
     cursor: default;
     z-index: 10;
     display: none;
-    /* opacity: 0; */
     &::after {
         content: "";
         position: absolute;
@@ -663,7 +654,6 @@ const DeviceItem = styled.div`
     &:hover {
         background-color: #f5f5f5;
         ${DeviceDetailContainer} {
-            /* opacity: 1; */
             display: block;
         }
         &::after {
@@ -1489,7 +1479,7 @@ const Modal = ({ showModal, setShowModal, type, room, roomAddEmployee, setReRend
                                                             <Course>
                                                                 <Content>
                                                                     <span style={{ width: "320px", fontWeight: "bold" }}> {roomModalAddEmployee ? roomModalAddEmployee.room_name : null} </span>
-                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomModalAddEmployee ? roomModalAddEmployee.room_price : null} VNĐ</span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomModalAddEmployee ? format_money(roomModalAddEmployee.room_price) : null} VNĐ</span>
                                                                 </Content>
                                                                 <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{roomModalAddEmployee ? roomModalAddEmployee.room_type_name : null}</span></span>
                                                             </Course>
@@ -1572,7 +1562,7 @@ const Modal = ({ showModal, setShowModal, type, room, roomAddEmployee, setReRend
                                                                     <Course>
                                                                         <Content>
                                                                             <span style={{ width: "320px", fontWeight: "bold" }}> {roomModalAddEmployee ? roomModalAddEmployee.room_name : null} </span>
-                                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomModalAddEmployee ? roomModalAddEmployee.room_price : null} VNĐ</span>
+                                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomModalAddEmployee ? format_money(roomModalAddEmployee.room_price) : null} VNĐ</span>
                                                                         </Content>
                                                                         <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{roomModalAddEmployee ? roomModalAddEmployee.room_type_name : null}</span></span>
                                                                     </Course>
@@ -1788,7 +1778,7 @@ const Modal = ({ showModal, setShowModal, type, room, roomAddEmployee, setReRend
                                                             <Course>
                                                                 <Content>
                                                                     <span style={{ width: "320px", fontWeight: "bold" }}> {roomModalAddDevice ? roomModalAddDevice.room_name : null} </span>
-                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomModalAddDevice ? roomModalAddDevice.room_price : null} VNĐ</span>
+                                                                    <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomModalAddDevice ? format_money(roomModalAddDevice.room_price) : null} VNĐ</span>
                                                                 </Content>
                                                                 <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{roomModalAddDevice ? roomModalAddDevice.room_type_name : null}</span></span>
                                                             </Course>
@@ -1872,7 +1862,7 @@ const Modal = ({ showModal, setShowModal, type, room, roomAddEmployee, setReRend
                                                                     <Course>
                                                                         <Content>
                                                                             <span style={{ width: "320px", fontWeight: "bold" }}> {roomModalAddDevice ? roomModalAddDevice.room_name : null} </span>
-                                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomModalAddDevice ? roomModalAddDevice.room_price : null} VNĐ</span>
+                                                                            <span style={{ fontWeight: "400", color: "var(--color-primary)", width: "145px", textAlign: "right" }}>{roomModalAddDevice ? format_money(roomModalAddDevice.room_price) : null} VNĐ</span>
                                                                         </Content>
                                                                         <span style={{ fontWeight: "400" }}><span style={{ color: "var(--color-primary)" }}>{roomModalAddDevice ? roomModalAddDevice.room_type_name : null}</span></span>
                                                                     </Course>
@@ -2133,7 +2123,7 @@ const Modal = ({ showModal, setShowModal, type, room, roomAddEmployee, setReRend
                                     <div className="col-lg-4">
                                         <ModalFormItem>
                                             <FormSpan>Giá Phòng:</FormSpan>
-                                            <FormInput type="text" value={roomModal ? roomModal.room_price : null} readOnly />
+                                            <FormInput type="text" value={roomModal ? format_money(roomModal.room_price) + " VNĐ" : null} readOnly />
                                         </ModalFormItem>
                                     </div>
                                 </div>

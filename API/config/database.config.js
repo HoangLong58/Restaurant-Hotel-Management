@@ -12,8 +12,8 @@ const con = mysql.createConnection({
     database: process.env.DATABASE,
     dateStrings: true
 });
-  
-con.connect(function(err) {
+
+con.connect(function (err) {
     if (err) throw err;
     console.log("Connected!");
 });

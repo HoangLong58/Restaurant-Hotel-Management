@@ -5,31 +5,11 @@ import styled from 'styled-components';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 
-import picture1 from '../../img/food1.jpg';
-import picture2 from '../../img/food2.jpg';
-import picture3 from '../../img/food3.jpg';
-import picture4 from '../../img/food4.jpg';
-
-import menu1 from '../../img/menu1.jpg';
-import menu2 from '../../img/menu2.jpg';
-import menu3 from '../../img/menu3.jpg';
-import menu4 from '../../img/menu4.jpg';
-import menu5 from '../../img/menu5.jpg';
-import menu6 from '../../img/menu6.jpg';
-import menu7 from '../../img/menu7.jpg';
-import menu8 from '../../img/menu8.jpg';
-
-import view3 from '../../img/hoboi1.jpg';
-import view5 from '../../img/lavender1.jpg';
-import view2 from '../../img/lobby1.jpg';
-import view4 from '../../img/santhuong1.jpg';
-import view1 from '../../img/sanvuon1.jpg';
-
 // SERVICES
+import { Link } from 'react-router-dom';
 import * as FoodTypeService from "../../service/FoodTypeService";
 import * as PartyHallService from "../../service/PartyHallService";
 import * as SetMenuService from "../../service/SetMenuService";
-import { Link } from 'react-router-dom';
 import { format_money } from '../../utils/utils';
 
 const Info = styled.div`

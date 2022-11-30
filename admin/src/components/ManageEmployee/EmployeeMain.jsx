@@ -1,13 +1,13 @@
 import { AccessibilityOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined, PersonOffOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
+import ReactPaginate from "react-paginate";
 import styled from "styled-components";
 import Toast from "../Toast";
 import Modal from "./Modal";
-import ReactPaginate from "react-paginate";
 
 // SERVICES
-import * as EmployeeService from "../../service/EmployeeService";
 import { useSelector } from "react-redux";
+import * as EmployeeService from "../../service/EmployeeService";
 
 const Container = styled.div`
     margin-top: 1.4rem;

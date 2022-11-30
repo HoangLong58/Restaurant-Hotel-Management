@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 // Date picker
 import { ArrowRightAltOutlined, CheckCircleRounded } from '@mui/icons-material';
-
-
 import { Link, useNavigate } from 'react-router-dom';
 import HotelProgress from './HotelProgress';
 
@@ -62,7 +60,6 @@ const Button = styled.button`
         transition: transform 0.25s;
     }
 `
-
 
 const Success = (props) => {
     // Truyền data Từ trang chi tiết vào

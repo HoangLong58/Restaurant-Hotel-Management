@@ -5,11 +5,6 @@ import styled from 'styled-components';
 // Multi carousel
 import 'react-multi-carousel/lib/styles.css';
 
-import picture1 from '../../img/food1.jpg';
-import picture2 from '../../img/food2.jpg';
-import picture3 from '../../img/food3.jpg';
-import picture4 from '../../img/food4.jpg';
-
 // Date picker
 import { useNavigate } from 'react-router-dom';
 
@@ -21,11 +16,11 @@ import Modal from "./Modal";
 
 import ReactPaginate from "react-paginate";
 // SERVICES
-import * as FoodTypeService from "../../service/FoodTypeService";
+import { addFood, updateFood } from '../../redux/foodCartRedux';
 import * as FoodService from "../../service/FoodService";
+import * as FoodTypeService from "../../service/FoodTypeService";
 import { format_money } from '../../utils/utils';
 import Toast from '../Toast';
-import { addFood, updateFood } from '../../redux/foodCartRedux';
 
 const Info = styled.div`
     opacity: 0;

@@ -5,8 +5,9 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as PositionService from "../../service/PositionService";
 import ReactPaginate from "react-paginate";
+import * as PositionService from "../../service/PositionService";
+import { format_money } from '../../utils/utils';
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -259,12 +260,6 @@ const ButtonDelete = styled.button`
     cursor: pointer;
 `
 
-const ImgDanhMuc = styled.img`
-    width: auto;
-    height: 100%;
-    object-fit: contain;
-`
-
 // Empty item
 const EmptyItem = styled.div`
     display: flex;
@@ -391,8 +386,8 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
                     <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{pageNumber * positionPerPage + (key + 1)}</Td>
                     <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_id}</Td>
                     <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_name}</Td>
-                    <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_salary}</Td>
-                    <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_bonus_salary}</Td>
+                    <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{format_money(position.position_salary)} VNĐ</Td>
+                    <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{format_money(position.position_bonus_salary)} VNĐ</Td>
                     <Td className="warning">
                         <ButtonFix
                             onClick={() => openModal({ type: "updatePosition", position: position })}
@@ -498,8 +493,8 @@ const PositionMain = ({ reRenderData, setReRenderData }) => {
                                                 <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{key + 1}</Td>
                                                 <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_id}</Td>
                                                 <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_name}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_salary}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{position.position_bonus_salary}</Td>
+                                                <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{format_money(position.position_salary)} VNĐ</Td>
+                                                <Td onClick={() => openModal({ type: "detailPosition", position: position })}>{format_money(position.position_bonus_salary)} VNĐ</Td>
                                                 <Td className="warning">
                                                     <ButtonFix
                                                         onClick={() => openModal({ type: "updatePosition", position: position })}

@@ -1,5 +1,5 @@
-import { AXIOS_API_URL } from "../constants/Axios";
 import axios from 'axios';
+import { AXIOS_API_URL } from "../constants/Axios";
 import authToken from "../utils/authToken";
 
 const url_Payment = `${AXIOS_API_URL}/api/user/payment`;

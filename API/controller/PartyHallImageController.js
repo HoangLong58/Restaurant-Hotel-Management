@@ -23,8 +23,8 @@ module.exports = {
             });
         }
     },
-     // Admin: Quản lý Sảnh tiệc - Nhà hàng
-     getPartyHallImageByPartyHallId: async (req, res) => {
+    // Admin: Quản lý Sảnh tiệc - Nhà hàng
+    getPartyHallImageByPartyHallId: async (req, res) => {
         const partyHallId = req.params.partyHallId;
         try {
             const result = await getPartyHallImagesByPartyHallId(partyHallId);

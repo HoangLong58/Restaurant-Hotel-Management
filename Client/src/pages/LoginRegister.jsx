@@ -1,10 +1,10 @@
 import { CloseOutlined, VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
-import styled from 'styled-components';
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login, register } from "../redux/callsAPI";
-import pool from "../img/pool.jpeg";
+import styled from 'styled-components';
 import Modal from '../components/LoginRegister/Modal';
+import pool from "../img/pool.jpeg";
+import { login, register } from "../redux/callsAPI";
 
 const SignIn = styled.div`
     width: 95%;

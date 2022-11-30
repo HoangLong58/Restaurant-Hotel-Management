@@ -133,13 +133,13 @@ module.exports = {
     },
     login: (req, res) => {
         const body = req.body;
-        if(!body.email) {
+        if (!body.email) {
             return res.status(400).json({
                 status: "fail",
                 message: "Email không hợp lệ"
             });
         }
-        if(!body.password) {
+        if (!body.password) {
             return res.status(400).json({
                 status: "fail",
                 message: "Mật khẩu không hợp lệ"
@@ -587,7 +587,7 @@ module.exports = {
             }
             // Check customer state now
             let customerStateDb = customerRes.customer_state;
-            if(customerStateDb === "DISABLE") {
+            if (customerStateDb === "DISABLE") {
                 return res.status(400).json({
                     status: "fail",
                     message: "Khách hàng đang bị vô hiệu hóa!"
@@ -643,12 +643,12 @@ module.exports = {
             }
             let customerStateDb;
             // Check customer state now: Có birth day thì sẽ là tài khoản đã cập nhật, chưa có thì mới khởi tạo
-            if(customerRes.customer_gender !== "") {
+            if (customerRes.customer_gender !== "") {
                 customerStateDb = "ACTIVE";
-            }else{ 
+            } else {
                 customerStateDb = "INIT";
             }
-            if(customerRes.customer_state !== "DISABLE") {
+            if (customerRes.customer_state !== "DISABLE") {
                 return res.status(400).json({
                     status: "fail",
                     message: "Khách hàng chưa bị vô hiệu hóa!"

@@ -29,14 +29,14 @@ module.exports = {
                         message: "Cann't find party booking detail food by party booking order id!"
                     });
                 }
-    
+
                 // Success
                 return res.status(200).json({
                     status: "success",
                     message: "Lấy những Món ăn của Tiệc thành công!",
                     data: partyBookingOrderDetailFoodRes
                 });
-    
+
             } catch (err) {
                 console.log("#EE", err)
                 return res.status(400).json({

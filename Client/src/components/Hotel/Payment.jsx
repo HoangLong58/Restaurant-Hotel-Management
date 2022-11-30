@@ -9,24 +9,23 @@ import momoImage from '../../img/momo.jpg';
 import stripeImage from '../../img/stripe.png';
 import cardImage from '../../img/thenganhang.png';
 
-import { Link, useNavigate } from 'react-router-dom';
-import HotelProgress from './HotelProgress';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { format_money, getQuantityFromDayToDay, traceCurrency } from '../../utils/utils';
+import HotelProgress from './HotelProgress';
 
-import axios from 'axios';
 import StripeCheckout from 'react-stripe-checkout';
 
 import logo from '../../img/logos/logo.png';
 
 // Service
 import { REACT_APP_STRIPE } from "../../constants/Var";
-import * as PaymentService from "../../service/PaymentService";
-import * as DiscountService from "../../service/DiscountService";
-import * as RoomService from "../../service/RoomService";
-import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
-import Toast from '../Toast';
 import { addDiscount, addRoomTotal, logoutRoomBooking } from '../../redux/roomBookingRedux';
+import * as DiscountService from "../../service/DiscountService";
+import * as PaymentService from "../../service/PaymentService";
+import * as RoomBookingOrderService from "../../service/RoomBookingOrderService";
+import * as RoomService from "../../service/RoomService";
+import Toast from '../Toast';
 
 // Button
 const Button = styled.div``

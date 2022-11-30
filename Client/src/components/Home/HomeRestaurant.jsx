@@ -1,8 +1,8 @@
 import React from 'react';
 import Fade from 'react-reveal/Fade';
+import { Link } from 'react-router-dom';
 import pictureRestaurant1 from '../../img/rest-1.jpg';
 import pictureRestaurant2 from '../../img/rest-2.jpg';
-import { Link } from 'react-router-dom';
 
 const HomeRestaurant = () => {
 	return (

@@ -68,22 +68,6 @@ const NavbarTopRightA = styled.a`
     font-weight: 400;
 `
 
-const NavbarTopRightLanguage = styled.div`
-
-`
-
-const NavbarTopRightLanguageUl = styled.ul`
-
-`
-
-const NavbarTopRightLanguageLi = styled.li`
-
-`
-
-const NavbarTopRightLanguageLiA = styled.a`
-
-`
-
 // Navbar Bottom
 const NavbarBottom = styled.div`
 `
@@ -234,42 +218,6 @@ const NavbarUserItemLi = styled.li`
         background-color: var(--color-primary);
     }
 `
-
-const ItemInfo = styled.div`
-    width: 100%;
-    margin-right: 12px;
-`;
-const ItemHead = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-`;
-const ItemName = styled.h5`
-    font-size: 1.1rem;
-    line-height: 1.2rem;
-    max-height: 2.4rem;
-    overflow: hidden;
-    font-weight: 500;
-    color: black;
-    margin: 0;
-    flex: 1;
-    padding-right: 16px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    text-align: left;
-`;
-
-const ItemBody = styled.div`
-    display: flex;
-    justify-content: space-between;
-`;
-const ItemDescription = styled.span`
-    color: #757575;
-    font-size: 1.1rem;
-    font-weight: 300;
-`;
-
 
 const Navbar = (props) => {
     const navigate = useNavigate();
@@ -452,7 +400,7 @@ const Navbar = (props) => {
 
                         <NavbarBottomItem>
                             <NavbarBottomItemA onClick={() => navigate("/hotel")}>
-                                    <span>Đặt phòng ngay</span>
+                                <span>Đặt phòng ngay</span>
                             </NavbarBottomItemA>
                         </NavbarBottomItem>
                     </NavbarBottomUl>

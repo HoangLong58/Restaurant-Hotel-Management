@@ -159,13 +159,6 @@ const ButtonClick = styled.button`
     }
 `
 
-const FormImg = styled.img`
-    margin: auto;
-    width: 50%;
-    object-fit: cover;
-    height: 200px;
-`
-
 const ChiTietWrapper = styled.div`
     width: 70%;
     height: auto;

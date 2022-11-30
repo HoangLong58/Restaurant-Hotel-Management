@@ -1,12 +1,12 @@
-import { DeleteSweepOutlined, DriveFileRenameOutlineOutlined, KeyboardArrowUpOutlined } from "@mui/icons-material";
+import { KeyboardArrowUpOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as AdminLogService from "../../service/AdminLogService";
 import ReactPaginate from "react-paginate";
+import * as AdminLogService from "../../service/AdminLogService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -231,32 +231,6 @@ const CloseSpan = styled.span`
         transition: all .6s cubic-bezier(0.000, 0.105, 0.035, 1.570);
         transition-delay: 0.5s;
     }
-`
-
-const ButtonFix = styled.button`
-    width: 40px;
-    height: 30px;
-    border: 2px solid var(--color-warning);
-    border-radius: var(--border-radius-2);
-    color: var(--color-warnning);
-    background: var(--color-white);
-    padding:0px;
-    outline:none;
-    z-index: 2;
-    cursor: pointer;
-`
-
-const ButtonDelete = styled.button`
-    width: 40px;
-    height: 30px;
-    border: 2px solid var(--color-danger);
-    border-radius: var(--border-radius-2);
-    color: var(--color-danger);
-    background: var(--color-white);
-    padding:0px;
-    outline:none;
-    z-index: 2;
-    cursor: pointer;
 `
 
 const ImgDanhMuc = styled.img`

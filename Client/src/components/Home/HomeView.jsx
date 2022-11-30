@@ -1,8 +1,8 @@
 import React from 'react';
 import Fade from 'react-reveal/Fade';
+import { Link } from 'react-router-dom';
 import pictureRoom1 from '../../img/room1.jpg';
 import pictureRoom2 from '../../img/room2.jpg';
-import { Link } from 'react-router-dom';
 
 const HomeView = () => {
     return (

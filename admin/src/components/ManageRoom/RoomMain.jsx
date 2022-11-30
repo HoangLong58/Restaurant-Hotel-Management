@@ -1,4 +1,4 @@
-import { AddToQueueOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, PersonAddOutlined, PostAddOutlined } from "@mui/icons-material";
+import { AddToQueueOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, PersonAddOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import ReactPaginate from "react-paginate";
 import styled from "styled-components";
@@ -6,8 +6,9 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as RoomService from "../../service/RoomService";
 import { useSelector } from "react-redux";
+import * as RoomService from "../../service/RoomService";
+import { format_money } from '../../utils/utils';
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -121,11 +122,6 @@ const Input = styled.input`
     }
 `
 
-const Label = styled.label`
-
-`
-
-
 const Button = styled.button`
     width: 50px;
     height: 50px;
@@ -192,7 +188,6 @@ const Span = styled.span`
     }
 
 `
-
 
 const CloseSpan = styled.span`
     position: absolute;
@@ -593,7 +588,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                     </Td>
                     <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_view}</Td>
                     <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.floor_name}</Td>
-                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_price}</Td>
+                    <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{format_money(room.room_price)}đ</Td>
                     <Td
                         onClick={() => openModal({ type: "detailRoom", room: room })}
                         style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>
@@ -734,7 +729,7 @@ const RoomMain = ({ reRenderData, setReRenderData }) => {
                                                 </Td>
                                                 <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_view}</Td>
                                                 <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.floor_name}</Td>
-                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{room.room_price}</Td>
+                                                <Td onClick={() => openModal({ type: "detailRoom", room: room })}>{format_money(room.room_price)}đ</Td>
                                                 <Td
                                                     onClick={() => openModal({ type: "detailRoom", room: room })}
                                                     style={{ backgroundColor: room.room_state === 0 ? "var(--color-info)" : room.room_state === 1 ? "var(--color-danger)" : null }}>

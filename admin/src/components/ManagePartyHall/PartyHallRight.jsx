@@ -6,8 +6,8 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as PartyHallService from "../../service/PartyHallService";
 import { useSelector } from "react-redux";
+import * as PartyHallService from "../../service/PartyHallService";
 
 const Container = styled.div`
 margin-top: 1.4rem;

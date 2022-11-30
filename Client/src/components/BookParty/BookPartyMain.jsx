@@ -237,20 +237,6 @@ const MessageImageContainer = styled.div`
   border-top-right-radius: 7px;
 `
 
-const Info = styled.div`
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-color: rgba(0,0,0,0.2);
-    z-index: 3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.5s ease;
-`
 const InfoDark = styled.div`
     opacity: 0;
     width: 100%;
@@ -289,15 +275,6 @@ const SpanDark = styled.span`
     letter-spacing: 2px;
 `
 
-const MealName = styled.h6`
-    position: absolute;
-`
-const MealDetail = styled.p`
-    position: absolute;
-`
-const MealPrice = styled.h5`
-    position: absolute;
-`
 // Menu slider
 const MenuItem = styled.div`
     background-color: #fff;
@@ -771,14 +748,6 @@ const MoreImage = styled.div`
     width: 100%;
 `
 
-// Số bàn
-const BookingButton = styled.div``
-const BookingButtonA = styled.div`
-    cursor: pointer;
-    margin-top: 5px;
-    height: 40px;
-`
-
 const BookingRestaurantQuantity = styled.div`
     display: flex;
     align-items: center;
@@ -1015,10 +984,6 @@ const ProductAmount = styled.div`
     margin: 5px;
 `
 
-const ProductPrice = styled.div`
-    font-size: 30px;
-    font-weight: 200;
-`
 const BookPartyMain = () => {
     const customer = useSelector((state) => state.customer.currentCustomer);
     const partyBooking = useSelector((state) => state.partyBooking);

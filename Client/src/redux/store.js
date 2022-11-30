@@ -1,19 +1,14 @@
-import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import foodCartReducer from "./foodCartRedux";
-import customerReducer from "./customerRedux";
-import roomBookingReducer from "./roomBookingRedux";
-import partyBookingReducer from "./partyBookingRedux";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import {
-  persistStore,
-  persistReducer,
-  FLUSH,
-  REHYDRATE,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
-} from 'redux-persist'
-import storage from 'redux-persist/lib/storage'
+  FLUSH, PAUSE,
+  PERSIST, persistReducer, persistStore, PURGE,
+  REGISTER, REHYDRATE
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import customerReducer from "./customerRedux";
+import foodCartReducer from "./foodCartRedux";
+import partyBookingReducer from "./partyBookingRedux";
+import roomBookingReducer from "./roomBookingRedux";
 
 const persistConfig = {
   key: 'root',

@@ -177,11 +177,6 @@ const FormImg = styled.img`
     height: 200px;
 `
 
-const ModalChiTietItem = styled.div`
-margin: 2px 30px;
-display: flex;
-flex-direction: column;
-`
 const FormSelect = styled.select`
     background-color: var(--color-white);
     color: var(--color-dark);
@@ -224,13 +219,6 @@ const ChiTietHinhAnh = styled.img`
     height: 100%;
     object-fit: cover;
     margin: auto;
-`
-const ImageWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    &img {
-        margin: 0px 20px;
-    }
 `
 const ChiTietWrapper = styled.div`
     width: 70%;

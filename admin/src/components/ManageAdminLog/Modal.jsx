@@ -1,8 +1,6 @@
 import { CloseOutlined } from "@mui/icons-material";
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import app from "../../firebase";
 
 // SERVICES
 import * as AdminLogService from "../../service/AdminLogService";
@@ -64,14 +62,6 @@ const CloseModalButton = styled.span`
     height: 32px;
     padding: 0;
     z-index: 10;
-`
-
-const Button = styled.div`
-    margin-top: 30px;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    flex-direction: row;
 `
 
 const H1 = styled.h1`

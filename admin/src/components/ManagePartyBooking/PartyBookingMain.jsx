@@ -1,4 +1,4 @@
-import { AssignmentOutlined, AssignmentTurnedInOutlined, DeleteSweepOutlined, DriveFileRenameOutlineOutlined, PostAddOutlined } from "@mui/icons-material";
+import { AssignmentOutlined, AssignmentTurnedInOutlined, PostAddOutlined } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
 import ReactPaginate from "react-paginate";
 import styled from "styled-components";
@@ -6,8 +6,9 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as PartyBookingOrderService from "../../service/PartyBookingOrderService";
 import { useSelector } from "react-redux";
+import * as PartyBookingOrderService from "../../service/PartyBookingOrderService";
+import { format_money } from "../../utils/utils";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -121,11 +122,6 @@ const Input = styled.input`
     }
 `
 
-const Label = styled.label`
-
-`
-
-
 const Button = styled.button`
     width: 50px;
     height: 50px;
@@ -233,19 +229,6 @@ const CloseSpan = styled.span`
     }
 `
 
-const ButtonFix = styled.button`
-    width: 40px;
-    height: 30px;
-    border: 2px solid var(--color-warning);
-    border-radius: var(--border-radius-2);
-    color: var(--color-warnning);
-    background: var(--color-white);
-    padding:0px;
-    outline:none;
-    z-index: 2;
-    cursor: pointer;
-`
-
 const ButtonInfo = styled.button`
     width: 40px;
     height: 30px;
@@ -270,12 +253,6 @@ padding:0px;
 outline:none;
 z-index: 2;
 cursor: pointer;
-`
-
-const ImgDanhMuc = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
 `
 
 // Empty item
@@ -571,7 +548,7 @@ const PartyBookingMain = ({ reRenderData, setReRenderData }) => {
                     <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{partyBookingOrder.party_hall_detail_name}</Td>
                     <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{partyBookingOrder.party_booking_order_start_date ? partyBookingOrder.party_booking_order_start_date : "Chưa check in"}</Td>
                     <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{partyBookingOrder.party_booking_order_finish_date ? partyBookingOrder.party_booking_order_finish_date : "Chưa check out"}</Td>
-                    <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{partyBookingOrder.party_booking_order_total}</Td>
+                    <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                     <Td
                         onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}
                         style={{ backgroundColor: partyBookingOrder.party_booking_order_state === 0 ? "var(--color-info)" : partyBookingOrder.party_booking_order_state === 1 ? "var(--color-success)" : partyBookingOrder.party_booking_order_state === 2 ? "var(--color-danger)" : null }}>
@@ -698,7 +675,7 @@ const PartyBookingMain = ({ reRenderData, setReRenderData }) => {
                                                 <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{partyBookingOrder.party_hall_detail_name}</Td>
                                                 <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{partyBookingOrder.party_booking_order_start_date ? partyBookingOrder.party_booking_order_start_date : "Chưa check in"}</Td>
                                                 <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{partyBookingOrder.party_booking_order_finish_date ? partyBookingOrder.party_booking_order_finish_date : "Chưa check out"}</Td>
-                                                <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{partyBookingOrder.party_booking_order_total}</Td>
+                                                <Td onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}>{format_money(partyBookingOrder.party_booking_order_total)}đ</Td>
                                                 <Td
                                                     onClick={() => openModal({ type: "detailPartyBookingOrder", partyBookingOrder: partyBookingOrder })}
                                                     style={{ backgroundColor: partyBookingOrder.party_booking_order_state === 0 ? "var(--color-info)" : partyBookingOrder.party_booking_order_state === 1 ? "var(--color-success)" : partyBookingOrder.party_booking_order_state === 2 ? "var(--color-danger)" : null }}>

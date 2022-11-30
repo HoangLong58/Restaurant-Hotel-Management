@@ -1,6 +1,7 @@
+import { DataTableCell, Table, TableBody, TableCell, TableHeader } from '@david.kucsai/react-pdf-table';
+import { Document, Font, Image, Page, StyleSheet, Text } from '@react-pdf/renderer';
 import React from 'react';
-import { Page, Text, Image, Document, StyleSheet, Font } from '@react-pdf/renderer';
-import { Table, TableHeader, TableCell, TableBody, DataTableCell } from '@david.kucsai/react-pdf-table';
+import { format_money } from '../../utils/utils';
 
 // Register Font
 Font.register({
@@ -120,10 +121,10 @@ const PDFFileCityByQuarter = (props) => {
                     </TableHeader>
                     <TableBody>
                         <DataTableCell getContent={(r) => r.city_name} />
-                        <DataTableCell getContent={(r) => r.monthFirst} />
-                        <DataTableCell getContent={(r) => r.monthSecond} />
-                        <DataTableCell getContent={(r) => r.monthThird} />
-                        <DataTableCell getContent={(r) => r.canam} />
+                        <DataTableCell getContent={(r) => format_money(r.monthFirst) + "đ"} />
+                        <DataTableCell getContent={(r) => format_money(r.monthSecond) + "đ"} />
+                        <DataTableCell getContent={(r) => format_money(r.monthThird) + "đ"} />
+                        <DataTableCell getContent={(r) => format_money(r.canam) + "đ"} />
                     </TableBody>
                 </Table>
                 <Image style={styles.image} src={props.image} />
@@ -169,7 +170,7 @@ const PDFFileCityByQuarter = (props) => {
                         <DataTableCell getContent={(r) => r.party_booking_order_finish_date} />
                         <DataTableCell getContent={(r) => r.party_booking_type_name} />
                         <DataTableCell getContent={(r) => r.party_hall_name + ', ' + r.floor_name} />
-                        <DataTableCell getContent={(r) => r.party_booking_order_total} />
+                        <DataTableCell getContent={(r) => format_money(r.party_booking_order_total) + "đ"} />
                     </TableBody>
                 </Table>
                 <Text

@@ -5,8 +5,8 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as PartyHallTypeService from "../../service/PartyHallTypeService";
 import ReactPaginate from "react-paginate";
+import * as PartyHallTypeService from "../../service/PartyHallTypeService";
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -257,12 +257,6 @@ const ButtonDelete = styled.button`
     outline:none;
     z-index: 2;
     cursor: pointer;
-`
-
-const ImgDanhMuc = styled.img`
-    width: auto;
-    height: 100%;
-    object-fit: contain;
 `
 
 // Empty item

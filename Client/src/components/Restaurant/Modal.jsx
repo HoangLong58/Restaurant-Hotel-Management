@@ -1,8 +1,7 @@
-import { ArrowDropDownOutlined, CloseOutlined, SearchOutlined } from "@mui/icons-material";
+import { CloseOutlined } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactPlayer from 'react-player';
 import styled from "styled-components";
-import SliderImage from "./SliderImage";
 
 const Background = styled.div`
     width: 100%;

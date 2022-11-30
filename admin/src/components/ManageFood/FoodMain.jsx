@@ -6,8 +6,9 @@ import Toast from "../Toast";
 import Modal from "./Modal";
 
 // SERVICES
-import * as FoodService from "../../service/FoodService";
 import { useSelector } from "react-redux";
+import * as FoodService from "../../service/FoodService";
+import { format_money } from '../../utils/utils';
 
 const Container = styled.div`
     margin-top: 1.4rem;
@@ -498,7 +499,7 @@ const FoodMain = ({ reRenderData, setReRenderData }) => {
                     <Td onClick={() => openModal({ type: "detailFood", food: food })} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <ImgDanhMuc src={food.food_image} />
                     </Td>
-                    <Td onClick={() => openModal({ type: "detailFood", food: food })}>{food.food_price}</Td>
+                    <Td onClick={() => openModal({ type: "detailFood", food: food })}>{format_money(food.food_price)}đ</Td>
                     <Td onClick={() => openModal({ type: "detailFood", food: food })} style={{ backgroundColor: food.food_type_state === 0 ? "var(--color-info)" : food.food_type_state === 1 ? "var(--color-success)" : null }}>
                         {food.food_type_state === 0 ? "Đang hoạt động" : food.food_type_state === 1 ? "Ngưng hoạt động" : null}
                     </Td>
@@ -616,7 +617,7 @@ const FoodMain = ({ reRenderData, setReRenderData }) => {
                                                 <Td onClick={() => openModal({ type: "detailFood", food: food })} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                     <ImgDanhMuc src={food.food_image} />
                                                 </Td>
-                                                <Td onClick={() => openModal({ type: "detailFood", food: food })}>{food.food_price}</Td>
+                                                <Td onClick={() => openModal({ type: "detailFood", food: food })}>{format_money(food.food_price)}đ</Td>
                                                 <Td onClick={() => openModal({ type: "detailFood", food: food })} style={{ backgroundColor: food.food_type_state === 0 ? "var(--color-info)" : food.food_type_state === 1 ? "var(--color-success)" : null }}>
                                                     {food.food_type_state === 0 ? "Đang hoạt động" : food.food_type_state === 1 ? "Ngưng hoạt động" : null}
                                                 </Td>
