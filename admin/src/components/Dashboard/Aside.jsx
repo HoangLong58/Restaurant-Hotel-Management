@@ -23,8 +23,8 @@ const Logo = styled.div`
 `;
 
 const Img = styled.img`
-    width: 5rem;
-    height: 5rem;
+    width: 4rem;
+    height: 4rem;
 `;
 
 const H2 = styled.h2`
@@ -1570,7 +1570,7 @@ const Aside = (props) => {
         <Container>
             <Top>
                 <Logo onClick={() => navigate("/home")}>
-                    <Img src="https://upload.wikimedia.org/wikipedia/vi/thumb/6/6c/Logo_Dai_hoc_Can_Tho.svg/2048px-Logo_Dai_hoc_Can_Tho.svg.png" />
+                    <Img src="https://i.ibb.co/DkbxyCK/favicon-logo.png" />
                     <H2>Hoàng Long <span style={{ color: "var(--color-dark)" }}>- ADMIN</span></H2>
                 </Logo>
                 <Close>

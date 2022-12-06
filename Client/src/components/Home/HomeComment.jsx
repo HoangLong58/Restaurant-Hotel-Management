@@ -23,24 +23,24 @@ const HomeComment = () => {
 
                                         <div className="quote-sep">
                                             <Fade top cascade>
-                                                <h4>"Chilling out on the bed in your hotel room watching television, while wearing your own pajamas, is sometimes the best part of a vacation."</h4>
-                                                <h6>Jason Salvatore</h6>
+                                                <h4>“Để chạm đến ước mơ, tôi phải là người trải nghiệm bản thân và tự bước đi trên con đường của mình.”</h4>
+                                                <h6>Sơn Tùng - MTP</h6>
                                             </Fade>
                                         </div>
                                     </Carousel.Item>
                                     <Carousel.Item>
                                         <div className="quote-sep">
                                             <Fade top cascade>
-                                                <h4>"Every good day starts off with a cappuccino, and there's no place better to enjoy some frothy caffeine than at the Thalia Hotel."</h4>
-                                                <h6>Terry Mitchell</h6>
+                                                <h4>“Chúng ta sinh ra để thành công, đừng do dự đừng ngần ngại.”</h4>
+                                                <h6>Sơn Tùng - MTP</h6>
                                             </Fade>
                                         </div>
                                     </Carousel.Item>
                                     <Carousel.Item>
                                         <div className="quote-sep">
                                             <Fade top cascade>
-                                                <h4>"I still enjoy traveling a lot. I mean, it amazes me that I still get excited in hotel rooms just to see what kind of shampoo they've left me."</h4>
-                                                <h6>Michael Brighton</h6>
+                                                <h4>“Theo tôi, hạnh phúc là được làm điều mình yêu, thành công là yêu được điều mình làm.”</h4>
+                                                <h6>Sơn Tùng - MTP</h6>
                                             </Fade>
                                         </div>
                                     </Carousel.Item>

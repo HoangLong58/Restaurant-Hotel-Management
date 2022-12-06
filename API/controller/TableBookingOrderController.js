@@ -407,10 +407,14 @@ module.exports = {
                 var dateCheckinRes = new Date(tableBookingOrderRes.table_booking_order_checkin_date);
                 // So sánh ngày
                 var today = new Date();
-                var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate() + 1);
-                var checkInDate = new Date(date);
-                checkInDate.setHours(-17, 0, 0, 0);
+                var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate());
+                var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                var datetime = date + ' ' + time;
+                var checkInDate = new Date(datetime);
+                checkInDate.setTime(checkInDate.getTime() - new Date().getTimezoneOffset() * 60 * 1000);
+                dateCheckinRes.setTime(dateCheckinRes.getTime() - new Date().getTimezoneOffset() * 60 * 1000);
                 // Không cho checkin sớm hơn thời gian muốn nhận bàn table_booking_order_checkin_date
+                console.log("checkInDate < dateCheckinRes: ", checkInDate, dateCheckinRes)
                 if (checkInDate < dateCheckinRes) {
                     return res.status(400).json({
                         status: "fail",

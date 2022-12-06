@@ -2908,7 +2908,7 @@ const BookPartyMain = () => {
                                 <MessageImage src={logo} />
                             </MessageImageContainer>
                             <ModalH2>Chúc mừng bạn đã quay lại!</ModalH2>
-                            <ModalSmall className="text-muted">Số lượng bàn trống có thể đã thay đổi, vui lòng tải lại trang để cập nhật giá mới nhất</ModalSmall>
+                            <ModalSmall className="text-muted">Số lượng sảnh trống có thể đã thay đổi, vui lòng tải lại trang để cập nhật giá mới nhất</ModalSmall>
                             <Link to="/restaurant" style={{ textDecoration: "none" }}>
                                 <ModalButtonContainer>
                                     <ModalButton><ReplayOutlined />   Tải lại trang</ModalButton>

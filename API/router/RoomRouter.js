@@ -12,7 +12,7 @@ router.get("/find-room-when-add-device-by-room-id/:roomId", checkToken, findRoom
 router.get("/get-rooms-and-services", checkToken, getRoomsAndServices);
 router.get("/get-min-max-room-price", checkToken, getMinMaxRoomPrice);
 router.get("/:roomId", checkToken, getRoomByRoomId);
-router.get("/", checkToken, getRoomsWithImageTypeFloor);
+router.get("/", getRoomsWithImageTypeFloor);
 
 router.put("/update-state", checkToken, updateRoomState);
 router.put("/", checkToken, updateRoom); //
